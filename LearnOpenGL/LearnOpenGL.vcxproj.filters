@@ -34,16 +34,25 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="3.3.shader.fs">
+    <None Include="cubeShader.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="3.3.shader.vs">
+    <None Include="cubeShader.vs">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="xyzShader.fs">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="xyzShader.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="floorShader.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="floorShader.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="projectionShader.vs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

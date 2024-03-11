@@ -5,7 +5,7 @@ out vec4 FragColor;
 
 uniform sampler2D texture0;
 uniform sampler2D texture1;
-uniform float mixAmount = 0.25;
+uniform float mixAmount = 0.25f;
 vec2 TexCoord2 = TexCoord;
 
 void main()

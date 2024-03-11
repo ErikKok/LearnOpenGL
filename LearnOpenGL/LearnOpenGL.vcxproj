@@ -102,8 +102,11 @@
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="3.3.shader.fs" />
-    <None Include="3.3.shader.vs" />
+    <None Include="cubeShader.fs" />
+    <None Include="cubeShader.vs" />
+    <None Include="floorShader.fs" />
+    <None Include="floorShader.vs" />
+    <None Include="projectionShader.vs" />
     <None Include="xyzShader.fs" />
     <None Include="xyzShader.vs" />
   </ItemGroup>
