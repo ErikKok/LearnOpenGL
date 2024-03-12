@@ -1,6 +1,7 @@
 #pragma once
 #include "Camera.h"
 #include "Shader.h"
+#include "Texture.h"
 // External header warning level: 0
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -13,22 +14,27 @@
 #include <array>
 #include <iostream>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+namespace Global {
+    // camera
+    Camera camera(glm::vec3(0.0f, 0.15f, 3.0f));
+    const int windowWidth{ 1920 };
+    const int windowHeight{ 1080 };
+    const float aspectRatio{ static_cast<float>(windowWidth) / static_cast<float>(windowHeight) };
+
+    bool windowsHasMouseFocus{ false };
+
+    // timing
+    float deltaTime{ 0.0f };	// time between current frame and last frame
+    float lastFrame{ 0.0f };
+}
+
 void processInput(GLFWwindow* window);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void cursor_enter_callback(GLFWwindow* window, int entered);
+void mouse_callback(GLFWwindow* window, double currentXPosIn, double currentYPosIn);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
-// camera
-Camera camera(glm::vec3(0.0f, 0.15f, 3.0f));
-float lastX = 1600 / 2.0f;
-float lastY = 1200 / 2.0f;
-bool firstMouse = true;
-
-// timing
-float deltaTime = 0.0f;	// time between current frame and last frame
-float lastFrame = 0.0f;
 
 int main()
 {
@@ -37,11 +43,8 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    const int windowWidth = 1600;
-    const int windowHeight = 1200;
-
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "LearnOpenGL", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(Global::windowWidth, Global::windowHeight, "LearnOpenGL", nullptr, nullptr);
     if (!window) {
         std::cout << "Failed to create GLFW window" << '\n';
         glfwTerminate();
@@ -49,6 +52,7 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorEnterCallback(window, cursor_enter_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -78,7 +82,7 @@ int main()
     glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboProjectionView, 0, 2 * sizeof(glm::mat4));
 
-    glm::mat4 projection{ glm::perspective(glm::radians(45.0f), static_cast<float>(windowWidth / windowHeight), 0.1f, 100.0f) };
+    glm::mat4 projection{ glm::perspective(glm::radians(Global::camera.getFov()), static_cast<float>(Global::aspectRatio), Global::camera.getNearPlane(), Global::camera.getFarPlane())};
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -160,50 +164,12 @@ int main()
 
     // Cube Texture
 
-    unsigned char* textureData{};
-    int textureWidth{};
-    int textureHeight{};
-    int textureNrChannels{};
-
-    unsigned int texture0{};
-    glGenTextures(1, &texture0);
-    glBindTexture(GL_TEXTURE_2D, texture0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_set_flip_vertically_on_load(true);
-    textureData = stbi_load("container.jpg", &textureWidth, &textureHeight, &textureNrChannels, 0);
-    if (textureData) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
-        std::cout << "Failed to load texture" << '\n';
-    }    
-    stbi_image_free(textureData);
-
-    unsigned int texture1{};
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_set_flip_vertically_on_load(true);
-    textureData = stbi_load("awesomeface.png", &textureWidth, &textureHeight, &textureNrChannels, 0);
-    if (textureData) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
-        std::cout << "Failed to load texture" << '\n';
-    }
-    stbi_image_free(textureData);
+    Texture texture0("Textures\\container.jpg");
+    Texture texture1("Textures\\awesomeface.png", 1);
 
     // Cube Shader
 
-    Shader ourShader("cubeShader.vs", "cubeShader.fs");
+    Shader ourShader("Shaders\\cube.vs", "Shaders\\cube.fs");
     ourShader.use();
     ourShader.setInt("texture0", 0);
     ourShader.setInt("texture1", 1);
@@ -239,7 +205,7 @@ int main()
 
     // XYZ Shader
 
-    Shader xyzShader("xyzShader.vs", "xyzShader.fs");
+    Shader xyzShader("Shaders\\xyz.vs", "Shaders\\xyz.fs");
 
     // Floor
 
@@ -289,25 +255,11 @@ int main()
 
     // Floor Texture
 
-    unsigned int texture2{};
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_set_flip_vertically_on_load(true);
-    textureData = stbi_load("floor.jpg", &textureWidth, &textureHeight, &textureNrChannels, 0);
-    if (!textureData)
-        std::cout << "Failed to load texture" << '\n';
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    stbi_image_free(textureData);
+    Texture texture2("Textures\\floor.jpg");
     
     // Floor Shader
 
-    Shader floorShader("floorShader.vs", "floorShader.fs");
+    Shader floorShader("Shaders\\floor.vs", "Shaders\\floor.fs");
     floorShader.use();
     floorShader.setInt("texture2", 0);
 
@@ -315,18 +267,20 @@ int main()
     {
         // per-frame time logic
         float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        Global::deltaTime = currentFrame - Global::lastFrame;
+        Global::lastFrame = currentFrame;
+        //std::cout << "deltaTime: " << Global::deltaTime * 1000 << "ms" << '\n';
         
         processInput(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        projection = glm::perspective(glm::radians(camera.Zoom), (1200.0f / 900.0f), 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(Global::camera.getFov()), (Global::aspectRatio), Global::camera.getNearPlane(), Global::camera.getFarPlane());
         glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionView);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
-        glm::mat4 view = camera.GetViewMatrix();
+        Global::camera.fakeGravity(Global::deltaTime);
+        glm::mat4 view{ Global::camera.GetViewMatrix() };
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -340,11 +294,9 @@ int main()
         // Cube
 
         ourShader.use();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture0);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-
+        texture0.bindTexture();
+        texture1.bindTexture(1);
+        
         glBindVertexArray(vao0);
         for (unsigned int i = 0; i < 10; i++)
         {
@@ -361,11 +313,12 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         glBindVertexArray(0);
-
+        
         // Floor
+
         floorShader.use();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture2);
+        texture2.bindTexture();
+
         glBindVertexArray(vao2);
         glm::mat4 model{ glm::mat4(1.0f) };
         //model = glm::translate(model, glm::vec3(0.0f, 1.0f, 1.0f));
@@ -397,28 +350,31 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        Global::camera.ProcessKeyboard(CameraMovement::FORWARD, Global::deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        Global::camera.ProcessKeyboard(CameraMovement::BACKWARD, Global::deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        Global::camera.ProcessKeyboard(CameraMovement::LEFT, Global::deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        Global::camera.ProcessKeyboard(CameraMovement::RIGHT, Global::deltaTime);
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.ProcessKeyboard(UP, deltaTime);
+        Global::camera.ProcessKeyboard(CameraMovement::UP, Global::deltaTime);
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        camera.ProcessKeyboard(DOWN, deltaTime);
+        Global::camera.ProcessKeyboard(CameraMovement::DOWN, Global::deltaTime);
 }
 
 #pragma warning( suppress : 4100 )
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-        if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+        if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        else if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
+            Global::windowsHasMouseFocus = false;
+        }
+        else if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
     }
 
     if (key == GLFW_KEY_V && action == GLFW_PRESS)
@@ -432,42 +388,56 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 #pragma warning( suppress : 4100 )
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+void cursor_enter_callback(GLFWwindow* window, int entered)
 {
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
+    if (entered) {
+        // The cursor entered the client area of the window
     }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-    lastX = xpos;
-    lastY = ypos;
-
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    else {
+        // The cursor left the client area of the window
+        Global::windowsHasMouseFocus = false;
+    }
 }
 
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
+#pragma warning( suppress : 4100 )
+void mouse_callback(GLFWwindow* window, double currentXPosIn, double currentYPosIn)
+{
+    float currentXPos{ static_cast<float>(currentXPosIn) };
+    float currentYPos{ static_cast<float>(currentYPosIn) };
+    // last x,y position, initialize with center x,y coordinates
+    static float lastXPos{ Global::windowWidth / 2.0f };
+    static float lastYPos{ Global::windowHeight / 2.0f };
+
+    if (!Global::windowsHasMouseFocus) {
+        lastXPos = currentXPos;
+        lastYPos = currentYPos;
+        Global::windowsHasMouseFocus = true;
+    }
+
+    // Calculate the mouse's offset since the last frame
+    float xoffset{ currentXPos - lastXPos };
+    float yoffset{ lastYPos - currentYPos }; // reversed since y-coordinates go from bottom to top
+
+    lastXPos = currentXPos;
+    lastYPos = currentYPos;
+
+    Global::camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
 #pragma warning( suppress : 4100 )
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+    Global::camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
+
 #pragma warning( suppress : 4100 )
 void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam)
 {
     // ignore non-significant error/warning codes
     if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
-    std::cout << "---------------" << std::endl;
-    std::cout << "Debug message (" << id << "): " << message << std::endl;
+    std::cout << "---------------\n";
+    std::cout << "Debug message (" << id << "): \n";
 
     switch (source)
     {
@@ -477,7 +447,7 @@ void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum 
     case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
     case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
     case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
-    } std::cout << std::endl;
+    } std::cout << '\n';
 
     switch (type)
     {
@@ -490,7 +460,7 @@ void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum 
     case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
     case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
     case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
-    } std::cout << std::endl;
+    } std::cout << '\n';
 
     switch (severity)
     {
@@ -498,6 +468,7 @@ void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum 
     case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: medium"; break;
     case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: low"; break;
     case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
-    } std::cout << std::endl;
-    std::cout << std::endl;
+    } std::cout << '\n';
+
+    std::cout << '\n';
 }

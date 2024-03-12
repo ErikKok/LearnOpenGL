@@ -94,21 +94,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cubeShader.fs" />
-    <None Include="cubeShader.vs" />
-    <None Include="floorShader.fs" />
-    <None Include="floorShader.vs" />
-    <None Include="projectionShader.vs" />
-    <None Include="xyzShader.fs" />
-    <None Include="xyzShader.vs" />
+    <None Include="Shaders\cube.fs" />
+    <None Include="Shaders\cube.vs" />
+    <None Include="Shaders\floor.fs" />
+    <None Include="Shaders\floor.vs" />
+    <None Include="Shaders\xyz.fs" />
+    <None Include="Shaders\xyz.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -24,35 +24,47 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cubeShader.fs">
+    <None Include="Shaders\cube.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="cubeShader.vs">
+    <None Include="Shaders\cube.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="xyzShader.fs">
+    <None Include="Shaders\floor.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="xyzShader.vs">
+    <None Include="Shaders\floor.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="floorShader.fs">
+    <None Include="Shaders\xyz.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="floorShader.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="projectionShader.vs">
+    <None Include="Shaders\xyz.vs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
