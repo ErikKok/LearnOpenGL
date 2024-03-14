@@ -1,7 +1,6 @@
 #pragma once
 #include "VertexArray.h"
 #include "VertexBuffer.h"
-#include "VertexAttribute.h"
 
 #include <glad/glad.h>
 
@@ -31,25 +30,12 @@ void VertexArray::unbindVertexArray() const
 void VertexArray::addVertexAttributeLayout(const VertexBuffer& vb, VertexAttributeLayout& layout)
 {
 	vb.bindVertexBuffer();
-	auto& vertexAttributes{ layout.getVertexAttributes() };
-	vertexAttributes[0].offset = 0;
+	const auto& vertexAttributes{ layout.getVertexAttributes() };
+	uintptr_t totalOffset{0};
 	for (GLuint i{ 0 }; i < vertexAttributes.size(); i++) {
 		const auto& vertexAttribute{ vertexAttributes[i] };
+		glVertexAttribPointer(i, vertexAttribute.m_Count, vertexAttribute.m_Type, vertexAttribute.m_Normalized, layout.getStride(), (const void*)totalOffset);
 		glEnableVertexAttribArray(i);
-		glVertexAttribPointer(i, vertexAttribute.size, vertexAttribute.type, vertexAttribute.normalized, layout.getStride(), (const void*)vertexAttribute.offset);
+		totalOffset += vertexAttribute.m_Offset;
 	}
 }
-
-
-//void VertexArray::addVertexAttributeLayout(const VertexBuffer& vb, VertexAttributeLayout& layout)
-//{
-//	vb.bindVertexBuffer();
-//	const auto& vertexAttributes{ layout.getVertexAttributes() };
-//	uintptr_t offset{ 0 };
-//	for (GLuint i{ 0 }; i < vertexAttributes.size(); i++) {
-//		const auto& vertexAttribute{ vertexAttributes[i] };
-//		glEnableVertexAttribArray(i);
-//		glVertexAttribPointer(i, vertexAttribute.size, vertexAttribute.type, vertexAttribute.normalized, layout.getStride(), (const void*)offset);
-//		offset += vertexAttribute.offset;
-//	}
-//}

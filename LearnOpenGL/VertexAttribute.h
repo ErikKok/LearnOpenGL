@@ -2,15 +2,25 @@
 
 #include <glad/glad.h>
 
-#include <cassert>
 #include <vector>
 
-struct VertexAttribute
+class VertexAttribute
 {
-	GLenum type{};
-	GLint size{};
-	GLboolean normalized{};
-	uintptr_t offset{}; // index[0] will be reset to 0 by addVertexAttributeLayout
+	friend class VertexAttributeLayout;
+	friend class VertexArray;
+
+private:
+	VertexAttribute(GLenum type, GLint count, GLboolean normalized, uintptr_t offset)
+		: m_Type{ type }
+		, m_Count{ count } // number of components/types of this attribute (count * sizeof(type)
+		, m_Normalized{ normalized }
+		, m_Offset{ offset } // size in bytes of this attribute
+	{}
+
+	GLenum m_Type{};
+	GLint m_Count{};
+	GLboolean m_Normalized{};
+	uintptr_t m_Offset{};
 };
 
 class VertexAttributeLayout {
@@ -54,15 +64,16 @@ public:
 		return m_Stride;
 	}
 
+	// Sets a custom Stride (the same for all the vertex attributes in the array)
 	inline void setVertexStride(GLsizei strideNew)
 	{
 		m_Stride = strideNew;
 	}
 
-	inline void setVertexOffset(int vertexAttributeIndex, uintptr_t offsetNew)
+	// Specifies a custom offset of the first component of the first generic vertex attribute in the array
+	inline void setVertexAttributeOffset(int vertexAttributeIndex, uintptr_t offsetNew)
 	{
-		auto& vertexAttribute{ this->getVertexAttributes()};
-		vertexAttribute[vertexAttributeIndex].offset = offsetNew;
+		m_Attributes[vertexAttributeIndex].m_Offset = offsetNew;
 	}
 
 private:

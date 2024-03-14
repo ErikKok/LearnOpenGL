@@ -93,104 +93,60 @@ int main()
     // Cube
 
     constexpr std::array cube{
-    //      X      Y      Z       Texture1/Normal1  Texture2/Normal2    Normal3
-            -0.5f, -0.5f, -0.5f,  0.0f,             0.0f,               -1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f,             0.0f,               -1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f,             1.0f,               -1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f,             1.0f,               -1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,             1.0f,               -1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,             0.0f,               -1.0f,
+    //      X      Y      Z        Texture             Normal1  Normal2   Normal3
+            -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,          0.0f,    0.0f,     -1.0f,
+             0.5f, -0.5f, -0.5f,   1.0f, 0.0f,          0.0f,    0.0f,     -1.0f,
+             0.5f,  0.5f, -0.5f,   1.0f, 1.0f,          0.0f,    0.0f,     -1.0f,
+             0.5f,  0.5f, -0.5f,   1.0f, 1.0f,          0.0f,    0.0f,     -1.0f,
+            -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,          0.0f,    0.0f,     -1.0f,
+            -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,          0.0f,    0.0f,     -1.0f,
 
-            -0.5f, -0.5f,  0.5f,  0.0f,             0.0f,                1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f,             0.0f,                1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f,             1.0f,                1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f,             1.0f,                1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,             1.0f,                1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f,             0.0f,                1.0f,
+            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,          0.0f,    0.0f,      1.0f,
+             0.5f, -0.5f,  0.5f,   1.0f, 0.0f,          0.0f,    0.0f,      1.0f,
+             0.5f,  0.5f,  0.5f,   1.0f, 1.0f,          0.0f,    0.0f,      1.0f,
+             0.5f,  0.5f,  0.5f,   1.0f, 1.0f,          0.0f,    0.0f,      1.0f,
+            -0.5f,  0.5f,  0.5f,   0.0f, 1.0f,          0.0f,    0.0f,      1.0f,
+            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,          0.0f,    0.0f,      1.0f,
 
-            -0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f,             1.0f,                0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f,             0.0f,                0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
+            -0.5f,  0.5f,  0.5f,   1.0f, 0.0f,         -1.0f,    0.0f,      0.0f,
+            -0.5f,  0.5f, -0.5f,   1.0f, 1.0f,         -1.0f,    0.0f,      0.0f,
+            -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,         -1.0f,    0.0f,      0.0f,
+            -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,         -1.0f,    0.0f,      0.0f,
+            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,         -1.0f,    0.0f,      0.0f,
+            -0.5f,  0.5f,  0.5f,   1.0f, 0.0f,         -1.0f,    0.0f,      0.0f,
 
-             0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f,             1.0f,                0.0f,
-             0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
-             0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
-             0.5f, -0.5f,  0.5f,  0.0f,             0.0f,                0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
+             0.5f,  0.5f,  0.5f,   1.0f, 0.0f,          1.0f,    0.0f,      0.0f,
+             0.5f,  0.5f, -0.5f,   1.0f, 1.0f,          1.0f,    0.0f,      0.0f,
+             0.5f, -0.5f, -0.5f,   0.0f, 1.0f,          1.0f,    0.0f,      0.0f,
+             0.5f, -0.5f, -0.5f,   0.0f, 1.0f,          1.0f,    0.0f,      0.0f,
+             0.5f, -0.5f,  0.5f,   0.0f, 0.0f,          1.0f,    0.0f,      0.0f,
+             0.5f,  0.5f,  0.5f,   1.0f, 0.0f,          1.0f,    0.0f,      0.0f,
 
-            -0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
-             0.5f, -0.5f, -0.5f,  1.0f,             1.0f,                0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f,             0.0f,                0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
+            -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,          0.0f,   -1.0f,      0.0f,
+             0.5f, -0.5f, -0.5f,   1.0f, 1.0f,          0.0f,   -1.0f,      0.0f,
+             0.5f, -0.5f,  0.5f,   1.0f, 0.0f,          0.0f,   -1.0f,      0.0f,
+             0.5f, -0.5f,  0.5f,   1.0f, 0.0f,          0.0f,   -1.0f,      0.0f,
+            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,          0.0f,   -1.0f,      0.0f,
+            -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,          0.0f,   -1.0f,      0.0f,
 
-            -0.5f,  0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f,             1.0f,                0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,             0.0f,                0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
+            -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,          0.0f,    1.0f,      0.0f,
+             0.5f,  0.5f, -0.5f,   1.0f, 1.0f,          0.0f,    1.0f,      0.0f,
+             0.5f,  0.5f,  0.5f,   1.0f, 0.0f,          0.0f,    1.0f,      0.0f,
+             0.5f,  0.5f,  0.5f,   1.0f, 0.0f,          0.0f,    1.0f,      0.0f,
+            -0.5f,  0.5f,  0.5f,   0.0f, 0.0f,          0.0f,    1.0f,      0.0f,
+            -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,          0.0f,    1.0f,      0.0f,
     };
 
-    //constexpr std::array cube2{
-    //    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
-    //     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
-    //     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
-    //     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
-    //    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
-    //    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
-
-    //    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
-    //     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
-    //     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
-    //     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
-    //    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
-    //    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
-
-    //    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-    //    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-    //    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-    //    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-    //    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-    //    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-
-    //     0.5f,  0.5f,  0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-    //     0.5f,  0.5f, -0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-    //     0.5f, -0.5f, -0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-    //     0.5f, -0.5f, -0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-    //     0.5f, -0.5f,  0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-    //     0.5f,  0.5f,  0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
-
-    //    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
-    //     0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
-    //     0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
-    //     0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
-    //    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
-    //    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
-
-    //    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f,
-    //     0.5f,  0.5f, -0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f,
-    //     0.5f,  0.5f,  0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f,
-    //     0.5f,  0.5f,  0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f,
-    //    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f,
-    //    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f
-    //};
-
     constexpr glm::vec3 cubePositions[] = {
-        glm::vec3(1.0f,  0.5f,  0.0f),
-        glm::vec3(2.0f,  5.0f, -15.0f),
+        glm::vec3( 1.0f,  0.5f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
         glm::vec3(-1.5f, -2.2f, -2.5f),
         glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
         glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f,  2.0f, -2.5f),
-        glm::vec3(1.5f,  0.2f, -1.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
@@ -198,11 +154,12 @@ int main()
     VertexBuffer cubeVbo(&cube, sizeof(cube));
     VertexAttributeLayout cubeLayout;
     cubeLayout.pushVertexAttributeLayout<float>(3);
-    cubeLayout.pushVertexAttributeLayout<float>(2);
     cubeLayout.pushVertexAttributeLayout<float>(3);
-    cubeLayout.setVertexOffset(1, 0);
-    cubeLayout.setVertexOffset(2, 12);
-    cubeLayout.setVertexStride(24);
+    cubeLayout.pushVertexAttributeLayout<float>(2);
+    ////cubeLayout.setVertexAttributeOffset(0, 0);
+    //cubeLayout.setVertexAttributeOffset(1, 8);
+    ////cubeLayout.setVertexAttributeOffset(2, 0);
+    //cubeLayout.setVertexStride(24);
 
     cubeVao.addVertexAttributeLayout(cubeVbo, cubeLayout);
 
@@ -244,7 +201,7 @@ int main()
     VertexArray lightVao;
     VertexAttributeLayout lightLayout;
     lightLayout.pushVertexAttributeLayout<float>(3);
-    lightLayout.setVertexStride(24);
+    lightLayout.setVertexStride(32);
     lightVao.addVertexAttributeLayout(cubeVbo, lightLayout);
 
     Shader lightShader("Shaders\\light.txt"); //lightCubeShader
@@ -296,11 +253,28 @@ int main()
     VertexArray floorVao;
     VertexBuffer floorVbo(&floor, sizeof(floor));
     VertexAttributeLayout floorlayout{};
-    floorlayout.pushVertexAttributeLayout<float>(3);
-    floorlayout.pushVertexAttributeLayout<float>(3);
-    floorlayout.pushVertexAttributeLayout<float>(2);
+    floorlayout.pushVertexAttributeLayout<float>(3);//0 // 12 -> 0
+    floorlayout.pushVertexAttributeLayout<float>(3);//1 // 12
+    floorlayout.pushVertexAttributeLayout<float>(2);//2 // 8
+    //floorlayout.setVertexAttributeOffset(0, 0);
+    //floorlayout.setVertexAttributeOffset(1, 12);
+    //floorlayout.setVertexAttributeOffset(2, 8); // hij zet 20
+    //floorlayout.setVertexStride(32);
     floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
     ElementBuffer floorEbo(&floorIndices, sizeof(floorIndices));
+
+    //unsigned int ebo2{}; // element buffer object
+    //glGenBuffers(1, &ebo2);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo2);
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(floorIndices), &floorIndices, GL_STATIC_DRAW);
+
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    //glEnableVertexAttribArray(0);
+    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));  // 12
+    //glEnableVertexAttribArray(1);
+    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); // 24
+    //glEnableVertexAttribArray(2);
+
 
     Texture texture2("Textures\\floor.jpg");
 
@@ -369,9 +343,6 @@ int main()
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i;
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-            //if (i == 0) {
-            //    model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
-            //}
             ourShader.setMat4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -395,14 +366,6 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    //glDeleteVertexArrays(1, &vao0);
-    //glDeleteBuffers(1, &vbo0);
-    //glDeleteVertexArrays(1, &vao1);
-    //glDeleteBuffers(1, &vbo1);
-    //glDeleteVertexArrays(1, &vao2);
-    //glDeleteBuffers(1, &vbo2);
-    //glDeleteBuffers(1, &ebo2);
 
     glfwTerminate();
     return 0;
