@@ -1,7 +1,11 @@
 #pragma once
 #include "Camera.h"
+#include "ElementBuffer.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "VertexBuffer.h"
+#include "VertexArray.h"
+#include "VertexAttribute.h"
 // External header warning level: 0
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -88,49 +92,94 @@ int main()
 
     // Cube
 
-    constexpr std::array vertices0{
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    constexpr std::array cube{
+    //      X      Y      Z       Texture1/Normal1  Texture2/Normal2    Normal3
+            -0.5f, -0.5f, -0.5f,  0.0f,             0.0f,               -1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f,             0.0f,               -1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f,             1.0f,               -1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f,             1.0f,               -1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,             1.0f,               -1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,             0.0f,               -1.0f,
 
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,             0.0f,                1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f,             0.0f,                1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f,             1.0f,                1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f,             1.0f,                1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,             1.0f,                1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,             0.0f,                1.0f,
 
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f,             1.0f,                0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,             0.0f,                0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
 
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f,             1.0f,                0.0f,
+             0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
+             0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
+             0.5f, -0.5f,  0.5f,  0.0f,             0.0f,                0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
 
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f,             1.0f,                0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,             0.0f,                0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
 
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+            -0.5f,  0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f,             1.0f,                0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f,             0.0f,                0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,             0.0f,                0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,             1.0f,                0.0f,
     };
+
+    //constexpr std::array cube2{
+    //    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
+    //     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
+    //     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
+    //     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
+    //    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
+    //    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, 0.0f,  0.0f, -1.0f,
+
+    //    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
+    //     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
+    //     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
+    //     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
+    //    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
+    //    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 0.0f,  0.0f, 1.0f,
+
+    //    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+    //    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+    //    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+    //    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+    //    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+    //    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+
+    //     0.5f,  0.5f,  0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+    //     0.5f,  0.5f, -0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+    //     0.5f, -0.5f, -0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+    //     0.5f, -0.5f, -0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+    //     0.5f, -0.5f,  0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+    //     0.5f,  0.5f,  0.5f,  1.0f,  0.0f, 1.0f,  0.0f,  0.0f,
+
+    //    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
+    //     0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
+    //     0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
+    //     0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
+    //    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
+    //    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f, -1.0f,  0.0f,
+
+    //    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f,
+    //     0.5f,  0.5f, -0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f,
+    //     0.5f,  0.5f,  0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f,
+    //     0.5f,  0.5f,  0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f,
+    //    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f,
+    //    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f, 0.0f,  1.0f,  0.0f
+    //};
 
     constexpr glm::vec3 cubePositions[] = {
         glm::vec3(1.0f,  0.5f,  0.0f),
@@ -145,22 +194,36 @@ int main()
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
-    unsigned int vao0{}; // vertex array object
-    glGenVertexArrays(1, &vao0);
-    glBindVertexArray(vao0);
+    VertexArray cubeVao;
+    VertexBuffer cubeVbo(&cube, sizeof(cube));
+    VertexAttributeLayout cubeLayout;
+    cubeLayout.pushVertexAttributeLayout<float>(3);
+    cubeLayout.pushVertexAttributeLayout<float>(2);
+    cubeLayout.pushVertexAttributeLayout<float>(3);
+    cubeLayout.setVertexOffset(1, 0);
+    cubeLayout.setVertexOffset(2, 12);
+    cubeLayout.setVertexStride(24);
 
-    unsigned int vbo0{}; // vertex buffer object
-    glGenBuffers(1, &vbo0);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo0);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices0), &vertices0, GL_STATIC_DRAW);
+    cubeVao.addVertexAttributeLayout(cubeVbo, cubeLayout);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    //unsigned int vao0{}; // vertex array object
+    //glGenVertexArrays(1, &vao0);
+    //glBindVertexArray(vao0);
 
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //unsigned int vbo0{}; // vertex buffer object
+    //glGenBuffers(1, &vbo0);
+    //glBindBuffer(GL_ARRAY_BUFFER, vbo0);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices0), &vertices0, GL_STATIC_DRAW);
+
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    //glEnableVertexAttribArray(0);
+    //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    //glEnableVertexAttribArray(1);
+    //glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    //glEnableVertexAttribArray(2);
+
+    //glBindVertexArray(0);
+    //glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Cube Texture
 
@@ -168,11 +231,24 @@ int main()
     Texture texture1("Textures\\awesomeface.png", 1);
 
     // Cube Shader
-
-    Shader ourShader("Shaders\\cube.vs", "Shaders\\cube.fs");
-    ourShader.use();
+    Shader ourShader("Shaders\\cube.txt"); //lightingShader
+    ourShader.useShader();
     ourShader.setInt("texture0", 0);
     ourShader.setInt("texture1", 1);
+    ourShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+    ourShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+    ourShader.setVec3("lightPos", 2.0f, 2.0f, 1.0f);
+
+    // Light
+
+    VertexArray lightVao;
+    VertexAttributeLayout lightLayout;
+    lightLayout.pushVertexAttributeLayout<float>(3);
+    lightLayout.setVertexStride(24);
+    lightVao.addVertexAttributeLayout(cubeVbo, lightLayout);
+
+    Shader lightShader("Shaders\\light.txt"); //lightCubeShader
+    lightShader.useShader();
 
     // XYZ
 
@@ -186,26 +262,14 @@ int main()
           0.0f,    0.0f,  10.0f,  0.0f, 0.0f, 1.0f,
     };
 
-    unsigned int vao1{}; // vertex array object
-    glGenVertexArrays(1, &vao1);
-    glBindVertexArray(vao1);
+    VertexArray xyzVao;
+    VertexBuffer xyzVbo(&xyz, sizeof(xyz));
+    VertexAttributeLayout xyzLayout;
+    xyzLayout.pushVertexAttributeLayout<float>(3);
+    xyzLayout.pushVertexAttributeLayout<float>(3);
+    xyzVao.addVertexAttributeLayout(xyzVbo, xyzLayout);
 
-    unsigned int vbo1{}; // vertex buffer object
-    glGenBuffers(1, &vbo1);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo1);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(xyz), &xyz, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // XYZ Shader
-
-    Shader xyzShader("Shaders\\xyz.vs", "Shaders\\xyz.fs");
+    Shader xyzShader("Shaders\\xyz.txt");
 
     // Floor
 
@@ -229,38 +293,19 @@ int main()
      0u, 6u, 1u,
     };
 
-    unsigned int vao2{}; // vertex array object
-    glGenVertexArrays(1, &vao2);
-    glBindVertexArray(vao2);
-
-    unsigned int vbo2{}; // vertex buffer object
-    glGenBuffers(1, &vbo2);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo2);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(floor), &floor, GL_STATIC_DRAW);
-
-    unsigned int ebo2{}; // element buffer object
-    glGenBuffers(1, &ebo2);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo2);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(floorIndices), &floorIndices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // Floor Texture
+    VertexArray floorVao;
+    VertexBuffer floorVbo(&floor, sizeof(floor));
+    VertexAttributeLayout floorlayout{};
+    floorlayout.pushVertexAttributeLayout<float>(3);
+    floorlayout.pushVertexAttributeLayout<float>(3);
+    floorlayout.pushVertexAttributeLayout<float>(2);
+    floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
+    ElementBuffer floorEbo(&floorIndices, sizeof(floorIndices));
 
     Texture texture2("Textures\\floor.jpg");
-    
-    // Floor Shader
 
-    Shader floorShader("Shaders\\floor.vs", "Shaders\\floor.fs");
-    floorShader.use();
+    Shader floorShader("Shaders\\floor.txt");
+    floorShader.useShader();
     floorShader.setInt("texture2", 0);
 
     while (!glfwWindowShouldClose(window))
@@ -270,7 +315,9 @@ int main()
         Global::deltaTime = currentFrame - Global::lastFrame;
         Global::lastFrame = currentFrame;
         //std::cout << "deltaTime: " << Global::deltaTime * 1000 << "ms" << '\n';
-        
+        std::cout << "Position: " << Global::camera.m_position.x << ", " << Global::camera.m_position.y << ", " << Global::camera.m_position.z << ", " << '\n';
+        std::cout << "Front: " << Global::camera.m_front.x << ", " << Global::camera.m_front.y << ", " << Global::camera.m_front.z << ", " << '\n';
+
         processInput(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -280,34 +327,51 @@ int main()
         glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionView);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
         Global::camera.fakeGravity(Global::deltaTime);
+
         glm::mat4 view{ Global::camera.GetViewMatrix() };
+
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         // XYZ
         
-        xyzShader.use();
-        glBindVertexArray(vao1);
+        xyzShader.useShader();
+        xyzVao.bindVertexArray();
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(xyz.size()));
+        glBindVertexArray(0);
+
+        // Light
+
+        lightShader.useShader();
+        lightVao.bindVertexArray();
+
+        glm::mat4 model{ glm::mat4(1.0f) };
+        model = glm::translate(model, glm::vec3(2.0f, 2.0f, 1.0f));
+        model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+        lightShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
         // Cube
 
-        ourShader.use();
+        ourShader.useShader();
         texture0.bindTexture();
         texture1.bindTexture(1);
+        ourShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        ourShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        ourShader.setVec3("lightPos", 2.0f, 2.0f, 1.0f);
         
-        glBindVertexArray(vao0);
+        cubeVao.bindVertexArray();
         for (unsigned int i = 0; i < 10; i++)
         {
-            glm::mat4 model{ glm::mat4(1.0f) };
+            //glm::mat4 model{ glm::mat4(1.0f) };
+            model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i;
-            //model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-            if (i == 0) {
-                model = glm::scale(model, glm::vec3(0.5, 50.0, 0.5));
-            }
+            //if (i == 0) {
+            //    model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+            //}
             ourShader.setMat4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -316,11 +380,11 @@ int main()
         
         // Floor
 
-        floorShader.use();
+        floorShader.useShader();
         texture2.bindTexture();
-
-        glBindVertexArray(vao2);
-        glm::mat4 model{ glm::mat4(1.0f) };
+        floorVao.bindVertexArray();
+        //glm::mat4 model{ glm::mat4(1.0f) };
+        model = glm::mat4(1.0f);
         //model = glm::translate(model, glm::vec3(0.0f, 1.0f, 1.0f));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
         model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
@@ -332,13 +396,13 @@ int main()
         glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1, &vao0);
-    glDeleteBuffers(1, &vbo0);
-    glDeleteVertexArrays(1, &vao1);
-    glDeleteBuffers(1, &vbo1);
-    glDeleteVertexArrays(1, &vao2);
-    glDeleteBuffers(1, &vbo2);
-    glDeleteBuffers(1, &ebo2);
+    //glDeleteVertexArrays(1, &vao0);
+    //glDeleteBuffers(1, &vbo0);
+    //glDeleteVertexArrays(1, &vao1);
+    //glDeleteBuffers(1, &vbo1);
+    //glDeleteVertexArrays(1, &vao2);
+    //glDeleteBuffers(1, &vbo2);
+    //glDeleteBuffers(1, &ebo2);
 
     glfwTerminate();
     return 0;

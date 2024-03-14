@@ -15,6 +15,10 @@ enum class CameraMovement {
 class Camera
 {
 public:
+
+    glm::vec3 m_position{};
+    glm::vec3 m_front{ 0.0f, 0.0f, -1.0f }; // m_position + m_front = center = is where you are looking at (direction vector)
+    
     Camera(glm::vec3 m_position1 = glm::vec3(0.0f, 0.0f, 0.0f));
 
     const float getFov() const;
@@ -24,7 +28,7 @@ public:
     void fakeGravity(float deltaTime);
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    const glm::mat4 GetViewMatrix() const;
+    const glm::mat4 GetViewMatrix();// const;
 
     void ProcessKeyboard(CameraMovement direction, float deltaTime); //TODO hoofdletters
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
@@ -32,8 +36,7 @@ public:
 
 private:
     // camera Attributes
-    glm::vec3 m_position{ };
-    glm::vec3 m_front{ 0.0f, 0.0f, -1.0f };
+   
     glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
     glm::vec3 m_right{};
     const glm::vec3 m_worldup{ 0.0f, 1.0f, 0.0f };

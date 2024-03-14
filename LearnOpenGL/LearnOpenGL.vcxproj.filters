@@ -33,6 +33,18 @@
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ElementBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexAttribute.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -47,25 +59,31 @@
     <ClInclude Include="Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ElementBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexAttribute.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\cube.fs">
+    <Text Include="Shaders\cube.txt">
       <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\cube.vs">
+    </Text>
+    <Text Include="Shaders\floor.txt">
       <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\floor.fs">
+    </Text>
+    <Text Include="Shaders\light.txt">
       <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\floor.vs">
+    </Text>
+    <Text Include="Shaders\xyz.txt">
       <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\xyz.fs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\xyz.vs">
-      <Filter>Shader Files</Filter>
-    </None>
+    </Text>
   </ItemGroup>
 </Project>

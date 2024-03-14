@@ -5,8 +5,9 @@
 #include <STB/stb_image.h>
 
 #include <print>
+#include <string>
 
-Texture::Texture(const char* path, unsigned int RGB_A)
+Texture::Texture(const std::string& filePath, unsigned int RGB_A)
 {
     int textureWidth{};
     int textureHeight{};
@@ -19,7 +20,7 @@ Texture::Texture(const char* path, unsigned int RGB_A)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     stbi_set_flip_vertically_on_load(true);
-    unsigned char* textureData{ stbi_load(path, &textureWidth, &textureHeight, &textureNrChannels, 0) };
+    unsigned char* textureData{ stbi_load(filePath.c_str(), &textureWidth, &textureHeight, &textureNrChannels, 0)};
     if (!textureData) {
         std::println("Failed to load texture");
     }

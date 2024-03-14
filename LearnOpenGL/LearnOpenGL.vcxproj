@@ -96,23 +96,29 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="ElementBuffer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="VertexArray.cpp" />
+    <ClCompile Include="VertexAttribute.cpp" />
+    <ClCompile Include="VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="VertexArray.h" />
+    <ClInclude Include="VertexBuffer.h" />
+    <ClInclude Include="VertexAttribute.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\cube.fs" />
-    <None Include="Shaders\cube.vs" />
-    <None Include="Shaders\floor.fs" />
-    <None Include="Shaders\floor.vs" />
-    <None Include="Shaders\xyz.fs" />
-    <None Include="Shaders\xyz.vs" />
+    <Text Include="Shaders\cube.txt" />
+    <Text Include="Shaders\floor.txt" />
+    <Text Include="Shaders\light.txt" />
+    <Text Include="Shaders\xyz.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
