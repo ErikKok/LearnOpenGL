@@ -73,17 +73,22 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Shaders\cube.txt">
+    <Text Include="Shaders\cube.shader">
       <Filter>Shader Files</Filter>
     </Text>
-    <Text Include="Shaders\floor.txt">
+    <Text Include="Shaders\light.shader">
       <Filter>Shader Files</Filter>
     </Text>
-    <Text Include="Shaders\light.txt">
+    <Text Include="Shaders\xyz.shader">
       <Filter>Shader Files</Filter>
     </Text>
-    <Text Include="Shaders\xyz.txt">
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\floor.shader">
       <Filter>Shader Files</Filter>
-    </Text>
+    </None>
+    <None Include="Shaders\singleCube.shader">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

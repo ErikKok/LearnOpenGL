@@ -15,7 +15,6 @@ enum class CameraMovement {
 class Camera
 {
 public:
-
     glm::vec3 m_position{};
     glm::vec3 m_front{ 0.0f, 0.0f, -1.0f }; // m_position + m_front = center = is where you are looking at (direction vector)
     

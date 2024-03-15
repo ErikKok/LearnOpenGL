@@ -115,10 +115,13 @@
     <ClInclude Include="VertexAttribute.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Shaders\cube.txt" />
-    <Text Include="Shaders\floor.txt" />
-    <Text Include="Shaders\light.txt" />
-    <Text Include="Shaders\xyz.txt" />
+    <Text Include="Shaders\cube.shader" />
+    <Text Include="Shaders\light.shader" />
+    <Text Include="Shaders\xyz.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\floor.shader" />
+    <None Include="Shaders\singleCube.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

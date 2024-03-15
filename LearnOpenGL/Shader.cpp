@@ -4,10 +4,10 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include <print>
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 Shader::Shader(const std::string& shaderPath)
 {
@@ -31,7 +31,7 @@ Shader::Shader(const std::string& shaderPath)
     }
     catch (std::ifstream::failure& error)
     {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << error.what() << '\n';
+        std::println("ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: {}", error.what());
     }
 
     enum class ShaderType {
@@ -225,14 +225,18 @@ void Shader::checkCompileErrors(unsigned int shader, std::string_view type)
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-            std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << '\n';
+            std::println("ERROR::SHADER_COMPILATION_ERROR of type: {}", type);
+            std::println("{}", infoLog);
+            std::println("------------------------------------------------------ ");
         }
     }
     else {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
-            std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << '\n';
+            std::println("ERROR::PROGRAM_LINKING_ERROR of type: {}", type);
+            std::println("{}", infoLog);
+            std::println("------------------------------------------------------ ");
         }
     }
 }
