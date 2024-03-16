@@ -42,7 +42,7 @@
     <ClCompile Include="VertexArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VertexAttribute.cpp">
+    <ClCompile Include="UniformBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,6 +71,15 @@
     <ClInclude Include="VertexAttribute.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UniformBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferSubData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\cube.shader">
@@ -89,6 +98,9 @@
     </None>
     <None Include="Shaders\singleCube.shader">
       <Filter>Shader Files</Filter>
+    </None>
+    <None Include="README.md">
+      <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
 </Project>

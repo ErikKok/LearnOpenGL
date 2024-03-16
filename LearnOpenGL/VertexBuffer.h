@@ -1,13 +1,15 @@
 #pragma once
 
+#include <glad/glad.h>
+
 class VertexBuffer {
 public:
-    VertexBuffer(const void* data, unsigned int size);
+    VertexBuffer(const GLvoid* data, GLuint size);
     ~VertexBuffer();
 
     void bindVertexBuffer() const;
     void unbindVertexBuffer() const;
 
 private:
-    unsigned int m_Id{};
+    GLuint m_Id{};
 };

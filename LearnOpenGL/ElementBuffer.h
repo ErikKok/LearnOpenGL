@@ -1,16 +1,18 @@
 #pragma once
 
+#include <glad/glad.h>
+
 class ElementBuffer {
 public:
-    ElementBuffer(const void* data, unsigned int count);
+    ElementBuffer(const GLvoid* data, GLuint size);
     ~ElementBuffer();
 
     void bindElementBuffer() const;
     void unbindElementBuffer() const;
 
-    inline unsigned int getCount() const;
+    //inline unsigned int getCount() const;
 
 private:
-    unsigned int m_Id{};
+    GLuint m_Id{};
     unsigned int m_Count{};
 };

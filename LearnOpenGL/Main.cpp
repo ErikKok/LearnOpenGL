@@ -1,11 +1,15 @@
 #pragma once
+#include "BufferSubData.h"
 #include "Camera.h"
+#include "Data.h"
 #include "ElementBuffer.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "VertexAttribute.h"
+#include "UniformBuffer.h"
+
 // External header warning level: 0
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -28,8 +32,8 @@ namespace Global {
     bool windowsHasMouseFocus{ false };
 
     // timing
-    float deltaTime{ 0.0f };	// time between current frame and last frame
-    float lastFrame{ 0.0f };
+    GLfloat deltaTime{ 0.0f };	// time between current frame and last frame
+    GLfloat lastFrame{ 0.0f };
 }
 
 void processInput(GLFWwindow* window);
@@ -42,6 +46,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 int main()
 {
+    assert(sizeof(unsigned int) == sizeof(GLuint) && "size of unsigned int and GLuint is not equal");
+    
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -80,131 +86,32 @@ int main()
 
     // Uniform Buffer Object Init
 
-    unsigned int uboProjectionView{};
-    glGenBuffers(1, &uboProjectionView);
-    glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionView);
-    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
-    glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboProjectionView, 0, 2 * sizeof(glm::mat4));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    //unsigned int uboProjectionView{};
+    //glGenBuffers(1, &uboProjectionView);
+    //glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionView);
+    //glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+    //glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboProjectionView, 0, 2 * sizeof(glm::mat4));
+    //glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    UniformBuffer projectionView(0, 2);
 
     // SingleCube
 
-    constexpr std::array singleCube{
-        //      X      Y      Z      Normal1  Normal2   Normal3
-                -0.5f, -0.5f, -0.5f,  0.0f,    0.0f,     -1.0f,
-                 0.5f, -0.5f, -0.5f,  0.0f,    0.0f,     -1.0f,
-                 0.5f,  0.5f, -0.5f,  0.0f,    0.0f,     -1.0f,
-                 0.5f,  0.5f, -0.5f,  0.0f,    0.0f,     -1.0f,
-                -0.5f,  0.5f, -0.5f,  0.0f,    0.0f,     -1.0f,
-                -0.5f, -0.5f, -0.5f,  0.0f,    0.0f,     -1.0f,
-
-                -0.5f, -0.5f,  0.5f,  0.0f,    0.0f,      1.0f,
-                 0.5f, -0.5f,  0.5f,  0.0f,    0.0f,      1.0f,
-                 0.5f,  0.5f,  0.5f,  0.0f,    0.0f,      1.0f,
-                 0.5f,  0.5f,  0.5f,  0.0f,    0.0f,      1.0f,
-                -0.5f,  0.5f,  0.5f,  0.0f,    0.0f,      1.0f,
-                -0.5f, -0.5f,  0.5f,  0.0f,    0.0f,      1.0f,
-
-                -0.5f,  0.5f,  0.5f, -1.0f,    0.0f,      0.0f,
-                -0.5f,  0.5f, -0.5f, -1.0f,    0.0f,      0.0f,
-                -0.5f, -0.5f, -0.5f, -1.0f,    0.0f,      0.0f,
-                -0.5f, -0.5f, -0.5f, -1.0f,    0.0f,      0.0f,
-                -0.5f, -0.5f,  0.5f, -1.0f,    0.0f,      0.0f,
-                -0.5f,  0.5f,  0.5f, -1.0f,    0.0f,      0.0f,
-
-                 0.5f,  0.5f,  0.5f,  1.0f,    0.0f,      0.0f,
-                 0.5f,  0.5f, -0.5f,  1.0f,    0.0f,      0.0f,
-                 0.5f, -0.5f, -0.5f,  1.0f,    0.0f,      0.0f,
-                 0.5f, -0.5f, -0.5f,  1.0f,    0.0f,      0.0f,
-                 0.5f, -0.5f,  0.5f,  1.0f,    0.0f,      0.0f,
-                 0.5f,  0.5f,  0.5f,  1.0f,    0.0f,      0.0f,
-
-                -0.5f, -0.5f, -0.5f,  0.0f,   -1.0f,      0.0f,
-                 0.5f, -0.5f, -0.5f,  0.0f,   -1.0f,      0.0f,
-                 0.5f, -0.5f,  0.5f,  0.0f,   -1.0f,      0.0f,
-                 0.5f, -0.5f,  0.5f,  0.0f,   -1.0f,      0.0f,
-                -0.5f, -0.5f,  0.5f,  0.0f,   -1.0f,      0.0f,
-                -0.5f, -0.5f, -0.5f,  0.0f,   -1.0f,      0.0f,
-
-                -0.5f,  0.5f, -0.5f,  0.0f,    1.0f,      0.0f,
-                 0.5f,  0.5f, -0.5f,  0.0f,    1.0f,      0.0f,
-                 0.5f,  0.5f,  0.5f,  0.0f,    1.0f,      0.0f,
-                 0.5f,  0.5f,  0.5f,  0.0f,    1.0f,      0.0f,
-                -0.5f,  0.5f,  0.5f,  0.0f,    1.0f,      0.0f,
-                -0.5f,  0.5f, -0.5f,  0.0f,    1.0f,      0.0f,
-    };
-
-    Shader singleCubeShader("Shaders\\singleCube.shader");
-
     VertexArray singleCubeVao;
-    VertexBuffer singleCubeVbo(&singleCube, sizeof(singleCube));
+    VertexBuffer cubeVbo(&Data::cube, sizeof(Data::cube));
     VertexAttributeLayout singleCubeLayout;
     singleCubeLayout.pushVertexAttributeLayout<float>(3);
     singleCubeLayout.pushVertexAttributeLayout<float>(3);
-    singleCubeVao.addVertexAttributeLayout(singleCubeVbo, singleCubeLayout);
+    singleCubeLayout.setVertexAttributeOffset(1, 20);
+    singleCubeLayout.setVertexStride(32);
+    singleCubeVao.addVertexAttributeLayout(cubeVbo, singleCubeLayout);
+
+    Shader singleCubeShader("Shaders\\singleCube.shader");
 
     // Cube
 
-    constexpr std::array cube{
-    //      X      Y      Z        Texture             Normal1  Normal2   Normal3
-            -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,          0.0f,    0.0f,     -1.0f,
-             0.5f, -0.5f, -0.5f,   1.0f, 0.0f,          0.0f,    0.0f,     -1.0f,
-             0.5f,  0.5f, -0.5f,   1.0f, 1.0f,          0.0f,    0.0f,     -1.0f,
-             0.5f,  0.5f, -0.5f,   1.0f, 1.0f,          0.0f,    0.0f,     -1.0f,
-            -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,          0.0f,    0.0f,     -1.0f,
-            -0.5f, -0.5f, -0.5f,   0.0f, 0.0f,          0.0f,    0.0f,     -1.0f,
-
-            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,          0.0f,    0.0f,      1.0f,
-             0.5f, -0.5f,  0.5f,   1.0f, 0.0f,          0.0f,    0.0f,      1.0f,
-             0.5f,  0.5f,  0.5f,   1.0f, 1.0f,          0.0f,    0.0f,      1.0f,
-             0.5f,  0.5f,  0.5f,   1.0f, 1.0f,          0.0f,    0.0f,      1.0f,
-            -0.5f,  0.5f,  0.5f,   0.0f, 1.0f,          0.0f,    0.0f,      1.0f,
-            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,          0.0f,    0.0f,      1.0f,
-
-            -0.5f,  0.5f,  0.5f,   1.0f, 0.0f,         -1.0f,    0.0f,      0.0f,
-            -0.5f,  0.5f, -0.5f,   1.0f, 1.0f,         -1.0f,    0.0f,      0.0f,
-            -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,         -1.0f,    0.0f,      0.0f,
-            -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,         -1.0f,    0.0f,      0.0f,
-            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,         -1.0f,    0.0f,      0.0f,
-            -0.5f,  0.5f,  0.5f,   1.0f, 0.0f,         -1.0f,    0.0f,      0.0f,
-
-             0.5f,  0.5f,  0.5f,   1.0f, 0.0f,          1.0f,    0.0f,      0.0f,
-             0.5f,  0.5f, -0.5f,   1.0f, 1.0f,          1.0f,    0.0f,      0.0f,
-             0.5f, -0.5f, -0.5f,   0.0f, 1.0f,          1.0f,    0.0f,      0.0f,
-             0.5f, -0.5f, -0.5f,   0.0f, 1.0f,          1.0f,    0.0f,      0.0f,
-             0.5f, -0.5f,  0.5f,   0.0f, 0.0f,          1.0f,    0.0f,      0.0f,
-             0.5f,  0.5f,  0.5f,   1.0f, 0.0f,          1.0f,    0.0f,      0.0f,
-
-            -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,          0.0f,   -1.0f,      0.0f,
-             0.5f, -0.5f, -0.5f,   1.0f, 1.0f,          0.0f,   -1.0f,      0.0f,
-             0.5f, -0.5f,  0.5f,   1.0f, 0.0f,          0.0f,   -1.0f,      0.0f,
-             0.5f, -0.5f,  0.5f,   1.0f, 0.0f,          0.0f,   -1.0f,      0.0f,
-            -0.5f, -0.5f,  0.5f,   0.0f, 0.0f,          0.0f,   -1.0f,      0.0f,
-            -0.5f, -0.5f, -0.5f,   0.0f, 1.0f,          0.0f,   -1.0f,      0.0f,
-
-            -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,          0.0f,    1.0f,      0.0f,
-             0.5f,  0.5f, -0.5f,   1.0f, 1.0f,          0.0f,    1.0f,      0.0f,
-             0.5f,  0.5f,  0.5f,   1.0f, 0.0f,          0.0f,    1.0f,      0.0f,
-             0.5f,  0.5f,  0.5f,   1.0f, 0.0f,          0.0f,    1.0f,      0.0f,
-            -0.5f,  0.5f,  0.5f,   0.0f, 0.0f,          0.0f,    1.0f,      0.0f,
-            -0.5f,  0.5f, -0.5f,   0.0f, 1.0f,          0.0f,    1.0f,      0.0f,
-    };
-
-    constexpr glm::vec3 cubePositions[] = {
-        glm::vec3( 1.0f,  0.5f,  0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3( 1.3f, -2.0f, -2.5f),
-        glm::vec3( 1.5f,  2.0f, -2.5f),
-        glm::vec3( 1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
-
     VertexArray cubeVao;
-    VertexBuffer cubeVbo(&cube, sizeof(cube));
+    //VertexBuffer cubeVbo(&Data::cube, sizeof(Data::cube));
     VertexAttributeLayout cubeLayout;
     cubeLayout.pushVertexAttributeLayout<float>(3);
     cubeLayout.pushVertexAttributeLayout<float>(2);
@@ -235,18 +142,8 @@ int main()
 
     // XYZ
 
-    constexpr std::array xyz{ // Hex
-        // Positions            // Colors        
-         -10.0f,   0.0f,  0.0f,   1.0f, 0.0f, 0.0f,
-          10.0f,   0.0f,  0.0f,   1.0f, 0.0f, 0.0f,
-          0.0f,  -10.0f,  0.0f,   0.0f, 1.0f, 0.0f,
-          0.0f,   10.0f,  0.0f,   0.0f, 1.0f, 0.0f,
-          0.0f,    0.0f, -10.0f,  0.0f, 0.0f, 1.0f,
-          0.0f,    0.0f,  10.0f,  0.0f, 0.0f, 1.0f,
-    };
-
     VertexArray xyzVao;
-    VertexBuffer xyzVbo(&xyz, sizeof(xyz));
+    VertexBuffer xyzVbo(&Data::xyz, sizeof(Data::xyz));
     VertexAttributeLayout xyzLayout;
     xyzLayout.pushVertexAttributeLayout<float>(3);
     xyzLayout.pushVertexAttributeLayout<float>(3);
@@ -256,34 +153,14 @@ int main()
 
     // Floor
 
-    constexpr std::array floor{ // Hex
-    // Positions            // Colors          // Texture
-      0.0f,   0.0f,  0.0f,  0.2f, 0.2f, 0.2f,  0.5f, 0.5f,  // 0
-      0.0f,   1.0f,  0.0f,  1.0f, 0.0f, 0.0f,  0.5f, 1.0f,  // 1
-      0.67f,  0.50f, 0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.75f, // 2
-      0.67f, -0.50f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.25f, // 3   
-      0.0f,  -1.0f,  0.0f,  0.0f, 1.0f, 1.0f,  0.5f, 0.0f,  // 4
-     -0.67f, -0.50f, 0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 0.25f, // 5
-     -0.67f,  0.50f, 0.0f,  1.0f, 0.0f, 1.0f,  0.0f, 0.75f, // 6
-    };
-
-    constexpr std::array floorIndices{
-     0u, 1u, 2u,
-     0u, 2u, 3u,
-     0u, 3u, 4u,
-     0u, 4u, 5u,
-     0u, 5u, 6u,
-     0u, 6u, 1u,
-    };
-
     VertexArray floorVao;
-    VertexBuffer floorVbo(&floor, sizeof(floor));
+    VertexBuffer floorVbo(&Data::floor, sizeof(Data::floor));
     VertexAttributeLayout floorlayout{};
     floorlayout.pushVertexAttributeLayout<float>(3);
     floorlayout.pushVertexAttributeLayout<float>(3);
     floorlayout.pushVertexAttributeLayout<float>(2);
     floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
-    ElementBuffer floorEbo(&floorIndices, sizeof(floorIndices));
+    ElementBuffer floorEbo(&Data::floorIndices, sizeof(Data::floorIndices));
 
     Texture texture2("Textures\\floor.jpg");
 
@@ -308,12 +185,18 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionView);
         glm::mat4 projection{ glm::perspective(glm::radians(Global::camera.getFov()), static_cast<float>(Global::aspectRatio), Global::camera.getNearPlane(), Global::camera.getFarPlane()) };
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
         glm::mat4 view{ Global::camera.GetViewMatrix() };
-        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        //glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionView);
+        //glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+        //glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+        //glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        BufferSubDataLayout projectionViewLayout{};
+        projectionViewLayout.pushUniformBufferSubData(projection);
+        projectionViewLayout.pushUniformBufferSubData(view);
+        projectionView.addUniformBufferSubData(projectionView, projectionViewLayout);
 
         // Light Source
 
@@ -348,7 +231,7 @@ int main()
         
         xyzShader.useShader();
         xyzVao.bindVertexArray();
-        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(xyz.size()));
+        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
         glBindVertexArray(0);
 
         // Cube
@@ -364,7 +247,7 @@ int main()
         for (unsigned int i = 0; i < 10; i++)
         {
             model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
+            model = glm::translate(model, Data::cubePositions[i]);
             float angle = 20.0f * i;
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
             cubeShader.setMat4("model", model);
@@ -379,27 +262,29 @@ int main()
         texture2.bindTexture();
         floorVao.bindVertexArray();
         model = glm::mat4(1.0f);
-        //model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
-        //model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
-        //floorShader.setMat4("model", model);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
-        for (unsigned int i = 0; i < 32; i++) {
-            model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -0.0f));
-            
-            //model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
-            floorShader.setMat4("model", model);
-            for (unsigned int j = 0; j < 8; j++) {
-                model = glm::translate(model, glm::vec3(0.0f, 1.0f, -0.0f));
+        model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
+        floorShader.setMat4("model", model);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor.size()), GL_UNSIGNED_INT, 0);
 
-                //model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
-                floorShader.setMat4("model", model);
-                glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(floor.size()), GL_UNSIGNED_INT, 0);
-            }
-            model = glm::translate(model, glm::vec3(0.0f, -8.0f, -0.0f));
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(floor.size()), GL_UNSIGNED_INT, 0);
-        }
-        //glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(floor.size()), GL_UNSIGNED_INT, 0);
+        //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+        //for (unsigned int i = 0; i < 32; i++) {
+        //    model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -0.0f));
+        //    
+        //    //model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
+        //    floorShader.setMat4("model", model);
+        //    for (unsigned int j = 0; j < 8; j++) {
+        //        model = glm::translate(model, glm::vec3(0.0f, 1.0f, -0.0f));
+
+        //        //model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
+        //        floorShader.setMat4("model", model);
+        //        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(floor.size()), GL_UNSIGNED_INT, 0);
+        //    }
+        //    model = glm::translate(model, glm::vec3(0.0f, -8.0f, -0.0f));
+        //    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(floor.size()), GL_UNSIGNED_INT, 0);
+        //}
+
         glBindVertexArray(0);
 
         glfwSwapBuffers(window);

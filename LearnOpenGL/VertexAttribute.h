@@ -12,15 +12,15 @@ class VertexAttribute
 private:
 	VertexAttribute(GLenum type, GLint count, GLboolean normalized, uintptr_t offset)
 		: m_Type{ type }
-		, m_Count{ count } // number of components/types of this attribute (count * sizeof(type)
+		, m_Count{ count } 
 		, m_Normalized{ normalized }
-		, m_Offset{ offset } // size in bytes of this attribute
+		, m_Offset{ offset }
 	{}
 
 	GLenum m_Type{};
-	GLint m_Count{};
+	GLint m_Count{}; // number of components/types of this attribute (Caution! called size @ docs.gl)
 	GLboolean m_Normalized{};
-	uintptr_t m_Offset{};
+	uintptr_t m_Offset{}; // size in bytes of this attribute
 };
 
 class VertexAttributeLayout {
@@ -70,9 +70,14 @@ public:
 		m_Stride = strideNew;
 	}
 
-	// Specifies a custom offset of the first component of the first generic vertex attribute in the array
+	// Specifies a custom offset of the vertexAttribute
+	// Usage example:	if attribute 0 == size x
+	//					and there is y space unused until attribute 2
+	//					use index 1, offsetNew x + y
+	//					don't forget to set the new Stride (old Stride + y)
 	inline void setVertexAttributeOffset(int vertexAttributeIndex, uintptr_t offsetNew)
 	{
+		vertexAttributeIndex -= 1u;
 		m_Attributes[vertexAttributeIndex].m_Offset = offsetNew;
 	}
 

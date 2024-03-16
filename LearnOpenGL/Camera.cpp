@@ -15,7 +15,7 @@ const float Camera::getFov() const { return m_fov; };
 const float Camera::getNearPlane() const { return m_nearPlane; };
 const float Camera::getFarPlane() const { return m_farPlane; };
 
-void Camera::fakeGravity(float deltaTime) {
+void Camera::fakeGravity(GLfloat deltaTime) {
     if (m_position.y > 0.15f)
         m_position.y -= 0.2f * m_movementSpeed * deltaTime;
 }
@@ -71,7 +71,7 @@ const glm::mat4 Camera::GetViewMatrix() //const
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
+void Camera::ProcessKeyboard(CameraMovement direction, GLfloat deltaTime)
 {      
     float velocity{ m_movementSpeed * deltaTime }; // TODO deltaTime uit de global ns
 
@@ -99,7 +99,7 @@ void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 }
 
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
+void Camera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch)
 {
     xoffset *= m_mouseSensitivity;
     yoffset *= m_mouseSensitivity;
@@ -119,9 +119,9 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
 }
 
 // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-void Camera::ProcessMouseScroll(float yoffset)
+void Camera::ProcessMouseScroll(GLfloat yoffset)
 {
-    m_fov -= (float)yoffset * 3;
+    m_fov -= (GLfloat)yoffset * 3;
     if (m_fov < 1.0f)
         m_fov = 1.0f;
     if (m_fov > 45.0f)

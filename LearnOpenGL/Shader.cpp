@@ -162,15 +162,15 @@ void Shader::useShader()
 
 void Shader::setBool(const std::string& name, bool value) const
 {
-    glUniform1i(glGetUniformLocation(m_Id, name.c_str()), (int)value);
+    glUniform1i(glGetUniformLocation(m_Id, name.c_str()), (GLint)value);
 }
 
-void Shader::setInt(const std::string& name, int value) const
+void Shader::setInt(const std::string& name, GLint value) const
 {
     glUniform1i(glGetUniformLocation(m_Id, name.c_str()), value);
 }
 
-void Shader::setFloat(const std::string& name, float value) const
+void Shader::setFloat(const std::string& name, GLfloat value) const
 {
     glUniform1f(glGetUniformLocation(m_Id, name.c_str()), value);
 }
@@ -179,7 +179,7 @@ void Shader::setVec2(const std::string& name, const glm::vec2& value) const
 {
     glUniform2fv(glGetUniformLocation(m_Id, name.c_str()), 1, &value[0]);
 }
-void Shader::setVec2(const std::string& name, float x, float y) const
+void Shader::setVec2(const std::string& name, GLfloat x, GLfloat y) const
 {
     glUniform2f(glGetUniformLocation(m_Id, name.c_str()), x, y);
 }
@@ -188,7 +188,7 @@ void Shader::setVec3(const std::string& name, const glm::vec3& value) const
 {
     glUniform3fv(glGetUniformLocation(m_Id, name.c_str()), 1, &value[0]);
 }
-void Shader::setVec3(const std::string& name, float x, float y, float z) const
+void Shader::setVec3(const std::string& name, GLfloat x, GLfloat y, GLfloat z) const
 {
     glUniform3f(glGetUniformLocation(m_Id, name.c_str()), x, y, z);
 }
@@ -197,7 +197,7 @@ void Shader::setVec4(const std::string& name, const glm::vec4& value) const
 {
     glUniform4fv(glGetUniformLocation(m_Id, name.c_str()), 1, &value[0]);
 }
-void Shader::setVec4(const std::string& name, float x, float y, float z, float w) const
+void Shader::setVec4(const std::string& name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) const
 {
     glUniform4f(glGetUniformLocation(m_Id, name.c_str()), x, y, z, w);
 }
@@ -217,7 +217,7 @@ void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
     glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::checkCompileErrors(unsigned int shader, std::string_view type)
+void Shader::checkCompileErrors(GLuint shader, std::string_view type)
 {
     int success{};
     char infoLog[1024];

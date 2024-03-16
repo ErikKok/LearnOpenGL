@@ -100,16 +100,19 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="VertexArray.cpp" />
-    <ClCompile Include="VertexAttribute.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BufferSubData.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Data.h" />
     <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="VertexAttribute.h" />
@@ -120,6 +123,7 @@
     <Text Include="Shaders\xyz.shader" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="README.md" />
     <None Include="Shaders\floor.shader" />
     <None Include="Shaders\singleCube.shader" />
   </ItemGroup>

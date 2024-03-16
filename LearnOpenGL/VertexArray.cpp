@@ -4,8 +4,6 @@
 
 #include <glad/glad.h>
 
-#include <cassert>
-
 VertexArray::VertexArray()
 {
 	glGenVertexArrays(1, &m_Id);

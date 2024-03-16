@@ -13,5 +13,5 @@ public:
     void addVertexAttributeLayout(const VertexBuffer& vb, VertexAttributeLayout& layout);
 
 private:
-    unsigned int m_Id{};
+    GLuint m_Id{};
 };
