@@ -7,7 +7,7 @@
 #include <print>
 #include <string>
 
-Texture::Texture(const std::string& filePath, unsigned int RGB_A)
+Texture::Texture(const std::string& filePath)
 {
     int textureWidth{};
     int textureHeight{};
@@ -24,7 +24,14 @@ Texture::Texture(const std::string& filePath, unsigned int RGB_A)
     if (!textureData) {
         std::println("Failed to load texture");
     }
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB + RGB_A, GL_UNSIGNED_BYTE, textureData);
+    GLenum format{};
+    if (textureNrChannels == 1)
+        format = GL_RED;
+    else if (textureNrChannels == 3)
+        format = GL_RGB;
+    else if (textureNrChannels == 4)
+        format = GL_RGBA;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, format, GL_UNSIGNED_BYTE, textureData);
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     stbi_image_free(textureData);

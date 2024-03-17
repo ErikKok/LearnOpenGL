@@ -86,29 +86,29 @@ int main()
 
     UniformBuffer projectionView(0, 2);
 
-    // SingleCube
+    //// SingleCube
 
-    VertexArray singleCubeVao;
+    //VertexArray singleCubeVao;
     VertexBuffer cubeVbo(&Data::cube, sizeof(Data::cube));
-    VertexAttributeLayout singleCubeLayout;
-    singleCubeLayout.pushVertexAttributeLayout<float>(3);
-    singleCubeLayout.pushVertexAttributeLayout<float>(3);
-    singleCubeLayout.setVertexAttributeOffset(1, 8);
-    //singleCubeLayout.setVertexStride(32);
-    singleCubeVao.addVertexAttributeLayout(cubeVbo, singleCubeLayout);
+    //VertexAttributeLayout singleCubeLayout;
+    //singleCubeLayout.pushVertexAttributeLayout<float>(3);
+    //singleCubeLayout.pushVertexAttributeLayout<float>(3);
+    //singleCubeLayout.setVertexAttributeOffset(1, 8);
+    ////singleCubeLayout.setVertexStride(32);
+    //singleCubeVao.addVertexAttributeLayout(cubeVbo, singleCubeLayout);
 
-    Shader singleCubeShader("Shaders\\singleCube.shader");
-    singleCubeShader.useShader();
+    //Shader singleCubeShader("Shaders\\singleCube.shader");
+    //singleCubeShader.useShader();
     glm::vec3 objectColorWhite{ 1.0f, 1.0f, 1.0f };
-    singleCubeShader.setVec3("objectColor", objectColorWhite);
-    singleCubeShader.setVec3("material.ambient", objectColorWhite); // what color the surface reflects under ambient lighting
-    singleCubeShader.setVec3("material.diffuse", objectColorWhite); // the color of the surface under diffuse lighting
-    singleCubeShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // color of the specular highlight on the surface
-    singleCubeShader.setFloat("material.shininess", 256.0f); // impacts the scattering/radius of the specular highlight
-    // intensity vectors for each of the lighting components
-    singleCubeShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-    singleCubeShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
-    singleCubeShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+    //singleCubeShader.setVec3("objectColor", objectColorWhite);
+    ////singleCubeShader.setVec3("material.ambient", objectColorWhite); // what color the surface reflects under ambient lighting
+    ////singleCubeShader.setVec3("material.diffuse", objectColorWhite); // the color of the surface under diffuse lighting
+    //singleCubeShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // color of the specular highlight on the surface
+    //singleCubeShader.setFloat("material.shininess", 256.0f); // impacts the scattering/radius of the specular highlight
+    //// intensity vectors for each of the lighting components
+    //singleCubeShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+    //singleCubeShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
+    //singleCubeShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
     // Cube
 
@@ -120,17 +120,16 @@ int main()
     cubeLayout.pushVertexAttributeLayout<float>(3);
     cubeVao.addVertexAttributeLayout(cubeVbo, cubeLayout);
 
-    Texture texture0("Textures\\container.jpg");
-    Texture texture1("Textures\\awesomeface.png", 1);
+    //Texture texture0("Textures\\container.jpg");
+    //Texture texture1("Textures\\awesomeface.png");
+    Texture diffuse("Textures\\container2.png"); // 0
+    Texture specular("Textures\\container2_specular.png"); // 1
 
     Shader cubeShader("Shaders\\cube.shader");
     cubeShader.useShader();
-    cubeShader.setInt("texture0", 0);
-    cubeShader.setInt("texture1", 1);
+    cubeShader.setInt("material.diffuse", 0);
+    cubeShader.setInt("material.specular", 1);
     cubeShader.setVec3("objectColor", objectColorWhite);// objectColorCoral 1.0f, 0.5f, 0.31f);
-    cubeShader.setVec3("material.ambient", objectColorWhite);
-    cubeShader.setVec3("material.diffuse", objectColorWhite);
-    cubeShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
     cubeShader.setFloat("material.shininess", 256.0f);
     cubeShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
     cubeShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
@@ -170,7 +169,7 @@ int main()
     floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
     ElementBuffer floorEbo(&Data::floorIndices, sizeof(Data::floorIndices));
 
-    Texture texture2("Textures\\floor.jpg");
+    Texture texture2("Textures\\floor.jpg"); // 2
 
     Shader floorShader("Shaders\\floor.shader");
     floorShader.useShader();
@@ -202,7 +201,7 @@ int main()
 
         glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
         lightPos = glm::vec3((3.0f * sin(glfwGetTime())), 1.8f, (4.5f * cos(glfwGetTime())));
-        std::println("lightPos: {}, {}, {}", lightPos.x, lightPos.y, lightPos.z);
+        //std::println("lightPos: {}, {}, {}", lightPos.x, lightPos.y, lightPos.z);
 
         glm::vec3 lightColor;
         lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) + 0.2f;
@@ -228,15 +227,14 @@ int main()
 
         // Single Cube
 
-        singleCubeShader.useShader();
-        singleCubeShader.setVec3("lightPos", lightPos);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-2.0f, 0.0f, 0.0f));
-        singleCubeShader.setMat4("model", model);
-        singleCubeVao.bindVertexArray();
-        singleCubeShader.setVec3("light.ambient", ambientColor);
-        singleCubeShader.setVec3("light.diffuse", diffuseColor);
-
+        //singleCubeShader.useShader();
+        //singleCubeShader.setVec3("lightPos", lightPos);
+        //model = glm::mat4(1.0f);
+        //model = glm::translate(model, glm::vec3(-2.0f, 0.0f, 0.0f));
+        //singleCubeShader.setMat4("model", model);
+        //singleCubeVao.bindVertexArray();
+        //singleCubeShader.setVec3("light.ambient", ambientColor);
+        //singleCubeShader.setVec3("light.diffuse", diffuseColor);
         //glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // XYZ
@@ -249,8 +247,8 @@ int main()
         // Cube
 
         cubeShader.useShader();
-        //texture0.bindTexture();
-        //texture1.bindTexture(1);
+        diffuse.bindTexture(0);
+        specular.bindTexture(1);
         cubeShader.setVec3("lightPos", lightPos);
 
         cubeVao.bindVertexArray();
