@@ -26,12 +26,13 @@ namespace Global {
     // camera
     int windowWidth{ 1920 };
     int windowHeight{ 1080 };
-    Camera camera((static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight)), glm::vec3(0.0f, 0.15f, 3.0f));
+    Camera camera((static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight)), glm::vec3(8.0f, 1.5f, 8.0f));
     bool windowsHasMouseFocus{ false };
 
     // timing
     GLfloat deltaTime{ 0.0f };	// time between current frame and last frame
     GLfloat lastFrame{ 0.0f };
+    bool paused{ false };
 }
 
 void processInput(GLFWwindow* window);
@@ -76,13 +77,13 @@ int main()
     int flags{};
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-            glEnable(GL_DEBUG_OUTPUT);
-            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-            glDebugMessageCallback(glDebugOutput, nullptr);
-            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(glDebugOutput, nullptr);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
 
-    
+
     UniformBuffer projectionView(0, 2);
 
     // SingleCube
@@ -98,8 +99,16 @@ int main()
 
     Shader singleCubeShader("Shaders\\singleCube.shader");
     singleCubeShader.useShader();
-    singleCubeShader.setVec3("objectColor", 0.2f, 0.5f, 0.31f);
-    singleCubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+    glm::vec3 objectColorWhite{ 1.0f, 1.0f, 1.0f };
+    singleCubeShader.setVec3("objectColor", objectColorWhite);
+    singleCubeShader.setVec3("material.ambient", objectColorWhite); // what color the surface reflects under ambient lighting
+    singleCubeShader.setVec3("material.diffuse", objectColorWhite); // the color of the surface under diffuse lighting
+    singleCubeShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f); // color of the specular highlight on the surface
+    singleCubeShader.setFloat("material.shininess", 256.0f); // impacts the scattering/radius of the specular highlight
+    // intensity vectors for each of the lighting components
+    singleCubeShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+    singleCubeShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
+    singleCubeShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
     // Cube
 
@@ -118,8 +127,14 @@ int main()
     cubeShader.useShader();
     cubeShader.setInt("texture0", 0);
     cubeShader.setInt("texture1", 1);
-    cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-    cubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+    cubeShader.setVec3("objectColor", objectColorWhite);// objectColorCoral 1.0f, 0.5f, 0.31f);
+    cubeShader.setVec3("material.ambient", objectColorWhite);
+    cubeShader.setVec3("material.diffuse", objectColorWhite);
+    cubeShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+    cubeShader.setFloat("material.shininess", 256.0f);
+    cubeShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+    cubeShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
+    cubeShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
     // LightCube
 
@@ -161,8 +176,7 @@ int main()
     floorShader.useShader();
     floorShader.setInt("texture2", 0);
 
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
         float currentFrame = static_cast<float>(glfwGetTime());
         Global::deltaTime = currentFrame - Global::lastFrame;
@@ -173,7 +187,7 @@ int main()
 
         processInput(window);
 
-        Global::camera.fakeGravity(Global::deltaTime);
+        //Global::camera.fakeGravity(Global::deltaTime);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -187,8 +201,16 @@ int main()
         // Light Source
 
         glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
-        lightPos = glm::vec3( (3.0f * sin(glfwGetTime())), 1.8f, (4.5f * cos(glfwGetTime())) );
+        lightPos = glm::vec3((3.0f * sin(glfwGetTime())), 1.8f, (4.5f * cos(glfwGetTime())));
         std::println("lightPos: {}, {}, {}", lightPos.x, lightPos.y, lightPos.z);
+
+        glm::vec3 lightColor;
+        lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) + 0.2f;
+        lightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) + 0.2f;
+        lightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3f)) + 0.2f;
+
+        glm::vec3 diffuseColor = lightColor * glm::vec3(0.9f);
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
 
         // LightCube
 
@@ -196,8 +218,11 @@ int main()
         lightVao.bindVertexArray();
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
         lightShader.setMat4("model", model);
+        lightShader.setVec3("lightColor", lightColor);
+        lightShader.setVec3("ambient", ambientColor);
+        lightShader.setVec3("diffuse", diffuseColor);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         //glBindVertexArray(0);
 
@@ -209,10 +234,13 @@ int main()
         model = glm::translate(model, glm::vec3(-2.0f, 0.0f, 0.0f));
         singleCubeShader.setMat4("model", model);
         singleCubeVao.bindVertexArray();
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        singleCubeShader.setVec3("light.ambient", ambientColor);
+        singleCubeShader.setVec3("light.diffuse", diffuseColor);
+
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // XYZ
-        
+
         xyzShader.useShader();
         xyzVao.bindVertexArray();
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
@@ -224,20 +252,28 @@ int main()
         //texture0.bindTexture();
         //texture1.bindTexture(1);
         cubeShader.setVec3("lightPos", lightPos);
-        
+
         cubeVao.bindVertexArray();
         for (unsigned int i = 0; i < 10; i++)
         {
             model = glm::mat4(1.0f);
             model = glm::translate(model, Data::cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+            if (i == 2 || i == 5 || i == 8) {
+                float angle = 25.0f + (15 * i);
+                model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+            }
             cubeShader.setMat4("model", model);
             cubeShader.setVec3("lightPos", lightPos);
+
+            //glm::vec3 diffuseColor2 = lightColor * glm::vec3(0.9f);
+            //glm::vec3 ambientColor2 = diffuseColor2 * glm::vec3(0.2f);
+
+            cubeShader.setVec3("light.ambient", ambientColor);
+            cubeShader.setVec3("light.diffuse", diffuseColor);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         //glBindVertexArray(0);
-        
+
         // Floor
 
         floorShader.useShader();
@@ -269,7 +305,9 @@ int main()
 
         //glBindVertexArray(0);
 
-        glfwSwapBuffers(window);
+        if (!Global::paused) {
+            glfwSwapBuffers(window);
+        }     
         glfwPollEvents();
     }
     glfwTerminate();
@@ -310,7 +348,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 
     if (key == GLFW_KEY_V && action == GLFW_PRESS)
-        glfwSwapInterval(0);  
+        glfwSwapInterval(0);
+
+    if (key == GLFW_KEY_P && action == GLFW_PRESS)
+        Global::paused = !Global::paused;
 }
 
 #pragma warning( suppress : 4100 ) //#pragma warning( default : 4100 )
