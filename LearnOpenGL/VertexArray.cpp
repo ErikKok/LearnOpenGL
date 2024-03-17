@@ -6,18 +6,18 @@
 
 VertexArray::VertexArray()
 {
-	glGenVertexArrays(1, &m_Id);
-	glBindVertexArray(m_Id);
+	glGenVertexArrays(1, &m_id);
+	glBindVertexArray(m_id);
 }
 
 VertexArray::~VertexArray()
 {
-	glDeleteVertexArrays(1, &m_Id);
+	glDeleteVertexArrays(1, &m_id);
 }
 
 void VertexArray::bindVertexArray() const
 {
-	glBindVertexArray(m_Id);
+	glBindVertexArray(m_id);
 }
 
 void VertexArray::unbindVertexArray() const
@@ -32,8 +32,8 @@ void VertexArray::addVertexAttributeLayout(const VertexBuffer& vb, VertexAttribu
 	uintptr_t totalOffset{0};
 	for (GLuint i{ 0 }; i < vertexAttributes.size(); i++) {
 		const auto& vertexAttribute{ vertexAttributes[i] };
-		glVertexAttribPointer(i, vertexAttribute.m_Count, vertexAttribute.m_Type, vertexAttribute.m_Normalized, layout.getStride(), (const void*)totalOffset);
+		glVertexAttribPointer(i, vertexAttribute.m_count, vertexAttribute.m_type, vertexAttribute.m_normalized, layout.getStride(), (const void*)totalOffset);
 		glEnableVertexAttribArray(i);
-		totalOffset += vertexAttribute.m_Offset;
+		totalOffset += vertexAttribute.m_offset;
 	}
 }

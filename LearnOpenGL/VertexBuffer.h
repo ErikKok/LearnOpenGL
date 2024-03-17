@@ -11,5 +11,5 @@ public:
     void unbindVertexBuffer() const;
 
 private:
-    GLuint m_Id{};
+    GLuint m_id{};
 };

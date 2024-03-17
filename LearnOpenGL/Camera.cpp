@@ -5,10 +5,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera::Camera(glm::vec3 initPosition)
+Camera::Camera(float aspectRatio, glm::vec3 initPosition)
+    : m_aspectRatio {aspectRatio }
+    , m_position{ initPosition }
 {
-    m_position = initPosition;
     updateCameraVectors();
+    recalculateProjectionMatrix();
 }
 
 const float Camera::getFov() const { return m_fov; };
@@ -126,6 +128,7 @@ void Camera::ProcessMouseScroll(GLfloat yoffset)
         m_fov = 1.0f;
     if (m_fov > 45.0f)
         m_fov = 45.0f;
+    recalculateProjectionMatrix();
 }
 
 // update m_front, m_right and m_up Vectors using the updated Euler angles

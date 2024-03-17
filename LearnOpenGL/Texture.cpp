@@ -13,8 +13,8 @@ Texture::Texture(const std::string& filePath, unsigned int RGB_A)
     int textureHeight{};
     int textureNrChannels{};
 
-    glGenTextures(1, &m_Id);
-    glBindTexture(GL_TEXTURE_2D, m_Id);
+    glGenTextures(1, &m_id);
+    glBindTexture(GL_TEXTURE_2D, m_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -32,13 +32,13 @@ Texture::Texture(const std::string& filePath, unsigned int RGB_A)
 
 Texture::~Texture()
 {
-    glDeleteTextures(1, &m_Id);
+    glDeleteTextures(1, &m_id);
 }
 
 void Texture::bindTexture(unsigned int slot) const
 {
     glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, this->m_Id);
+    glBindTexture(GL_TEXTURE_2D, this->m_id);
 }
 
 void Texture::unbindTexture() const

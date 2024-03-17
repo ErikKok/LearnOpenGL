@@ -7,19 +7,19 @@
 
 ElementBuffer::ElementBuffer(const GLvoid* data, GLuint size)
 {
-	glGenBuffers(1, &m_Id);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Id);
+	glGenBuffers(1, &m_id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 }
 
 ElementBuffer::~ElementBuffer()
 {
-	glDeleteBuffers(1, &m_Id);
+	glDeleteBuffers(1, &m_id);
 }
 
 void ElementBuffer::bindElementBuffer() const
 {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
 }
 
 void ElementBuffer::unbindElementBuffer() const
@@ -29,5 +29,5 @@ void ElementBuffer::unbindElementBuffer() const
 
 //inline unsigned int ElementBuffer::getCount() const
 //{
-//	return m_Count;
+//	return m_count;
 //}

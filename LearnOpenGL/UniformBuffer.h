@@ -12,5 +12,5 @@ public:
 	void addUniformBufferSubData(const UniformBuffer& ub, BufferSubDataLayout& layout);
 
 private:
-	GLuint m_Id{};
+	GLuint m_id{};
 };

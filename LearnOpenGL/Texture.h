@@ -12,5 +12,5 @@ public:
 	void unbindTexture() const;
 
 private:
-	unsigned int m_Id{};
+	unsigned int m_id{};
 };

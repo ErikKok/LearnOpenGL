@@ -24,11 +24,9 @@
 
 namespace Global {
     // camera
-    Camera camera(glm::vec3(0.0f, 0.15f, 3.0f));
-    const int windowWidth{ 1920 };
-    const int windowHeight{ 1080 };
-    const float aspectRatio{ static_cast<float>(windowWidth) / static_cast<float>(windowHeight) };
-
+    int windowWidth{ 1920 };
+    int windowHeight{ 1080 };
+    Camera camera((static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight)), glm::vec3(0.0f, 0.15f, 3.0f));
     bool windowsHasMouseFocus{ false };
 
     // timing
@@ -47,7 +45,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 int main()
 {
     assert(sizeof(unsigned int) == sizeof(GLuint) && "size of unsigned int and GLuint is not equal");
-    
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -84,15 +82,7 @@ int main()
             glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
 
-    // Uniform Buffer Object Init
-
-    //unsigned int uboProjectionView{};
-    //glGenBuffers(1, &uboProjectionView);
-    //glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionView);
-    //glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
-    //glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboProjectionView, 0, 2 * sizeof(glm::mat4));
-    //glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
+    
     UniformBuffer projectionView(0, 2);
 
     // SingleCube
@@ -102,11 +92,14 @@ int main()
     VertexAttributeLayout singleCubeLayout;
     singleCubeLayout.pushVertexAttributeLayout<float>(3);
     singleCubeLayout.pushVertexAttributeLayout<float>(3);
-    singleCubeLayout.setVertexAttributeOffset(1, 20);
-    singleCubeLayout.setVertexStride(32);
+    singleCubeLayout.setVertexAttributeOffset(1, 8);
+    //singleCubeLayout.setVertexStride(32);
     singleCubeVao.addVertexAttributeLayout(cubeVbo, singleCubeLayout);
 
     Shader singleCubeShader("Shaders\\singleCube.shader");
+    singleCubeShader.useShader();
+    singleCubeShader.setVec3("objectColor", 0.2f, 0.5f, 0.31f);
+    singleCubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
     // Cube
 
@@ -125,7 +118,7 @@ int main()
     cubeShader.useShader();
     cubeShader.setInt("texture0", 0);
     cubeShader.setInt("texture1", 1);
-    cubeShader.setVec3("objectColor", 0.0f, 1.0f, 0.31f);
+    cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
     cubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
     // LightCube
@@ -185,16 +178,9 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 projection{ glm::perspective(glm::radians(Global::camera.getFov()), static_cast<float>(Global::aspectRatio), Global::camera.getNearPlane(), Global::camera.getFarPlane()) };
-        glm::mat4 view{ Global::camera.GetViewMatrix() };
-
-        //glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionView);
-        //glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
-        //glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
-        //glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
         BufferSubDataLayout projectionViewLayout{};
-        projectionViewLayout.pushUniformBufferSubData(projection);
+        projectionViewLayout.pushUniformBufferSubData(Global::camera.getProjectionMatrix());
+        glm::mat4 view{ Global::camera.GetViewMatrix() };
         projectionViewLayout.pushUniformBufferSubData(view);
         projectionView.addUniformBufferSubData(projectionView, projectionViewLayout);
 
@@ -213,13 +199,11 @@ int main()
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         lightShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
 
         // Single Cube
 
         singleCubeShader.useShader();
-        singleCubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        singleCubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         singleCubeShader.setVec3("lightPos", lightPos);
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-2.0f, 0.0f, 0.0f));
@@ -232,15 +216,13 @@ int main()
         xyzShader.useShader();
         xyzVao.bindVertexArray();
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
 
         // Cube
 
         cubeShader.useShader();
         //texture0.bindTexture();
         //texture1.bindTexture(1);
-        cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        cubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         cubeShader.setVec3("lightPos", lightPos);
         
         cubeVao.bindVertexArray();
@@ -251,10 +233,10 @@ int main()
             float angle = 20.0f * i;
             model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
             cubeShader.setMat4("model", model);
-
+            cubeShader.setVec3("lightPos", lightPos);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
         
         // Floor
 
@@ -285,7 +267,7 @@ int main()
         //    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(floor.size()), GL_UNSIGNED_INT, 0);
         //}
 
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -335,6 +317,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+    Global::windowWidth = width ;
+    Global::windowHeight = height;
+    Global::camera.setAspectRatio((static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight)));
+    Global::camera.recalculateProjectionMatrix();
 }
 
 #pragma warning( suppress : 4100 )

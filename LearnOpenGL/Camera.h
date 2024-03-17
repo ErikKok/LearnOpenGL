@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/gtc/type_ptr.hpp>
 
 enum class CameraMovement {
     UP,
@@ -15,10 +17,7 @@ enum class CameraMovement {
 class Camera
 {
 public:
-    glm::vec3 m_position{};
-    glm::vec3 m_front{ 0.0f, 0.0f, -1.0f }; // m_position + m_front = center = is where you are looking at (direction vector)
-    
-    Camera(glm::vec3 m_position1 = glm::vec3(0.0f, 0.0f, 0.0f));
+    Camera(float aspectRatio, glm::vec3 m_position1 = glm::vec3(0.0f, 0.0f, 0.0f));
 
     const float getFov() const;
     const float getNearPlane() const;
@@ -27,7 +26,10 @@ public:
     void fakeGravity(GLfloat deltaTime);
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    const glm::mat4 GetViewMatrix();// const;
+    const glm::mat4 GetViewMatrix();
+    const glm::mat4 getProjectionMatrix() { return m_projection; };
+    void setAspectRatio(float x) { m_aspectRatio = x; };
+    void recalculateProjectionMatrix() { m_projection = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane); };
 
     void ProcessKeyboard(CameraMovement direction, GLfloat deltaTime); //TODO hoofdletters
     void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
@@ -35,7 +37,8 @@ public:
 
 private:
     // camera Attributes
-   
+    glm::vec3 m_position{};
+    glm::vec3 m_front{ 0.0f, 0.0f, -1.0f }; // m_position + m_front = center = is where you are looking at (direction vector)
     glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
     glm::vec3 m_right{};
     const glm::vec3 m_worldup{ 0.0f, 1.0f, 0.0f };
@@ -48,6 +51,8 @@ private:
     GLfloat m_movementSpeed{ 2.5f };
     GLfloat m_mouseSensitivity{ 0.035f };
     GLfloat m_fov{ 45.0f };
+    float m_aspectRatio{};
+    glm::mat4 m_projection{}; 
 
     // update m_front, m_right and m_up Vectors using the updated Euler angles
     void updateCameraVectors();
