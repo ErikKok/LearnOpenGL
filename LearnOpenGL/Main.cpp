@@ -50,7 +50,9 @@ int main()
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 16);
 
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
     GLFWwindow* window = glfwCreateWindow(Global::windowWidth, Global::windowHeight, "LearnOpenGL", nullptr, nullptr);
@@ -124,16 +126,30 @@ int main()
     //Texture texture1("Textures\\awesomeface.png");
     Texture diffuse("Textures\\container2.png"); // 0
     Texture specular("Textures\\container2_specular.png"); // 1
+    Texture emission("Textures\\matrix.jpg"); // 3
 
     Shader cubeShader("Shaders\\cube.shader");
     cubeShader.useShader();
-    cubeShader.setInt("material.diffuse", 0);
+
+    cubeShader.setInt("material.diffuse", 0); // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     cubeShader.setInt("material.specular", 1);
+    cubeShader.setInt("material.emission", 3);
     cubeShader.setVec3("objectColor", objectColorWhite);// objectColorCoral 1.0f, 0.5f, 0.31f);
     cubeShader.setFloat("material.shininess", 256.0f);
     cubeShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
     cubeShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
     cubeShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+    //sun cubeShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+
+    cubeShader.setFloat("light.constant", 1.0f);
+    cubeShader.setFloat("light.linear", 0.09f);
+    cubeShader.setFloat("light.quadratic", 0.032f);
+
+    //cubeShader.setVec3("light.position", Global::camera.getPosition());
+    //cubeShader.setVec3("light.direction", Global::camera.getFront());
+ 
+
 
     // LightCube
 
@@ -169,11 +185,11 @@ int main()
     floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
     ElementBuffer floorEbo(&Data::floorIndices, sizeof(Data::floorIndices));
 
-    Texture texture2("Textures\\floor.jpg"); // 2
+    Texture texture2("Textures\\floor.jpg");
 
     Shader floorShader("Shaders\\floor.shader");
     floorShader.useShader();
-    floorShader.setInt("texture2", 0);
+    floorShader.setInt("texture2", 2);
 
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
@@ -199,19 +215,20 @@ int main()
 
         // Light Source
 
-        glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
-        lightPos = glm::vec3((3.0f * sin(glfwGetTime())), 1.8f, (4.5f * cos(glfwGetTime())));
+        glm::vec3 lightPos(2.0f, 1.5f, 3.0f);
+        //lightPos = glm::vec3((3.0f * sin(glfwGetTime())), 1.8f, (4.5f * cos(glfwGetTime())));
         //std::println("lightPos: {}, {}, {}", lightPos.x, lightPos.y, lightPos.z);
 
-        glm::vec3 lightColor;
-        lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) + 0.2f;
-        lightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) + 0.2f;
-        lightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3f)) + 0.2f;
+        glm::vec3 lightColor{ 1.0f, 0.8f, 0.6f };
+        //lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) + 0.2f;
+        //lightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) + 0.2f;
+        //lightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3f)) + 0.2f;
 
         glm::vec3 diffuseColor = lightColor * glm::vec3(0.9f);
         glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
 
         // LightCube
+
 
         lightShader.useShader();
         lightVao.bindVertexArray();
@@ -249,7 +266,25 @@ int main()
         cubeShader.useShader();
         diffuse.bindTexture(0);
         specular.bindTexture(1);
+        emission.bindTexture(3);
         cubeShader.setVec3("lightPos", lightPos);
+        cubeShader.setVec3("light.position", glm::vec3(0.0f, 0.0f, 0.0f));
+
+        glm::mat4 viewMatrixLightCube = glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        cubeShader.setMat4("viewMatrixLightCube", viewMatrixLightCube);
+
+
+        //glm::vec3 jup{ glm::vec3(0.0f, 0.0f, 1.0f) };
+        //cubeShader.setVec3("light.direction", jup);
+
+        //glm::vec3 jup{ Global::camera.getFront() };
+        //normalize(jup);
+        //cubeShader.setVec3("light.direction", jup );
+
+        //std::println("Position: {}, {}, {}", jup.x, jup.y, jup.z);
+
+        cubeShader.setFloat("light.cutOff", glm::cos(glm::radians(18.5f)));
+        cubeShader.setFloat("light.outerCutOff ", glm::cos(glm::radians(17.5f)));
 
         cubeVao.bindVertexArray();
         for (unsigned int i = 0; i < 10; i++)
@@ -259,6 +294,10 @@ int main()
             if (i == 2 || i == 5 || i == 8) {
                 float angle = 25.0f + (15 * i);
                 model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+            }
+            if (i == 3) {
+                model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -1.0f));
+                model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
             }
             cubeShader.setMat4("model", model);
             cubeShader.setVec3("lightPos", lightPos);
@@ -275,7 +314,7 @@ int main()
         // Floor
 
         floorShader.useShader();
-        texture2.bindTexture();
+        texture2.bindTexture(2);
         floorVao.bindVertexArray();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));

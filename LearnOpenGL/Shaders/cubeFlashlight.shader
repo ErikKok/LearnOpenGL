@@ -8,7 +8,6 @@ out vec2 TexCoords;
 out vec3 FragPos;
 out vec3 Normal;
 out vec3 LightPos;
-out vec3 FragPosLightCube;
 
 layout (std140, binding = 0) uniform uboProjectionView
 {
@@ -18,12 +17,9 @@ layout (std140, binding = 0) uniform uboProjectionView
 uniform vec3 lightPos;
 uniform mat4 model;
 
-uniform mat4 viewMatrixLightCube;
-
 void main()
 {
     FragPos = vec3(view * model * vec4(aPos, 1.0));
-    FragPosLightCube = vec3(viewMatrixLightCube * model * vec4(aPos, 1.0));
     Normal = mat3(transpose(inverse(view * model))) * aNormal;
     TexCoords = aTexCoords;
     LightPos = vec3(view * vec4(lightPos, 1.0)); // Transform world-space light position to view-space light position
@@ -37,8 +33,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 in vec3 FragPos; // positie fragment (Vertex) in view space
 in vec3 Normal;
-in vec3 LightPos; // positie lightcube in view space, maar niet normalized!?
-in vec3 FragPosLightCube; // positie fragment (Vertex) in view space vanaf lightpos gezien
+in vec3 LightPos; // positie lightcube in view space
 
 struct Material {
     sampler2D diffuse;
@@ -74,8 +69,8 @@ void main()
     float theta = dot(lightDir, normalize(cameraDirection));
 
     // Spotlight
-    //vec3 lightDir = normalize(normalize(LightPos) - FragPosLightCube); // punt waaruit het licht komt, of naar toe gaat?  
-    //float theta = dot(lightDir, normalize(vec3(0.0f, 0.0f, -1.0f)));
+    //vec3 lightDir = normalize(LightPos - FragPos); // punt waaruit het licht komt, of naar toe gaat?  
+    //float theta = dot(lightDir, normalize(vec3(0.0f, 0.0f, 1.0f)));
 
     // ambient
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));

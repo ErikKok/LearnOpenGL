@@ -8,7 +8,8 @@ public:
 	Texture(const std::string& filePath);
 	~Texture();
 
-	void bindTexture(unsigned int slot = 0) const;
+	//void assignTextureUnit(TODO?);
+	void bindTexture(unsigned int textureUnit = 0) const;
 	void unbindTexture() const;
 
 private:

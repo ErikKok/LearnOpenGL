@@ -99,6 +99,17 @@ constexpr std::array floor{ // Hex
      -0.67f,  0.50f, 0.0f,  1.0f, 0.0f, 1.0f,  0.0f, 0.75f, // 6
 };
 
+constexpr std::array floor2{ // Hex
+    // Positions            // Texture      // Normal
+      0.0f,   0.0f,  0.0f,  0.5f, 0.5f,         1.0f,  0.0f,    0.0f,
+      0.0f,   1.0f,  0.0f,  0.5f, 1.0f,         1.0f,  0.0f,    0.0f,
+      0.67f,  0.50f, 0.0f,  1.0f, 0.75f,        1.0f,  0.0f,    0.0f,
+      0.67f, -0.50f, 0.0f,  1.0f, 0.25f,        1.0f,  0.0f,    0.0f,
+      0.0f,  -1.0f,  0.0f,  0.5f, 0.0f,         1.0f,  0.0f,    0.0f,
+     -0.67f, -0.50f, 0.0f,  0.0f, 0.25f,        1.0f,  0.0f,    0.0f,
+     -0.67f,  0.50f, 0.0f,  0.0f, 0.75f,        1.0f,  0.0f,    0.0f,
+};
+
 constexpr std::array floorIndices{
      0u, 1u, 2u,
      0u, 2u, 3u,
