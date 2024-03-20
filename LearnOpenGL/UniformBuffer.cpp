@@ -8,20 +8,20 @@
 UniformBuffer::UniformBuffer(GLuint index, GLint count)
 {
 	glm::mat4 type{}; // do I need other types here? If so: could be a in argument
-	glGenBuffers(1, &m_id);
-	glBindBuffer(GL_UNIFORM_BUFFER, m_id);
+	glGenBuffers(1, &m_Id);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_Id);
 	glBufferData(GL_UNIFORM_BUFFER, count * sizeof(type), nullptr, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, index, m_id, 0, count * sizeof(type)); // always binds the whole buffer
+	glBindBufferRange(GL_UNIFORM_BUFFER, index, m_Id, 0, count * sizeof(type)); // always binds the whole buffer
 }
 
 UniformBuffer::~UniformBuffer()
 {
-	glDeleteBuffers(1, &m_id);
+	glDeleteBuffers(1, &m_Id);
 }
 
 void UniformBuffer::bindUniformBuffer() const
 {
-	glBindBuffer(GL_UNIFORM_BUFFER, m_id);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_Id);
 }
 
 void UniformBuffer::unbindUniformBuffer() const
@@ -36,8 +36,8 @@ void UniformBuffer::addUniformBufferSubData(const UniformBuffer& ub, BufferSubDa
 	GLintptr totalOffset{ 0 };
 	for (GLuint i{ 0 }; i < bufferSubData.size(); i++) {
 		const auto& bufferSubDataElement{ bufferSubData[i] };
-		assert(bufferSubDataElement.m_target == GL_UNIFORM_BUFFER && "Wrong buffer binding target (must be GL_UNIFORM_BUFFER)");
-		glBufferSubData(bufferSubDataElement.m_target, totalOffset, bufferSubDataElement.m_size, &bufferSubDataElement.m_data);
-		totalOffset += bufferSubDataElement.m_size;
+		assert(bufferSubDataElement.m_Target == GL_UNIFORM_BUFFER && "Wrong buffer binding target (must be GL_UNIFORM_BUFFER)");
+		glBufferSubData(bufferSubDataElement.m_Target, totalOffset, bufferSubDataElement.m_Size, &bufferSubDataElement.m_Data);
+		totalOffset += bufferSubDataElement.m_Size;
 	}
 }

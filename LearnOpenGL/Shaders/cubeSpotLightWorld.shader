@@ -76,43 +76,52 @@ vec3 cameraPosition = vec3(0.0f, 0.0f, 0.0f);
 void main()
 {
     vec3 lightDir = normalize(light.position - FragPosWorld);  
+    
+    float theta = dot(lightDir, normalize(-light.direction));
 
     // ambient
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
 
-    // diffuse 
-    vec3 norm = normalize(NormalWorld);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
+  	if(theta > light.cutOff) // remember that we're working with angles as cosines instead of degrees so a '>' is used.
+    { 
+        // diffuse 
+        vec3 norm = normalize(NormalWorld);
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
 
-    // specular
-    vec3 viewDir = normalize(cameraPosition - FragPosWorld); // from what direction the player is looking at the fragment
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+        // specular
+        vec3 viewDir = normalize(cameraPosition - FragPosWorld); // from what direction the player is looking at the fragment
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+        vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
 
-    // emission
-    vec3 emission = vec3(0.0);
-    if (texture(material.specular, TexCoords).r == 0.0) {
-    emission = vec3(texture(material.emission, TexCoords)) * 0.25f;
-    }
+        // emission
+        vec3 emission = vec3(0.0);
+        if (texture(material.specular, TexCoords).r == 0.0) {
+        emission = vec3(texture(material.emission, TexCoords)) * 0.25f;
+        }
 
-    // spot Light
-    float theta = dot(lightDir, normalize(-light.direction));
-    float epsilon = light.cutOff - light.outerCutOff;
-    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
-    ambient *= intensity;
-    diffuse *= intensity;
-    specular *= intensity;
-    //emission *= intensity;
+        // spot Light
 
-    float distance    = length(LightPosWorld - FragPosWorld);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance)); 
+        //float epsilon = light.cutOff - light.outerCutOff;
+        //float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 0.7);
+        //ambient *= intensity;
+        //diffuse *= intensity;
+        //specular *= intensity;
+
+        float distance    = length(LightPosWorld - FragPosWorld);
+        float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance)); 
     
-    //ambient  *= attenuation; // if we were to use more than 1 light source all the ambient components will start to stack up
-    diffuse  *= attenuation;
-    specular *= attenuation;
-    emission *= attenuation;
+        //ambient  *= attenuation; // if we were to use more than 1 light source all the ambient components will start to stack up
+        diffuse  *= attenuation;
+        specular *= attenuation;
+        emission *= attenuation;
 
-    FragColor = vec4(ambient + diffuse + specular + emission, 1.0);
+        FragColor = vec4(ambient + diffuse + specular + emission, 1.0);
+    }
+    else 
+    {
+        // else, use ambient light so scene isn't completely dark outside the spotlight.
+        FragColor = vec4(light.ambient * texture(material.diffuse, TexCoords).rgb, 1.0);
+    }
  }

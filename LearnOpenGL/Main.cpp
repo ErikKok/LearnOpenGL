@@ -176,20 +176,20 @@ int main()
 
     // Floor
 
-    VertexArray floorVao;
-    VertexBuffer floorVbo(&Data::floor, sizeof(Data::floor));
-    VertexAttributeLayout floorlayout{};
-    floorlayout.pushVertexAttributeLayout<float>(3);
-    floorlayout.pushVertexAttributeLayout<float>(3);
-    floorlayout.pushVertexAttributeLayout<float>(2);
-    floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
-    ElementBuffer floorEbo(&Data::floorIndices, sizeof(Data::floorIndices));
+    //VertexArray floorVao;
+    //VertexBuffer floorVbo(&Data::floor, sizeof(Data::floor));
+    //VertexAttributeLayout floorlayout{};
+    //floorlayout.pushVertexAttributeLayout<float>(3);
+    //floorlayout.pushVertexAttributeLayout<float>(3);
+    //floorlayout.pushVertexAttributeLayout<float>(2);
+    //floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
+    //ElementBuffer floorEbo(&Data::floorIndices, sizeof(Data::floorIndices));
 
-    Texture texture2("Textures\\floor.jpg");
+    //Texture texture2("Textures\\floor.jpg");
 
-    Shader floorShader("Shaders\\floor.shader");
-    floorShader.useShader();
-    floorShader.setInt("texture2", 2);
+    //Shader floorShader("Shaders\\floor.shader");
+    //floorShader.useShader();
+    //floorShader.setInt("texture2", 2);
 
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
@@ -215,9 +215,9 @@ int main()
 
         // Light Source
 
-        glm::vec3 lightPos(2.0f, 1.5f, 3.0f);
-        //lightPos = glm::vec3((3.0f * sin(glfwGetTime())), 1.8f, (4.5f * cos(glfwGetTime())));
-        //std::println("lightPos: {}, {}, {}", lightPos.x, lightPos.y, lightPos.z);
+        glm::vec3 lightPos(0.0f, 3.2f, -1.0f);
+        lightPos = glm::vec3((3.0f * sin(glfwGetTime())), 1.5f, (4.5f * cos(glfwGetTime())));
+        std::println("lightPos: {}, {}, {}", lightPos.x, lightPos.y, lightPos.z);
 
         glm::vec3 lightColor{ 1.0f, 0.8f, 0.6f };
         //lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) + 0.2f;
@@ -268,23 +268,10 @@ int main()
         specular.bindTexture(1);
         emission.bindTexture(3);
         cubeShader.setVec3("lightPos", lightPos);
-        cubeShader.setVec3("light.position", glm::vec3(0.0f, 0.0f, 0.0f));
-
-        glm::mat4 viewMatrixLightCube = glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        cubeShader.setMat4("viewMatrixLightCube", viewMatrixLightCube);
-
-
-        //glm::vec3 jup{ glm::vec3(0.0f, 0.0f, 1.0f) };
-        //cubeShader.setVec3("light.direction", jup);
-
-        //glm::vec3 jup{ Global::camera.getFront() };
-        //normalize(jup);
-        //cubeShader.setVec3("light.direction", jup );
-
-        //std::println("Position: {}, {}, {}", jup.x, jup.y, jup.z);
-
-        cubeShader.setFloat("light.cutOff", glm::cos(glm::radians(18.5f)));
-        cubeShader.setFloat("light.outerCutOff ", glm::cos(glm::radians(17.5f)));
+        cubeShader.setVec3("light.position", lightPos);
+        cubeShader.setVec3("light.direction", glm::vec3(0.0f, 0.0f, -1.0f));
+        cubeShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+        cubeShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 
         cubeVao.bindVertexArray();
         for (unsigned int i = 0; i < 10; i++)
@@ -296,8 +283,12 @@ int main()
                 model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
             }
             if (i == 3) {
-                model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -1.0f));
+                model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
                 model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
+            }
+            if (i == 9) {
+                model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+                model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             }
             cubeShader.setMat4("model", model);
             cubeShader.setVec3("lightPos", lightPos);
@@ -313,15 +304,15 @@ int main()
 
         // Floor
 
-        floorShader.useShader();
-        texture2.bindTexture(2);
-        floorVao.bindVertexArray();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
-        model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
-        floorShader.setMat4("model", model);
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor.size()), GL_UNSIGNED_INT, 0);
+        //floorShader.useShader();
+        //texture2.bindTexture(2);
+        //floorVao.bindVertexArray();
+        //model = glm::mat4(1.0f);
+        //model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+        //model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
+        //floorShader.setMat4("model", model);
+        //glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor.size()), GL_UNSIGNED_INT, 0);
 
         //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
         //for (unsigned int i = 0; i < 32; i++) {

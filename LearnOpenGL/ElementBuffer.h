@@ -13,6 +13,6 @@ public:
     //inline unsigned int getCount() const;
 
 private:
-    GLuint m_id{};
-    unsigned int m_count{};
+    GLuint m_Id{};
+    unsigned int m_Count{};
 };

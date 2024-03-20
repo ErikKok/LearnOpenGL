@@ -1,9 +1,6 @@
 #pragma once
 #include "Shader.h"
 
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-
 #include <print>
 #include <string>
 #include <fstream>
