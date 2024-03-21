@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Global.h"
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
@@ -29,6 +31,6 @@ public:
 
 private:
     unsigned int m_id;
-
+    int getLocation(const std::string& name) const;
     void checkCompileErrors(GLuint shader, std::string_view type);
 };

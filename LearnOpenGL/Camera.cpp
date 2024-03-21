@@ -68,7 +68,6 @@ const glm::mat4 Camera::GetViewMatrix() //const
     //rotation[2][2] = zaxis.z;
 
     //glm::mat4 view{ rotation * translation };
-
     return view;
 }
 

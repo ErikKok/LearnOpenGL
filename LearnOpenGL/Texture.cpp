@@ -1,4 +1,5 @@
 #pragma once
+#include "Global.h"
 #include "Texture.h"
 
 #include <glad/glad.h>
@@ -35,20 +36,24 @@ Texture::Texture(const std::string& filePath)
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
     stbi_image_free(textureData);
+    Global::glCheckError();
 }
 
 Texture::~Texture()
 {
     glDeleteTextures(1, &m_id);
+    Global::glCheckError();
 }
 
 void Texture::bindTexture(unsigned int textureUnit) const
 {
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_2D, this->m_id);
+    Global::glCheckError();
 }
 
 void Texture::unbindTexture() const
 {
     glBindTexture(GL_TEXTURE_2D, 0);
+    Global::glCheckError();
 }

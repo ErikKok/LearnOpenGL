@@ -1,5 +1,6 @@
 #pragma once
 #include "UniformBuffer.h"
+#include "Global.h"
 
 #include <glad/glad.h>
 
@@ -12,21 +13,25 @@ UniformBuffer::UniformBuffer(GLuint index, GLint count)
 	glBindBuffer(GL_UNIFORM_BUFFER, m_Id);
 	glBufferData(GL_UNIFORM_BUFFER, count * sizeof(type), nullptr, GL_STATIC_DRAW);
 	glBindBufferRange(GL_UNIFORM_BUFFER, index, m_Id, 0, count * sizeof(type)); // always binds the whole buffer
+	Global::glCheckError();
 }
 
 UniformBuffer::~UniformBuffer()
 {
 	glDeleteBuffers(1, &m_Id);
+	Global::glCheckError();
 }
 
 void UniformBuffer::bindUniformBuffer() const
 {
 	glBindBuffer(GL_UNIFORM_BUFFER, m_Id);
+	Global::glCheckError();
 }
 
 void UniformBuffer::unbindUniformBuffer() const
 {
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	Global::glCheckError();
 }
 
 void UniformBuffer::addUniformBufferSubData(const UniformBuffer& ub, BufferSubDataLayout& layout)
@@ -40,4 +45,5 @@ void UniformBuffer::addUniformBufferSubData(const UniformBuffer& ub, BufferSubDa
 		glBufferSubData(bufferSubDataElement.m_Target, totalOffset, bufferSubDataElement.m_Size, &bufferSubDataElement.m_Data);
 		totalOffset += bufferSubDataElement.m_Size;
 	}
+	Global::glCheckError();
 }

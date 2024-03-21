@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Data.h"
 #include "ElementBuffer.h"
+#include "Global.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexBuffer.h"
@@ -22,31 +23,8 @@
 #include <array>
 #include <print>
 
-namespace Global {
-    // camera
-    int windowWidth{ 1920 };
-    int windowHeight{ 1080 };
-    Camera camera((static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight)), glm::vec3(8.0f, 1.5f, 8.0f));
-    bool windowsHasMouseFocus{ false };
-
-    // timing
-    GLfloat deltaTime{ 0.0f };	// time between current frame and last frame
-    GLfloat lastFrame{ 0.0f };
-    bool paused{ false };
-}
-
-void processInput(GLFWwindow* window);
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void cursor_enter_callback(GLFWwindow* window, int entered);
-void mouse_callback(GLFWwindow* window, double currentXPosIn, double currentYPosIn);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
 int main()
 {
-    assert(sizeof(unsigned int) == sizeof(GLuint) && "size of unsigned int and GLuint is not equal");
-
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -61,30 +39,11 @@ int main()
         glfwTerminate();
         return -1;
     }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorEnterCallback(window, cursor_enter_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetKeyCallback(window, key_callback);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::println("Failed to initialize GLAD");
-        return -1;
-    }
-
-    glEnable(GL_DEPTH_TEST);
-
-    int flags{};
-    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(glDebugOutput, nullptr);
-        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-    }
-
+    if (Global::init(window) == -1)
+        return 1;
+ 
+    Global::glCheckError();
 
     UniformBuffer projectionView(0, 2);
 
@@ -134,7 +93,7 @@ int main()
     cubeShader.setInt("material.diffuse", 0); // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     cubeShader.setInt("material.specular", 1);
     cubeShader.setInt("material.emission", 3);
-    cubeShader.setVec3("objectColor", objectColorWhite);// objectColorCoral 1.0f, 0.5f, 0.31f);
+    //cubeShader.setVec3("objectColor", objectColorWhite);// objectColorCoral 1.0f, 0.5f, 0.31f);
     cubeShader.setFloat("material.shininess", 256.0f);
     cubeShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
     cubeShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
@@ -191,6 +150,7 @@ int main()
     //floorShader.useShader();
     //floorShader.setInt("texture2", 2);
 
+    Global::glCheckError();
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -200,7 +160,7 @@ int main()
         //std::println("Position: {}, {}, {}", Global::camera.m_position.x, Global::camera.m_position.y, Global::camera.m_position.z);
         //std::println("Front: {}, {}, {}", Global::camera.m_front.x, Global::camera.m_front.y, Global::camera.m_front.z);
 
-        processInput(window);
+        Global::processInput(window);
 
         //Global::camera.fakeGravity(Global::deltaTime);
 
@@ -217,7 +177,7 @@ int main()
 
         glm::vec3 lightPos(0.0f, 3.2f, -1.0f);
         lightPos = glm::vec3((3.0f * sin(glfwGetTime())), 1.5f, (4.5f * cos(glfwGetTime())));
-        std::println("lightPos: {}, {}, {}", lightPos.x, lightPos.y, lightPos.z);
+        //std::println("lightPos: {}, {}, {}", lightPos.x, lightPos.y, lightPos.z);
 
         glm::vec3 lightColor{ 1.0f, 0.8f, 0.6f };
         //lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) + 0.2f;
@@ -237,10 +197,9 @@ int main()
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
         lightShader.setMat4("model", model);
         lightShader.setVec3("lightColor", lightColor);
-        lightShader.setVec3("ambient", ambientColor);
-        lightShader.setVec3("diffuse", diffuseColor);
+        //lightShader.setVec3("ambient", ambientColor);
+        //lightShader.setVec3("diffuse", diffuseColor);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        //glBindVertexArray(0);
 
         // Single Cube
 
@@ -259,7 +218,6 @@ int main()
         xyzShader.useShader();
         xyzVao.bindVertexArray();
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
-        //glBindVertexArray(0);
 
         // Cube
 
@@ -300,7 +258,6 @@ int main()
             cubeShader.setVec3("light.diffuse", diffuseColor);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        //glBindVertexArray(0);
 
         // Floor
 
@@ -331,147 +288,14 @@ int main()
         //    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(floor.size()), GL_UNSIGNED_INT, 0);
         //}
 
-        //glBindVertexArray(0);
-
         if (!Global::paused) {
             glfwSwapBuffers(window);
         }     
         glfwPollEvents();
     }
+    Global::glCheckError();
     glfwTerminate();
+    Global::glClearError(); // TODO glfwTerminate() produce errors
+    Global::glCheckError();
     return 0;
-}
-
-void processInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::FORWARD, Global::deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::BACKWARD, Global::deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::LEFT, Global::deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::RIGHT, Global::deltaTime);
-
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::UP, Global::deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::DOWN, Global::deltaTime);
-}
-
-#pragma warning( suppress : 4100 )
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-        if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            Global::windowsHasMouseFocus = false;
-        }
-        else if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        }
-    }
-
-    if (key == GLFW_KEY_V && action == GLFW_PRESS)
-        glfwSwapInterval(0);
-
-    if (key == GLFW_KEY_P && action == GLFW_PRESS)
-        Global::paused = !Global::paused;
-}
-
-#pragma warning( suppress : 4100 ) //#pragma warning( default : 4100 )
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-    Global::windowWidth = width ;
-    Global::windowHeight = height;
-    Global::camera.setAspectRatio((static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight)));
-    Global::camera.recalculateProjectionMatrix();
-}
-
-#pragma warning( suppress : 4100 )
-void cursor_enter_callback(GLFWwindow* window, int entered)
-{
-    if (entered) {
-        // The cursor entered the client area of the window
-    }
-    else {
-        // The cursor left the client area of the window
-        Global::windowsHasMouseFocus = false;
-    }
-}
-
-#pragma warning( suppress : 4100 )
-void mouse_callback(GLFWwindow* window, double currentXPosIn, double currentYPosIn)
-{
-    float currentXPos{ static_cast<float>(currentXPosIn) };
-    float currentYPos{ static_cast<float>(currentYPosIn) };
-    // last x,y position, initialize with center x,y coordinates
-    static float lastXPos{ Global::windowWidth / 2.0f };
-    static float lastYPos{ Global::windowHeight / 2.0f };
-
-    if (!Global::windowsHasMouseFocus) {
-        lastXPos = currentXPos;
-        lastYPos = currentYPos;
-        Global::windowsHasMouseFocus = true;
-    }
-
-    // Calculate the mouse's offset since the last frame
-    float xoffset{ currentXPos - lastXPos };
-    float yoffset{ lastYPos - currentYPos }; // reversed since y-coordinates go from bottom to top
-
-    lastXPos = currentXPos;
-    lastYPos = currentYPos;
-
-    Global::camera.ProcessMouseMovement(xoffset, yoffset);
-}
-
-#pragma warning( suppress : 4100 )
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    Global::camera.ProcessMouseScroll(static_cast<float>(yoffset));
-}
-
-#pragma warning( suppress : 4100 )
-void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam)
-{
-    // ignore non-significant error/warning codes
-    if (id == 131169 || id == 131185 || id == 131218 || id == 131204)                   return;
-
-    std::println("---------------");
-    std::println("Debug message ({})", id);
-
-    switch (source)
-    {
-    case GL_DEBUG_SOURCE_API:             std::println("Source: API");                  break;
-    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::println("Source: Window System");        break;
-    case GL_DEBUG_SOURCE_SHADER_COMPILER: std::println("Source: Shader Compiler");      break;
-    case GL_DEBUG_SOURCE_THIRD_PARTY:     std::println("Source: Third Party");          break;
-    case GL_DEBUG_SOURCE_APPLICATION:     std::println("Source: Application");          break;
-    case GL_DEBUG_SOURCE_OTHER:           std::println("Source: Other");                break;
-    }
-
-    switch (type)
-    {
-    case GL_DEBUG_TYPE_ERROR:               std::println("Type: Error");                break;
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::println("Type: Deprecated Behaviour"); break;
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::println("Type: Undefined Behaviour");  break;
-    case GL_DEBUG_TYPE_PORTABILITY:         std::println("Type: Portability");          break;
-    case GL_DEBUG_TYPE_PERFORMANCE:         std::println("Type: Performance");          break;
-    case GL_DEBUG_TYPE_MARKER:              std::println("Type: Marker");               break;
-    case GL_DEBUG_TYPE_PUSH_GROUP:          std::println("Type: Push Group");           break;
-    case GL_DEBUG_TYPE_POP_GROUP:           std::println("Type: Pop Group");            break;
-    case GL_DEBUG_TYPE_OTHER:               std::println("Type: Other");                break;
-    }
-
-    switch (severity)
-    {
-    case GL_DEBUG_SEVERITY_HIGH:         std::println("Severity: high");                break;
-    case GL_DEBUG_SEVERITY_MEDIUM:       std::println("Severity: medium");              break;
-    case GL_DEBUG_SEVERITY_LOW:          std::println("Severity: low");                 break;
-    case GL_DEBUG_SEVERITY_NOTIFICATION: std::println("Severity: notification");        break;
-    }
 }

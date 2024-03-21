@@ -1,7 +1,14 @@
 TO DO
 - Calling glUniform is quite expensive during run-time. Structure your programme so that glUniform is only called when the value needs to change. This might be the case every time that you draw a new object (e.g. its position might be different), but some uniforms may not change often (e.g. projection matrix).
 - Logging https://antongerdelan.net/opengl/glcontext2.html
-- Uniform location cache + error checking glGetUniformLocation
+- Uniform location cache
+- Global::glCheckError();
+
+v0.1.04 21-3-2024
+-----------------
+- error checking glGetUniformLocation
+- added Global.h
+- error checking everywhere
 
 v0.1.03 17-3-2024
 -----------------

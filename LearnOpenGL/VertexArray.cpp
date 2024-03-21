@@ -1,5 +1,7 @@
 #pragma once
 #include "VertexArray.h"
+
+#include "Global.h"
 #include "VertexBuffer.h"
 
 #include <glad/glad.h>
@@ -8,21 +10,25 @@ VertexArray::VertexArray()
 {
 	glGenVertexArrays(1, &m_Id);
 	glBindVertexArray(m_Id);
+	Global::glCheckError();
 }
 
 VertexArray::~VertexArray()
 {
 	glDeleteVertexArrays(1, &m_Id);
+	Global::glCheckError();
 }
 
 void VertexArray::bindVertexArray() const
 {
 	glBindVertexArray(m_Id);
+	Global::glCheckError();
 }
 
 void VertexArray::unbindVertexArray() const
 {
 	glBindVertexArray(0);
+	Global::glCheckError();
 }
 
 void VertexArray::addVertexAttributeLayout(const VertexBuffer& vb, VertexAttributeLayout& layout)
@@ -36,4 +42,5 @@ void VertexArray::addVertexAttributeLayout(const VertexBuffer& vb, VertexAttribu
 		glEnableVertexAttribArray(i);
 		totalOffset += vertexAttribute.m_Offset;
 	}
+	Global::glCheckError();
 }
