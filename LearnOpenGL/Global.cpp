@@ -9,7 +9,7 @@ namespace Global {
 
     GLenum glCheckError_(const char* file, int line)
     {
-        GLenum errorCode;
+        GLenum errorCode{};
         while ((errorCode = glGetError()) != GL_NO_ERROR)
         {
             std::string error{};

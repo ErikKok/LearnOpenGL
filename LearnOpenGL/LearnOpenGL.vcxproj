@@ -127,7 +127,9 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="Shaders\floor.shader" />
+    <None Include="Shaders\multiLight.shader" />
     <None Include="Shaders\singleCube.shader" />
+    <None Include="Shaders\spotlight.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

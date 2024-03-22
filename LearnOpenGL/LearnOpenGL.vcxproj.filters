@@ -108,5 +108,11 @@
     <None Include="README.md">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="Shaders\spotlight.shader">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\multiLight.shader">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

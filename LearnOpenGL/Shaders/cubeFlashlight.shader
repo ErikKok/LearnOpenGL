@@ -5,7 +5,7 @@ layout (location = 1) in vec2 aTexCoords;
 layout (location = 2) in vec3 aNormal; // <------- enige verschil met cubeShader (1 ipv 2) + geen textures
 
 out vec2 TexCoords;
-out vec3 FragPos;
+out vec3 FragPos; // View space
 out vec3 Normal;
 out vec3 LightPos;
 
