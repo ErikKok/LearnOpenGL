@@ -114,5 +114,8 @@
     <None Include="Shaders\multiLight.shader">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="Shaders\cubeFlashlight.shader">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

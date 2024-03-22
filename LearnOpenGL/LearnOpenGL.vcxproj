@@ -126,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+    <None Include="Shaders\cubeFlashlight.shader" />
     <None Include="Shaders\floor.shader" />
     <None Include="Shaders\multiLight.shader" />
     <None Include="Shaders\singleCube.shader" />
