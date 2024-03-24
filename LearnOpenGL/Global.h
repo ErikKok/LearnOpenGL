@@ -1,11 +1,16 @@
 #pragma once
 
 #include "Camera.h"
+#include "Shader.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <print>
+
+// TODO
+class Shader;
+inline Shader* flashLight{ nullptr };
 
 namespace Global {
     inline int windowWidth{ 1920 };

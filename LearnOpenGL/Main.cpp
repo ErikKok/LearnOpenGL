@@ -89,7 +89,7 @@ int main()
 
     multiLight.useShader();
     // Material
-    multiLight.setInt("material.diffuse", 0); // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
+    multiLight.setInt("material.diffuse", 0);
     multiLight.setInt("material.specular", 1);
     multiLight.setInt("material.emission", 3);
     multiLight.setFloat("material.shininess", 256.0f);
@@ -98,23 +98,22 @@ int main()
     // DirLight
     glm::vec3 dirLightDirection{ 0.2f, 0.8f, 0.2f };
     multiLight.setVec3("dirLight.direction", dirLightDirection);
-    glm::vec3 dirLightColor(0.0f, 1.0f, 0.2f);
-    //multiLight.setVec3("dirLight.ambient", (dirLightColor * glm::vec3(0.1f)));
+    glm::vec3 dirLightColor(1.0f, 1.0f, 0.9f);
     multiLight.setVec3("dirLight.diffuse", (dirLightColor * glm::vec3(0.2f)));
-    //multiLight.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
     // SpotLight
     multiLight.setVec3("spotLight.position", lightPos);
-    glm::vec3 lightDirection{ 0.0f, -1.0f, 0.0f };
-    multiLight.setVec3("spotLight.direction", lightDirection);
-    float cutOff{ glm::cos(glm::radians(48.5f)) };
-    multiLight.setFloat("spotLight.cutOff", cutOff);
-    float outerCutOff{ glm::cos(glm::radians(52.5f)) };
-    multiLight.setFloat("spotLight.outerCutOff", outerCutOff);
-    glm::vec3 lightColor{ 1.0f, 0.1f, 0.1f };
-    //multiLight.setVec3("spotLight.ambient", (lightColor));
-    multiLight.setVec3("spotLight.diffuse", (lightColor));
-    //multiLight.setVec3("spotLight.specular", 0.5f, 0.5f, 0.5f);
+    glm::vec3 spotLightLightDirection{ 0.0f, -1.0f, 0.0f };
+    multiLight.setVec3("spotLight.direction", spotLightLightDirection);
+    float spotLightCutOff{ glm::cos(glm::radians(48.5f)) };
+    //multiLight.setFloat("spotLight.cutOff", spotLightCutOff);
+    float spotLightOuterCutOff{ glm::cos(glm::radians(52.5f)) };
+    multiLight.setFloat("spotLight.outerCutOff", spotLightOuterCutOff);
+    float spotLightEpsilon{ spotLightCutOff - spotLightOuterCutOff };
+    multiLight.setFloat("spotLight.epsilon", spotLightEpsilon);
+    glm::vec3 spotLightColor{ 1.0f, 0.1f, 0.1f };
+    multiLight.setVec3("spotLight.diffuse", (spotLightColor));
+    multiLight.setFloat("spotLight.emission", 0.0f);
     multiLight.setFloat("spotLight.constant", 1.0f);
     multiLight.setFloat("spotLight.linear", 0.045f);
     multiLight.setFloat("spotLight.quadratic", 0.0075f); 
@@ -123,55 +122,50 @@ int main()
     glm::vec3 pointLightPositions[] = {
         glm::vec3( 0.7f,  8.2f,  2.0f),
         glm::vec3( 2.3f,  3.3f, -4.0f),
-        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3(-4.0f,  2.0f, 12.0f),
         glm::vec3( 15.0f,  1.2f, -3.0f)
     };
-    
-    //multiLight.setInt("pointLightsCount", 4); // sizeof(pointLightPositions)
 
+    multiLight.setInt("pointLightsCount", 4);
     multiLight.setVec3("pointLights[0].position", pointLightPositions[0]);
-    glm::vec3 pointLightColor(1.0f, 1.0f, 1.0f);
-    //multiLight.setVec3("pointLights[0].ambient", (pointLightColor * glm::vec3(0.1f)));
-    multiLight.setVec3("pointLights[0].diffuse", (pointLightColor * glm::vec3(1.0f)));
-    //multiLight.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+    glm::vec3 pointLightColor(1.0f, 0.0f, 0.0f);
+    multiLight.setVec3("pointLights[0].diffuse", (pointLightColor));
     multiLight.setFloat("pointLights[0].constant", 1.0f);
     multiLight.setFloat("pointLights[0].linear", 0.09f);
     multiLight.setFloat("pointLights[0].quadratic", 0.032f);
 
     multiLight.setVec3("pointLights[1].position", pointLightPositions[1]);
-    //glm::vec3 pointLightColor(1.0f, 1.0f, 1.0f);
-    //multiLight.setVec3("pointLights[1].ambient", (pointLightColor* glm::vec3(0.1f)));
-    multiLight.setVec3("pointLights[1].diffuse", (pointLightColor* glm::vec3(1.0f)));
-    //multiLight.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+    glm::vec3 pointLightColor1(0.0f, 1.0f, 0.0f);
+    multiLight.setVec3("pointLights[1].diffuse", (pointLightColor1));
     multiLight.setFloat("pointLights[1].constant", 1.0f);
     multiLight.setFloat("pointLights[1].linear", 0.09f);
     multiLight.setFloat("pointLights[1].quadratic", 0.032f);
 
     multiLight.setVec3("pointLights[2].position", pointLightPositions[2]);
-    //glm::vec3 pointLightColor(1.0f, 1.0f, 1.0f);
-    //multiLight.setVec3("pointLights[2].ambient", (pointLightColor* glm::vec3(0.1f)));
-    multiLight.setVec3("pointLights[2].diffuse", (pointLightColor* glm::vec3(1.0f)));
-    //multiLight.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
+    glm::vec3 pointLightColor2(0.0f, 0.0f, 1.0f);
+    multiLight.setVec3("pointLights[2].diffuse", (pointLightColor2));
     multiLight.setFloat("pointLights[2].constant", 1.0f);
     multiLight.setFloat("pointLights[2].linear", 0.09f);
     multiLight.setFloat("pointLights[2].quadratic", 0.032f);
 
     multiLight.setVec3("pointLights[3].position", pointLightPositions[3]);
-    //glm::vec3 pointLightColor(1.0f, 1.0f, 1.0f);
-    //multiLight.setVec3("pointLights[3].ambient", (pointLightColor* glm::vec3(0.1f)));
-    multiLight.setVec3("pointLights[3].diffuse", (pointLightColor* glm::vec3(1.0f)));
-    //multiLight.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
+    glm::vec3 pointLightColor3(1.0f, 1.0f, 1.0f);
+    multiLight.setVec3("pointLights[3].diffuse", (pointLightColor3));
     multiLight.setFloat("pointLights[3].constant", 1.0f);
     multiLight.setFloat("pointLights[3].linear", 0.09f);
     multiLight.setFloat("pointLights[3].quadratic", 0.032f);
 
     // FlashLight
-    float flashlightCutOff{ glm::cos(glm::radians(12.5f)) };
-    multiLight.setFloat("flashLight.cutOff", flashlightCutOff);
-    float flashlightOuterCutOff{ glm::cos(glm::radians(17.5f)) };
-    multiLight.setFloat("flashLight.outerCutOff", flashlightOuterCutOff);
+    flashLight = &multiLight;
+    multiLight.setBool("flashLight.on", false);
+    float flashLightCutOff{ glm::cos(glm::radians(8.5f)) };
+    float flashLightOuterCutOff{ glm::cos(glm::radians(12.5f)) };
+    multiLight.setFloat("flashLight.outerCutOff", flashLightOuterCutOff);
+    float flashLightEpsilon{ flashLightCutOff - flashLightOuterCutOff };
+    multiLight.setFloat("flashLight.epsilon", flashLightEpsilon);
     glm::vec3 flashlightColor{ 1.0f, 1.0f, 1.0f };
     multiLight.setVec3("flashLight.diffuse", (flashlightColor));
+    multiLight.setFloat("flashLight.emission", 0.8f);
     multiLight.setFloat("flashLight.constant", 1.0f);
     multiLight.setFloat("flashLight.linear", 0.045f);
     multiLight.setFloat("flashLight.quadratic", 0.0075f);
@@ -216,6 +210,12 @@ int main()
     //floorShader.useShader();
     //floorShader.setInt("texture2", 2);
 
+    // Normalize test
+    //glm::vec3 test = glm::vec3(7.3f,0.5f, 1.8f);
+    //glm::vec3 test2 = glm::normalize(test);
+    //std::println("test: {}, {}, {}", test.x, test.y, test.z);
+    //std::println("test normalized: {}, {}, {}", test2.x, test2.y, test2.z);
+
     Global::glCheckError();
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -249,9 +249,7 @@ int main()
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
         lightShader.setMat4("model", model);
-        lightShader.setVec3("lightColor", lightColor);
-        //lightShader.setVec3("ambient", ambientColor);
-        //lightShader.setVec3("diffuse", diffuseColor);
+        lightShader.setVec3("lightColor", spotLightColor);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // Single Cube
@@ -278,11 +276,10 @@ int main()
         lightPos = glm::vec3((3.0f * sin(glfwGetTime())), 6.5f, (4.5f * cos(glfwGetTime())));
         //std::println("lightPos: {}, {}, {}", lightPos.x, lightPos.y, lightPos.z);
         multiLight.setVec3("spotLight.position", lightPos);
-        lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) + 0.2f;
-        lightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) + 0.2f;
-        lightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3f)) + 0.2f;
-        //multiLight.setVec3("spotLight.ambient", (lightColor * glm::vec3(0.1f)));
-        multiLight.setVec3("spotLight.diffuse", (lightColor * glm::vec3(0.5f)));
+        spotLightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) + 0.2f;
+        spotLightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) + 0.2f;
+        spotLightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3f)) + 0.2f;
+        multiLight.setVec3("spotLight.diffuse", (spotLightColor * glm::vec3(0.5f)));
         diffuse.bindTexture(0);
         specular.bindTexture(1);
         emission.bindTexture(3);
@@ -304,6 +301,13 @@ int main()
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
             multiLight.setMat4("model", model);
+
+            /////
+            glm::mat4 viewXModel{ view * model };
+            multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(viewXModel)));
+            multiLight.setMat3("NormalWorldCPU", glm::transpose(glm::inverse(model)));
+            /////
+
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
@@ -317,6 +321,10 @@ int main()
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
         model = glm::scale(model, glm::vec3(25.0, 25.0, 1.0));
         multiLight.setMat4("model", model);
+        /////
+        multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(view * model)));
+        multiLight.setMat3("NormalWorldCPU", glm::transpose(glm::inverse(model)));
+        /////
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0);
 
         //model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));

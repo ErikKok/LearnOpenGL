@@ -3,6 +3,12 @@ TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
 - Uniform location cache
 - Global::glCheckError();
+- Inversing matrices is a costly operation for shaders, so wherever possible try to avoid doing inverse operations since they have to be done on each vertex of your scene. For learning purposes this is fine, but for an efficient application you'll likely want to calculate the normal matrix on the CPU and send it to the shaders via a uniform before drawing (just like the model matrix).
+
+v0.1.05 24-3-2024
+-----------------
+- mulitlight
+- before mesh implementing
 
 v0.1.04 21-3-2024
 -----------------

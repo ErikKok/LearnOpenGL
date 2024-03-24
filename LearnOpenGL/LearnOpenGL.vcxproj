@@ -111,6 +111,7 @@
     <ClInclude Include="Data.h" />
     <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="Global.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture.h" />

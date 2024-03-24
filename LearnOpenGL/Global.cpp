@@ -104,6 +104,13 @@ namespace Global {
 
         if (key == GLFW_KEY_P && action == GLFW_PRESS)
             Global::paused = !Global::paused;
+
+        static bool flashLightOn{ true }; // opposite of value set in main.cpp
+        if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+            flashLight->setBool("flashLight.on", flashLightOn);
+            flashLightOn = !flashLightOn;
+        }
+
     }
 
 #pragma warning( suppress : 4100 )
