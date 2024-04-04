@@ -12,6 +12,9 @@ public:
 	void bindTexture(unsigned int textureUnit = 0) const;
 	void unbindTexture() const;
 
+	unsigned int m_Id{};
+	std::string m_type{};
+	std::string m_path;
 private:
-	unsigned int m_id{};
+
 };

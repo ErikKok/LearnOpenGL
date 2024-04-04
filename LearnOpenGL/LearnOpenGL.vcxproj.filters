@@ -48,6 +48,12 @@
     <ClCompile Include="Global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Temp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -89,6 +95,9 @@
     <ClInclude Include="Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\cube.shader">
@@ -118,6 +127,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Shaders\cubeFlashlight.shader">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\model.shader">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\cubeTest.shader">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

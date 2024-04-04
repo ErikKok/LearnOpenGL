@@ -1,8 +1,6 @@
 #pragma once
 #include "Shader.h"
 
-
-
 #include <print>
 #include <string>
 #include <fstream>
@@ -79,14 +77,16 @@ Shader::Shader(const std::string& shaderPath)
     glCompileShader(fragment);
     checkCompileErrors(fragment, "FRAGMENT");
     // shader Program
-    m_id = glCreateProgram();
-    glAttachShader(m_id, vertex);
-    glAttachShader(m_id, fragment);
-    glLinkProgram(m_id);
-    checkCompileErrors(m_id, "PROGRAM");
+    m_Id = glCreateProgram();
+    glAttachShader(m_Id, vertex);
+    glAttachShader(m_Id, fragment);
+    glLinkProgram(m_Id);
+    checkCompileErrors(m_Id, "PROGRAM");
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+
+    std::println("CREATE Shader {}", m_Id);
 
     //Actually, you're still computing the hash twice. His code does it three times. What you could do if you have C++17 is:
     //    auto uniform{ cache.try_emplace(name, 0) };
@@ -156,12 +156,14 @@ Shader::Shader(const std::string& shaderPath)
 
 void Shader::useShader()
 {
-    glUseProgram(m_id);
+    //std::println("USE Shader: {}", m_Id); 
+    glUseProgram(m_Id);
     Global::glCheckError();
 }
 
 int Shader::getLocation(const std::string& name) const{
-    int location{ glGetUniformLocation(m_id, name.c_str()) };
+    //std::println("SHADER getLocation: {}", name);
+    int location{ glGetUniformLocation(m_Id, name.c_str()) };
 
     if (location == -1)
         std::println("ERROR setting uniform value: \"{}\" does not correspond to active uniform, starts with gl_ or is associated with an atomic counter or a named uniform block! {}", name, location);
@@ -171,58 +173,70 @@ int Shader::getLocation(const std::string& name) const{
 
 void Shader::setBool(const std::string& name, bool value) const
 {
+    //std::println("SHADER setBool: {}", name);
     glUniform1i(Shader::getLocation(name), (GLint)value);
 }
 
 void Shader::setInt(const std::string& name, GLint value) const
 {
+    //std::println("SHADER setInt: {}", name); 
     glUniform1i(Shader::getLocation(name), value);
 }
 
 void Shader::setFloat(const std::string& name, GLfloat value) const
 {
+    //std::println("SHADER setFloat: {}", name);
     glUniform1f(Shader::getLocation(name), value);
 }
 
 void Shader::setVec2(const std::string& name, const glm::vec2& value) const
 {
+    //std::println("SHADER setVec2: {}", name);
     glUniform2fv(Shader::getLocation(name), 1, &value[0]);
 }
 void Shader::setVec2(const std::string& name, GLfloat x, GLfloat y) const
 {
+    //std::println("SHADER setVec2: {}", name);
     glUniform2f(Shader::getLocation(name), x, y);
 }
 
 void Shader::setVec3(const std::string& name, const glm::vec3& value) const
 {
+    //std::println("SHADER setVec3: {}", name);
     glUniform3fv(Shader::getLocation(name), 1, &value[0]);
 }
 void Shader::setVec3(const std::string& name, GLfloat x, GLfloat y, GLfloat z) const
 {
+    //std::println("SHADER setVec3: {}", name);
     glUniform3f(Shader::getLocation(name), x, y, z);
 }
 
 void Shader::setVec4(const std::string& name, const glm::vec4& value) const
 {
+    //std::println("SHADER setVec4: {}", name); 
     glUniform4fv(Shader::getLocation(name), 1, &value[0]);
 }
 void Shader::setVec4(const std::string& name, GLfloat x, GLfloat y, GLfloat z, GLfloat w) const
 {
+    //std::println("SHADER setVec4: {}", name);
     glUniform4f(Shader::getLocation(name), x, y, z, w);
 }
 
 void Shader::setMat2(const std::string& name, const glm::mat2& mat) const
 {
+    //std::println("SHADER setMat2: {}", name);
     glUniformMatrix2fv(Shader::getLocation(name), 1, GL_FALSE, &mat[0][0]);
 }
 
 void Shader::setMat3(const std::string& name, const glm::mat3& mat) const
 {
+    //std::println("SHADER setMat3: {}", name);
     glUniformMatrix3fv(Shader::getLocation(name), 1, GL_FALSE, &mat[0][0]);
 }
 
 void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
 {
+    //std::println("SHADER setMat4: {}", name);
     glUniformMatrix4fv(Shader::getLocation(name), 1, GL_FALSE, &mat[0][0]);
 }
 
@@ -249,4 +263,5 @@ void Shader::checkCompileErrors(GLuint shader, std::string_view type)
         }
     }
     Global::glCheckError();
+    std::println("SHADER compiled: {}", type);
 }

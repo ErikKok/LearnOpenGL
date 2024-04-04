@@ -19,7 +19,7 @@ private:
 	{}
 
 	GLenum m_Type{};
-	GLint m_Count{}; // number of components/types of this attribute (Caution! called size @ docs.gl)
+	GLint m_Count{}; // number of components/types of this attribute (Caution! named size @ docs.gl)
 	GLboolean m_Normalized{};
 	uintptr_t m_Offset{}; // size in bytes of this attribute
 };
@@ -39,6 +39,13 @@ public:
 	{
 		m_Attributes.push_back({ GL_FLOAT, count, GL_FALSE, count * sizeof(GL_FLOAT) });
 		m_Stride += count * sizeof(GL_FLOAT);
+	}
+
+	template<>
+	void pushVertexAttributeLayout<int>(GLint count)
+	{
+		m_Attributes.push_back({ GL_INT, count, GL_FALSE, count * sizeof(GL_INT) });
+		m_Stride += count * sizeof(GL_INT);
 	}
 
 	template<>

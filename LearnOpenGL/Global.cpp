@@ -35,7 +35,10 @@ namespace Global {
 
     int init(GLFWwindow* window)
     {
+        assert(sizeof(int) == sizeof(GLint) && "size of int and GL_INT is not equal"); 
         assert(sizeof(unsigned int) == sizeof(GLuint) && "size of unsigned int and GLuint is not equal");
+        assert(sizeof(float) == sizeof(GLfloat) && "size of float and GL_FLOAT is not equal");
+        assert(sizeof(unsigned char) == sizeof(GLubyte) && "size of int and GL_INT is not equal");
 
         glfwMakeContextCurrent(window);
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -107,10 +110,31 @@ namespace Global {
 
         static bool flashLightOn{ true }; // opposite of value set in main.cpp
         if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+            // TODO  multiLight.useShader();
             flashLight->setBool("flashLight.on", flashLightOn);
             flashLightOn = !flashLightOn;
         }
 
+        static int polygonMode{ 0 };
+        if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+            if (polygonMode == 0) {
+                std::println("Polygon Mode LINE");
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                polygonMode = 1;
+                return;
+            }
+            if (polygonMode == 1) {
+                std::println("Polygon Mode POINT");
+                glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+                polygonMode = 2;
+                return;
+            }
+            if (polygonMode == 2) {
+                std::println("Polygon Mode FILL");
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                polygonMode = 0;
+            }
+        }
     }
 
 #pragma warning( suppress : 4100 )
