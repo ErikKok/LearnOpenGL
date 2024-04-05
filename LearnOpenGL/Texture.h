@@ -14,21 +14,21 @@ public:
 
 	Texture(Texture&& other) noexcept 					// move constructor
 	{
-		m_Id = other.m_Id;
+		m_id = other.m_id;
 		m_type = other.m_type;
 		m_filePath = other.m_filePath;
 		m_fileName = other.m_fileName;
 		m_width = other.m_width;
 		m_height = other.m_height;
 
-		other.m_Id = 0u;
-		other.m_type = "moved";
+		other.m_id = 0u;
+		other.m_type = "moved"; // TODO
 		other.m_filePath = "";
 		other.m_fileName = "";
 		other.m_width = 0u;
 		other.m_height = 0u;
 
-		std::println("********************MOVE CONSTRUCTOR texture id: {}", m_Id);
+		std::println("********************MOVE CONSTRUCTOR texture id: {}", m_id);
 	}
 
 	Texture& operator=(Texture&& other) noexcept		// Move assignment
@@ -36,21 +36,21 @@ public:
 		if (&other == this)
 			return *this;
 
-		m_Id = other.m_Id;
+		m_id = other.m_id;
 		m_type = other.m_type;
 		m_filePath = other.m_filePath;
 		m_fileName = other.m_fileName;
 		m_width = other.m_width;
 		m_height = other.m_height;
 
-		other.m_Id = 0u;
+		other.m_id = 0u;
 		other.m_type = "moved";
 		other.m_filePath = "";
 		other.m_fileName = "";
 		other.m_width = 0u;
 		other.m_height = 0u;
 
-		std::println("********************MOVE ASSIGNMENT texture id: {}", m_Id);
+		std::println("********************MOVE ASSIGNMENT texture id: {}", m_id);
 
 		return *this;
 	}
@@ -59,7 +59,7 @@ public:
 	void bindTexture(unsigned int textureUnit = 0) const;
 	void unbindTexture() const;
 
-	unsigned int m_Id{};
+	unsigned int m_id{};
 	std::string m_type{};
 	std::string m_filePath{};
 	std::string m_fileName{};

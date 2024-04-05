@@ -39,6 +39,8 @@ in vec3 NormalView;
 struct Material {
     sampler2D diffuse1;
     sampler2D specular1;
+    //sampler2D normal1;
+    //sampler2D height1;
     sampler2D emission;
     float shininess;
 };   

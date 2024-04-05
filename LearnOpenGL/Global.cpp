@@ -232,4 +232,14 @@ namespace Global {
         case GL_DEBUG_SEVERITY_NOTIFICATION: std::println("Severity: notification");        break;
         }
     }
+
+    void getBound() {
+    GLint returnData;
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &returnData);
+    std::println("Currently bound VertexArray: {}", returnData);
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &returnData);
+    std::println("Currently bound ElementBuffer: {}", returnData);
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &returnData);
+    std::println("Currently bound VertexBuffer: {}", returnData);
+    }
 }

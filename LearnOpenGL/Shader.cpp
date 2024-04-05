@@ -77,16 +77,16 @@ Shader::Shader(const std::string& shaderPath)
     glCompileShader(fragment);
     checkCompileErrors(fragment, "FRAGMENT");
     // shader Program
-    m_Id = glCreateProgram();
-    glAttachShader(m_Id, vertex);
-    glAttachShader(m_Id, fragment);
-    glLinkProgram(m_Id);
-    checkCompileErrors(m_Id, "PROGRAM");
+    m_id = glCreateProgram();
+    glAttachShader(m_id, vertex);
+    glAttachShader(m_id, fragment);
+    glLinkProgram(m_id);
+    checkCompileErrors(m_id, "PROGRAM");
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 
-    std::println("CREATE Shader {}", m_Id);
+    std::println("CREATE Shader {}", m_id);
 
     //Actually, you're still computing the hash twice. His code does it three times. What you could do if you have C++17 is:
     //    auto uniform{ cache.try_emplace(name, 0) };
@@ -156,14 +156,14 @@ Shader::Shader(const std::string& shaderPath)
 
 void Shader::useShader()
 {
-    //std::println("USE Shader: {}", m_Id); 
-    glUseProgram(m_Id);
+    //std::println("USE Shader: {}", m_id); 
+    glUseProgram(m_id);
     Global::glCheckError();
 }
 
 int Shader::getLocation(const std::string& name) const{
     //std::println("SHADER getLocation: {}", name);
-    int location{ glGetUniformLocation(m_Id, name.c_str()) };
+    int location{ glGetUniformLocation(m_id, name.c_str()) };
 
     if (location == -1)
         std::println("ERROR setting uniform value: \"{}\" does not correspond to active uniform, starts with gl_ or is associated with an atomic counter or a named uniform block! {}", name, location);

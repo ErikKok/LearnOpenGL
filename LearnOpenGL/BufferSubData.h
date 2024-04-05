@@ -25,12 +25,12 @@ class BufferSubData
 
 private:
 	BufferSubData(const glm::mat4& data)
-		: m_Data{ data }
+		: m_data{ data }
 
 	{}
-	GLenum m_Target{ GL_UNIFORM_BUFFER };
-	GLsizeiptr m_Size{ sizeof(glm::mat4) };
-	const glm::mat4& m_Data{};
+	GLenum m_target{ GL_UNIFORM_BUFFER };
+	GLsizeiptr m_size{ sizeof(glm::mat4) };
+	const glm::mat4& m_data{};
 };
 
 class BufferSubDataLayout {
@@ -39,15 +39,15 @@ public:
 
 	void pushUniformBufferSubData(const glm::mat4& data)
 	{
-		m_BufferSubData.push_back(data);
+		m_bufferSubData.push_back(data);
 		Global::glCheckError();
 	}
 
 	inline std::vector<BufferSubData>& getBufferSubData()
 	{
-		return m_BufferSubData;
+		return m_bufferSubData;
 	}
 
 private:
-	std::vector<BufferSubData> m_BufferSubData;
+	std::vector<BufferSubData> m_bufferSubData;
 };

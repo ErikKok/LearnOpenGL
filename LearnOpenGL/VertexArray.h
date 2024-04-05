@@ -12,9 +12,9 @@ public:
 
     void addVertexAttributeLayout(const VertexBuffer& vb, VertexAttributeLayout& layout);
 
-    const GLuint getId() const { return m_Id; };
+    const GLuint getId() const { return m_id; };
 
 private:
-    GLuint m_Id{};
+    GLuint m_id{};
 };
 

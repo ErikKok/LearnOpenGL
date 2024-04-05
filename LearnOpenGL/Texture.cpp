@@ -11,8 +11,8 @@
 Texture::Texture(const std::string& filePath)
     :m_filePath{ filePath }
 {
-    glGenTextures(1, &m_Id);
-    glBindTexture(GL_TEXTURE_2D, m_Id);
+    glGenTextures(1, &m_id);
+    glBindTexture(GL_TEXTURE_2D, m_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -36,32 +36,33 @@ Texture::Texture(const std::string& filePath)
     //glBindTexture(GL_TEXTURE_2D, 0); // TODO niet gelijk binden
     stbi_image_free(textureData);
     Global::glCheckError();
-    std::println("CREATE texture id: {}", m_Id);
+    std::println("CREATE texture id: {}", m_id);
 }
 
-Texture::~Texture() // TODO - hacky... use smart pointers I guess?
+Texture::~Texture() // TODO - hacky... use smart pointers I guess? Wordt niet meer gebruikt nu!?
 {
+    std::println("************************************** ", m_id);
     if (m_type == "moved") {
         std::println("DELETE texture - Texture object IS deleted, but texture itself NOT! Original texture has been moved to another object!");
     }
     else {
-        std::println("DELETE texture id: {}", m_Id);
-        glDeleteTextures(1, &m_Id);
+        std::println("************************************** DELETE texture id: {}", m_id);
+        glDeleteTextures(1, &m_id);
         Global::glCheckError();
     }
 }
 
 void Texture::bindTexture(unsigned int textureUnit) const
 {
-    //std::println("BIND texture id: {}", m_Id);
+    //std::println("BIND texture id: {}", m_id);
     glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, this->m_Id);
+    glBindTexture(GL_TEXTURE_2D, this->m_id);
     Global::glCheckError();
 }
 
 void Texture::unbindTexture() const
 {
-    std::println("UNBIND texture id: {}", m_Id);
+    std::println("UNBIND texture id: {}", m_id);
     glBindTexture(GL_TEXTURE_2D, 0);
     Global::glCheckError();
 }

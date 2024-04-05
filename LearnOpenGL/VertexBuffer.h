@@ -12,10 +12,10 @@ public:
     void bindVertexBuffer() const;
     void unbindVertexBuffer() const;
 
-    const GLuint getId() const { return m_Id; };
+    const GLuint getId() const { return m_id; };
 
 private:
-    GLuint m_Id{};
+    GLuint m_id{};
 };
 
 // size is in bytes of the buffer object's new data store.

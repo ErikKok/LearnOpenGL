@@ -191,44 +191,14 @@ int main()
 
     ////////////////////////////////////
     ////// Mesh ////////////////////////
-    std::println("CREATE Mesh");////////
-
-    //Mesh mesh;
-    //mesh.m_indices = Data::cubeIndices;
-    //mesh.m_positions = ;
-
+    std::println("LOAD Model");/////////
 
     Shader ourModelShader("Shaders\\multiLight.shader");
     Model ourModel("Backpack/backpack.obj");
+    //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
 
-    //Model ourModel("FinalBaseMesh.obj"); 
-
-
-
-
-
-
-    //VertexArray cubeTest;
-    //VertexBuffer cubeTestVBO(&Data::cube, sizeof(Data::cube)); // omdraaien
-    //VertexAttributeLayout cubeTestLayout{};
-    //cubeTestLayout.pushVertexAttributeLayout<float>(3); // cubeCoords
-    //cubeTestLayout.pushVertexAttributeLayout<float>(2); // cubeTexCoords
-    //cubeTestLayout.pushVertexAttributeLayout<float>(3); // cubeNormals
-    ////ElementBuffer cubeTestEBO(&Data::cubeIndices, sizeof(Data::cubeIndices)); // omdraaien
-    ////Texture texture2("Textures\\floor.jpg");
-    //Shader cubeTestShader("Shaders\\cubeTest.shader");
-    //cubeTestShader.useShader();
-    ////cubeTestShader.setInt("texture2", 2); // name vd texture moet gelijk zijn aan name vd sampler2d
-
-    //glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-    //cubeTestShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
-    //cubeTestShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    //cubeTestShader.setVec3("lightPos", lightPos);
-
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+    Global::getBound();
     std::println("START renderloop ******************************");
-
     Global::glCheckError();
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -335,7 +305,7 @@ int main()
         emission.bindTexture(10);
         multiLight.setInt("material.diffuse1", 8);
         multiLight.setInt("material.specular1", 9);
-        //multiLight.setInt("material.emission", 10);  // emission hoef niet opnieuw, want mesh::Draw zet deze niet
+        //multiLight.setInt("material.emission", 10);  // emission hoeft niet opnieuw, want mesh::Draw zet deze niet, diffuse en specular wel opnieuw
         cubeVao.bindVertexArray();
         for (unsigned int i = 0; i < 10; i++)
         {
@@ -365,33 +335,19 @@ int main()
 
         // render the loaded model
         //ourModelShader.useShader(); // TODO eigen shader maken voor model?!
-        //emission.bindTexture(7);
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(4.0f, 0.0f, 1.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        //multiLight.setMat4("model", model);
         modelView = view * model;
         multiLight.setMat4("modelView", modelView);
         multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
-        ourModel.Draw(multiLight); // Model::draw!
-
-        //// cubeTest
-        //cubeTestShader.useShader();
-        //glm::mat4 model = glm::mat4(1.0f);
-        ////cubeTestShader.setMat4("model", model);
-        //model = glm::mat4(1.0f);
-        //model = glm::translate(model, lightPos);
-        //model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-        //cubeTestShader.setMat4("model", model);
-        //cubeTest.bindVertexArray();
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
-        //glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0);       
+        ourModel.Draw(multiLight); // Model::draw!   
 
         if (!Global::paused) {
             glfwSwapBuffers(window);
         }
 
-        // TODO use correct Shader for flashlight input
+        // TODO - set correct Shader for flashlight input:
         multiLight.useShader();
         glfwPollEvents();
     }

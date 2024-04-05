@@ -10,10 +10,9 @@ public:
     void bindElementBuffer() const;
     void unbindElementBuffer() const;
 
-    const GLuint getId() const { return m_Id; };
+    const GLuint getId() const { return m_id; };
     //inline unsigned int getCount() const;
 
 private:
-    GLuint m_Id{};
-    unsigned int m_Count{};
+    GLuint m_id{};
 };

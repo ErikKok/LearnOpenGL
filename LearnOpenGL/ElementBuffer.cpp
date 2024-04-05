@@ -9,30 +9,30 @@
 
 ElementBuffer::ElementBuffer(size_t size, const GLvoid* data)
 {
-	glGenBuffers(1, &m_Id);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Id);
+	glGenBuffers(1, &m_id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLuint>(size), data, GL_STATIC_DRAW);
 	Global::glCheckError();
-	std::println("CREATE ElementBuffer id: {}", m_Id);
+	//std::println("CREATE ElementBuffer id: {}", m_id);
 }
 
 ElementBuffer::~ElementBuffer()
 {
-	std::println("DELETE ElementBuffer id: {}", m_Id);
-	glDeleteBuffers(1, &m_Id);
+	std::println("DELETE ElementBuffer id: {}", m_id);
+	glDeleteBuffers(1, &m_id);
 	Global::glCheckError();
 }
 
 void ElementBuffer::bindElementBuffer() const
 {
-	std::println("BIND ElementBuffer id: {}", m_Id);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Id);
+	std::println("BIND ElementBuffer id: {}", m_id);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
 	Global::glCheckError();
 }
 
 void ElementBuffer::unbindElementBuffer() const
 {
-	std::println("UNBIND ElementBuffer id: {}", m_Id);
+	std::println("UNBIND ElementBuffer id: {}", m_id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	Global::glCheckError();
 }

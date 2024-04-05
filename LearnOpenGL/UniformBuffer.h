@@ -11,8 +11,8 @@ public:
 
 	void addUniformBufferSubData(const UniformBuffer& ub, BufferSubDataLayout& layout);
 
-	const GLuint getId() const { return m_Id; };
+	const GLuint getId() const { return m_id; };
 
 private:
-	GLuint m_Id{};
+	GLuint m_id{};
 };

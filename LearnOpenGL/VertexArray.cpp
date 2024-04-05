@@ -10,43 +10,43 @@
 
 VertexArray::VertexArray()
 {
-	glGenVertexArrays(1, &m_Id);
-	glBindVertexArray(m_Id);
+	glGenVertexArrays(1, &m_id);
+	glBindVertexArray(m_id);
 	Global::glCheckError();
-	std::println("CREATE VertexArray id: {}", m_Id);
+	//std::println("CREATE VertexArray id: {}", m_id);
 }
 
 VertexArray::~VertexArray()
 {
-	std::println("DELETE VertexArray id: {}", m_Id);
-	glDeleteVertexArrays(1, &m_Id); 
+	std::println("DELETE VertexArray id: {}", m_id);
+	glDeleteVertexArrays(1, &m_id); 
 	Global::glCheckError();
 }
 
 void VertexArray::bindVertexArray() const
 {
-	//std::println("BIND VertexArray id: {}", m_Id);
-	glBindVertexArray(m_Id);
+	//std::println("BIND VertexArray id: {}", m_id);
+	glBindVertexArray(m_id);
 	Global::glCheckError();
 }
 
 void VertexArray::unbindVertexArray() const
 {
-	std::println("UNBIND VertexArray id: {}", m_Id);
+	std::println("UNBIND VertexArray id: {}", m_id);
 	glBindVertexArray(0);
 	Global::glCheckError();
 }
 
 void VertexArray::addVertexAttributeLayout(const VertexBuffer& vb, VertexAttributeLayout& layout)
 {
-	std::println("ADD VertexAttributeLayout id: {}", m_Id);
+	//std::println("ADD VertexAttributeLayout id: {}", m_id);
 	
 	assert(sizeof(layout.getVertexAttributes()) != 0 && "WARNING: addVertexAttributeLayout(): VertexAttributeLayout is empty!");
 
-	//glBindVertexArray(this->m_Id);
+	//glBindVertexArray(this->m_id);
 	GLint returnData;
 	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &returnData);
-	assert(returnData == static_cast<GLint>(m_Id) && "WARNING: addVertexAttributeLayout(): Currently bound VertexArray is not equal to this->VertexArray");
+	assert(returnData == static_cast<GLint>(m_id) && "WARNING: addVertexAttributeLayout(): Currently bound VertexArray is not equal to this->VertexArray");
 
 	// TODO is het ok als verkeerde is gebound of moet dat altijd al goed zijn hier?
 	// vb.bindVertexBuffer();
@@ -57,9 +57,9 @@ void VertexArray::addVertexAttributeLayout(const VertexBuffer& vb, VertexAttribu
 	uintptr_t totalOffset{0};
 	for (GLuint i{ 0 }; i < vertexAttributes.size(); i++) {
 		const auto& vertexAttribute{ vertexAttributes[i] };
-		glVertexAttribPointer(i, vertexAttribute.m_Count, vertexAttribute.m_Type, vertexAttribute.m_Normalized, layout.getStride(), (const void*)totalOffset);
+		glVertexAttribPointer(i, vertexAttribute.m_count, vertexAttribute.m_type, vertexAttribute.m_normalized, layout.getStride(), (const void*)totalOffset);
 		glEnableVertexAttribArray(i);
-		totalOffset += vertexAttribute.m_Offset;
+		totalOffset += vertexAttribute.m_offset;
 	}
 	Global::glCheckError();
 }
