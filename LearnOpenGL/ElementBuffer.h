@@ -4,7 +4,7 @@
 
 class ElementBuffer {
 public:
-    ElementBuffer(const GLvoid* data, GLuint size);
+    ElementBuffer(size_t size, const GLvoid* data);
     ~ElementBuffer();
 
     void bindElementBuffer() const;

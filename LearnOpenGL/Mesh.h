@@ -42,13 +42,13 @@ struct Vertex {
 class Mesh {
 public:
     Mesh() {};
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture*> textures);
     void Draw(Shader& shader);
 
 // TODO private
     std::vector<Vertex> m_vertices;
     std::vector<unsigned int> m_indices;
-    std::vector<Texture> m_textures; // TODO textures kunnen door meerdere meshes worden gebruikt (waarschijnlijk zelfs), dan algemene storage maken en daarnaar pointen
+    std::vector<Texture*> m_textures; // TODO textures kunnen door meerdere meshes worden gebruikt (waarschijnlijk zelfs), dan algemene storage maken en daarnaar pointen
 
     // over unique pointers: However, if the class object is not destroyed properly (e.g. it is dynamically allocated and not deallocated properly), then the std::unique_ptr member will not be destroyed either, and the object being managed by the std::unique_ptr will not be deallocated.
     std::unique_ptr<VertexArray> m_vao; 

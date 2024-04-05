@@ -3,7 +3,7 @@
 
 class UniformBuffer {
 public:
-	UniformBuffer(GLuint index, GLint count);
+	UniformBuffer(size_t size, GLuint index);
 	~UniformBuffer();
 
 	void bindUniformBuffer() const;

@@ -8,22 +8,24 @@ out vec2 TexCoords;
 out vec3 FragPosView;
 out vec3 NormalView;
 
-layout (std140, binding = 0) uniform uboProjectionView
-{
-    mat4 projection;
-    mat4 view;
+layout (std140, binding = 0) uniform projectionView // TODO uniform met maar 1 member?
+{                                                   // verschillende types accepteren
+    mat4 projection;                                // zie BufferSubData.h
+    //mat4 modelView;
+    //mat3 NormalViewCPU;
+    //mat4 View;
 };
 
-uniform mat4 model;
-
-uniform mat3 NormalViewCPU;
+//uniform mat4 model;
+uniform mat4 modelView;
+uniform mat3 NormalViewCPU; // rename NormalMatrix?
 
 void main()
 {
     TexCoords = aTexCoords; // TODO kan dit niet direct naar de fragment shader ipv via de vertex shader?
-    FragPosView = vec3(view * model * vec4(aPos, 1.0));
+    FragPosView = vec3(modelView * vec4(aPos, 1.0)); // TODO view * model kan op cpu, gebeurd toch al voor NormalViewCPU
     NormalView = NormalViewCPU * aNormal;
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    gl_Position = projection * modelView * vec4(aPos, 1.0);
 }
 
 #shader fragment

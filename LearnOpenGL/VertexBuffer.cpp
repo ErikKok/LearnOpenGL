@@ -5,11 +5,11 @@
 
 #include <glad/glad.h>
 
-VertexBuffer::VertexBuffer(const GLvoid* data, GLuint size)
+VertexBuffer::VertexBuffer(size_t size, const GLvoid* data)
 {
 	glGenBuffers(1, &m_Id);
 	glBindBuffer(GL_ARRAY_BUFFER, m_Id);
-	glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, static_cast<GLuint>(size), data, GL_STATIC_DRAW);
 	Global::glCheckError();
 	std::println("CREATE VertexBuffer id: {}", m_Id);
 }

@@ -9,11 +9,8 @@
 #include <string>
 
 Texture::Texture(const std::string& filePath)
+    :m_filePath{ filePath }
 {
-    int textureWidth{};
-    int textureHeight{};
-    int textureNrChannels{};
-
     glGenTextures(1, &m_Id);
     glBindTexture(GL_TEXTURE_2D, m_Id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -21,30 +18,37 @@ Texture::Texture(const std::string& filePath)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     stbi_set_flip_vertically_on_load(true);
-    unsigned char* textureData{ stbi_load(filePath.c_str(), &textureWidth, &textureHeight, &textureNrChannels, 0) };
+    int textureNrChannels{};
+    unsigned char* textureData{ stbi_load(filePath.c_str(), &m_width, &m_height, &textureNrChannels, 0) };
     if (!textureData) {
         std::println("Failed to load texture");
     }
     GLenum format{};
-    if (textureNrChannels == 1)
+    assert(textureNrChannels == 1 || textureNrChannels == 3 || textureNrChannels == 4 && "Image format not supported");
+    if (textureNrChannels == 1) [[unlikely]]
         format = GL_RED;
-    else if (textureNrChannels == 3)
+    else if (textureNrChannels == 3) [[likely]]
         format = GL_RGB;
     else if (textureNrChannels == 4)
         format = GL_RGBA;
-    glTexImage2D(GL_TEXTURE_2D, 0, format, textureWidth, textureHeight, 0, format, GL_UNSIGNED_BYTE, textureData);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);
     glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    //glBindTexture(GL_TEXTURE_2D, 0); // TODO niet gelijk binden
     stbi_image_free(textureData);
     Global::glCheckError();
     std::println("CREATE texture id: {}", m_Id);
 }
 
-Texture::~Texture()
+Texture::~Texture() // TODO - hacky... use smart pointers I guess?
 {
-    std::println("DELETE ***DISABLED*** texture id: {}", m_Id);
-    //glDeleteTextures(1, &m_id); // TODO
-    Global::glCheckError();
+    if (m_type == "moved") {
+        std::println("DELETE texture - Texture object IS deleted, but texture itself NOT! Original texture has been moved to another object!");
+    }
+    else {
+        std::println("DELETE texture id: {}", m_Id);
+        glDeleteTextures(1, &m_Id);
+        Global::glCheckError();
+    }
 }
 
 void Texture::bindTexture(unsigned int textureUnit) const

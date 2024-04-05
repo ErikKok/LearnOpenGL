@@ -7,13 +7,13 @@
 #include <cassert>
 #include <print>
 
-UniformBuffer::UniformBuffer(GLuint index, GLint count)
+UniformBuffer::UniformBuffer(size_t size, GLuint index)
 {
-	glm::mat4 type{}; // do I need other types here? If so: could be a in argument
+	size = static_cast<GLuint>(size);
 	glGenBuffers(1, &m_Id);
 	glBindBuffer(GL_UNIFORM_BUFFER, m_Id);
-	glBufferData(GL_UNIFORM_BUFFER, count * sizeof(type), nullptr, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, index, m_Id, 0, count * sizeof(type)); // always binds the whole buffer
+	glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STATIC_DRAW);
+	glBindBufferRange(GL_UNIFORM_BUFFER, index, m_Id, 0, size); // always binds the whole buffer
 	Global::glCheckError();
 	std::println("CREATE UniformBuffer id: {}", m_Id);
 }

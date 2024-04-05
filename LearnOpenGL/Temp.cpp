@@ -48,7 +48,7 @@
 //floorlayout.pushVertexAttributeLayout<float>(2);
 //floorlayout.pushVertexAttributeLayout<float>(3);
 //floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
-//ElementBuffer floorEbo(&Data::floorIndices, sizeof(Data::floorIndices));
+//ElementBuffer floorEbo(sizeof(Data::floorIndices), &Data::floorIndices);
 
 //Texture texture2("Textures\\floor.jpg");
 

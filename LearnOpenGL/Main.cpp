@@ -52,14 +52,14 @@ int main()
  
     Global::glCheckError();
 
-    UniformBuffer projectionView(0, 2);
+    UniformBuffer projectionView(2 * sizeof(glm::mat4), 0);
 
     /////////////////////////////////////
     ////// XYZ //////////////////////////
-    /////////////////////////////////////
+    std::println("CREATE XYZ");//////////
 
     VertexArray xyzVao;
-    VertexBuffer xyzVbo(&Data::xyz, sizeof(Data::xyz));
+    VertexBuffer xyzVbo(sizeof(Data::xyz), &Data::xyz);
     VertexAttributeLayout xyzLayout;
     xyzLayout.pushVertexAttributeLayout<float>(3);
     xyzLayout.pushVertexAttributeLayout<float>(3);
@@ -69,15 +69,15 @@ int main()
 
     /////////////////////////////////////
     ////// Lights ///////////////////////
-    /////////////////////////////////////
+    std::println("CREATE Lights");///////
 
     Shader multiLight("Shaders\\multiLight.shader");
 
     multiLight.useShader();
     // Material
-    multiLight.setInt("material.diffuse1", 0);
-    multiLight.setInt("material.specular1", 1);
-    multiLight.setInt("material.emission", 3);
+    multiLight.setInt("material.diffuse1", 8);
+    multiLight.setInt("material.specular1", 9);
+    multiLight.setInt("material.emission", 10);
     multiLight.setFloat("material.shininess", 256.0f);
     glm::vec3 lightPos(0.0f, 5.2f, 3.0f);
 
@@ -92,7 +92,7 @@ int main()
 
     float spotLightCutOff{ glm::cos(glm::radians(48.5f)) };
     //multiLight.setFloat("spotLight.cutOff", spotLightCutOff);
-    float spotLightOuterCutOff{ glm::cos(glm::radians(52.5f)) };
+    float spotLightOuterCutOff{ glm::cos(glm::radians(48.5f)) };
     multiLight.setFloat("spotLight.outerCutOff", spotLightOuterCutOff);
     float spotLightEpsilon{ spotLightCutOff - spotLightOuterCutOff };
     multiLight.setFloat("spotLight.epsilon", spotLightEpsilon);
@@ -160,10 +160,10 @@ int main()
     
     /////////////////////////////////////
     ////// LightCube ////////////////////
-    /////////////////////////////////////
+    std::println("CREATE LightCube");////
 
     VertexArray lightVao;
-    VertexBuffer cubeVbo(&Data::cube, sizeof(Data::cube));
+    VertexBuffer cubeVbo(sizeof(Data::cube), &Data::cube);
     VertexAttributeLayout lightLayout;
     lightLayout.pushVertexAttributeLayout<float>(3);
     lightLayout.setVertexStride(32);
@@ -174,7 +174,7 @@ int main()
 
     /////////////////////////////////////
     ////// Cubes ////////////////////////
-    /////////////////////////////////////
+    std::println("CREATE Cubes");////////
 
     VertexArray cubeVao;
     VertexAttributeLayout cubeLayout;
@@ -183,15 +183,15 @@ int main()
     cubeLayout.pushVertexAttributeLayout<float>(3);
     cubeVao.addVertexAttributeLayout(cubeVbo, cubeLayout);
 
-    ElementBuffer cubeTestEBO(&Data::cubeIndices, sizeof(Data::cubeIndices));
+    ElementBuffer cubeTestEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
 
-    Texture diffuse("Textures\\container2.png"); // 0
-    Texture specular("Textures\\container2_specular.png"); // 1
-    Texture emission("Textures\\matrix.jpg"); // 3
+    Texture diffuse("Textures\\container2.png"); // 8
+    Texture specular("Textures\\container2_specular.png"); // 9
+    Texture emission("Textures\\matrix.jpg"); // 10
 
-    /////////////////////////////////////
+    ////////////////////////////////////
     ////// Mesh ////////////////////////
-    /////////////////////////////////////
+    std::println("CREATE Mesh");////////
 
     //Mesh mesh;
     //mesh.m_indices = Data::cubeIndices;
@@ -209,12 +209,12 @@ int main()
 
 
     //VertexArray cubeTest;
-    //VertexBuffer cubeTestVBO(&Data::cube, sizeof(Data::cube));
+    //VertexBuffer cubeTestVBO(&Data::cube, sizeof(Data::cube)); // omdraaien
     //VertexAttributeLayout cubeTestLayout{};
     //cubeTestLayout.pushVertexAttributeLayout<float>(3); // cubeCoords
     //cubeTestLayout.pushVertexAttributeLayout<float>(2); // cubeTexCoords
     //cubeTestLayout.pushVertexAttributeLayout<float>(3); // cubeNormals
-    ////ElementBuffer cubeTestEBO(&Data::cubeIndices, sizeof(Data::cubeIndices));
+    ////ElementBuffer cubeTestEBO(&Data::cubeIndices, sizeof(Data::cubeIndices)); // omdraaien
     ////Texture texture2("Textures\\floor.jpg");
     //Shader cubeTestShader("Shaders\\cubeTest.shader");
     //cubeTestShader.useShader();
@@ -296,6 +296,7 @@ int main()
 
         /////////////////////////////////////
         glm::mat4 model{};
+        glm::mat4 modelView{};
         /////////////////////////////////////
 
         /////////////////////////////////////
@@ -329,9 +330,12 @@ int main()
         /////////////////////////////////////
 
         multiLight.useShader();
-        diffuse.bindTexture(0);
-        specular.bindTexture(1);
-        emission.bindTexture(3);
+        diffuse.bindTexture(8);
+        specular.bindTexture(9);
+        emission.bindTexture(10);
+        multiLight.setInt("material.diffuse1", 8);
+        multiLight.setInt("material.specular1", 9);
+        //multiLight.setInt("material.emission", 10);  // emission hoef niet opnieuw, want mesh::Draw zet deze niet
         cubeVao.bindVertexArray();
         for (unsigned int i = 0; i < 10; i++)
         {
@@ -349,23 +353,27 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
-            multiLight.setMat4("model", model);
-
+            //multiLight.setMat4("model", model);
+            modelView = view * model;
+            multiLight.setMat4("modelView", modelView);
             // Set Normal in view space
-            multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(view * model)));
-            //multiLight.setMat3("NormalWorldCPU", glm::transpose(glm::inverse(model)));
+            multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
 
             //glDrawArrays(GL_TRIANGLES, 0, 36);
             glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0);
         }
 
         // render the loaded model
-        ourModelShader.useShader(); // TODO eigen shader maken voor model?!
+        //ourModelShader.useShader(); // TODO eigen shader maken voor model?!
+        //emission.bindTexture(7);
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(4.0f, 0.0f, 2.0f)); // translate it down so it's at the center of the scene
+        model = glm::translate(model, glm::vec3(4.0f, 0.0f, 1.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ourModelShader.setMat4("model", model);
-        ourModel.Draw(ourModelShader); // Model::draw!
+        //multiLight.setMat4("model", model);
+        modelView = view * model;
+        multiLight.setMat4("modelView", modelView);
+        multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
+        ourModel.Draw(multiLight); // Model::draw!
 
         //// cubeTest
         //cubeTestShader.useShader();
@@ -377,8 +385,7 @@ int main()
         //cubeTestShader.setMat4("model", model);
         //cubeTest.bindVertexArray();
         //glDrawArrays(GL_TRIANGLES, 0, 36);
-        //glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0);
-        
+        //glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0);       
 
         if (!Global::paused) {
             glfwSwapBuffers(window);

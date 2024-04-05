@@ -7,11 +7,11 @@
 
 #include <cassert>
 
-ElementBuffer::ElementBuffer(const GLvoid* data, GLuint size) // the size in bytes of the buffer object's new data store.
+ElementBuffer::ElementBuffer(size_t size, const GLvoid* data)
 {
 	glGenBuffers(1, &m_Id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Id);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLuint>(size), data, GL_STATIC_DRAW);
 	Global::glCheckError();
 	std::println("CREATE ElementBuffer id: {}", m_Id);
 }

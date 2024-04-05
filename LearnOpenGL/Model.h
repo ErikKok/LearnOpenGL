@@ -35,6 +35,7 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <utility>
 
 //unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
 
@@ -42,9 +43,13 @@ class Model
 {
 public:
     // model data 
-    std::vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
+    std::vector<Texture> m_modelTexturesLoaded;	// std::shared_ptr stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     std::vector<Mesh> meshes;
-    std::string directory; // Backpack
+    std::string m_modelDirectory{};
+    std::string m_modelFullpath{};
+    //std::vector<std::string> m_texturesLoaded{};
+    //std::string m_textureDirectory{};
+    //std::string m_textureFullpath{};
     bool gammaCorrection{ false };
 
     // constructor, expects a filepath to a 3D model.
@@ -52,6 +57,19 @@ public:
         : gammaCorrection(gamma)
     {
         std::println("CREATE Model: {}", path);
+        // Extract the directory part from the file name
+        std::string::size_type SlashIndex = path.find_last_of("/");
+
+        if (SlashIndex == std::string::npos) {
+            m_modelDirectory = ".";
+        }
+        else if (SlashIndex == 0) {
+            m_modelDirectory = "/";
+        }
+        else {
+            m_modelDirectory = path.substr(0, SlashIndex);
+        }
+        m_modelFullpath = path;
         loadModel(path);
     }
 
@@ -79,7 +97,7 @@ private:
             return;
         }
         // retrieve the directory path of the filepath
-        directory = path.substr(0, path.find_last_of('/'));
+        m_modelDirectory = path.substr(0, path.find_last_of('/'));
 
         // process ASSIMP's root node recursively
         processNode(scene->mRootNode, scene);
@@ -110,7 +128,7 @@ private:
         // data to fill
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
-        std::vector<Texture> textures;
+        std::vector<Texture*> textures;
         textures.reserve(16); // TODO weg
 
         // walk through each of the mesh's vertices
@@ -173,18 +191,18 @@ private:
         // diffuse: texture_diffuseN
         // specular: texture_specularN
         // normal: texture_normalN
-        
+
         // 1. diffuse maps
-        std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse");
+        std::vector<Texture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse");
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
         // 2. specular maps
-        std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "specular");
+        std::vector<Texture*> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "specular");
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
         // 3. normal maps
-        std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "normal");
+        std::vector<Texture*> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "normal");
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
         // 4. height maps
-        std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "height");
+        std::vector<Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "height");
         textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
         // return a mesh object created from the extracted mesh data
@@ -193,77 +211,81 @@ private:
 
     // checks all material textures of a given type and loads the textures if they're not loaded yet.
     // the required info is returned as a Texture struct.
-    std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+    std::vector<Texture*> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
     {
         std::println("START Model loadMaterialTextures");
-        textures_loaded.reserve(10000); // TODO weg
+        m_modelTexturesLoaded.reserve(16); // TODO weg
+        bool alreadyLoaded{};
 
-        std::vector<Texture> textures;
+        //std::vector<Texture> meshTextures;
+        std::vector<Texture*> meshTexturesPtr; // TODO smart pointer
         for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
         {
-            aiString str;
-            mat->GetTexture(type, i, &str);
+            aiString textureFilename{};
+            mat->GetTexture(type, i, &textureFilename);
+            
             // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-            bool skip = false;
-            skip = false;
-            for (unsigned int j = 0; j < textures_loaded.size(); j++)
+            alreadyLoaded = false;
+            for (unsigned int j = 0; j < m_modelTexturesLoaded.size(); j++)
             {
-                if (std::strcmp(textures_loaded[j].m_path.data(), str.C_Str()) == 0)
-                {
-                    textures.push_back(textures_loaded[j]);
-                    skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                if (std::strcmp(m_modelTexturesLoaded[j].m_fileName.data(), textureFilename.C_Str()) == 0) { // equal
+                    // Store a pointer for the mesh to use
+                    meshTexturesPtr.push_back(&m_modelTexturesLoaded[j]);
+                    alreadyLoaded = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
                     break;
                 }
             }
-            if (!skip) // TODO dit moet 1 optie zijn, textures moeten met pointers werken. constructor vd texture aanroepen,
-                // die maakt lokaal een instance en returned een pointer voor hier, dan gaan ze hier niet meer out of scope zoals nu
-                // 
-            {   // if texture hasn't been loaded already, load it
-                if (typeName == "diffuse") {
-                    //"Textures\\container2.png"
-                    std::string aaa = "Backpack\\";
-                    std::string bbb = str.C_Str();
-                    std::string ccc = aaa + bbb; // filePath
-                    std::println("TEXTURE Load diffuse {}", ccc);
-                    static Texture texture1(ccc); // zelfde naam telkens?!
-                    //texture.m_id = TextureFromFile(str.C_Str(), this->directory);
-                    //texture.m_id = m_id;
-                    texture1.m_type = typeName;
-                    texture1.m_path = str.C_Str(); //TODO hij checked zonder de folder ervoor in de loop hierboven, dus hier slaat hij ook zonder folder op nu
-                    textures.push_back(texture1);
-                    textures_loaded.push_back(texture1);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
-                }
-                if (typeName == "specular") {
-                    //"Textures\\container2.png"
-                    std::string aaa = "Backpack\\";
-                    std::string bbb = str.C_Str();
-                    std::string ccc = aaa + bbb; // filePath
-                    std::println("TEXTURE Load specular {}", ccc);
-                    static Texture texture2(ccc); // zelfde naam telkens?!
-                    //texture.m_id = TextureFromFile(str.C_Str(), this->directory);
-                    //texture.m_id = m_id;
-                    texture2.m_type = typeName;
-                    texture2.m_path = str.C_Str(); //TODO hij checked zonder de folder ervoor in de loop hierboven, dus hier slaat hij ook zonder folder op nu
-                    textures.push_back(texture2);
-                    textures_loaded.push_back(texture2);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
-                }
-                if (typeName == "normal") {
-                    //"Textures\\container2.png"
-                    std::string aaa = "Backpack\\";
-                    std::string bbb = str.C_Str();
-                    std::string ccc = aaa + bbb; // filePath
-                    std::println("TEXTURE Load normal {}", ccc);
-                    static Texture texture3(ccc); // zelfde naam telkens?!
-                    //texture.m_id = TextureFromFile(str.C_Str(), this->directory);
-                    //texture.m_id = m_id;
-                    texture3.m_type = typeName;
-                    texture3.m_path = str.C_Str(); //TODO hij checked zonder de folder ervoor in de loop hierboven, dus hier slaat hij ook zonder folder op nu
-                    textures.push_back(texture3);
-                    textures_loaded.push_back(texture3);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
-                }
+            if (!alreadyLoaded) {
+                Texture texture(m_modelDirectory + "\\" + textureFilename.C_Str());
+                texture.m_type = typeName;
+                texture.m_fileName = textureFilename.C_Str();
+
+                // MOVE each unique texture to the model object
+                m_modelTexturesLoaded.push_back(std::move(texture));
+
+                // Store a pointer for the mesh to use
+                meshTexturesPtr.push_back(&m_modelTexturesLoaded.back());
             }
+
+            //{   // if texture hasn't been loaded already, load it
+            //    if (typeName == "diffuse") {
+            //        static Texture texture1(m_modelDirectory + "\\" + textureFilename.C_Str()); // zelfde naam telkens?!
+            //        texture1.m_type = typeName;
+            //        texture1.m_fileName = textureFilename.C_Str(); //TODO hij checked zonder de folder ervoor in de loop hierboven, dus hier slaat hij ook zonder folder op nu
+            //        meshTextures.push_back(texture1);
+            //        m_modelTexturesLoaded.push_back(texture1);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+            //    }
+            //    if (typeName == "specular") {
+            //        //"Textures\\container2.png"
+            //        std::string aaa = "Backpack\\";
+            //        std::string bbb = textureFilename.C_Str();
+            //        std::string ccc = aaa + bbb; // filePath
+            //        std::println("TEXTURE Load specular {}", ccc);
+            //        static Texture texture2(ccc); // zelfde naam telkens?!
+            //        //texture.m_id = TextureFromFile(str.C_Str(), this->directory);
+            //        //texture.m_id = m_id;
+            //        texture2.m_type = typeName;
+            //        texture2.m_fileName = textureFilename.C_Str(); //TODO hij checked zonder de folder ervoor in de loop hierboven, dus hier slaat hij ook zonder folder op nu
+            //        meshTextures.push_back(texture2);
+            //        m_modelTexturesLoaded.push_back(texture2);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+            //    }
+            //    if (typeName == "normal") {
+            //        //"Textures\\container2.png"
+            //        std::string aaa = "Backpack\\";
+            //        std::string bbb = textureFilename.C_Str();
+            //        std::string ccc = aaa + bbb; // filePath
+            //        std::println("TEXTURE Load normal {}", ccc);
+            //        static Texture texture3(ccc); // zelfde naam telkens?!
+            //        //texture.m_id = TextureFromFile(str.C_Str(), this->directory);
+            //        //texture.m_id = m_id;
+            //        texture3.m_type = typeName;
+            //        texture3.m_fileName = textureFilename.C_Str(); //TODO hij checked zonder de folder ervoor in de loop hierboven, dus hier slaat hij ook zonder folder op nu
+            //        meshTextures.push_back(texture3);
+            //        m_modelTexturesLoaded.push_back(texture3);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+            //    }
+            //}
         }
-        return textures;
+        return meshTexturesPtr;
     }
 };
 

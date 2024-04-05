@@ -4,13 +4,13 @@
 #include <memory> // for std::unique_ptr and std::make_unique
 
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture*> textures)
     :m_vertices{vertices}
     ,m_indices{indices}
     ,m_textures{textures}
     ,m_vao{ new VertexArray{} }
-    ,m_vbo{ new VertexBuffer(&m_vertices[0], static_cast<unsigned int>(m_vertices.size() * sizeof(Vertex)))}
-    ,m_ebo{ new ElementBuffer(&m_indices[0], static_cast<unsigned int>(m_indices.size() * sizeof(unsigned int)))}
+    ,m_vbo{ new VertexBuffer(m_vertices.size() * sizeof(Vertex), &m_vertices[0])}
+    ,m_ebo{ new ElementBuffer(m_indices.size() * sizeof(unsigned int), &m_indices[0])}
     ,m_layout{ new VertexAttributeLayout{} }
 {
     std::println("CREATE Mesh");
@@ -57,7 +57,7 @@ void Mesh::Draw(Shader& shader) // bindTexture() + glDrawElements
         //glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
         // retrieve texture number (the N in diffuse_textureN)
         std::string number;
-        std::string name = m_textures[i].m_type;
+        std::string name = m_textures[i]->m_type;
         if (name == "diffuse")
             number = std::to_string(diffuseNr++);
         else if (name == "specular")
@@ -71,10 +71,12 @@ void Mesh::Draw(Shader& shader) // bindTexture() + glDrawElements
 
         // now set the sampler to the correct texture unit
         std::string result{ "material." + name + number };
-        shader.setInt(result, static_cast<GLint>(m_textures[i].m_Id)); // m_Id
+        //shader.setInt(result, static_cast<GLint>(m_textures[i].m_Id)); // m_Id
+        shader.setInt(result, i); // m_Id
         // and finally bind the texture
 
-        m_textures[i].bindTexture(m_textures[i].m_Id);
+        //m_textures[i].bindTexture(m_textures[i].m_Id);
+        m_textures[i]->bindTexture(i);
         //glBindTexture(GL_TEXTURE_2D, textures[i].m_id);
     }
     // always good practice to set everything back to defaults once configured.
@@ -85,7 +87,5 @@ void Mesh::Draw(Shader& shader) // bindTexture() + glDrawElements
     //std::println("MESH DRAW OFZO");
     //glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()));
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_vertices.size()), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-
-
+    //glBindVertexArray(0);
 }
