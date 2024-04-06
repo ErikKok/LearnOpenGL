@@ -37,34 +37,34 @@ public:
 	template<>
 	void pushVertexAttributeLayout<float>(GLint count)
 	{
-		m_attributes.push_back({ GL_FLOAT, count, GL_FALSE, count * sizeof(GL_FLOAT) });
+		m_vertexAttributes.push_back({ GL_FLOAT, count, GL_FALSE, count * sizeof(GL_FLOAT) });
 		m_stride += count * sizeof(GL_FLOAT);
 	}
 
 	template<>
 	void pushVertexAttributeLayout<int>(GLint count)
 	{
-		m_attributes.push_back({ GL_INT, count, GL_FALSE, count * sizeof(GL_INT) });
+		m_vertexAttributes.push_back({ GL_INT, count, GL_FALSE, count * sizeof(GL_INT) });
 		m_stride += count * sizeof(GL_INT);
 	}
 
 	template<>
 	void pushVertexAttributeLayout<unsigned int>(GLint count)
 	{
-		m_attributes.push_back({ GL_UNSIGNED_INT, count, GL_FALSE, count * sizeof(GL_UNSIGNED_INT) });
+		m_vertexAttributes.push_back({ GL_UNSIGNED_INT, count, GL_FALSE, count * sizeof(GL_UNSIGNED_INT) });
 		m_stride += count * sizeof(GL_UNSIGNED_INT);
 	}
 
 	template<>
 	void pushVertexAttributeLayout<unsigned char>(GLint count)
 	{
-		m_attributes.push_back({ GL_UNSIGNED_BYTE, count, GL_TRUE, count * sizeof(GL_UNSIGNED_BYTE) });
+		m_vertexAttributes.push_back({ GL_UNSIGNED_BYTE, count, GL_TRUE, count * sizeof(GL_UNSIGNED_BYTE) });
 		m_stride += count * sizeof(GL_UNSIGNED_BYTE);
 	}
 
 	inline std::vector<VertexAttribute>& getVertexAttributes()
 	{
-		return m_attributes;
+		return m_vertexAttributes;
 	}
 
 	inline unsigned int getStride() const
@@ -86,13 +86,13 @@ public:
 	inline void setVertexAttributeOffset(int vertexAttributeIndex, int offsetNew)
 	{
 		assert(vertexAttributeIndex - 1u >= 0 && "You can not change vertexAttributeIndex #0");
-		assert(static_cast<int>(m_attributes[vertexAttributeIndex].m_offset) + offsetNew >= 0 && "You cannot change offset to a negative value");
+		assert(static_cast<int>(m_vertexAttributes[vertexAttributeIndex].m_offset) + offsetNew >= 0 && "You cannot change offset to a negative value");
 
-		m_attributes[(vertexAttributeIndex - 1u)].m_offset += offsetNew;
+		m_vertexAttributes[(vertexAttributeIndex - 1u)].m_offset += offsetNew;
 		m_stride += offsetNew;
 	}
 
 private:
-	std::vector<VertexAttribute> m_attributes{};
+	std::vector<VertexAttribute> m_vertexAttributes{};
 	GLsizei m_stride{};
 };

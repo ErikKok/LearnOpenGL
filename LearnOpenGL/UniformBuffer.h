@@ -9,7 +9,7 @@ public:
 	void bindUniformBuffer() const;
 	void unbindUniformBuffer() const;
 
-	void addUniformBufferSubData(const UniformBuffer& ub, BufferSubDataLayout& layout);
+	void addUniformBufferSubData(BufferSubDataLayout& layout);
 
 	const GLuint getId() const { return m_id; };
 

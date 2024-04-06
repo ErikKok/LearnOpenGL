@@ -220,7 +220,7 @@ int main()
         projectionViewLayout.pushUniformBufferSubData(Global::camera.getProjectionMatrix());
         glm::mat4 view{ Global::camera.GetViewMatrix() };
         projectionViewLayout.pushUniformBufferSubData(view);
-        projectionView.addUniformBufferSubData(projectionView, projectionViewLayout);
+        projectionView.addUniformBufferSubData(projectionViewLayout);
 
         /////////////////////////////////////
         ////// XYZ //////////////////////////
@@ -347,8 +347,6 @@ int main()
             glfwSwapBuffers(window);
         }
 
-        // TODO - set correct Shader for flashlight input:
-        multiLight.useShader();
         glfwPollEvents();
     }
     Global::glCheckError();

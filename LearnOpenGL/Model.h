@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Global.h"
 #include "Mesh.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -40,7 +41,7 @@ public:
     }
 
 private:
-    std::vector<std::shared_ptr<Texture>> m_texturesLoaded;
+    std::vector<SPtr<Texture>> m_texturesLoaded;
     std::vector<Mesh> m_meshes;
     std::string m_directory{};
     std::string m_pathAndFileName{};
@@ -147,9 +148,11 @@ private:
                 indices.push_back(face.mIndices[j]);
         }
 
+
+
         // process materials
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        std::vector<std::shared_ptr<Texture>> meshTextures;
+        std::vector<SPtr<Texture>> meshTextures;
         meshTextures.reserve(4); // magic number
 
         // we assume a convention for sampler names in the shaders. Each texture should be named as '<typename>N' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER
@@ -166,7 +169,7 @@ private:
     }
 
     // checks all material textures of a given type and loads the textures if they're not loaded yet.
-    void loadMaterialTextures(aiMaterial* material, aiTextureType type, std::string typeName, std::vector<std::shared_ptr<Texture>>& meshTextures)
+    void loadMaterialTextures(aiMaterial* material, aiTextureType type, std::string typeName, std::vector<SPtr<Texture>>& meshTextures)
     {
         //std::println("START Model loadMaterialTextures");
         m_texturesLoaded.reserve(4); // magic number

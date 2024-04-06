@@ -4,8 +4,6 @@
 
 class VertexBuffer {
 public:
-
-    //VertexBuffer() = default; // TODO
     VertexBuffer(size_t size, const GLvoid* data);
     ~VertexBuffer();
 
@@ -31,6 +29,6 @@ private:
 // 
 // .size() returns the number of elements in the vector.
 //
-// sizeof gives you the number of bytes used by the object definition(based on the declaration of the vector class)
+// sizeof gives you the number of bytes used by the object definition (based on the declaration of the vector class)
 //
 // .size() * sizeof(type) = total size in bytes

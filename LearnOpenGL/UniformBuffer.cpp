@@ -39,17 +39,18 @@ void UniformBuffer::unbindUniformBuffer() const
 	Global::glCheckError();
 }
 
-void UniformBuffer::addUniformBufferSubData(const UniformBuffer& ub, BufferSubDataLayout& layout)
+void UniformBuffer::addUniformBufferSubData(BufferSubDataLayout& layout)
 {	
 	//std::println("ADD UniformBufferSubData id: {}", m_id);
 
 	assert(sizeof(layout.getBufferSubData()) != 0 && "WARNING: addUniformBufferSubData(): BufferSubDataLayout is empty!");
-
-	// TODO is het ok als verkeerde is gebound of moet dat altijd al goed zijn hier? -> NEEN dus if maken
-	// ub.bindUniformBuffer();
+	
 	GLint returnData;
 	glGetIntegerv(GL_UNIFORM_BUFFER_BINDING, &returnData);
-	assert(returnData == static_cast<GLint>(ub.getId()) && "WARNING: addUniformBufferSubData(): wrong UniformBuffer was bound");
+	if (returnData != static_cast<GLint>(this->getId())) {
+		std::println("WARNING: addUniformBufferSubData(): wrong UniformBuffer was bound -> corrected");
+		this->bindUniformBuffer();
+	}
 
 	const auto& bufferSubData{ layout.getBufferSubData() };
 	GLintptr totalOffset{ 0 };

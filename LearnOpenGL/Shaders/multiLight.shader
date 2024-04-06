@@ -22,8 +22,8 @@ uniform mat3 NormalViewCPU; // rename NormalMatrix?
 
 void main()
 {
-    TexCoords = aTexCoords; // TODO kan dit niet direct naar de fragment shader ipv via de vertex shader?
-    FragPosView = vec3(modelView * vec4(aPos, 1.0)); // TODO view * model kan op cpu, gebeurd toch al voor NormalViewCPU
+    TexCoords = aTexCoords;
+    FragPosView = vec3(modelView * vec4(aPos, 1.0));
     NormalView = NormalViewCPU * aNormal;
     gl_Position = projection * modelView * vec4(aPos, 1.0);
 }

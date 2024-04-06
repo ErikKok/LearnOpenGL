@@ -75,18 +75,18 @@ namespace Global {
             glfwSetWindowShouldClose(window, true);
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            Global::camera.ProcessKeyboard(CameraMovement::FORWARD, Global::deltaTime);
+            Global::camera.ProcessKeyboard(CameraMovement::FORWARD);
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            Global::camera.ProcessKeyboard(CameraMovement::BACKWARD, Global::deltaTime);
+            Global::camera.ProcessKeyboard(CameraMovement::BACKWARD);
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            Global::camera.ProcessKeyboard(CameraMovement::LEFT, Global::deltaTime);
+            Global::camera.ProcessKeyboard(CameraMovement::LEFT);
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            Global::camera.ProcessKeyboard(CameraMovement::RIGHT, Global::deltaTime);
+            Global::camera.ProcessKeyboard(CameraMovement::RIGHT);
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-            Global::camera.ProcessKeyboard(CameraMovement::UP, Global::deltaTime);
+            Global::camera.ProcessKeyboard(CameraMovement::UP);
         if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-            Global::camera.ProcessKeyboard(CameraMovement::DOWN, Global::deltaTime);
+            Global::camera.ProcessKeyboard(CameraMovement::DOWN);
     }
 
 #pragma warning( suppress : 4100 )
@@ -110,7 +110,7 @@ namespace Global {
 
         static bool flashLightOn{ true }; // opposite of value set in main.cpp
         if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-            // TODO  multiLight.useShader();
+            flashLight->useShader();
             flashLight->setBool("flashLight.on", flashLightOn);
             flashLightOn = !flashLightOn;
         }

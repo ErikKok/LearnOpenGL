@@ -1,5 +1,6 @@
 #pragma once
 #include "Camera.h"
+#include "Global.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -23,7 +24,7 @@ void Camera::fakeGravity(GLfloat deltaTime) {
 }
 
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-const glm::mat4 Camera::GetViewMatrix() //const
+const glm::mat4 Camera::GetViewMatrix() const
 {
     glm::mat4 view = glm::lookAt(m_position, m_position + m_front, m_up);
     // m_position = eye aka target = the position of the camera's viewpoint
@@ -72,9 +73,9 @@ const glm::mat4 Camera::GetViewMatrix() //const
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void Camera::ProcessKeyboard(CameraMovement direction, GLfloat deltaTime)
+void Camera::ProcessKeyboard(CameraMovement direction)
 {      
-    float velocity{ m_movementSpeed * deltaTime }; // TODO deltaTime uit de global ns
+    float velocity{ m_movementSpeed * Global::deltaTime };
 
     if (direction == CameraMovement::UP)
         m_position.y += 0.5f * velocity;

@@ -8,9 +8,16 @@
 
 #include <print>
 
-// TODO
+// TODO - in de namespace plaatsen?
+template <typename T>
+using SPtr = std::shared_ptr<T>;
+
+template <typename T>
+using UPtr = std::unique_ptr<T>;
+
+// TODO - niet meer global
 class Shader;
-inline Shader* flashLight{ nullptr };
+inline Shader* flashLight{ nullptr }; // points to multiLight
 
 namespace Global {
     inline int windowWidth{ 1920 };

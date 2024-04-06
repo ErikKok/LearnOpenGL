@@ -41,17 +41,17 @@ void VertexArray::addVertexAttributeLayout(const VertexBuffer& vb, VertexAttribu
 {
 	//std::println("ADD VertexAttributeLayout id: {}", m_id);
 	
-	assert(sizeof(layout.getVertexAttributes()) != 0 && "WARNING: addVertexAttributeLayout(): VertexAttributeLayout is empty!");
+	assert(sizeof(layout.getVertexAttributes()) != 0 && "ERROR: addVertexAttributeLayout(): VertexAttributeLayout is empty!");
 
-	//glBindVertexArray(this->m_id);
 	GLint returnData;
 	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &returnData);
-	assert(returnData == static_cast<GLint>(m_id) && "WARNING: addVertexAttributeLayout(): Currently bound VertexArray is not equal to this->VertexArray");
+	assert(returnData == static_cast<GLint>(m_id) && "ERROR: addVertexAttributeLayout(): Currently bound VertexArray is not equal to this->VertexArray");
 
-	// TODO is het ok als verkeerde is gebound of moet dat altijd al goed zijn hier?
-	// vb.bindVertexBuffer();
 	glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &returnData);
-	assert(returnData == static_cast<GLint>(vb.getId()) && "WARNING: addVertexAttributeLayout(): wrong VertexBuffer was bound");
+	if (returnData != static_cast<GLint>(vb.getId())) {
+		std::println("WARNING: addVertexAttributeLayout(): wrong VertexBuffer was bound -> corrected");
+		vb.bindVertexBuffer();
+	}
 
 	const auto& vertexAttributes{ layout.getVertexAttributes() };
 	uintptr_t totalOffset{0};

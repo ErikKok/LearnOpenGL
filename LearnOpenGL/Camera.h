@@ -26,14 +26,12 @@ public:
     void fakeGravity(GLfloat deltaTime);
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    const glm::mat4 GetViewMatrix();
+    const glm::mat4 GetViewMatrix() const;
     const glm::mat4 getProjectionMatrix() { return m_projection; };
-    //const glm::vec3 getFront() { return m_front; };       // werken niet goed!!!want const?
-    //const glm::vec3 getPosition() { return m_position; }; // werken niet goed!!!
     void setAspectRatio(float x) { m_aspectRatio = x; };
     void recalculateProjectionMatrix() { m_projection = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane); };
 
-    void ProcessKeyboard(CameraMovement direction, GLfloat deltaTime); //TODO hoofdletters
+    void ProcessKeyboard(CameraMovement direction);
     void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
     void ProcessMouseScroll(GLfloat yoffset);
 

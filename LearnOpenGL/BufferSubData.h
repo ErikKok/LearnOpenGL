@@ -26,11 +26,10 @@ class BufferSubData
 private:
 	BufferSubData(const glm::mat4& data)
 		: m_data{ data }
-
 	{}
 	GLenum m_target{ GL_UNIFORM_BUFFER };
 	GLsizeiptr m_size{ sizeof(glm::mat4) };
-	const glm::mat4& m_data{};
+	const glm::mat4 m_data{};
 };
 
 class BufferSubDataLayout {
