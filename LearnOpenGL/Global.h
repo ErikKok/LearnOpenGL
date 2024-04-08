@@ -5,6 +5,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <print>
 
@@ -28,10 +31,15 @@ namespace Global {
     inline GLfloat deltaTime{ 0.0f };	// time between current frame and last frame
     inline GLfloat lastFrame{ 0.0f };
     inline bool paused{ false };
+    inline bool drawOutline{ false };
 
     GLenum glCheckError_(const char* file, int line);
     #define glCheckError() glCheckError_(__FILE__, __LINE__)
     void glClearError();
+
+    void transform(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
+    void transformNormalViewCPU(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
+    void initStencilBuffer();
 
     int init(GLFWwindow* window);
     void processInput(GLFWwindow* window);

@@ -1,8 +1,22 @@
 #pragma once
 
 #include "mesh.h"
-#include <memory> // for std::unique_ptr and std::make_unique
 
+#include "Data.h"
+#include "ElementBuffer.h"
+#include "Global.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "VertexBuffer.h"
+#include "VertexArray.h"
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#include <memory> // for std::unique_ptr and std::make_unique
+#include <print>
+#include <vector>
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<SPtr<Texture>> textures)
     :m_vertices{vertices}
@@ -20,7 +34,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
 void Mesh::setupMesh()
 {
     //std::println("SETUP Mesh");
-    // No need to bind anything, constructor did that
+    // No need to bind anything, constructor already took care of that
     m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
     m_layout->pushVertexAttributeLayout<float>(2);      // 1 - tex coords
     m_layout->pushVertexAttributeLayout<float>(3);      // 2 - normals
@@ -34,11 +48,11 @@ void Mesh::setupMesh()
 void Mesh::Draw(Shader& shader)
 {
     // bind appropriate textures
-    unsigned int diffuseNr = 1;
-    unsigned int specularNr = 1;
-    //unsigned int normalNr = 1; // TODO
-    //unsigned int heightNr = 1; // TODO
-    for (unsigned int i = 0; i < m_textures.size(); i++)
+    unsigned int diffuseNr = 1u;
+    unsigned int specularNr = 1u;
+    //unsigned int normalNr = 1u; // TODO
+    //unsigned int heightNr = 1u; // TODO
+    for (unsigned int i = 0u; i < m_textures.size(); i++)
     {
         // retrieve texture number (the N in <typename>N)
         std::string number;
@@ -54,13 +68,12 @@ void Mesh::Draw(Shader& shader)
             break;
             //number = std::to_string(heightNr++); // transfer unsigned int to string
 
-        // now set the sampler to the correct texture unit
         std::string result{ "material." + name + number };
+        // set the sampler to the correct texture unit
         shader.setInt(result, i); // m_id
         // activate proper texture unit (i) and bind the texture
         m_textures[i]->bindTexture(i);
     }
-    // draw mesh
     m_vao->bindVertexArray();
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_vertices.size()), GL_UNSIGNED_INT, 0);
 }

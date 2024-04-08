@@ -38,62 +38,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Normalize test
+    //glm::vec3 test = glm::vec3(7.3f,0.5f, 1.8f);
+    //glm::vec3 test2 = glm::normalize(test);
+    //std::println("test: {}, {}, {}", test.x, test.y, test.z);
+    //std::println("test normalized: {}, {}, {}", test2.x, test2.y, test2.z);
 
-//// Floor Main
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//VertexArray floorVao;
-//VertexBuffer floorVbo(&Data::floor2, sizeof(Data::floor2));
-//VertexAttributeLayout floorlayout{};
-//floorlayout.pushVertexAttributeLayout<float>(3);
-//floorlayout.pushVertexAttributeLayout<float>(2);
-//floorlayout.pushVertexAttributeLayout<float>(3);
-//floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
-//ElementBuffer floorEbo(sizeof(Data::floorIndices), &Data::floorIndices);
 
-//Texture texture2("Textures\\floor.jpg");
-
-////Shader floorShader("Shaders\\floor.shader");
-////floorShader.useShader();
-////floorShader.setInt("texture2", 2);
-
-//// Normalize test
-////glm::vec3 test = glm::vec3(7.3f,0.5f, 1.8f);
-////glm::vec3 test2 = glm::normalize(test);
-////std::println("test: {}, {}, {}", test.x, test.y, test.z);
-////std::println("test normalized: {}, {}, {}", test2.x, test2.y, test2.z);
-
-//// Floor Renderloop
-//
-////spotlight.useShader();
-////texture2.bindTexture(2);
-//floorVao.bindVertexArray();
-//model = glm::mat4(1.0f);
-////model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-//model = glm::rotate(model, glm::radians(95.0f), glm::vec3(1.0, 0.0, 0.0));
-//model = glm::scale(model, glm::vec3(25.0, 25.0, 2.0));
-//multiLight.setMat4("model", model);
-///////
-//multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(view * model)));
-////multiLight.setMat3("NormalWorldCPU", glm::transpose(glm::inverse(model)));
-///////
-//glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0);
-
-////model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
-////for (unsigned int i = 0; i < 32; i++) {
-////    model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -0.0f));
-////    
-////    //model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
-////    floorShader.setMat4("model", model);
-////    for (unsigned int j = 0; j < 8; j++) {
-////        model = glm::translate(model, glm::vec3(0.0f, 1.0f, -0.0f));
-
-////        //model = glm::scale(model, glm::vec3(20.0, 20.0, 20.0));
-////        floorShader.setMat4("model", model);
-////        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(floor.size()), GL_UNSIGNED_INT, 0);
-////    }
-////    model = glm::translate(model, glm::vec3(0.0f, -8.0f, -0.0f));
-////    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(floor.size()), GL_UNSIGNED_INT, 0);
-////}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,10 @@ TO DO
 - Uniform location cache
 - Model, BufferSubData, VertexAttribute en Texture .cpp maken/bijwerken
 
+v0.1.11 8-4-2024
+-----------------
+- floor outline, with toggle
+
 v0.1.10 6-4-2024
 -----------------
 - TODO's nagelopen

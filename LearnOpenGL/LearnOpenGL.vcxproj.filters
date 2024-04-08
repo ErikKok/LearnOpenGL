@@ -54,6 +54,9 @@
     <ClCompile Include="Temp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -130,6 +133,9 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Shaders\cubeTest.shader">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\multiLightOutline.shader">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

@@ -52,6 +52,19 @@ int main()
  
     Global::glCheckError();
 
+    bool cheap{ sizeof(glm::vec3) <= 2 * sizeof(void*) };
+    std::println("Is glm::vec3 cheap to copy: {} (provided there are no additional setup costs)", cheap);
+    cheap = sizeof(glm::vec4) <= 2 * sizeof(void*);
+    std::println("Is glm::vec4 cheap to copy: {} (provided there are no additional setup costs)", cheap);
+    cheap = sizeof(glm::mat3) <= 2 * sizeof(void*);
+    std::println("Is glm::mat3 cheap to copy: {} (provided there are no additional setup costs)", cheap);
+    cheap = sizeof(glm::mat4) <= 2 * sizeof(void*);
+    std::println("Is glm::mat4 cheap to copy: {} (provided there are no additional setup costs)", cheap);
+    cheap = sizeof(Shader) <= 2 * sizeof(void*);
+    std::println("Is Shader cheap to copy: {} (provided there are no additional setup costs)", cheap);
+    cheap = sizeof(Texture) <= 2 * sizeof(void*);
+    std::println("Is Texture cheap to copy: {} (provided there are no additional setup costs)", cheap);
+
     UniformBuffer projectionView(2 * sizeof(glm::mat4), 0);
 
     /////////////////////////////////////
@@ -189,20 +202,50 @@ int main()
     Texture specular("Textures\\container2_specular.png"); // 9
     Texture emission("Textures\\matrix.jpg"); // 10
 
+    /////////////////////////////////////
+    ////// Floor ////////////////////////
+    std::println("CREATE Floor");////////
+
+    VertexArray floorVao;
+    VertexBuffer floorVbo(sizeof(Data::floor2), &Data::floor2);
+    VertexAttributeLayout floorlayout{};
+    floorlayout.pushVertexAttributeLayout<float>(3);
+    floorlayout.pushVertexAttributeLayout<float>(2);
+    floorlayout.pushVertexAttributeLayout<float>(3);
+    floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
+    ElementBuffer floorEbo(sizeof(Data::floorIndices), &Data::floorIndices);
+
+    Texture floor("Textures\\floor.jpg");
+    floor.bindTexture(2);
+
+    //////// Outline ////////////////////
+
+    Shader multiLightOutline("Shaders\\multiLightOutline.shader");
+
     ////////////////////////////////////
     ////// Mesh ////////////////////////
     std::println("LOAD Model");/////////
 
     Shader ourModelShader("Shaders\\multiLight.shader");
-    Model ourModel("Backpack/backpack.obj");
+    Model ourModel("Models/Backpack/backpack.obj");
+    //Model ourModel("Models/Nanosuit/nanosuit.obj");
+    //Model ourModel("Models/Cyborg/cyborg.obj");
+    //Model ourModel("Models/Mars/planet.obj");
+    //Model ourModel("Models/Rock/rock.obj");
+    //Model ourModel("Models/Vampire/dancing_vampire.dae"); // crash
     //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
 
     Global::getBound();
     std::println("START renderloop ******************************");
     Global::glCheckError();
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        Global::initStencilBuffer();
 
         // per-frame time logic
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -268,7 +311,7 @@ int main()
         glm::mat4 model{};
         glm::mat4 modelView{};
         /////////////////////////////////////
-
+        
         /////////////////////////////////////
         ////// LightCube ////////////////////
         /////////////////////////////////////
@@ -333,15 +376,47 @@ int main()
             glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0);
         }
 
+        /////////////////////////////////////
+        ////// Floor ////////////////////////
+        /////////////////////////////////////
+
+        glStencilMask(0xFF); // enable writing to the stencil buffer
+
+        floorVao.bindVertexArray();
+        floor.bindTexture(2);
+        multiLight.setInt("material.diffuse1", 2);
+        Global::transformNormalViewCPU(multiLight, glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(25.0, 25.0, 2.0), view);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0);
+
+        glStencilMask(0x00); // disable writing to the stencil buffer
+
+        if (Global::drawOutline) {
+            glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+            //glDisable(GL_DEPTH_TEST); // disable depth testing makes following draw calls drawn on top of the outline
+            // Scale Floor
+            multiLightOutline.useShader();
+            Global::transform(multiLightOutline, glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(26.0, 26.0, 2.0), view);
+            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0);
+            //glEnable(GL_DEPTH_TEST);
+            
+            // De-init Stencil Buffer
+            glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should pass the stencil test again
+        }
+
+        /////////////////////////////////////
+        ////// Mesh /////////////////////////
+        /////////////////////////////////////
+
         // render the loaded model
         //ourModelShader.useShader(); // TODO eigen shader maken voor model?!
+        multiLight.useShader();
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(4.0f, 0.0f, 1.0f)); // translate it down so it's at the center of the scene
+        model = glm::translate(model, glm::vec3(4.0f, 3.0f, 2.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
         modelView = view * model;
         multiLight.setMat4("modelView", modelView);
         multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
-        ourModel.Draw(multiLight); // Model::draw!   
+        ourModel.Draw(multiLight);
 
         if (!Global::paused) {
             glfwSwapBuffers(window);

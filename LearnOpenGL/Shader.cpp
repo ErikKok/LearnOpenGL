@@ -1,6 +1,8 @@
 #pragma once
 #include "Shader.h"
 
+#include "Global.h"
+
 #include <print>
 #include <string>
 #include <fstream>

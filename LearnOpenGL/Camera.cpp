@@ -27,6 +27,7 @@ void Camera::fakeGravity(GLfloat deltaTime) {
 const glm::mat4 Camera::GetViewMatrix() const
 {
     glm::mat4 view = glm::lookAt(m_position, m_position + m_front, m_up);
+    // TODO
     // m_position = eye aka target = the position of the camera's viewpoint
     // m_position = center = is where you are looking at (a position)
     // m_position + m_front = center = is where you are looking at (a direction vector)

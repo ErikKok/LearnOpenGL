@@ -54,7 +54,7 @@ Texture::~Texture() // TODO - hacky... use smart pointers I guess? Wordt niet me
 
 void Texture::bindTexture(unsigned int textureUnit) const
 {
-    //std::println("BIND texture id: {}", m_id);
+    //std::println("BIND texture id: {} | texture unit: {}", m_id, textureUnit);
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_2D, this->m_id);
     Global::glCheckError();
