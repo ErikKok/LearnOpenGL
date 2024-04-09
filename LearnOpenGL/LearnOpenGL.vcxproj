@@ -137,7 +137,6 @@
     <None Include="Shaders\cubeTest.shader" />
     <None Include="Shaders\floor.shader" />
     <None Include="Shaders\framebuffer.shader" />
-    <None Include="Shaders\framebuffer2.shader" />
     <None Include="Shaders\model.shader" />
     <None Include="Shaders\multiLight.shader" />
     <None Include="Shaders\singleColor.shader" />

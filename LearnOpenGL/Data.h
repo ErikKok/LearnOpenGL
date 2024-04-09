@@ -8,22 +8,14 @@
 namespace Data{
 
     constexpr std::array framebuffer{
-        // X     Y      Z       Texture1     Texture2
-        //                // positions   // texCoords
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-
-        -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f,
-         //-1.0f, -1.0f, 0.0f,    0.0f,        0.0f,
-         // 1.0f, -1.0f, 0.0f,    1.0f,        0.0f,
-         //-1.0f,  1.0f, 0.0f,    0.0f,        1.0f,
-
-         // 1.0f, -1.0f, 0.0f,    1.0f,        0.0f,
-         // 1.0f,  1.0f, 0.0f,    1.0f,        1.0f,
-         //-1.0f,  1.0f, 0.0f,    0.0f,        1.0f,
+        // X     Y     Texture1     Texture2
+        -1.0f,  1.0f,  0.0f,         1.0f,
+        -1.0f, -1.0f,  0.0f,         0.0f,
+         1.0f, -1.0f,  1.0f,         0.0f,
+                                     
+        -1.0f,  1.0f,  0.0f,         1.0f,
+         1.0f, -1.0f,  1.0f,         0.0f,
+         1.0f,  1.0f,  1.0f,         1.0f,
     };
 
     constexpr std::array cube{
