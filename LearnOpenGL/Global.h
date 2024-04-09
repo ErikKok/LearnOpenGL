@@ -40,6 +40,8 @@ namespace Global {
     void transform(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
     void transformNormalViewCPU(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
     void initStencilBuffer();
+    void clearStencilBuffer();
+
 
     int init(GLFWwindow* window);
     void processInput(GLFWwindow* window);

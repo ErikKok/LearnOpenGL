@@ -27,7 +27,8 @@ void Camera::fakeGravity(GLfloat deltaTime) {
 const glm::mat4 Camera::GetViewMatrix() const
 {
     glm::mat4 view = glm::lookAt(m_position, m_position + m_front, m_up);
-    // TODO
+    //glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), m_up); // view from above, disable mouse
+    // TODO 
     // m_position = eye aka target = the position of the camera's viewpoint
     // m_position = center = is where you are looking at (a position)
     // m_position + m_front = center = is where you are looking at (a direction vector)
@@ -70,6 +71,13 @@ const glm::mat4 Camera::GetViewMatrix() const
     //rotation[2][2] = zaxis.z;
 
     //glm::mat4 view{ rotation * translation };
+    return view;
+}
+
+const glm::mat4 Camera::GetReverseViewMatrix() const
+{
+    glm::mat4 view = glm::lookAt(m_position, m_position + -m_front, m_up);
+
     return view;
 }
 

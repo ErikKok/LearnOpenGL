@@ -50,21 +50,26 @@ void Global::transformNormalViewCPU(const Shader& shader, glm::vec3 translate, f
 }
 
 void Global::initStencilBuffer() {
-    // enable writing to the stencil buffer, so it can be cleared
-    glStencilMask(0xFF);
-    glClear(GL_STENCIL_BUFFER_BIT); // TODO combine with other glClear, probably faster
-    // disable writing to the stencil buffer until needed
-    glStencilMask(0x00);
+    glEnable(GL_STENCIL_TEST);
     // if both stencil test and depth test succeed replace stencil value
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    // all fragments should pass the stencil test, update stencil buffer to 1
+    // all fragments should pass the stencil test until needed
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
 
     // some information:
     // to actually change the depth clearing value, you need to call glClearDepth() before calling glClear()
     // 
+    // https://a.disquscdn.com/uploads/mediaembed/images/2106/4734/original.jpg
     // glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_KEEP);
     // glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_REPLACE);
+}
+
+void Global::clearStencilBuffer() {
+    // enable writing to the stencil buffer, so it can be cleared
+    glStencilMask(0xFF);
+    glClear(GL_STENCIL_BUFFER_BIT); // TODO combine with other glClear commands, probably faster?
+    // disable writing to the stencil buffer until needed
+    glStencilMask(0x00);
 }
 
 int Global::init(GLFWwindow* window)
@@ -87,6 +92,12 @@ int Global::init(GLFWwindow* window)
         return -1;
     }
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_CULL_FACE);
+
+    // Debug
     int flags{};
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
