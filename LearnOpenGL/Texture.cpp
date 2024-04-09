@@ -33,7 +33,7 @@ Texture::Texture(const std::string& filePath)
         format = GL_RGBA;
     glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);
     glGenerateMipmap(GL_TEXTURE_2D);
-    //glBindTexture(GL_TEXTURE_2D, 0); // TODO niet gelijk binden
+    //glBindTexture(GL_TEXTURE_2D, 0); // TODO wel/niet gelijk un!!binden?
     stbi_image_free(textureData);
     Global::glCheckError();
     std::println("CREATE texture id: {}", m_id);

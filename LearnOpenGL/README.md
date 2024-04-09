@@ -4,6 +4,10 @@ TO DO
 - Uniform location cache
 - Model, BufferSubData, VertexAttribute en Texture .cpp maken/bijwerken
 
+v0.1.13 9-4-2024
+-----------------
+- removed all framebuffer code
+
 v0.1.12 9-4-2024
 -----------------
 - implemented a sort of rearviewmirror with framebuffers
