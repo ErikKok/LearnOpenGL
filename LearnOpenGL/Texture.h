@@ -1,71 +1,40 @@
 #pragma once
 #include "Texture.h"
 
+#include <array>
+#include <optional>
 #include <print>
 #include <string>
+#include <vector>
 
 class Texture {
 public:
-	Texture(const std::string& filePath);				// constructor
-	~Texture();											// destructor
+	Texture(const std::string& filePath);					// Constructor
+	Texture(const std::vector<std::string>& faces);			// Constructor cubemap
+	Texture(const Texture& other) = delete;					// Copy constructor
+	Texture& operator=(const Texture& other) = delete;		// Copy assignment
+	Texture(Texture&& other) noexcept = delete; 			// Move constructor	
+	Texture& operator=(Texture&& other) noexcept = delete;	// Move assignment
+	~Texture();												// Destructor
 
-	// TODO o.a. naar .cpp verplaatsen nog als het goed werkt.
-	Texture(const Texture& other) = delete;				// copy constructor
-	Texture& operator=(const Texture& other) = delete;	// copy assignment
-
-	Texture(Texture&& other) noexcept 					// move constructor
-	{
-		m_id = other.m_id;
-		m_type = other.m_type;
-		m_filePath = other.m_filePath;
-		m_fileName = other.m_fileName;
-		m_width = other.m_width;
-		m_height = other.m_height;
-
-		other.m_id = 0u;
-		other.m_type = "moved"; // TODO
-		other.m_filePath = "";
-		other.m_fileName = "";
-		other.m_width = 0u;
-		other.m_height = 0u;
-
-		std::println("********************MOVE CONSTRUCTOR texture id: {}", m_id);
-	}
-
-	Texture& operator=(Texture&& other) noexcept		// Move assignment
-	{		
-		if (&other == this)
-			return *this;
-
-		m_id = other.m_id;
-		m_type = other.m_type;
-		m_filePath = other.m_filePath;
-		m_fileName = other.m_fileName;
-		m_width = other.m_width;
-		m_height = other.m_height;
-
-		other.m_id = 0u;
-		other.m_type = "moved";
-		other.m_filePath = "";
-		other.m_fileName = "";
-		other.m_width = 0u;
-		other.m_height = 0u;
-
-		std::println("********************MOVE ASSIGNMENT texture id: {}", m_id);
-
-		return *this;
-	}
-
-	//void assignTextureUnit(TODO?);
+	void activeTexture() const;
 	void bindTexture(unsigned int textureUnit = 0) const;
-	void unbindTexture() const;
+	void unbindTexture();
 
+	const unsigned int getId() const { return m_id; };
+	const std::string_view getType() const { return m_type; };
+	const std::string_view getfileName() const { return m_fileName; };
+	void setType(std::string type) { m_type = type; };
+	void setfileName(std::string fileName) { m_fileName = fileName; };
+	const int getBound() const { return m_BoundTextureUnit; };
+	void setBound(int textureUnit) { m_BoundTextureUnit = textureUnit; };
+
+private:
 	unsigned int m_id{};
+	int m_BoundTextureUnit{ -1 }; // -1 == not bound
 	std::string m_type{};
 	std::string m_filePath{};
 	std::string m_fileName{};
 	GLsizei m_width{};
 	GLsizei m_height{};
-private:
-
 };

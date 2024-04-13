@@ -278,12 +278,23 @@ void APIENTRY Global::glDebugOutput(GLenum source, GLenum type, unsigned int id,
     }
 }
 
-void Global::getBound() {
-GLint returnData;
-glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &returnData);
-std::println("Currently bound VertexArray: {}", returnData);
-glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &returnData);
-std::println("Currently bound ElementBuffer: {}", returnData);
-glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &returnData);
-std::println("Currently bound VertexBuffer: {}", returnData);
+void Global::getInformation() {
+    GLint returnData{};
+    std::println("************************************************");
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &returnData);
+    std::println("Currently bound VertexArray: {}", returnData);
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &returnData);
+    std::println("Currently bound ElementBuffer: {}", returnData);
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &returnData);
+    std::println("Currently bound VertexBuffer: {}", returnData);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &returnData);
+    std::println("Currently bound Texture: {}", returnData);
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &returnData);
+    std::println("Currently active Texture unit: {}", returnData - 33984);
+    glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
+    std::println("Currently active program (Shader): {}", returnData);
+    std::println("************************************************");
+    glGetIntegerv(GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS, &returnData);
+    std::println("maximum supported texture image units: {}", returnData);
+    std::println("************************************************");
 }

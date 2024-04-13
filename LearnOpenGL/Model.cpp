@@ -28,10 +28,38 @@ Model::Model(std::string const& path, bool gamma)
 
 void Model::Draw(Shader& shader)
 {
-    for (unsigned int i = 0u; i < m_meshes.size(); i++) {
+    GLint returnData{};
+    glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
+    assert(returnData == static_cast<GLint>(shader.getId()) && "Wrong shader active");
+
+    // Bind all unique textures to a texture unit, so they are ready to use
+    // Using TU 16 to 31 (always starting from 16, so only one model can be loaded at once -> TODO)
+    for (unsigned int i{ 0u }; i < m_texturesLoaded.size(); i++)
+    {
+        assert(i <= 15 && "Model uses > 16 textures, this is not supported!");
+        if (m_texturesLoaded[i]->getBound() == -1) {
+            // activate proper texture unit (i) and bind texture
+            m_texturesLoaded[i]->bindTexture(i+16);
+            // save TU in texture
+            m_texturesLoaded[i]->setBound(i+16);
+        }
+        //std::println("DRAW Texture bind #{}", i)
+    }
+    
+    for (unsigned int i{ 0u }; i < m_meshes.size(); i++)
+    {
         m_meshes[i].Draw(shader);
         //std::println("DRAW Model call #{}", i);
     }
+
+    // You could unbind after each call, so you can call this function for a second model... quick fix
+    //for (unsigned int i{ 0u }; i < m_texturesLoaded.size(); i++)
+    //{
+    //    assert(i <= 15 && "Model uses > 16 textures, this is not supported!");
+    //    if (m_texturesLoaded[i]->getBound() != -1) {
+    //        m_texturesLoaded[i]->unbindTexture();
+    //    }
+    //}
 }
 
 // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
@@ -39,11 +67,10 @@ void Model::loadModel(std::string const& path)
 {
     //std::println("START Model loadModel");
     // read file via ASSIMP
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    Assimp::Importer importer{};
+    const aiScene* scene{ importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace) };
     // check for errors
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
-    {
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) { // if is Not Zero
         std::println("ERROR::ASSIMP:: {}", importer.GetErrorString());
         return;
     }
@@ -59,15 +86,15 @@ void Model::processNode(aiNode* node, const aiScene* scene)
 {
     //std::println("START Model processNode");
     // process each mesh located at the current node
-    for (unsigned int i = 0u; i < node->mNumMeshes; i++)
+    for (unsigned int i{ 0u }; i < node->mNumMeshes; i++)
     {
         // the node object only contains indices to index the actual objects in the scene. 
         // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        aiMesh* mesh{ scene->mMeshes[node->mMeshes[i]] };
         m_meshes.push_back(processMesh(mesh, scene));
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
-    for (unsigned int i = 0u; i < node->mNumChildren; i++)
+    for (unsigned int i{ 0u }; i < node->mNumChildren; i++)
     {
         processNode(node->mChildren[i], scene);
     }
@@ -80,7 +107,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     vertices.reserve(mesh->mNumVertices);
 
     // walk through each of the mesh's vertices
-    for (unsigned int i = 0u; i < mesh->mNumVertices; i++)
+    for (unsigned int i{ 0u }; i < mesh->mNumVertices; i++)
     {
         Vertex vertex{};
         glm::vec3 vector{}; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
@@ -124,14 +151,14 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     }
 
     // process indices - walk through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices
-    std::vector<unsigned int> indices;
+    std::vector<unsigned int> indices{};
     indices.reserve(mesh->mNumFaces * 3); // 3 == face.mNumIndices
-    for (unsigned int i = 0u; i < mesh->mNumFaces; i++)
+    for (unsigned int i{ 0u }; i < mesh->mNumFaces; i++)
     {
-        aiFace face = mesh->mFaces[i];
+        aiFace face{ mesh->mFaces[i] };
         assert(face.mNumIndices == 3);
         // retrieve all indices of the face and store them in the indices vector
-        for (unsigned int j = 0u; j < face.mNumIndices; j++)
+        for (unsigned int j{ 0u }; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
     }
 
@@ -146,9 +173,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     // 2. specular maps
     loadMaterialTextures(material, aiTextureType_SPECULAR, "specular", meshTextures);
     // 3. normal maps
-    loadMaterialTextures(material, aiTextureType_HEIGHT, "normal", meshTextures);
+    //loadMaterialTextures(material, aiTextureType_HEIGHT, "normal", meshTextures);
     // 4. height maps
-    loadMaterialTextures(material, aiTextureType_AMBIENT, "height", meshTextures);
+    //loadMaterialTextures(material, aiTextureType_AMBIENT, "height", meshTextures);
 
     return Mesh(vertices, indices, meshTextures);
 }
@@ -159,16 +186,16 @@ void Model::loadMaterialTextures(aiMaterial* material, aiTextureType type, std::
     //std::println("START Model loadMaterialTextures");
     m_texturesLoaded.reserve(4); // magic number
     bool alreadyLoaded{};
-    for (unsigned int i = 0u; i < material->GetTextureCount(type); i++)
+    for (unsigned int i{ 0u }; i < material->GetTextureCount(type); i++)
     {
         aiString textureFilename{};
         material->GetTexture(type, i, &textureFilename);
 
         // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
         alreadyLoaded = false;
-        for (unsigned int j = 0u; j < m_texturesLoaded.size(); j++) // skipped when no textures loaded
+        for (unsigned int j{ 0u }; j < m_texturesLoaded.size(); j++) // skipped when no textures loaded
         {
-            if (std::strcmp(m_texturesLoaded[j]->m_fileName.data(), textureFilename.C_Str()) == 0) { // equal
+            if (std::strcmp(m_texturesLoaded[j]->getfileName().data(), textureFilename.C_Str()) == 0) { // equal
                 // Create a shared_ptr from the original shared_ptr Texture and store it for each mesh to use
                 meshTextures.push_back(m_texturesLoaded[j]);
                 alreadyLoaded = true;
@@ -177,8 +204,8 @@ void Model::loadMaterialTextures(aiMaterial* material, aiTextureType type, std::
         }
         if (!alreadyLoaded) {
             auto texture{ std::make_shared<Texture>(m_directory + "\\" + textureFilename.C_Str()) };
-            texture->m_type = typeName;
-            texture->m_fileName = textureFilename.C_Str();
+            texture->setType(typeName);
+            texture->setfileName(textureFilename.C_Str());
 
             // Store each shared_ptr<Texture> in the model object
             m_texturesLoaded.push_back(texture);

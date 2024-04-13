@@ -185,3 +185,65 @@
 //glEnable(GL_DEPTH_TEST);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+// MOVE CONSTRUCTOR TEXTURE, ZET TYPE OP 'MOVED'
+
+//Texture(Texture&& other) noexcept = delete; 					// Move constructor	
+//	:m_id{ other.m_id }
+//	,m_type{ other.m_type }
+//	,m_filePath{ other.m_filePath }
+//	,m_fileName{ other.m_fileName }
+//	,m_width{ other.m_width }
+//	,m_height{ other.m_height }
+//{
+//	other.m_id = 0u;
+//	other.m_type = "moved"; // TODO
+//	other.m_filePath = "";
+//	other.m_fileName = "";
+//	other.m_width = 0u;
+//	other.m_height = 0u;
+
+//	std::println("********************MOVE CONSTRUCTOR texture id: {}", m_id);
+//}
+
+//Texture& operator=(Texture&& other) noexcept = delete;		// Move assignment
+//{		
+//	if (&other == this)
+//		return *this;
+
+//	m_id = other.m_id;
+//	m_type = other.m_type;
+//	m_filePath = other.m_filePath;
+//	m_fileName = other.m_fileName;
+//	m_width = other.m_width;
+//	m_height = other.m_height;
+
+//	other.m_id = 0u;
+//	other.m_type = "moved"; // TODO
+//	other.m_filePath = "";
+//	other.m_fileName = "";
+//	other.m_width = 0u;
+//	other.m_height = 0u;
+
+//	std::println("********************MOVE ASSIGNMENT texture id: {}", m_id);
+
+//	return *this;
+//}
+
+    // EN DAN MET DEZE DESTRUCTOR
+
+//Texture::~Texture() // TODO - hacky... use smart pointers I guess? Wordt niet meer gebruikt nu!?
+//{
+//    std::println("************************************** ", m_id);
+//    if (m_type == "moved") {
+//        std::println("DELETE texture - Texture object IS deleted, but texture itself NOT! Original texture is still in use by another object!");
+//    }
+//    else {
+//        std::println("************************************** DELETE texture id: {}", m_id);
+//        glDeleteTextures(1, &m_id);
+//        Global::glCheckError();
+//    }
+//}
+
+// WERKTE GOED VOLGENS MIJ

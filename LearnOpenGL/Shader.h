@@ -29,8 +29,11 @@ public:
     void setMat3(const std::string& name, const glm::mat3& mat) const;
     void setMat4(const std::string& name, const glm::mat4& mat) const;
 
+    const unsigned int getId() const { return m_id; };
+
 private:
-    unsigned int m_id;
     int getLocation(const std::string& name) const;
     void checkCompileErrors(GLuint shader, std::string_view type);
+
+    unsigned int m_id;
 };

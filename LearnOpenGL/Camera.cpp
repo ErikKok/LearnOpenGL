@@ -26,7 +26,7 @@ void Camera::fakeGravity(GLfloat deltaTime) {
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
 const glm::mat4 Camera::GetViewMatrix() const
 {
-    glm::mat4 view = glm::lookAt(m_position, m_position + m_front, m_up);
+    glm::mat4 view{ glm::lookAt(m_position, m_position + m_front, m_up) };
     //glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), m_up); // view from above, disable mouse
     // TODO 
     // m_position = eye aka target = the position of the camera's viewpoint
@@ -76,7 +76,7 @@ const glm::mat4 Camera::GetViewMatrix() const
 
 const glm::mat4 Camera::GetReverseViewMatrix() const
 {
-    glm::mat4 view = glm::lookAt(m_position, m_position + -m_front, m_up);
+    glm::mat4 view{ glm::lookAt(m_position, m_position + -m_front, m_up) };
 
     return view;
 }

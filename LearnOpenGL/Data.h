@@ -3,11 +3,66 @@
 #include <glm/glm.hpp>
 
 #include "array"
+#include "string"
 #include "vector"
 
 namespace Data{
 
-    constexpr std::array framebuffer{
+    constexpr std::array skybox1 {
+        // positions          
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
+
+    inline std::vector<std::string> skybox1Faces{
+       "Textures\\skybox1\\right.jpg",
+       "Textures\\skybox1\\left.jpg",
+       "Textures\\skybox1\\top.jpg",
+       "Textures\\skybox1\\bottom.jpg",
+       "Textures\\skybox1\\front.jpg",
+       "Textures\\skybox1\\back.jpg",
+    };
+
+    constexpr std::array framebuffer{ // fullscreen quad (2 triangles)
         // X     Y     Texture1     Texture2
         -1.0f,  1.0f,  0.0f,         1.0f,
         -1.0f, -1.0f,  0.0f,         0.0f,

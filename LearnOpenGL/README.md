@@ -3,6 +3,11 @@ TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
 - Uniform location cache
 - Model, BufferSubData, VertexAttribute en Texture .cpp maken/bijwerken
+- emission klopt niet bij floor en model
+
+v0.1.14 13-4-2024
+-----------------
+- changed model texture loading
 
 v0.1.13 9-4-2024
 -----------------

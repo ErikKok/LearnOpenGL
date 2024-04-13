@@ -100,9 +100,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Shaders\cube.shader">
-      <Filter>Shader Files</Filter>
-    </Text>
     <Text Include="Shaders\light.shader">
       <Filter>Shader Files</Filter>
     </Text>
@@ -111,34 +108,16 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\floor.shader">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\singleCube.shader">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="README.md">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Shaders\spotlight.shader">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="Shaders\multiLight.shader">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\cubeFlashlight.shader">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\model.shader">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\cubeTest.shader">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Shaders\singleColor.shader">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="Shaders\framebuffer.shader">
+    <None Include="Shaders\skybox.shader">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

@@ -23,9 +23,14 @@ struct Vertex {
 };
 
 class Mesh {
-public:
-    Mesh() {};
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<SPtr<Texture>> textures);
+public:                                            
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<SPtr<Texture>> textures); // Constructor
+    Mesh(const Mesh& other) = delete;		        	// Copy constructor
+    Mesh& operator=(const Mesh& other) = delete;	    // Copy assignment
+    Mesh(Mesh&& other) noexcept = default;				// Move constructor
+    Mesh& operator=(Mesh&& other) noexcept = default;	// Move assignment
+    ~Mesh() = default;									// Destructor
+
     void Draw(Shader& shader);
 private:
     std::vector<Vertex> m_vertices;

@@ -18,7 +18,13 @@ class Model
 {
 public:
     Model(std::string const& path, bool gamma = false);
+    Model(const Model& other) = delete;					// Copy constructor deleted: mesh is not copyable
+    Model& operator=(const Model& other) = delete;		// Copy assignment
+    Model(Model&& other) noexcept = default; 			// Move constructor	
+    Model& operator=(Model&& other) noexcept = default;	// Move assignment
     void Draw(Shader& shader);
+
+    // int getUniqueTexturesCount() return m_texturesLoaded.size();
 
 private:
     std::vector<SPtr<Texture>> m_texturesLoaded{};

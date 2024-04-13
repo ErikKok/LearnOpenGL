@@ -5,6 +5,10 @@
 class VertexArray {
 public:
     VertexArray();
+    VertexArray(const VertexArray& other) = delete;					// Copy constructor
+    VertexArray& operator=(const VertexArray& other) = delete;		// Copy assignment
+    VertexArray(VertexArray&& other) noexcept = delete; 			// Move constructor	
+    VertexArray& operator=(VertexArray&& other) noexcept = delete;	// Move assignment
     ~VertexArray();
 
     void bindVertexArray() const;

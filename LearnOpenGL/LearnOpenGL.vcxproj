@@ -127,21 +127,14 @@
     <ClInclude Include="VertexAttribute.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Shaders\cube.shader" />
     <Text Include="Shaders\light.shader" />
     <Text Include="Shaders\xyz.shader" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
-    <None Include="Shaders\cubeFlashlight.shader" />
-    <None Include="Shaders\cubeTest.shader" />
-    <None Include="Shaders\floor.shader" />
-    <None Include="Shaders\framebuffer.shader" />
-    <None Include="Shaders\model.shader" />
     <None Include="Shaders\multiLight.shader" />
     <None Include="Shaders\singleColor.shader" />
-    <None Include="Shaders\singleCube.shader" />
-    <None Include="Shaders\spotlight.shader" />
+    <None Include="Shaders\skybox.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,12 +5,15 @@
 #include <glad/glad.h>
 #include <STB/stb_image.h>
 
+#include <array>
 #include <print>
 #include <string>
+#include <vector>
 
 Texture::Texture(const std::string& filePath)
     :m_filePath{ filePath }
 {
+    // hier gelijk een vrije TU activeren en opslaan in m_BoundTextureUnit?
     glGenTextures(1, &m_id);
     glBindTexture(GL_TEXTURE_2D, m_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -20,9 +23,8 @@ Texture::Texture(const std::string& filePath)
     stbi_set_flip_vertically_on_load(true);
     int textureNrChannels{};
     unsigned char* textureData{ stbi_load(filePath.c_str(), &m_width, &m_height, &textureNrChannels, 0) };
-    if (!textureData) {
+    if (!textureData)
         std::println("Failed to load texture");
-    }
     GLenum format{};
     assert(textureNrChannels == 1 || textureNrChannels == 3 || textureNrChannels == 4 && "Image format not supported");
     if (textureNrChannels == 1) [[unlikely]]
@@ -33,36 +35,81 @@ Texture::Texture(const std::string& filePath)
         format = GL_RGBA;
     glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);
     glGenerateMipmap(GL_TEXTURE_2D);
-    //glBindTexture(GL_TEXTURE_2D, 0); // TODO wel/niet gelijk un!!binden?
     stbi_image_free(textureData);
     Global::glCheckError();
-    std::println("CREATE texture id: {}", m_id);
+    std::println("CREATE texture id: {}, filePath: {}", m_id, m_filePath);
 }
 
-Texture::~Texture() // TODO - hacky... use smart pointers I guess? Wordt niet meer gebruikt nu!?
+// Loads a cubemap texture from 6 individual texture faces in order:
+// +X (right), -X (left), +Y (top), -Y (bottom), +Z (front), -Z (back)
+Texture::Texture(const std::vector<std::string>& faces)
+    :m_type{ "cubemap" }
+    ,m_filePath{ faces[0] }
 {
-    std::println("************************************** ", m_id);
-    if (m_type == "moved") {
-        std::println("DELETE texture - Texture object IS deleted, but texture itself NOT! Original texture has been moved to another object!");
-    }
-    else {
-        std::println("************************************** DELETE texture id: {}", m_id);
-        glDeleteTextures(1, &m_id);
+    glGenTextures(1, &m_id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    int textureNrChannels{};
+    for (unsigned int i = 0u; i < faces.size(); i++)
+    {
+        unsigned char* textureData{ stbi_load(faces[i].c_str(), &m_width, &m_height, &textureNrChannels, 0) };
+        assert(textureNrChannels == 3 && "Cubemap not in RGB format!");
+        if (!textureData)
+            std::println("Failed to load texture {}", faces[i]);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+        stbi_image_free(textureData);
         Global::glCheckError();
     }
+    std::println("CREATE cubemap id: {}", m_id);
+}
+
+Texture::~Texture()
+{
+        std::println("DELETE texture id: {}", m_id);
+        glDeleteTextures(1, &m_id);
+        Global::glCheckError();
 }
 
 void Texture::bindTexture(unsigned int textureUnit) const
 {
-    //std::println("BIND texture id: {} | texture unit: {}", m_id, textureUnit);
+    std::println("BIND texture id: {} | texture unit: {}", m_id, textureUnit);
     glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, this->m_id);
+    if (m_type == "cubemap") [[unlikely]]
+        glBindTexture(GL_TEXTURE_CUBE_MAP, this->m_id);
+    else [[likely]]
+        glBindTexture(GL_TEXTURE_2D, this->m_id);
     Global::glCheckError();
 }
 
-void Texture::unbindTexture() const
+void Texture::unbindTexture()
 {
     std::println("UNBIND texture id: {}", m_id);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    if (m_type == "cubemap") [[unlikely]]
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    else [[likely]]
+        glBindTexture(GL_TEXTURE_2D, 0);
+    m_BoundTextureUnit = -1;
     Global::glCheckError();
 }
+
+void Texture::activeTexture() const
+{
+    assert(m_type != "cubemap"); 
+    
+    std::println("ACTIVE texture id: {} | texture unit: {}", m_id, m_BoundTextureUnit);
+    glActiveTexture(GL_TEXTURE0 + m_BoundTextureUnit);
+    Global::glCheckError();
+}
+
+// Check if texture is bound:
+//GLint returnData{};
+//// activate proper texture unit (i) and check if texture is already bound
+//glActiveTexture(GL_TEXTURE0 + i);
+//glGetIntegerv(GL_TEXTURE_BINDING_2D, &returnData); // Get currently bound Texture
+//unsigned int textureId{ texture.getId() };
+//if (textureId != static_cast<unsigned int>(returnData))
+//glBindTexture(GL_TEXTURE_2D, textureId);

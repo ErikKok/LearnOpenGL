@@ -42,37 +42,40 @@ void Mesh::setupMesh()
     m_layout->pushVertexAttributeLayout<float>(3);      // 4 - Bitangent
     //m_layout->pushVertexAttributeLayout<int>(4);      // 5 - BoneIDs
     //m_layout->pushVertexAttributeLayout<float>(4);    // 6 - Weights
+    //m_layout->setVertexStride(88);
     m_vao->addVertexAttributeLayout(*m_vbo, *m_layout);
 }
 
+#pragma warning( suppress : 4100 )
 void Mesh::Draw(Shader& shader)
 {
-    // bind appropriate textures
-    unsigned int diffuseNr = 1u;
-    unsigned int specularNr = 1u;
-    //unsigned int normalNr = 1u; // TODO
-    //unsigned int heightNr = 1u; // TODO
-    for (unsigned int i = 0u; i < m_textures.size(); i++)
-    {
-        // retrieve texture number (the N in <typename>N)
-        std::string number;
-        std::string name = m_textures[i]->m_type;
-        if (name == "diffuse")
-            number = std::to_string(diffuseNr++);
-        else if (name == "specular")
-            number = std::to_string(specularNr++); // transfer unsigned int to string 
-        else if (name == "normal") // TODO
-            break;
-            //number = std::to_string(normalNr++); // transfer unsigned int to string
-        else if (name == "height") // TODO
-            break;
-            //number = std::to_string(heightNr++); // transfer unsigned int to string
+    // Set sampler2D uniforms to the correct texture unit for each texture in this Mesh
 
-        std::string result{ "material." + name + number };
-        // set the sampler to the correct texture unit
-        shader.setInt(result, i); // m_id
-        // activate proper texture unit (i) and bind the texture
-        m_textures[i]->bindTexture(i);
+    unsigned int diffuseCount{ 1u };
+    unsigned int specularCount{ 1u };
+    //unsigned int normalCount = 1u; // TODO
+    //unsigned int heightCount = 1u; // TODO
+
+    for (unsigned int i{ 0u }; i < m_textures.size(); i++)
+    {
+        assert(m_textures[i]->getBound() >= 0 && "Texture is not bound to a texture unit");
+        
+        // retrieve texture number (the N in <typename>N)
+        std::string count{};
+        std::string type{ m_textures[i]->getType() };
+        if (type == "diffuse")
+            count = std::to_string(diffuseCount++);
+        else if (type == "specular")
+            count = std::to_string(specularCount++); // transfer unsigned int to string 
+        else if (type == "normal") // TODO
+            break;
+            //count = std::to_string(normalCount++); // transfer unsigned int to string
+        else if (type == "height") // TODO
+            break;
+            //count = std::to_string(heightCount++); // transfer unsigned int to string
+
+        std::string result{ "material." + type + count };
+        shader.setInt(result, m_textures[i]->getBound());
     }
     m_vao->bindVertexArray();
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_vertices.size()), GL_UNSIGNED_INT, 0);

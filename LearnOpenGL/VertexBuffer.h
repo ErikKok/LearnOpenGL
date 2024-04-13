@@ -5,6 +5,10 @@
 class VertexBuffer {
 public:
     VertexBuffer(size_t size, const GLvoid* data);
+    VertexBuffer(const VertexBuffer& other) = delete;					// Copy constructor
+    VertexBuffer& operator=(const VertexBuffer& other) = delete;		// Copy assignment
+    VertexBuffer(VertexBuffer&& other) noexcept = delete; 			    // Move constructor	
+    VertexBuffer& operator=(VertexBuffer&& other) noexcept = delete;	// Move assignment
     ~VertexBuffer();
 
     void bindVertexBuffer() const;

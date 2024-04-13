@@ -26,7 +26,7 @@ public:
 
     // returns the view matrix calculated using Euler Angles and the LookAt Matrix
     const glm::mat4 GetViewMatrix() const;
-    const glm::mat4 GetReverseViewMatrix() const;
+    const glm::mat4 GetReverseViewMatrix() const; // not a rearviewmirror, just looking backwards
     const glm::mat4 getProjectionMatrix() { return m_projection; };
     void setAspectRatio(float x) { m_aspectRatio = x; };
     void recalculateProjectionMatrix() { m_projection = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane); };

@@ -70,6 +70,20 @@ int main()
     UniformBuffer projectionView(2 * sizeof(glm::mat4), 0);
 
     /////////////////////////////////////
+    ////// Skybox ///////////////////////
+    std::println("CREATE Skybox");///////
+
+    VertexArray skyboxVao;
+    VertexBuffer skyboxVbo(sizeof(Data::skybox1), &Data::skybox1);
+    VertexAttributeLayout skyboxLayout;
+    skyboxLayout.pushVertexAttributeLayout<float>(3);
+    skyboxVao.addVertexAttributeLayout(skyboxVbo, skyboxLayout);
+
+    Shader skyboxShader("Shaders\\skybox.shader");
+
+    Texture cubemapTexture(Data::skybox1Faces);
+
+    /////////////////////////////////////
     ////// XYZ //////////////////////////
     std::println("CREATE XYZ");//////////
 
@@ -218,7 +232,6 @@ int main()
     ElementBuffer floorEbo(sizeof(Data::floorIndices), &Data::floorIndices);
 
     Texture floor("Textures\\floor.jpg");
-    floor.bindTexture(2);
 
     //////// Outline ////////////////////
 
@@ -227,6 +240,9 @@ int main()
     ////////////////////////////////////
     ////// Mesh ////////////////////////
     std::println("LOAD Model");/////////
+
+    float loadTime{ static_cast<float>(glfwGetTime()) };
+
 
     Shader ourModelShader("Shaders\\multiLight.shader");
     Model ourModel("Models/Backpack/backpack.obj");
@@ -237,9 +253,31 @@ int main()
     //Model ourModel("Models/Vampire/dancing_vampire.dae"); // crash
     //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
 
+    Texture emissionBlack("Models\\Backpack\\black.png");
+
+    //Global::deltaTime = currentFrame - Global::lastFrame;
+    //Global::lastFrame = currentFrame;
+    std::println("Load time model: {} seconds", static_cast<float>(glfwGetTime()) - loadTime );
+    
+    ////////////////////////////////////
+    // AI TEXTURE ASSET MANAGER ////////
+    // Unused                           // 0, 1, 2, 3
+    floor.bindTexture(4);               // 4
+    // Unused                           // 3 - 7
+    diffuse.bindTexture(8);             // 8
+    specular.bindTexture(9);            // 9
+    emission.bindTexture(10);           // 10
+    emissionBlack.bindTexture(11);      // 11
+    // Unused                           // 12 - 15
+    // Reserved for model               // 16 - 31
+
+    // wel elke draw call de uniform naar de juiste texture unit laten verwijzen
+    
+    /////////////////////////////////////
+
     float outlineAlpha{ 0.0f };
-    Global::getBound();
-    std::println("START renderloop ******************************");
+    Global::getInformation();
+    std::println("START renderloop *******************************");
     Global::glCheckError();
 
     while (!glfwWindowShouldClose(window)) {
@@ -249,7 +287,7 @@ int main()
         Global::clearStencilBuffer();
 
         // per-frame time logic
-        float currentFrame = static_cast<float>(glfwGetTime());
+        float currentFrame{ static_cast<float>(glfwGetTime()) };
         Global::deltaTime = currentFrame - Global::lastFrame;
         Global::lastFrame = currentFrame;
         //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
@@ -259,6 +297,9 @@ int main()
         Global::processInput(window);
 
         //Global::camera.fakeGravity(Global::deltaTime);
+        
+        // Set uniformBuffer
+        /////////////////////////////////////
         //projectionView.bindUniformBuffer();
         BufferSubDataLayout projectionViewLayout{};
         projectionViewLayout.pushUniformBufferSubData(Global::camera.getProjectionMatrix());
@@ -266,13 +307,18 @@ int main()
         projectionViewLayout.pushUniformBufferSubData(view);
         projectionView.addUniformBufferSubData(projectionViewLayout);
 
+        // Init uniforms
+        /////////////////////////////////////
+        glm::mat4 model{};
+        glm::mat4 modelView{};
+        
         /////////////////////////////////////
         ////// XYZ //////////////////////////
         /////////////////////////////////////
 
         xyzShader.useShader();
         xyzVao.bindVertexArray();
-        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size())); // draw to framebuffer(1)
+        glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
 
         /////////////////////////////////////
         ////// Lights ///////////////////////
@@ -307,11 +353,6 @@ int main()
         multiLight.setVec3("pointLights[1].position", pointLightPositionsViewSpace[1]);  // green
         multiLight.setVec3("pointLights[2].position", pointLightPositionsViewSpace[2]);  // blue
         multiLight.setVec3("pointLights[3].position", pointLightPositionsViewSpace[3]);  // white
-
-        /////////////////////////////////////
-        glm::mat4 model{};
-        glm::mat4 modelView{};
-        /////////////////////////////////////
         
         /////////////////////////////////////
         ////// LightCube ////////////////////
@@ -344,12 +385,9 @@ int main()
         /////////////////////////////////////
 
         multiLight.useShader();
-        diffuse.bindTexture(8);
-        specular.bindTexture(9);
-        emission.bindTexture(10);
         multiLight.setInt("material.diffuse1", 8);
         multiLight.setInt("material.specular1", 9);
-        //multiLight.setInt("material.emission", 10);  // emission hoeft niet opnieuw, want mesh::Draw zet deze niet, diffuse en specular wel opnieuw
+        multiLight.setInt("material.emission", 10);
         cubeVao.bindVertexArray();
         for (unsigned int i = 0; i < 10; i++)
         {
@@ -378,18 +416,18 @@ int main()
         }
 
         /////////////////////////////////////
-        ////// Mesh /////////////////////////
+        ////// Model ////////////////////////
         /////////////////////////////////////
 
-        // render the loaded model
         //ourModelShader.useShader(); // TODO eigen shader maken voor Model?!
-        multiLight.useShader();
+        //multiLight.useShader();
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(4.0f, 3.0f, 2.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        model = glm::translate(model, glm::vec3(4.0f, 3.0f, 2.0f));
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
         modelView = view * model;
         multiLight.setMat4("modelView", modelView);
         multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
+
         ourModel.Draw(multiLight);
 
         /////////////////////////////////////
@@ -398,16 +436,38 @@ int main()
 
         glStencilMask(0xFF); // enable writing to the stencil buffer
 
+        //multiLight.useShader();
         floorVao.bindVertexArray();
-        floor.bindTexture(2);
-        multiLight.setInt("material.diffuse1", 2);
+        multiLight.setInt("material.diffuse1", 4);
+
+        multiLight.setInt("material.emission", 11);
+        //emission2.bindTexture(11);
+        //multiLight.setInt("material.emission", 11);
         Global::transformNormalViewCPU(multiLight, glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(25.0, 25.0, 2.0), view);
-        glDisable(GL_CULL_FACE);
+        glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the same face is the front AND back, I think...
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0);
 
         glStencilMask(0x00); // disable writing to the stencil buffer
 
-        // Until order independent transparency is implemented, partly transparant objects need to be drawn last
+        /////////////////////////////////////
+        ////// Skybox ///////////////////////
+        /////////////////////////////////////
+
+        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+        skyboxShader.useShader();
+        skyboxShader.setMat4("view", glm::mat3(Global::camera.GetViewMatrix())); // remove translation from the view matrix
+
+        // skybox cube
+        skyboxVao.bindVertexArray();
+        //cubemapTexture.bindTexture();
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthFunc(GL_LESS); // set depth function back to default
+
+        /////////////////////////////////////
+        ////// Floor Outline ////////////////
+        /////////////////////////////////////
+   
+        // Until order independent transparency is implemented, partly transparant objects need to be drawn last (even after the skybox)
         if (Global::drawOutline) {  
             singleColor.useShader();
 
@@ -422,11 +482,12 @@ int main()
             color.w = outlineAlpha;
             singleColor.setVec4("color", color); // (color * glm::vec4(0.5f)));
 
-            glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+            glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
             //glDisable(GL_DEPTH_TEST); // disable depth testing makes following draw calls drawn on top of the outline
             // Scale Floor
             
             Global::transform(singleColor, glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(26.0, 26.0, 2.0), view);
+            floorVao.bindVertexArray();
             glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0);
             //glEnable(GL_DEPTH_TEST);
             
