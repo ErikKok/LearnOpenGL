@@ -214,9 +214,9 @@ int main()
 
     ElementBuffer cubeTestEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
 
-    Texture diffuse("Textures\\container2.png"); // 8
-    Texture specular("Textures\\container2_specular.png"); // 9
-    Texture emission("Textures\\matrix.jpg"); // 10
+    Texture cubeDiffuse("Textures\\container2.png");
+    Texture cubeSpecular("Textures\\container2_specular.png");
+    Texture cubeEmission("Textures\\matrix.jpg");
 
     /////////////////////////////////////
     ////// Floor ////////////////////////
@@ -253,27 +253,27 @@ int main()
     //Model ourModel("Models/Vampire/dancing_vampire.dae"); // crash
     //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
 
-    Texture emissionBlack("Models\\Backpack\\black.png");
-
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
     std::println("Load time model: {} seconds", static_cast<float>(glfwGetTime()) - loadTime );
     
-    ////////////////////////////////////
-    // AI TEXTURE ASSET MANAGER ////////
-    // Unused                           // 0, 1, 2, 3
+    Texture black("Textures\\black.png");
+    Texture white("Textures\\white.png");
+
+    ////////////////////////////////////////////////
+    // AI TEXTURE ASSET MANAGER ////////////////////
+    // All textures get bind here, set sampler2D uniforms to the correct texture unit for draw call
+    black.bindTexture(0);               // 0
+    white.bindTexture(1 );              // 1
+    // Unused                           // 2, 3
     floor.bindTexture(4);               // 4
     // Unused                           // 3 - 7
-    diffuse.bindTexture(8);             // 8
-    specular.bindTexture(9);            // 9
-    emission.bindTexture(10);           // 10
-    emissionBlack.bindTexture(11);      // 11
-    // Unused                           // 12 - 15
+    cubeDiffuse.bindTexture(8);         // 8
+    cubeSpecular.bindTexture(9);        // 9
+    cubeEmission.bindTexture(10);       // 10
+    // Unused                           // 11 - 15
     // Reserved for model               // 16 - 31
-
-    // wel elke draw call de uniform naar de juiste texture unit laten verwijzen
-    
-    /////////////////////////////////////
+    ////////////////////////////////////////////////
 
     float outlineAlpha{ 0.0f };
     Global::getInformation();
@@ -427,7 +427,7 @@ int main()
         modelView = view * model;
         multiLight.setMat4("modelView", modelView);
         multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
-
+        multiLight.setInt("material.emission", 0); // black
         ourModel.Draw(multiLight);
 
         /////////////////////////////////////
@@ -439,8 +439,8 @@ int main()
         //multiLight.useShader();
         floorVao.bindVertexArray();
         multiLight.setInt("material.diffuse1", 4);
-
-        multiLight.setInt("material.emission", 11);
+        multiLight.setInt("material.specular1", 0); // black
+        multiLight.setInt("material.emission", 0); // black
         //emission2.bindTexture(11);
         //multiLight.setInt("material.emission", 11);
         Global::transformNormalViewCPU(multiLight, glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(25.0, 25.0, 2.0), view);

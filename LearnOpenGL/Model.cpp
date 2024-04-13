@@ -52,7 +52,7 @@ void Model::Draw(Shader& shader)
         //std::println("DRAW Model call #{}", i);
     }
 
-    // You could unbind after each call, so you can call this function for a second model... quick fix
+    //// You could unbind after each call, so you can call this function for a second model... quick fix
     //for (unsigned int i{ 0u }; i < m_texturesLoaded.size(); i++)
     //{
     //    assert(i <= 15 && "Model uses > 16 textures, this is not supported!");

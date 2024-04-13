@@ -8,6 +8,7 @@ TO DO
 v0.1.14 13-4-2024
 -----------------
 - changed model texture loading
+- AI TEXTURE ASSET MANAGER
 
 v0.1.13 9-4-2024
 -----------------
