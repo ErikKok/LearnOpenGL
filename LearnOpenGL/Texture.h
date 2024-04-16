@@ -18,7 +18,7 @@ public:
 	~Texture();												// Destructor
 
 	void activeTexture() const;
-	void bindTexture(unsigned int textureUnit = 0) const;
+	void bindTexture(unsigned int);
 	void unbindTexture();
 
 	const unsigned int getId() const { return m_id; };

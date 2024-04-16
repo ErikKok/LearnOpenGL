@@ -13,7 +13,6 @@
 Texture::Texture(const std::string& filePath)
     :m_filePath{ filePath }
 {
-    // hier gelijk een vrije TU activeren en opslaan in m_BoundTextureUnit?
     glGenTextures(1, &m_id);
     glBindTexture(GL_TEXTURE_2D, m_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -36,6 +35,7 @@ Texture::Texture(const std::string& filePath)
     glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(textureData);
+    glBindTexture(GL_TEXTURE_2D, 0);
     Global::glCheckError();
     std::println("CREATE texture id: {}, filePath: {}", m_id, m_filePath);
 }
@@ -74,7 +74,7 @@ Texture::~Texture()
         Global::glCheckError();
 }
 
-void Texture::bindTexture(unsigned int textureUnit) const
+void Texture::bindTexture(unsigned int textureUnit)
 {
     std::println("BIND texture id: {} | texture unit: {}", m_id, textureUnit);
     glActiveTexture(GL_TEXTURE0 + textureUnit);
@@ -82,6 +82,7 @@ void Texture::bindTexture(unsigned int textureUnit) const
         glBindTexture(GL_TEXTURE_CUBE_MAP, this->m_id);
     else [[likely]]
         glBindTexture(GL_TEXTURE_2D, this->m_id);
+    setBound(textureUnit);
     Global::glCheckError();
 }
 
@@ -92,7 +93,7 @@ void Texture::unbindTexture()
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     else [[likely]]
         glBindTexture(GL_TEXTURE_2D, 0);
-    m_BoundTextureUnit = -1;
+    setBound(-1);
     Global::glCheckError();
 }
 

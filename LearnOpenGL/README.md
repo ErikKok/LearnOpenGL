@@ -5,6 +5,10 @@ TO DO
 - Model, BufferSubData, VertexAttribute en Texture .cpp maken/bijwerken
 - emission klopt niet bij floor en model
 
+v0.1.15 16-4-2024
+-----------------
+- xyz Geometry shader (with and without Interface Blocks)
+
 v0.1.14 13-4-2024
 -----------------
 - changed model texture loading

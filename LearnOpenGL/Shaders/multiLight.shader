@@ -28,6 +28,30 @@ void main()
     gl_Position = projection * modelView * vec4(aPos, 1.0);
 }
 
+//shader geometry
+//#version 420 core
+//layout (triangles) in;
+//layout (triangle_strip, max_vertices = 1000000) out;
+//
+////in vec2 TexCoords;
+////in vec3 FragPosView;
+////in vec3 NormalView;
+////
+////out vec2 TexCoords2;
+////out vec3 FragPosView2;
+////out vec3 NormalView2;
+//
+//void main()
+//{
+////    TexCoords2 = TexCoords;
+////    FragPosView2 = FragPosView;
+////    NormalView2 = NormalView;
+//
+//    gl_Position = gl_in[0].gl_Position; 
+//    EmitVertex();
+//    EndPrimitive();
+//}
+
 #shader fragment
 #version 330 core
 out vec4 FragColor;

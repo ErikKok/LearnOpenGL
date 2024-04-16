@@ -277,8 +277,8 @@ int main()
 
     float outlineAlpha{ 0.0f };
     Global::getInformation();
-    std::println("START renderloop *******************************");
     Global::glCheckError();
+    std::println("START Renderloop *******************************");
 
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -319,7 +319,8 @@ int main()
         xyzShader.useShader();
         xyzVao.bindVertexArray();
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
-
+        //std::println("XYZ ##################");
+        
         /////////////////////////////////////
         ////// Lights ///////////////////////
         /////////////////////////////////////
@@ -409,8 +410,13 @@ int main()
             modelView = view * model;
             multiLight.setMat4("modelView", modelView);
             // Set Normal in view space
-            multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
+            //std::println("Cubes##################");
 
+
+            auto x{ glm::transpose(glm::inverse(modelView)) };
+
+            glm::mat3 y{ static_cast<glm::mat3>(x) };
+            multiLight.setMat3("NormalViewCPU", y); // TODO
             //glDrawArrays(GL_TRIANGLES, 0, 36);
             glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0);
         }
@@ -426,7 +432,7 @@ int main()
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
         modelView = view * model;
         multiLight.setMat4("modelView", modelView);
-        multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
+        multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView))); //     Normal = mat3(transpose(inverse(view * model))) * aNormal;
         multiLight.setInt("material.emission", 0); // black
         ourModel.Draw(multiLight);
 
