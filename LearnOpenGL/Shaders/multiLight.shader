@@ -4,9 +4,11 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoords;
 layout (location = 2) in vec3 aNormal;
 
-out vec2 TexCoords;
-out vec3 FragPosView;
-out vec3 NormalView;
+out VS_OUT { // PASS_THROUGH_GS
+    vec2 TexCoords;
+    vec3 FragPosView;
+    vec3 NormalView;
+} vs_out;
 
 layout (std140, binding = 0) uniform projectionView // TODO uniform met maar 1 member?
 {                                                   // verschillende types accepteren
@@ -22,43 +24,50 @@ uniform mat3 NormalViewCPU; // rename NormalMatrix?
 
 void main()
 {
-    TexCoords = aTexCoords;
-    FragPosView = vec3(modelView * vec4(aPos, 1.0));
-    NormalView = NormalViewCPU * aNormal;
+    vs_out.TexCoords = aTexCoords;
+    vs_out.FragPosView = vec3(modelView * vec4(aPos, 1.0));
+    vs_out.NormalView = NormalViewCPU * aNormal;
     gl_Position = projection * modelView * vec4(aPos, 1.0);
 }
 
-//shader geometry
-//#version 420 core
-//layout (triangles) in;
-//layout (triangle_strip, max_vertices = 1000000) out;
-//
-////in vec2 TexCoords;
-////in vec3 FragPosView;
-////in vec3 NormalView;
-////
-////out vec2 TexCoords2;
-////out vec3 FragPosView2;
-////out vec3 NormalView2;
-//
-//void main()
-//{
-////    TexCoords2 = TexCoords;
-////    FragPosView2 = FragPosView;
-////    NormalView2 = NormalView;
-//
-//    gl_Position = gl_in[0].gl_Position; 
-//    EmitVertex();
-//    EndPrimitive();
-//}
+#shader geometry
+#version 420 core
+layout (triangles) in;
+layout (triangle_strip, max_vertices = 3) out;
+
+in VS_OUT { // PASS_THROUGH_GS
+    vec2 TexCoords;
+    vec3 FragPosView;
+    vec3 NormalView;
+} gs_in[];
+
+out VS_OUT { // PASS_THROUGH_GS
+    vec2 TexCoords;
+    vec3 FragPosView;
+    vec3 NormalView;
+} gs_out;
+
+void main()
+{
+    for (int i = 0; i < gl_in.length(); i++) {
+        gs_out.TexCoords = gs_in[i].TexCoords;
+        gs_out.FragPosView = gs_in[i].FragPosView;
+        gs_out.NormalView = gs_in[i].NormalView;
+        gl_Position = gl_in[i].gl_Position;
+        EmitVertex();
+        EndPrimitive();
+    }
+}
 
 #shader fragment
 #version 330 core
 out vec4 FragColor;
 
-in vec2 TexCoords;
-in vec3 FragPosView;
-in vec3 NormalView;
+in VS_OUT { // PASS_THROUGH_GS
+    vec2 TexCoords;
+    vec3 FragPosView;
+    vec3 NormalView;
+} vs_out;
 
 struct Material {
     sampler2D diffuse1;
@@ -123,12 +132,12 @@ uniform FlashLight flashLight;
 vec3 CalcFlashLight(FlashLight light);
 
 vec3 cameraPosition = vec3(0.0f, 0.0f, 0.0f);
-vec3 normalView = normalize(NormalView);
-vec3 viewDirView = normalize(-FragPosView);
+vec3 normalView = normalize(vs_out.NormalView);
+vec3 viewDirView = normalize(-vs_out.FragPosView); // TODO FragPosView vervangen door viewDirView overal hieronder, al dan niet negated?
 
-vec3 textureDiffuse = vec3(texture(material.diffuse1, TexCoords));
-vec3 textureSpecular = vec3(texture(material.specular1, TexCoords));
-vec3 textureEmission = vec3(texture(material.emission, TexCoords));
+vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
+vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
+vec3 textureEmission = vec3(texture(material.emission, vs_out.TexCoords));
 
 void main()
 {
@@ -161,16 +170,16 @@ vec3 CalcDirLight(DirLight light)
 
 vec3 CalcPointLight(PointLight light)
 {
-    vec3 lightDir = normalize(light.position - FragPosView);
+    vec3 lightDir = normalize(light.position - vs_out.FragPosView);
     // diffuse shading
-    float diff = max(dot(NormalView, lightDir), 0.0f);
+    float diff = max(dot(normalView, lightDir), 0.0f);
     vec3 diffuse = light.diffuse * diff * textureDiffuse;
     // specular shading
-    vec3 reflectDir = reflect(-lightDir, NormalView); // first vector to point from the light source towards the fragment's position
+    vec3 reflectDir = reflect(-lightDir, normalView); // first vector to point from the light source towards the fragment's position
     float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.diffuse * spec * textureSpecular;
     // attenuation
-    float distance = length(light.position - FragPosView);
+    float distance = length(light.position - vs_out.FragPosView);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     // combine results
 
@@ -182,12 +191,12 @@ vec3 CalcPointLight(PointLight light)
 
 vec3 CalcSpotLight(SpotLight light)
 {   
-    vec3 lightDir = normalize(light.position - FragPosView);
+    vec3 lightDir = normalize(light.position - vs_out.FragPosView);
     // diffuse
-    float diff = max(dot(NormalView, lightDir), 0.0f);
+    float diff = max(dot(normalView, lightDir), 0.0f);
     vec3 diffuse = light.diffuse * diff * textureDiffuse;
     // specular
-    vec3 reflectDir = reflect(-lightDir, NormalView);
+    vec3 reflectDir = reflect(-lightDir, normalView);
     float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.diffuse * spec * textureSpecular;
     // emission
@@ -199,7 +208,7 @@ vec3 CalcSpotLight(SpotLight light)
     specular *= intensity;
     emission *= intensity;
     // attenuation
-    float distance = length(light.position - FragPosView);
+    float distance = length(light.position - vs_out.FragPosView);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));   
     diffuse  *= attenuation;
     specular *= attenuation;
@@ -210,12 +219,12 @@ vec3 CalcSpotLight(SpotLight light)
 
 vec3 CalcFlashLight(FlashLight light)
 {   
-    vec3 lightDir = normalize(cameraPosition - FragPosView);
+    vec3 lightDir = normalize(cameraPosition - vs_out.FragPosView);
     // diffuse 
-    float diff = max(dot(NormalView, lightDir), 0.0f);
+    float diff = max(dot(normalView, lightDir), 0.0f);
     vec3 diffuse = light.diffuse * diff * textureDiffuse;
     // specular
-    vec3 reflectDir = reflect(-lightDir, NormalView);
+    vec3 reflectDir = reflect(-lightDir, normalView);
     float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.diffuse * spec * textureSpecular;
     // emission
@@ -231,7 +240,7 @@ vec3 CalcFlashLight(FlashLight light)
     specular *= intensity;
     emission *= intensity;
     // attenuation
-    float distance = length(cameraPosition - FragPosView);
+    float distance = length(cameraPosition - vs_out.FragPosView);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     diffuse  *= attenuation;
     specular *= attenuation;

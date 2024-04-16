@@ -5,6 +5,10 @@ TO DO
 - Model, BufferSubData, VertexAttribute en Texture .cpp maken/bijwerken
 - emission klopt niet bij floor en model
 
+v0.1.16 16-4-2024
+-----------------
+- added Geometry shader to multiLight
+
 v0.1.15 16-4-2024
 -----------------
 - xyz Geometry shader (with and without Interface Blocks)

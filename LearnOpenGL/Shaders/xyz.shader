@@ -3,7 +3,7 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 
-// Use a out vec3
+// Use an out vec3
 out vec3 Color;
 
 // Or you can use an Interface Block
@@ -33,19 +33,18 @@ out vec3 Color2;
 
 //in VS_OUT {
 //    vec3 ColorArray;
-//} gs_in[]; 
+//} gs_in[];
 
 //out vec3 ColorArray;
 
 void main()
 {  
     for (int i = 0; i < gl_in.length(); i++) {
-
-    Color2 = Color[i];
-    //ColorArray = gs_in[i].ColorArray;
-    gl_Position = gl_in[i].gl_Position;
-    EmitVertex();
-    EndPrimitive();
+        Color2 = Color[i];
+        //ColorArray = gs_in[i].ColorArray;
+        gl_Position = gl_in[i].gl_Position;
+        EmitVertex();
+        EndPrimitive();
     }
 }
 
