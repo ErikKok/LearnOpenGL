@@ -3,10 +3,10 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 
-// Use an out vec3
+// Option 1: use an out vec3
 out vec3 Color;
 
-// Or you can use an Interface Block
+// Option 2: or you can use an Interface Block
 //out VS_OUT {
 //    vec3 ColorArray;
 //} vs_out;
@@ -24,7 +24,7 @@ void main()
 }
 
 #shader geometry
-#version 420 core
+#version 330 core
 layout (lines) in;
 layout (line_strip, max_vertices = 2) out;
 
@@ -49,7 +49,7 @@ void main()
 }
 
 #shader fragment
-#version 410 core // 330 for ColorArray
+#version 330 core
 out vec4 FragColor;
 
 in vec3 Color2;

@@ -31,7 +31,7 @@ int main()
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 16);
@@ -257,14 +257,18 @@ int main()
     //Global::lastFrame = currentFrame;
     std::println("Load time model: {} seconds", static_cast<float>(glfwGetTime()) - loadTime );
     
-    Texture black("Textures\\black.png");
-    Texture white("Textures\\white.png");
+    ////////////////////////////////////////////////
+
+    // Visualize normals
+    Shader normal("Shaders\\normal.shader");
 
     ////////////////////////////////////////////////
-    // AI TEXTURE ASSET MANAGER ////////////////////
-    // All textures get bind here, set sampler2D uniforms to the correct texture unit for draw call
+    // All textures get bind here, set sampler2D uniforms to the correct texture unit before draw call
+    std::println("AI TEXTURE ASSET MANAGER ***********************"); 
+    Texture black(0x00000000);          //
     black.bindTexture(0);               // 0
-    white.bindTexture(1 );              // 1
+    Texture white(0xffffffff);          //
+    white.bindTexture(1);               // 1
     // Unused                           // 2, 3
     floor.bindTexture(4);               // 4
     // Unused                           // 3 - 7
@@ -272,7 +276,7 @@ int main()
     cubeSpecular.bindTexture(9);        // 9
     cubeEmission.bindTexture(10);       // 10
     // Unused                           // 11 - 15
-    // Reserved for model               // 16 - 31
+    // Reserved for Model::Draw         // 16 - 31
     ////////////////////////////////////////////////
 
     float outlineAlpha{ 0.0f };
@@ -367,7 +371,7 @@ int main()
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
         lightShader.setMat4("model", model);
         lightShader.setVec3("lightColor", spotLightColor);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
 
         // pointlights - 4 vaste LightCubes
         for (int i = 0; i < std::size(pointLightPositions); i++) {
@@ -378,19 +382,32 @@ int main()
             model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
             lightShader.setMat4("model", model); // View space
             lightShader.setVec3("lightColor", pointLightColors[i]);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
         }
 
         /////////////////////////////////////
         ////// Cubes ////////////////////////
         /////////////////////////////////////
-
+    
         multiLight.useShader();
         multiLight.setInt("material.diffuse1", 8);
         multiLight.setInt("material.specular1", 9);
         multiLight.setInt("material.emission", 10);
         cubeVao.bindVertexArray();
-        for (unsigned int i = 0; i < 10; i++)
+
+        //struct Instance {
+        //    glm::mat4 modelView{};
+        //    glm::mat4 NormalViewCPU{};
+        //};
+        //Instance instance{};
+        //std::vector<Instance> instancedVector{};
+
+        /////////////////////////////////////////////
+
+        std::vector<glm::mat4> ssbo1ModelViewVector{};
+        std::vector<glm::mat4> ssbo2NormalViewCPUVector{};
+
+        for (unsigned int i = 0u; i < 10; i++)
         {
             model = glm::mat4(1.0f);
             model = glm::translate(model, Data::cubePositions[i]);
@@ -406,34 +423,97 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
-            //multiLight.setMat4("model", model);
             modelView = view * model;
-            multiLight.setMat4("modelView", modelView);
-            // Set Normal in view space
-            //std::println("Cubes##################");
 
-
-            auto x{ glm::transpose(glm::inverse(modelView)) };
-
-            glm::mat3 y{ static_cast<glm::mat3>(x) };
-            multiLight.setMat3("NormalViewCPU", y); // TODO
-            //glDrawArrays(GL_TRIANGLES, 0, 36);
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0);
+            ssbo1ModelViewVector.emplace_back(modelView);
+            ssbo2NormalViewCPUVector.emplace_back(glm::transpose(glm::inverse(modelView)));
+            
+            //instance.modelView = modelView;
+            //instance.NormalViewCPU = glm::transpose(glm::inverse(modelView));
+            //instancedVector.emplace_back(instance);
         }
+
+        GLuint ssboModelView{};
+        glCreateBuffers(1, &ssboModelView);
+        glNamedBufferStorage(ssboModelView, sizeof(glm::mat4) * ssbo1ModelViewVector.size(), (const void*)ssbo1ModelViewVector.data(), GL_DYNAMIC_STORAGE_BIT);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboModelView);
+
+        GLuint ssboNormalViewCPU{};
+        glCreateBuffers(1, &ssboNormalViewCPU);
+        glNamedBufferStorage(ssboNormalViewCPU, sizeof(glm::mat4) * ssbo2NormalViewCPUVector.size(), (const void*)ssbo2NormalViewCPUVector.data(), GL_DYNAMIC_STORAGE_BIT);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssboNormalViewCPU);
+
+        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, 2 * static_cast<GLsizei>(ssbo1ModelViewVector.size()));
+
+        //GLuint instancessbo{};
+        //glCreateBuffers(1, &instancessbo);
+        //glNamedBufferStorage(instancessbo, (2 * sizeof(glm::mat4)) * instancedVector.size(), (const void*)instancedVector.data(), GL_DYNAMIC_STORAGE_BIT);
+        //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, instancessbo);
+
+        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, 2 * static_cast<GLsizei>(instancedVector.size())); // 2 * !!??
+
+        //////////////////////////////
+        // Not instanced: old:
+
+        //multiLight.useShader();
+        //multiLight.setInt("material.diffuse1", 8);
+        //multiLight.setInt("material.specular1", 9);
+        //multiLight.setInt("material.emission", 10);
+        //cubeVao.bindVertexArray();
+        //for (unsigned int i = 0; i < 10; i++)
+        //{
+        //    model = glm::mat4(1.0f);
+        //    model = glm::translate(model, Data::cubePositions[i]);
+        //    if (i == 2 || i == 5 || i == 8) {
+        //        float angle = 25.0f + (15 * i);
+        //        model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+        //    }
+        //    if (i == 3) {
+        //        model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
+        //        model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
+        //    }
+        //    //if (i == 9) {
+        //    //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+        //    //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
+        //    //}
+        //    //multiLight.setMat4("model", model);
+        //    modelView = view * model;
+        //    multiLight.setMat4("modelView", modelView);
+        //    // Set Normal in view space
+        //    multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
+        //    //glDrawArrays(GL_TRIANGLES, 0, 36);
+        //    glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, 1);
+
+        //    // Visualize normals
+        //    normal.useShader();
+        //    normal.setMat4("modelView", modelView);
+        //    normal.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
+        //    glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, 1);
+
+        //    multiLight.useShader();
+        //}
+
+        //std::println("##################");
 
         /////////////////////////////////////
         ////// Model ////////////////////////
         /////////////////////////////////////
 
-        //ourModelShader.useShader(); // TODO eigen shader maken voor Model?!
-        //multiLight.useShader();
+        //ourModelShader.useShader(); // TODO eigen shader maken voor Model?! Nee toch?
+        multiLight.useShader();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(4.0f, 3.0f, 2.0f));
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
         modelView = view * model;
-        multiLight.setMat4("modelView", modelView);
-        multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView))); //     Normal = mat3(transpose(inverse(view * model))) * aNormal;
+        
+        ssbo1ModelViewVector[0] = modelView;
+        glNamedBufferSubData(ssboModelView, 0, sizeof(glm::mat4) * ssbo1ModelViewVector.size(), (const void*)ssbo1ModelViewVector.data());
+
+        ssbo2NormalViewCPUVector[0] = glm::transpose(glm::inverse(modelView));
+        glNamedBufferSubData(ssboNormalViewCPU, 0, sizeof(glm::mat4) * ssbo2NormalViewCPUVector.size(), (const void*)ssbo2NormalViewCPUVector.data());
+
         multiLight.setInt("material.emission", 0); // black
+
         ourModel.Draw(multiLight);
 
         /////////////////////////////////////
@@ -441,17 +521,22 @@ int main()
         /////////////////////////////////////
 
         glStencilMask(0xFF); // enable writing to the stencil buffer
-
-        //multiLight.useShader();
+        multiLight.useShader();
         floorVao.bindVertexArray();
         multiLight.setInt("material.diffuse1", 4);
         multiLight.setInt("material.specular1", 0); // black
         multiLight.setInt("material.emission", 0); // black
-        //emission2.bindTexture(11);
-        //multiLight.setInt("material.emission", 11);
-        Global::transformNormalViewCPU(multiLight, glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(25.0, 25.0, 2.0), view);
+
+        //Global::transformNormalViewCPU(multiLight, glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(25.0, 25.0, 2.0), view); //////////////////////////////////////
+        
+        ssbo1ModelViewVector[0] = Global::getModelView(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(25.0, 25.0, 2.0), view);
+        glNamedBufferSubData(ssboModelView, 0, sizeof(glm::mat4)* ssbo1ModelViewVector.size(), (const void*)ssbo1ModelViewVector.data());
+
+        ssbo2NormalViewCPUVector[0] = glm::transpose(glm::inverse(ssbo1ModelViewVector[0]));
+        glNamedBufferSubData(ssboNormalViewCPU, 0, sizeof(glm::mat4)* ssbo2NormalViewCPUVector.size(), (const void*)ssbo2NormalViewCPUVector.data());
+
         glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the same face is the front AND back, I think...
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0);
+        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
         glStencilMask(0x00); // disable writing to the stencil buffer
 
@@ -492,9 +577,11 @@ int main()
             //glDisable(GL_DEPTH_TEST); // disable depth testing makes following draw calls drawn on top of the outline
             // Scale Floor
             
-            Global::transform(singleColor, glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(26.0, 26.0, 2.0), view);
+            ssbo1ModelViewVector[0] = Global::getModelView(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(26.0, 26.0, 2.0), view);
+            //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboModelView);
+            glNamedBufferSubData(ssboModelView, 0, sizeof(glm::mat4) * ssbo1ModelViewVector.size(), (const void*)ssbo1ModelViewVector.data());
             floorVao.bindVertexArray();
-            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0);
+            glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
             //glEnable(GL_DEPTH_TEST);
             
             // De-init Stencil Buffer

@@ -120,6 +120,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderStorageBuffer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="VertexArray.h" />
@@ -133,6 +134,7 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="Shaders\multiLight.shader" />
+    <None Include="Shaders\normal.shader" />
     <None Include="Shaders\singleColor.shader" />
     <None Include="Shaders\skybox.shader" />
   </ItemGroup>

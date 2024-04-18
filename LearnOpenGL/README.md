@@ -3,7 +3,16 @@ TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
 - Uniform location cache
 - Model, BufferSubData, VertexAttribute en Texture .cpp maken/bijwerken
-- emission klopt niet bij floor en model
+- GL_SHADER_STORAGE_BUFFER class maken
+- 1 GL_SHADER_STORAGE_BUFFER met meerdere objecten/vectors erin mogelijk?
+- time class
+- licht in uniform buffers
+
+v0.1.17 18-4-2024
+-----------------
+- requires version 4.5
+- alle draw calls zijn nu instanced (muv skybox en xyz)
+- added ssbo's
 
 v0.1.16 16-4-2024
 -----------------

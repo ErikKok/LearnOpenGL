@@ -30,7 +30,7 @@ void Model::Draw(Shader& shader)
 {
     GLint returnData{};
     glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
-    assert(returnData == static_cast<GLint>(shader.getId()) && "Wrong shader active");
+    //assert(returnData == static_cast<GLint>(shader.getId()) && "Wrong shader active");
 
     // Bind all unique textures to a texture unit, so they are ready to use
     // Using TU 16 to 31 (always starting from 16, so only one model can be loaded at once -> TODO)

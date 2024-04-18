@@ -98,6 +98,9 @@
     <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderStorageBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\light.shader">
@@ -118,6 +121,9 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Shaders\skybox.shader">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\normal.shader">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

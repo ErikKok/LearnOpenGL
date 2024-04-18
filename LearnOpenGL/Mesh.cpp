@@ -78,5 +78,5 @@ void Mesh::Draw(Shader& shader)
         shader.setInt(result, m_textures[i]->getBound());
     }
     m_vao->bindVertexArray();
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_vertices.size()), GL_UNSIGNED_INT, 0);
+    glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(m_vertices.size()), GL_UNSIGNED_INT, 0, 1);
 }

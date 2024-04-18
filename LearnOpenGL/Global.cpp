@@ -38,6 +38,15 @@ void Global::transform(const Shader& shader, glm::vec3 translate, float rotateDe
     shader.setMat4("modelView", modelView);
 }
 
+glm::mat4 Global::getModelView(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view)
+{
+    glm::mat4 model{ 1.0f };
+    model = glm::translate(model, translate);
+    model = glm::rotate(model, glm::radians(rotateDegrees), rotateVec3);
+    model = glm::scale(model, scale);
+    return view * model;
+}
+
 void Global::transformNormalViewCPU(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view)
 {
     glm::mat4 model{ 1.0f };
@@ -96,6 +105,7 @@ int Global::init(GLFWwindow* window)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
 
     // Debug
     int flags{};

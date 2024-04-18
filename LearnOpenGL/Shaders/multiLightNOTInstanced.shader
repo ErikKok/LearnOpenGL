@@ -1,5 +1,5 @@
 #shader vertex
-#version 450 core
+#version 420 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoords;
 layout (location = 2) in vec3 aNormal;
@@ -19,32 +19,15 @@ layout (std140, binding = 0) uniform projectionView // TODO uniform met maar 1 m
 };
 
 //uniform mat4 model;
-//uniform mat4 modelView;
-//uniform mat4 NormalViewCPU; // rename NormalMatrix?
-
-layout(binding = 2, std430) readonly buffer ssboModelView {
-    mat4 modelView[];
-};
-
-layout(binding = 3, std430) readonly buffer ssboNormalViewCPU {
-    mat4 normalViewCPU[];
-};
-
-//layout(binding = 4, std430) readonly buffer ssbo2 {
-//    mat4 modelMatrices[10];
-//    mat4 NormalViewCPU[10];
-//} name;
+uniform mat4 modelView;
+uniform mat3 NormalViewCPU; // rename NormalMatrix?
 
 void main()
 {
     vs_out.TexCoords = aTexCoords;
-    vs_out.FragPosView = vec3(modelView[gl_InstanceID] * vec4(aPos, 1.0));
-    //vs_out.FragPosView = vec3(modelView * vec4(aPos, 1.0));
-    //vs_out.NormalView = mat3(transpose(inverse(modelMatrices[gl_InstanceID]))) * aNormal;
-    vs_out.NormalView = mat3(normalViewCPU[gl_InstanceID]) * aNormal;
-    //vs_out.NormalView = NormalViewCPU * aNormal;
-    gl_Position = projection * modelView[gl_InstanceID] * vec4(aPos, 1.0);
-    //gl_Position = projection * modelView * vec4(aPos, 1.0);
+    vs_out.FragPosView = vec3(modelView * vec4(aPos, 1.0));
+    vs_out.NormalView = NormalViewCPU * aNormal;
+    gl_Position = projection * modelView * vec4(aPos, 1.0);
 }
 
 #shader geometry

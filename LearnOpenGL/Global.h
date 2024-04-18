@@ -38,6 +38,8 @@ namespace Global {
     void glClearError();
 
     void transform(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
+    glm::mat4 getModelView(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
+
     void transformNormalViewCPU(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
     void initStencilBuffer();
     void clearStencilBuffer();

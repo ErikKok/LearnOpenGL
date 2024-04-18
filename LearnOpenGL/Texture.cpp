@@ -10,6 +10,11 @@
 #include <string>
 #include <vector>
 
+#include <bitset>
+#include <iostream>
+#include <sstream>
+#include <cstdint>
+
 Texture::Texture(const std::string& filePath)
     :m_filePath{ filePath }
 {
@@ -38,6 +43,28 @@ Texture::Texture(const std::string& filePath)
     glBindTexture(GL_TEXTURE_2D, 0);
     Global::glCheckError();
     std::println("CREATE texture id: {}, filePath: {}", m_id, m_filePath);
+}
+
+// Creates single color, single pixel texture from a hex value:
+Texture::Texture(uint32_t color)
+    :m_singleColor{ color }
+    ,m_type { "singleColor" }
+    ,m_width{ 1 }
+    ,m_height{ 1 }
+{
+    glGenTextures(1, &m_id);
+    glBindTexture(GL_TEXTURE_2D, m_id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
+    //glGenerateMipmap(GL_TEXTURE_2D);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    Global::glCheckError();
+    std::println("CREATE texture single color id: {}", m_id);
 }
 
 // Loads a cubemap texture from 6 individual texture faces in order:
@@ -101,8 +128,8 @@ void Texture::activeTexture() const
 {
     assert(m_type != "cubemap"); 
     
-    std::println("ACTIVE texture id: {} | texture unit: {}", m_id, m_BoundTextureUnit);
-    glActiveTexture(GL_TEXTURE0 + m_BoundTextureUnit);
+    std::println("ACTIVE texture id: {} | texture unit: {}", m_id, m_boundTextureUnit);
+    glActiveTexture(GL_TEXTURE0 + m_boundTextureUnit);
     Global::glCheckError();
 }
 

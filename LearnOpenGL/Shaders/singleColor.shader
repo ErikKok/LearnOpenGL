@@ -1,5 +1,5 @@
 #shader vertex
-#version 420 core
+#version 450 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoords;
 
@@ -13,12 +13,14 @@ layout (std140, binding = 0) uniform projectionView // TODO uniform met maar 1 m
     //mat4 View;
 };
 
-uniform mat4 modelView;
+layout(binding = 2, std430) readonly buffer ssboModelView {
+    mat4 modelView[];
+};
 
 void main()
 {
     TexCoords = aTexCoords;
-    gl_Position = projection * modelView * vec4(aPos, 1.0);
+    gl_Position = projection * modelView[gl_InstanceID] * vec4(aPos, 1.0);
 }
 
 #shader fragment

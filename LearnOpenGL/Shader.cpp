@@ -89,7 +89,7 @@ Shader::Shader(const std::string& shaderPath)
         checkCompileErrors(vertex, "GEOMETRY");
     }
     else
-        std::println("SHADER skipped : GEOMETRY not found");
+        std::println("SHADER skipped : GEOMETRY not present");
     // fragment Shader
     GLuint fragment{ glCreateShader(GL_FRAGMENT_SHADER) };
     glShaderSource(fragment, 1, &fragmentShaderCode, nullptr);
