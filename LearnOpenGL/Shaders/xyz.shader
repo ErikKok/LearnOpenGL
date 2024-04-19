@@ -11,11 +11,12 @@ out vec3 Color;
 //    vec3 ColorArray;
 //} vs_out;
 
-layout (std140, binding = 0) uniform uboProjectionView
+layout (std140, binding = 0) uniform projectionUbo
 {
-    mat4 projection;
-    mat4 view;
+    mat4 projection;   
 };
+
+uniform mat4 view;
 
 void main()
 {

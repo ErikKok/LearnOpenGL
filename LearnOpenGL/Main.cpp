@@ -67,7 +67,7 @@ int main()
     cheap = sizeof(Texture) <= 2 * sizeof(void*);
     std::println("Is Texture cheap to copy: {} (provided there are no additional setup costs)", cheap);
 
-    UniformBuffer projectionView(2 * sizeof(glm::mat4), 0);
+    UniformBuffer projectionUbo(sizeof(glm::mat4), 0);
 
     /////////////////////////////////////
     ////// Skybox ///////////////////////
@@ -78,9 +78,7 @@ int main()
     VertexAttributeLayout skyboxLayout;
     skyboxLayout.pushVertexAttributeLayout<float>(3);
     skyboxVao.addVertexAttributeLayout(skyboxVbo, skyboxLayout);
-
     Shader skyboxShader("Shaders\\skybox.shader");
-
     Texture cubemapTexture(Data::skybox1Faces);
 
     /////////////////////////////////////
@@ -93,7 +91,6 @@ int main()
     xyzLayout.pushVertexAttributeLayout<float>(3);
     xyzLayout.pushVertexAttributeLayout<float>(3);
     xyzVao.addVertexAttributeLayout(xyzVbo, xyzLayout);
-
     Shader xyzShader("Shaders\\xyz.shader");
 
     /////////////////////////////////////
@@ -101,91 +98,90 @@ int main()
     std::println("CREATE Lights");///////
 
     Shader multiLight("Shaders\\multiLight.shader");
-
     multiLight.useShader();
-    // Material
-    multiLight.setInt("material.diffuse1", 8);
-    multiLight.setInt("material.specular1", 9);
-    multiLight.setInt("material.emission", 10);
-    multiLight.setFloat("material.shininess", 256.0f);
-    glm::vec3 lightPos(0.0f, 5.2f, 3.0f);
 
     // DirLight
-    //glm::vec3 dirLightDirection{ 0.1f, 0.8f, 0.1f };
-    //multiLight.setVec3("dirLight.direction", dirLightDirection); // world space
-    glm::vec3 dirLightColor(1.0f, 1.0f, 0.0f);
-    multiLight.setVec3("dirLight.diffuse", (dirLightColor * glm::vec3(0.2f)));
+    glm::vec3 dirLightDirection{ 0.7f, 0.9f, 0.8f }; // World space
+    glm::vec3 dirLightColor(1.0f, 1.0f, 0.95f);
+    multiLight.setVec3("dirLight.diffuse", (dirLightColor));
+    multiLight.setFloat("dirLight.strength", 0.8f);
+    multiLight.setFloat("dirLight.ambient", 0.3f);
 
-    // SpotLight
-    //multiLight.setVec3("spotLight.position", lightPos); // world space
-
-    float spotLightCutOff{ glm::cos(glm::radians(48.5f)) };
-    //multiLight.setFloat("spotLight.cutOff", spotLightCutOff);
-    float spotLightOuterCutOff{ glm::cos(glm::radians(48.5f)) };
-    multiLight.setFloat("spotLight.outerCutOff", spotLightOuterCutOff);
-    float spotLightEpsilon{ spotLightCutOff - spotLightOuterCutOff };
-    multiLight.setFloat("spotLight.epsilon", spotLightEpsilon);
-    glm::vec3 spotLightColor{ 1.0f, 0.1f, 0.1f };
-    multiLight.setVec3("spotLight.diffuse", (spotLightColor));
-    multiLight.setFloat("spotLight.emission", 0.0f);
-    multiLight.setFloat("spotLight.constant", 1.0f);
-    multiLight.setFloat("spotLight.linear", 0.045f);
-    multiLight.setFloat("spotLight.quadratic", 0.0075f); 
-
-    // PointLight
-    glm::vec3 pointLightPositions[] = {
-        glm::vec3( 0.7f,  11.2f,  2.0f),
-        glm::vec3( 2.3f,  3.3f, -4.0f),
-        glm::vec3(-4.0f,  2.0f, 12.0f),
-        glm::vec3( 15.0f,  1.2f, -3.0f)
+    // PointLight (max 8, hard coded in shader)
+    glm::vec3 pointLightPositions[] = { // World space
+        glm::vec3( 0.7f, 11.2f,   2.0f),
+        glm::vec3( 4.0f,  2.0f, -12.0f),
+        glm::vec3(-4.0f,  2.0f,  12.0f),
+        glm::vec3(15.0f,  1.2f,  -3.0f),
     };
 
     glm::vec3 pointLightColors[] = {
-    glm::vec3(1.0f, 0.0f, 0.0f),
-    glm::vec3(0.0f, 1.0f, 0.0f),
-    glm::vec3(0.0f, 0.0f, 1.0f),
-    glm::vec3(1.0f, 1.0f, 1.0f)
+    glm::vec3(1.0f, 1.0f, 1.0f), // red
+    glm::vec3(0.0f, 1.0f, 0.0f), // green
+    glm::vec3(0.0f, 0.0f, 1.0f), // blue
+    glm::vec3(1.0f, 0.0f, 0.0f), // white
     };
+    
+    // TODO use variable length arrays through SSBO
+    // Removes the need to manually set the pointLightsCount here AND in the shader
+    // See -> https://computergraphics.stackexchange.com/questions/5323/dynamic-array-in-glsl
+    multiLight.setInt("pointLightsCount", 4);
 
-    multiLight.setInt("pointLightsCount", 4); // std::size(pointLightPositions)
-    //multiLight.setVec3("pointLights[0].position", pointLightPositions[0]); // World space
-    multiLight.setVec3("pointLights[0].diffuse", pointLightColors[0]);
+    multiLight.setVec3("pointLights[0].diffuse", pointLightColors[0]);  // red, distance 50
     multiLight.setFloat("pointLights[0].constant", 1.0f);
     multiLight.setFloat("pointLights[0].linear", 0.09f);
     multiLight.setFloat("pointLights[0].quadratic", 0.032f);
+    multiLight.setFloat("pointLights[0].strength", 2.0f);
 
-    //multiLight.setVec3("pointLights[1].position", pointLightPositions[1]);
-    multiLight.setVec3("pointLights[1].diffuse", pointLightColors[1]);
+    multiLight.setVec3("pointLights[1].diffuse", pointLightColors[1]);  // green, distance 50
     multiLight.setFloat("pointLights[1].constant", 1.0f);
     multiLight.setFloat("pointLights[1].linear", 0.09f);
     multiLight.setFloat("pointLights[1].quadratic", 0.032f);
+    multiLight.setFloat("pointLights[1].strength", 1.0f);
 
-    //multiLight.setVec3("pointLights[2].position", pointLightPositions[2]);
-    multiLight.setVec3("pointLights[2].diffuse", pointLightColors[2]);
+    multiLight.setVec3("pointLights[2].diffuse", pointLightColors[2]);  // blue, distance 325
     multiLight.setFloat("pointLights[2].constant", 1.0f);
     multiLight.setFloat("pointLights[2].linear", 0.09f);
     multiLight.setFloat("pointLights[2].quadratic", 0.032f);
+    multiLight.setFloat("pointLights[2].strength", 1.0f);
 
-    //multiLight.setVec3("pointLights[3].position", pointLightPositions[3]);
-    multiLight.setVec3("pointLights[3].diffuse", pointLightColors[3]);
+    multiLight.setVec3("pointLights[3].diffuse", pointLightColors[3]);  // white, distance 13
     multiLight.setFloat("pointLights[3].constant", 1.0f);
-    multiLight.setFloat("pointLights[3].linear", 0.09f);
-    multiLight.setFloat("pointLights[3].quadratic", 0.032f);
+    multiLight.setFloat("pointLights[3].linear", 0.35f);
+    multiLight.setFloat("pointLights[3].quadratic", 0.44f);
+    multiLight.setFloat("pointLights[3].strength", 3.0f);
+
+    // SpotLight
+    glm::vec3 spotLightLightDirection{ 0.0f, -1.0f, 0.0f };                 // World space
+    float spotLightCutOff{ glm::cos(glm::radians(36.0f)) };                 // Inner cone
+    float spotLightOuterCutOff{ glm::cos(glm::radians(48.0f)) };            // Outer cone
+    multiLight.setFloat("spotLight.outerCutOff", spotLightOuterCutOff);
+    float spotLightEpsilon{ spotLightCutOff - spotLightOuterCutOff };       // Gradually fade the light between inner and outer cone
+    multiLight.setFloat("spotLight.epsilon", spotLightEpsilon);
+    glm::vec3 spotLightColor{ 1.0f, 1.0f, 1.0f };
+    multiLight.setVec3("spotLight.diffuse", spotLightColor);
+    multiLight.setFloat("spotLight.emission", 0.0f);
+    multiLight.setFloat("spotLight.constant", 1.0f);
+    multiLight.setFloat("spotLight.linear", 0.045f);
+    multiLight.setFloat("spotLight.quadratic", 0.0075f);
+    multiLight.setFloat("spotLight.strength", 2.0f);
 
     // FlashLight
-    flashLight = &multiLight;
+    flashLight = &multiLight; // TODO
     multiLight.setBool("flashLight.on", false);
-    float flashLightCutOff{ glm::cos(glm::radians(8.5f)) };
-    float flashLightOuterCutOff{ glm::cos(glm::radians(12.5f)) };
+    float flashLightCutOff{ glm::cos(glm::radians(8.5f)) };                 // Inner cone
+    float flashLightOuterCutOff{ glm::cos(glm::radians(12.5f)) };           // Outer cone
     multiLight.setFloat("flashLight.outerCutOff", flashLightOuterCutOff);
-    float flashLightEpsilon{ flashLightCutOff - flashLightOuterCutOff };
+    float flashLightEpsilon{ flashLightCutOff - flashLightOuterCutOff };    // Gradually fade the light between inner and outer cone
     multiLight.setFloat("flashLight.epsilon", flashLightEpsilon);
     glm::vec3 flashlightColor{ 1.0f, 1.0f, 1.0f };
-    multiLight.setVec3("flashLight.diffuse", (flashlightColor));
+    multiLight.setVec3("flashLight.diffuse", flashlightColor);
     multiLight.setFloat("flashLight.emission", 0.8f);
     multiLight.setFloat("flashLight.constant", 1.0f);
     multiLight.setFloat("flashLight.linear", 0.045f);
     multiLight.setFloat("flashLight.quadratic", 0.0075f);
+    multiLight.setFloat("flashLight.strength", 1.5f);
+    multiLight.setVec3("flashLight.origin", 0.0f, 0.0f, 0.0f);
     
     /////////////////////////////////////
     ////// LightCube ////////////////////
@@ -197,7 +193,6 @@ int main()
     lightLayout.pushVertexAttributeLayout<float>(3);
     lightLayout.setVertexStride(32);
     lightVao.addVertexAttributeLayout(cubeVbo, lightLayout);
-
     Shader lightShader("Shaders\\light.shader"); //lightCubeShader
     lightShader.useShader();
 
@@ -211,9 +206,7 @@ int main()
     cubeLayout.pushVertexAttributeLayout<float>(2);
     cubeLayout.pushVertexAttributeLayout<float>(3);
     cubeVao.addVertexAttributeLayout(cubeVbo, cubeLayout);
-
     ElementBuffer cubeTestEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
-
     Texture cubeDiffuse("Textures\\container2.png");
     Texture cubeSpecular("Textures\\container2_specular.png");
     Texture cubeEmission("Textures\\matrix.jpg");
@@ -230,7 +223,6 @@ int main()
     floorlayout.pushVertexAttributeLayout<float>(3);
     floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
     ElementBuffer floorEbo(sizeof(Data::floorIndices), &Data::floorIndices);
-
     Texture floor("Textures\\floor.jpg");
 
     //////// Outline ////////////////////
@@ -242,7 +234,6 @@ int main()
     std::println("LOAD Model");/////////
 
     float loadTime{ static_cast<float>(glfwGetTime()) };
-
 
     Shader ourModelShader("Shaders\\multiLight.shader");
     Model ourModel("Models/Backpack/backpack.obj");
@@ -302,19 +293,26 @@ int main()
 
         //Global::camera.fakeGravity(Global::deltaTime);
         
-        // Set uniformBuffer
-        /////////////////////////////////////
-        //projectionView.bindUniformBuffer();
-        BufferSubDataLayout projectionViewLayout{};
-        projectionViewLayout.pushUniformBufferSubData(Global::camera.getProjectionMatrix());
-        glm::mat4 view{ Global::camera.GetViewMatrix() };
-        projectionViewLayout.pushUniformBufferSubData(view);
-        projectionView.addUniformBufferSubData(projectionViewLayout);
+        Global::view = Global::camera.GetViewMatrix();
+        Global::projection = Global::camera.getProjectionMatrix();
 
-        // Init uniforms
+        // Init uniforms / ssbo's / uniform buffers
         /////////////////////////////////////
         glm::mat4 model{};
-        glm::mat4 modelView{};
+        glm::mat4 modelViewMatrix{};
+        GLuint ssboModelViewMatrix{};
+        glCreateBuffers(1, &ssboModelViewMatrix);
+        std::vector<glm::mat4> ssboModelViewMatrixVector{};
+        GLuint ssboNormalMatrixCPU{};
+        glCreateBuffers(1, &ssboNormalMatrixCPU);
+        std::vector<glm::mat4> ssboNormalMatrixVector{};
+        GLuint ssboMVPMatrix{};
+        glCreateBuffers(1, &ssboMVPMatrix);
+        std::vector<glm::mat4> ssboMVPMatrixVector{};
+        //projectionUbo.bindUniformBuffer();
+        BufferSubDataLayout projectionLayout{}; // TODO rename projection
+        projectionLayout.pushUniformBufferSubData(Global::projection);
+        projectionUbo.addUniformBufferSubData(projectionLayout);
         
         /////////////////////////////////////
         ////// XYZ //////////////////////////
@@ -322,6 +320,7 @@ int main()
 
         xyzShader.useShader();
         xyzVao.bindVertexArray();
+        xyzShader.setMat4("view", Global::view);
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
         //std::println("XYZ ##################");
         
@@ -330,34 +329,24 @@ int main()
         /////////////////////////////////////
 
         multiLight.useShader();
-        // Directional Light
-        glm::vec3 dirLightDirection{ 0.3f, 1.0f, 1.0f };
-        dirLightDirection = view * glm::vec4(dirLightDirection, 0.0f);
-        multiLight.setVec3("dirLight.direction", dirLightDirection);
-        // Spotlight direction
-        glm::vec3 spotLightLightDirection{ 0.0f, -1.0f, 0.0f };
-        spotLightLightDirection = view * glm::vec4(spotLightLightDirection, 0.0f);
-        multiLight.setVec3("spotLight.direction", spotLightLightDirection);
-        // Spotlight position
-        lightPos = glm::vec3((3.0f * sin(glfwGetTime())), 6.5f, (4.5f * cos(glfwGetTime())));
-        lightPos = view * glm::vec4(lightPos, 1.0f);
-        multiLight.setVec3("spotLight.position", lightPos);
-        // Spotlight color
+        // Transform Directional Light to View Space
+        multiLight.setVec3("dirLight.direction", Global::view * glm::vec4(dirLightDirection, 0.0f));            // View space
+        // Transform Pointlight positions to View Space
+        multiLight.setVec3("pointLights[0].position", glm::vec3(Global::view * glm::vec4(pointLightPositions[0], 1.0)));  // red
+        multiLight.setVec3("pointLights[1].position", glm::vec3(Global::view * glm::vec4(pointLightPositions[1], 1.0)));  // green
+        multiLight.setVec3("pointLights[2].position", glm::vec3(Global::view * glm::vec4(pointLightPositions[2], 1.0)));  // blue
+        multiLight.setVec3("pointLights[3].position", glm::vec3(Global::view * glm::vec4(pointLightPositions[3], 1.0)));  // white
+        // Transform Spotlight direction to View Space
+        multiLight.setVec3("spotLight.direction", Global::view * glm::vec4(spotLightLightDirection, 0.0f));     // View space
+        // Calculate Spotlight position and transform to View Space
+        //lightPos(0.0f, 5.2f, 3.0f);
+        glm::vec3 lightPos = glm::vec3((3.0f * sin(glfwGetTime())), 6.5f, (4.5f * cos(glfwGetTime())));         // World space
+        multiLight.setVec3("spotLight.position", Global::view * glm::vec4(lightPos, 1.0f));                     // View space
+        // Calculate Spotlight color
         spotLightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) + 0.2f;
         spotLightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) + 0.2f;
         spotLightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3f)) + 0.2f;
         multiLight.setVec3("spotLight.diffuse", (spotLightColor * glm::vec3(0.5f)));
-
-        // Calculate Pointlight position in View Space
-        std::vector<glm::vec3> pointLightPositionsViewSpace{};
-        for (int i = 0; i < std::size(pointLightPositions); i++) {
-            pointLightPositionsViewSpace.emplace_back(glm::vec3(view * glm::vec4(pointLightPositions[i], 1.0)));
-        }
-
-        multiLight.setVec3("pointLights[0].position", pointLightPositionsViewSpace[0]);  // red
-        multiLight.setVec3("pointLights[1].position", pointLightPositionsViewSpace[1]);  // green
-        multiLight.setVec3("pointLights[2].position", pointLightPositionsViewSpace[2]);  // blue
-        multiLight.setVec3("pointLights[3].position", pointLightPositionsViewSpace[3]);  // white
         
         /////////////////////////////////////
         ////// LightCube ////////////////////
@@ -366,10 +355,7 @@ int main()
         // spotlight - Draaiende LightCube
         lightShader.useShader();
         lightVao.bindVertexArray();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos); // View space
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-        lightShader.setMat4("model", model);
+        lightShader.setMat4("MVPMatrix", Global::projection * Global::getModelViewMatrix(glm::vec3(lightPos), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
         lightShader.setVec3("lightColor", spotLightColor);
         glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
 
@@ -377,10 +363,7 @@ int main()
         for (int i = 0; i < std::size(pointLightPositions); i++) {
             lightShader.useShader();
             lightVao.bindVertexArray();
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, pointLightPositionsViewSpace[i]);
-            model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-            lightShader.setMat4("model", model); // View space
+            lightShader.setMat4("MVPMatrix", Global::projection * Global::getModelViewMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
             lightShader.setVec3("lightColor", pointLightColors[i]);
             glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
         }
@@ -390,22 +373,11 @@ int main()
         /////////////////////////////////////
     
         multiLight.useShader();
+        multiLight.setFloat("material.shininess", 8.0f);
         multiLight.setInt("material.diffuse1", 8);
         multiLight.setInt("material.specular1", 9);
         multiLight.setInt("material.emission", 10);
         cubeVao.bindVertexArray();
-
-        //struct Instance {
-        //    glm::mat4 modelView{};
-        //    glm::mat4 NormalViewCPU{};
-        //};
-        //Instance instance{};
-        //std::vector<Instance> instancedVector{};
-
-        /////////////////////////////////////////////
-
-        std::vector<glm::mat4> ssbo1ModelViewVector{};
-        std::vector<glm::mat4> ssbo2NormalViewCPUVector{};
 
         for (unsigned int i = 0u; i < 10; i++)
         {
@@ -415,105 +387,50 @@ int main()
                 float angle = 25.0f + (15 * i);
                 model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
             }
-            if (i == 3) {
+            if (i == 3) { // wall
                 model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
                 model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
             }
-            //if (i == 9) {
+            //if (i == 9) { // floor
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
-            modelView = view * model;
-
-            ssbo1ModelViewVector.emplace_back(modelView);
-            ssbo2NormalViewCPUVector.emplace_back(glm::transpose(glm::inverse(modelView)));
-            
-            //instance.modelView = modelView;
-            //instance.NormalViewCPU = glm::transpose(glm::inverse(modelView));
-            //instancedVector.emplace_back(instance);
+  
+            modelViewMatrix = Global::view * model;
+            ssboModelViewMatrixVector.emplace_back(modelViewMatrix);
+            ssboNormalMatrixVector.emplace_back(glm::transpose(glm::inverse(modelViewMatrix)));
+            ssboMVPMatrixVector.emplace_back(Global::projection * modelViewMatrix);
         }
 
-        GLuint ssboModelView{};
-        glCreateBuffers(1, &ssboModelView);
-        glNamedBufferStorage(ssboModelView, sizeof(glm::mat4) * ssbo1ModelViewVector.size(), (const void*)ssbo1ModelViewVector.data(), GL_DYNAMIC_STORAGE_BIT);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboModelView);
+        glNamedBufferStorage(ssboModelViewMatrix, sizeof(glm::mat4) * ssboModelViewMatrixVector.size(), (const void*)ssboModelViewMatrixVector.data(), GL_DYNAMIC_STORAGE_BIT);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboModelViewMatrix);
 
-        GLuint ssboNormalViewCPU{};
-        glCreateBuffers(1, &ssboNormalViewCPU);
-        glNamedBufferStorage(ssboNormalViewCPU, sizeof(glm::mat4) * ssbo2NormalViewCPUVector.size(), (const void*)ssbo2NormalViewCPUVector.data(), GL_DYNAMIC_STORAGE_BIT);
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssboNormalViewCPU);
+        glNamedBufferStorage(ssboNormalMatrixCPU, sizeof(glm::mat4) * ssboNormalMatrixVector.size(), (const void*)ssboNormalMatrixVector.data(), GL_DYNAMIC_STORAGE_BIT);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssboNormalMatrixCPU);
 
-        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, 2 * static_cast<GLsizei>(ssbo1ModelViewVector.size()));
+        glNamedBufferStorage(ssboMVPMatrix, sizeof(glm::mat4) * ssboMVPMatrixVector.size(), (const void*)ssboMVPMatrixVector.data(), GL_DYNAMIC_STORAGE_BIT);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssboMVPMatrix);
 
-        //GLuint instancessbo{};
-        //glCreateBuffers(1, &instancessbo);
-        //glNamedBufferStorage(instancessbo, (2 * sizeof(glm::mat4)) * instancedVector.size(), (const void*)instancedVector.data(), GL_DYNAMIC_STORAGE_BIT);
-        //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, instancessbo);
-
-        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, 2 * static_cast<GLsizei>(instancedVector.size())); // 2 * !!??
-
-        //////////////////////////////
-        // Not instanced: old:
-
-        //multiLight.useShader();
-        //multiLight.setInt("material.diffuse1", 8);
-        //multiLight.setInt("material.specular1", 9);
-        //multiLight.setInt("material.emission", 10);
-        //cubeVao.bindVertexArray();
-        //for (unsigned int i = 0; i < 10; i++)
-        //{
-        //    model = glm::mat4(1.0f);
-        //    model = glm::translate(model, Data::cubePositions[i]);
-        //    if (i == 2 || i == 5 || i == 8) {
-        //        float angle = 25.0f + (15 * i);
-        //        model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-        //    }
-        //    if (i == 3) {
-        //        model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
-        //        model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
-        //    }
-        //    //if (i == 9) {
-        //    //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-        //    //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
-        //    //}
-        //    //multiLight.setMat4("model", model);
-        //    modelView = view * model;
-        //    multiLight.setMat4("modelView", modelView);
-        //    // Set Normal in view space
-        //    multiLight.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
-        //    //glDrawArrays(GL_TRIANGLES, 0, 36);
-        //    glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, 1);
-
-        //    // Visualize normals
-        //    normal.useShader();
-        //    normal.setMat4("modelView", modelView);
-        //    normal.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
-        //    glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, 1);
-
-        //    multiLight.useShader();
-        //}
-
-        //std::println("##################");
+        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, 2 * static_cast<GLsizei>(ssboModelViewMatrixVector.size()));
 
         /////////////////////////////////////
         ////// Model ////////////////////////
         /////////////////////////////////////
 
-        //ourModelShader.useShader(); // TODO eigen shader maken voor Model?! Nee toch?
         multiLight.useShader();
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(4.0f, 3.0f, 2.0f));
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-        modelView = view * model;
+
+        modelViewMatrix = Global::getModelViewMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+        ssboModelViewMatrixVector[0] = modelViewMatrix;
+        glNamedBufferSubData(ssboModelViewMatrix, 0, sizeof(glm::mat4) * ssboModelViewMatrixVector.size(), (const void*)ssboModelViewMatrixVector.data());
+
+        ssboNormalMatrixVector[0] = glm::transpose(glm::inverse(modelViewMatrix));
+        glNamedBufferSubData(ssboNormalMatrixCPU, 0, sizeof(glm::mat4) * ssboNormalMatrixVector.size(), (const void*)ssboNormalMatrixVector.data());
         
-        ssbo1ModelViewVector[0] = modelView;
-        glNamedBufferSubData(ssboModelView, 0, sizeof(glm::mat4) * ssbo1ModelViewVector.size(), (const void*)ssbo1ModelViewVector.data());
+        ssboMVPMatrixVector[0] = Global::projection * modelViewMatrix;
+        glNamedBufferSubData(ssboMVPMatrix, 0, sizeof(glm::mat4) * ssboMVPMatrixVector.size(), (const void*)ssboMVPMatrixVector.data());
 
-        ssbo2NormalViewCPUVector[0] = glm::transpose(glm::inverse(modelView));
-        glNamedBufferSubData(ssboNormalViewCPU, 0, sizeof(glm::mat4) * ssbo2NormalViewCPUVector.size(), (const void*)ssbo2NormalViewCPUVector.data());
-
+        multiLight.setFloat("material.shininess", 64.0f);
         multiLight.setInt("material.emission", 0); // black
-
         ourModel.Draw(multiLight);
 
         /////////////////////////////////////
@@ -521,21 +438,25 @@ int main()
         /////////////////////////////////////
 
         glStencilMask(0xFF); // enable writing to the stencil buffer
+        glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the same face is the front AND back, I think...
+
         multiLight.useShader();
         floorVao.bindVertexArray();
+        multiLight.setFloat("material.shininess", 1.0f);
         multiLight.setInt("material.diffuse1", 4);
         multiLight.setInt("material.specular1", 0); // black
         multiLight.setInt("material.emission", 0); // black
 
-        //Global::transformNormalViewCPU(multiLight, glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(25.0, 25.0, 2.0), view); //////////////////////////////////////
-        
-        ssbo1ModelViewVector[0] = Global::getModelView(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(25.0, 25.0, 2.0), view);
-        glNamedBufferSubData(ssboModelView, 0, sizeof(glm::mat4)* ssbo1ModelViewVector.size(), (const void*)ssbo1ModelViewVector.data());
+        modelViewMatrix = Global::getModelViewMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f));
+        ssboModelViewMatrixVector[0] = modelViewMatrix;
+        glNamedBufferSubData(ssboModelViewMatrix, 0, sizeof(glm::mat4)* ssboModelViewMatrixVector.size(), (const void*)ssboModelViewMatrixVector.data());
 
-        ssbo2NormalViewCPUVector[0] = glm::transpose(glm::inverse(ssbo1ModelViewVector[0]));
-        glNamedBufferSubData(ssboNormalViewCPU, 0, sizeof(glm::mat4)* ssbo2NormalViewCPUVector.size(), (const void*)ssbo2NormalViewCPUVector.data());
+        ssboNormalMatrixVector[0] = glm::transpose(glm::inverse(modelViewMatrix));
+        glNamedBufferSubData(ssboNormalMatrixCPU, 0, sizeof(glm::mat4)* ssboNormalMatrixVector.size(), (const void*)ssboNormalMatrixVector.data());
 
-        glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the same face is the front AND back, I think...
+        ssboMVPMatrixVector[0] = Global::projection * modelViewMatrix;
+        glNamedBufferSubData(ssboMVPMatrix, 0, sizeof(glm::mat4)* ssboMVPMatrixVector.size(), (const void*)ssboMVPMatrixVector.data());
+
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
         glStencilMask(0x00); // disable writing to the stencil buffer
@@ -546,7 +467,7 @@ int main()
 
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.useShader();
-        skyboxShader.setMat4("view", glm::mat3(Global::camera.GetViewMatrix())); // remove translation from the view matrix
+        skyboxShader.setMat4("viewTranslationRemoved", glm::mat3(Global::view)); // Global::camera.GetViewMatrix())); // remove translation from the view matrix (cast to mat3 and back to mat4)
 
         // skybox cube
         skyboxVao.bindVertexArray();
@@ -576,10 +497,10 @@ int main()
             glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
             //glDisable(GL_DEPTH_TEST); // disable depth testing makes following draw calls drawn on top of the outline
             // Scale Floor
-            
-            ssbo1ModelViewVector[0] = Global::getModelView(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(26.0, 26.0, 2.0), view);
+            modelViewMatrix = Global::getModelViewMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(26.0, 26.0, 2.0));
+            ssboModelViewMatrixVector[0] = Global::projection * modelViewMatrix;
             //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboModelView);
-            glNamedBufferSubData(ssboModelView, 0, sizeof(glm::mat4) * ssbo1ModelViewVector.size(), (const void*)ssbo1ModelViewVector.data());
+            glNamedBufferSubData(ssboModelViewMatrix, 0, sizeof(glm::mat4) * ssboModelViewMatrixVector.size(), (const void*)ssboModelViewMatrixVector.data());
             floorVao.bindVertexArray();
             glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
             //glEnable(GL_DEPTH_TEST);

@@ -4,20 +4,17 @@ layout (location = 0) in vec3 aPos;
 
 out vec3 TexCoords;
 
-layout (std140, binding = 0) uniform projectionView // TODO uniform met maar 1 member?
-{                                                   // verschillende types accepteren
-    mat4 projection;                                // zie BufferSubData.h
-    //mat4 modelView;
-    //mat3 NormalViewCPU;
-    //mat4 View;
+layout (std140, binding = 0) uniform projectionUbo
+{
+    mat4 projection;   
 };
 
-uniform mat4 view;
+uniform mat4 viewTranslationRemoved;
 
 void main()
 {
     TexCoords = aPos;
-    vec4 pos = projection * view * vec4(aPos, 1.0);
+    vec4 pos = projection * viewTranslationRemoved * vec4(aPos, 1.0);
     gl_Position = pos.xyww;
 }  
 

@@ -8,13 +8,13 @@ out VS_OUT {
     vec3 normal;
 } vs_out;
 
-uniform mat4 modelView;
-uniform mat3 NormalViewCPU; // rename NormalMatrix?
+uniform mat4 modelViewMatrix;
+uniform mat3 NormalMatrix;
 
 void main()
 {
-    vs_out.normal = NormalViewCPU * aNormal;
-    gl_Position = modelView * vec4(aPos, 1.0);
+    vs_out.normal = NormalMatrix * aNormal;
+    gl_Position = modelViewMatrix * vec4(aPos, 1.0);
 }
 
 #shader geometry
@@ -26,12 +26,9 @@ in VS_OUT {
     vec3 normal;
 } gs_in[];
 
-layout (std140, binding = 0) uniform projectionView // TODO uniform met maar 1 member?
-{                                                   // verschillende types accepteren
-    mat4 projection;                                // zie BufferSubData.h
-    //mat4 modelView;
-    //mat3 NormalViewCPU;
-    //mat4 View;
+layout (std140, binding = 0) uniform projectionUbo
+{
+    mat4 projection;   
 };
 
 const float MAGNITUDE = 0.2;

@@ -26,6 +26,8 @@ namespace Global {
     inline int windowWidth{ 1920 };
     inline int windowHeight{ 1080 };
     inline Camera camera((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), glm::vec3(8.0f, 1.5f, 8.0f));
+    inline glm::mat4 view{};
+    inline glm::mat4 projection{};
     inline bool windowsHasMouseFocus{ false };
 
     inline GLfloat deltaTime{ 0.0f };	// time between current frame and last frame
@@ -37,10 +39,10 @@ namespace Global {
     #define glCheckError() glCheckError_(__FILE__, __LINE__)
     void glClearError();
 
-    void transform(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
-    glm::mat4 getModelView(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
+    //void transform(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
+    glm::mat4 getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
 
-    void transformNormalViewCPU(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
+    //void transformNormalViewCPU(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
     void initStencilBuffer();
     void clearStencilBuffer();
 

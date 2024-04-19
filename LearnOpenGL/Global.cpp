@@ -28,35 +28,36 @@ void Global::glClearError()
     while (glGetError() != GL_NO_ERROR);
 }
 
-void Global::transform(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view)
-{
+//void Global::transform(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view)
+//{
+//    glm::mat4 model{ 1.0f };
+//    model = glm::translate(model, translate);
+//    model = glm::rotate(model, glm::radians(rotateDegrees), rotateVec3);
+//    model = glm::scale(model, scale);
+//    glm::mat4 modelView{ view * model }; // TODO Global::view
+//    shader.setMat4("modelView", modelView);
+//}
+
+// Takes in full transform parameters in World space, and outputs model in View space
+glm::mat4 Global::getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+{ 
     glm::mat4 model{ 1.0f };
     model = glm::translate(model, translate);
     model = glm::rotate(model, glm::radians(rotateDegrees), rotateVec3);
     model = glm::scale(model, scale);
-    glm::mat4 modelView{ view * model };
-    shader.setMat4("modelView", modelView);
+    return Global::view * model;
 }
 
-glm::mat4 Global::getModelView(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view)
-{
-    glm::mat4 model{ 1.0f };
-    model = glm::translate(model, translate);
-    model = glm::rotate(model, glm::radians(rotateDegrees), rotateVec3);
-    model = glm::scale(model, scale);
-    return view * model;
-}
-
-void Global::transformNormalViewCPU(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view)
-{
-    glm::mat4 model{ 1.0f };
-    model = glm::translate(model, translate);
-    model = glm::rotate(model, glm::radians(rotateDegrees), rotateVec3);
-    model = glm::scale(model, scale);
-    glm::mat4 modelView{ view * model };
-    shader.setMat4("modelView", modelView);
-    shader.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
-}
+//void Global::transformNormalViewCPU(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view)
+//{
+//    glm::mat4 model{ 1.0f };
+//    model = glm::translate(model, translate);
+//    model = glm::rotate(model, glm::radians(rotateDegrees), rotateVec3);
+//    model = glm::scale(model, scale);
+//    glm::mat4 modelView{ view * model }; // TODO Global::view
+//    shader.setMat4("modelView", modelView);
+//    shader.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
+//}
 
 void Global::initStencilBuffer() {
     glEnable(GL_STENCIL_TEST);

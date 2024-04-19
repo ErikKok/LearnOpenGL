@@ -7,6 +7,17 @@ TO DO
 - 1 GL_SHADER_STORAGE_BUFFER met meerdere objecten/vectors erin mogelijk?
 - time class
 - licht in uniform buffers
+- licht vd spotlight klopt niet op de containers, of lijkt dat maar zo omdat floor wit is? klopt denk ik wel
+-  * light.strength wel op de goede plek in de functie?
+
+v0.1.18 19-4-2024
+-----------------
+- uniformBuffer projectionView -> projection
+- multilight.shader strength toegevoegd
+- multilight.shader e.e.a. aangepast qua berekeningen world/view space
+- cleanup and commented multilight.shader
+- normalViewCPU renamed -> NormalMatrix
+- added ambient to dirLight
 
 v0.1.17 18-4-2024
 -----------------
