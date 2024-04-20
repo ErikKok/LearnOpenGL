@@ -79,7 +79,6 @@ int main()
     skyboxLayout.pushVertexAttributeLayout<float>(3);
     skyboxVao.addVertexAttributeLayout(skyboxVbo, skyboxLayout);
     Shader skyboxShader("Shaders\\skybox.shader");
-    Texture cubemapTexture(Data::skybox1Faces);
 
     /////////////////////////////////////
     ////// XYZ //////////////////////////
@@ -109,8 +108,8 @@ int main()
 
     // PointLight (max 8, hard coded in shader)
     glm::vec3 pointLightPositions[] = { // World space
-        glm::vec3( 0.7f, 11.2f,   2.0f),
-        glm::vec3( 4.0f,  2.0f, -12.0f),
+        glm::vec3(0.7f, 11.2f,   2.0f),
+        glm::vec3(4.0f,  2.0f, -12.0f),
         glm::vec3(-4.0f,  2.0f,  12.0f),
         glm::vec3(15.0f,  1.2f,  -3.0f),
     };
@@ -121,7 +120,7 @@ int main()
     glm::vec3(0.0f, 0.0f, 1.0f), // blue
     glm::vec3(1.0f, 0.0f, 0.0f), // white
     };
-    
+
     // TODO use variable length arrays through SSBO
     // Removes the need to manually set the pointLightsCount here AND in the shader
     // See -> https://computergraphics.stackexchange.com/questions/5323/dynamic-array-in-glsl
@@ -160,7 +159,7 @@ int main()
     multiLight.setFloat("spotLight.epsilon", spotLightEpsilon);
     glm::vec3 spotLightColor{ 1.0f, 1.0f, 1.0f };
     multiLight.setVec3("spotLight.diffuse", spotLightColor);
-    multiLight.setFloat("spotLight.emission", 0.0f);
+    //multiLight.setFloat("spotLight.emission", 0.0f);
     multiLight.setFloat("spotLight.constant", 1.0f);
     multiLight.setFloat("spotLight.linear", 0.045f);
     multiLight.setFloat("spotLight.quadratic", 0.0075f);
@@ -176,13 +175,12 @@ int main()
     multiLight.setFloat("flashLight.epsilon", flashLightEpsilon);
     glm::vec3 flashlightColor{ 1.0f, 1.0f, 1.0f };
     multiLight.setVec3("flashLight.diffuse", flashlightColor);
-    multiLight.setFloat("flashLight.emission", 0.8f);
     multiLight.setFloat("flashLight.constant", 1.0f);
     multiLight.setFloat("flashLight.linear", 0.045f);
     multiLight.setFloat("flashLight.quadratic", 0.0075f);
     multiLight.setFloat("flashLight.strength", 1.5f);
     multiLight.setVec3("flashLight.origin", 0.0f, 0.0f, 0.0f);
-    
+
     /////////////////////////////////////
     ////// LightCube ////////////////////
     std::println("CREATE LightCube");////
@@ -207,9 +205,6 @@ int main()
     cubeLayout.pushVertexAttributeLayout<float>(3);
     cubeVao.addVertexAttributeLayout(cubeVbo, cubeLayout);
     ElementBuffer cubeTestEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
-    Texture cubeDiffuse("Textures\\container2.png");
-    Texture cubeSpecular("Textures\\container2_specular.png");
-    Texture cubeEmission("Textures\\matrix.jpg");
 
     /////////////////////////////////////
     ////// Floor ////////////////////////
@@ -223,7 +218,6 @@ int main()
     floorlayout.pushVertexAttributeLayout<float>(3);
     floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
     ElementBuffer floorEbo(sizeof(Data::floorIndices), &Data::floorIndices);
-    Texture floor("Textures\\floor.jpg");
 
     //////// Outline ////////////////////
 
@@ -246,29 +240,54 @@ int main()
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
-    std::println("Load time model: {} seconds", static_cast<float>(glfwGetTime()) - loadTime );
-    
+    std::println("Load time model: {} seconds", static_cast<float>(glfwGetTime()) - loadTime);
+
     ////////////////////////////////////////////////
 
     // Visualize normals
     Shader normal("Shaders\\normal.shader");
 
-    ////////////////////////////////////////////////
-    // All textures get bind here, set sampler2D uniforms to the correct texture unit before draw call
-    std::println("AI TEXTURE ASSET MANAGER ***********************"); 
-    Texture black(0x00000000);          //
-    black.bindTexture(0);               // 0
-    Texture white(0xffffffff);          //
-    white.bindTexture(1);               // 1
-    // Unused                           // 2, 3
-    floor.bindTexture(4);               // 4
-    // Unused                           // 3 - 7
-    cubeDiffuse.bindTexture(8);         // 8
-    cubeSpecular.bindTexture(9);        // 9
-    cubeEmission.bindTexture(10);       // 10
-    // Unused                           // 11 - 15
-    // Reserved for Model::Draw         // 16 - 31
-    ////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
+    // All textures get loaded and bind here
+    // Set material uniforms to the correct texture unit / values before each draw call
+    std::println("AI TEXTURE ASSET MANAGER ***********************");
+    /* 01 GL_TEXTURE_CUBE_MAP */ Texture cubemapTexture(Data::skybox1Faces);
+    /* 01 */ Texture black(0x00000000);                                         
+    /* 01 */ Texture white(0xffffffff);                                        
+    /* 02 */                        
+    /* 03 */ Texture flashlight("Textures\\flashlight.jpg");
+    /* 04 */ Texture floor("Textures\\floor.jpg");                              
+    /* 05 */
+    /* 06 */
+    /* 07 */
+    /* 08 */ Texture cubeDiffuse("Textures\\container2.png");                   
+    /* 09 */ Texture cubeSpecular("Textures\\container2_specular.png");         
+    /* 10 */ Texture cubeEmission("Textures\\emission.png");
+    /* 11 */ 
+    /* 12 */
+    /* 13 */
+    /* 14 */
+    /* 15 */
+    /* 16 - 31 */// Reserved for Model::Draw
+    /////////////////////////////////////////////////////////////////////////////////////
+    /* 01 */ black.bindTexture(0);
+    /* 01 */ white.bindTexture(1);
+    /* 02 */ 
+    /* 03 */ flashlight.bindTexture(3);
+    /* 04 */ floor.bindTexture(4);
+    /* 05 */
+    /* 06 */
+    /* 07 */
+    /* 08 */ cubeDiffuse.bindTexture(8);
+    /* 09 */ cubeSpecular.bindTexture(9);
+    /* 10 */ cubeEmission.bindTexture(10);
+    /* 11 */ 
+    /* 12 */
+    /* 13 */
+    /* 14 */
+    /* 15 */
+    /* 16 - 31 */// Reserved for Model::Draw
+    /////////////////////////////////////////////////////////////////////////////////////
 
     float outlineAlpha{ 0.0f };
     Global::getInformation();
@@ -277,8 +296,8 @@ int main()
 
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         Global::clearStencilBuffer();
 
         // per-frame time logic
@@ -292,7 +311,7 @@ int main()
         Global::processInput(window);
 
         //Global::camera.fakeGravity(Global::deltaTime);
-        
+
         Global::view = Global::camera.GetViewMatrix();
         Global::projection = Global::camera.getProjectionMatrix();
 
@@ -313,7 +332,7 @@ int main()
         BufferSubDataLayout projectionLayout{}; // TODO rename projection
         projectionLayout.pushUniformBufferSubData(Global::projection);
         projectionUbo.addUniformBufferSubData(projectionLayout);
-        
+
         /////////////////////////////////////
         ////// XYZ //////////////////////////
         /////////////////////////////////////
@@ -323,7 +342,7 @@ int main()
         xyzShader.setMat4("view", Global::view);
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
         //std::println("XYZ ##################");
-        
+
         /////////////////////////////////////
         ////// Lights ///////////////////////
         /////////////////////////////////////
@@ -347,7 +366,7 @@ int main()
         spotLightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) + 0.2f;
         spotLightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3f)) + 0.2f;
         multiLight.setVec3("spotLight.diffuse", (spotLightColor * glm::vec3(0.5f)));
-        
+
         /////////////////////////////////////
         ////// LightCube ////////////////////
         /////////////////////////////////////
@@ -371,12 +390,14 @@ int main()
         /////////////////////////////////////
         ////// Cubes ////////////////////////
         /////////////////////////////////////
-    
+
         multiLight.useShader();
         multiLight.setFloat("material.shininess", 8.0f);
         multiLight.setInt("material.diffuse1", 8);
         multiLight.setInt("material.specular1", 9);
         multiLight.setInt("material.emission", 10);
+        multiLight.setFloat("material.emissionStrength", 1.0f);
+
         cubeVao.bindVertexArray();
 
         for (unsigned int i = 0u; i < 10; i++)
@@ -395,7 +416,7 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
-  
+
             modelViewMatrix = Global::view * model;
             ssboModelViewMatrixVector.emplace_back(modelViewMatrix);
             ssboNormalMatrixVector.emplace_back(glm::transpose(glm::inverse(modelViewMatrix)));
@@ -425,12 +446,12 @@ int main()
 
         ssboNormalMatrixVector[0] = glm::transpose(glm::inverse(modelViewMatrix));
         glNamedBufferSubData(ssboNormalMatrixCPU, 0, sizeof(glm::mat4) * ssboNormalMatrixVector.size(), (const void*)ssboNormalMatrixVector.data());
-        
+
         ssboMVPMatrixVector[0] = Global::projection * modelViewMatrix;
         glNamedBufferSubData(ssboMVPMatrix, 0, sizeof(glm::mat4) * ssboMVPMatrixVector.size(), (const void*)ssboMVPMatrixVector.data());
 
         multiLight.setFloat("material.shininess", 64.0f);
-        multiLight.setInt("material.emission", 0); // black
+        multiLight.setInt("material.emission", 0); // black - 'disable' emission with a black texture
         ourModel.Draw(multiLight);
 
         /////////////////////////////////////
@@ -445,17 +466,17 @@ int main()
         multiLight.setFloat("material.shininess", 1.0f);
         multiLight.setInt("material.diffuse1", 4);
         multiLight.setInt("material.specular1", 0); // black
-        multiLight.setInt("material.emission", 0); // black
+        multiLight.setFloat("material.emissionStrength", 0.0f); // 'disable' emission with zero strength
 
         modelViewMatrix = Global::getModelViewMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f));
         ssboModelViewMatrixVector[0] = modelViewMatrix;
-        glNamedBufferSubData(ssboModelViewMatrix, 0, sizeof(glm::mat4)* ssboModelViewMatrixVector.size(), (const void*)ssboModelViewMatrixVector.data());
+        glNamedBufferSubData(ssboModelViewMatrix, 0, sizeof(glm::mat4) * ssboModelViewMatrixVector.size(), (const void*)ssboModelViewMatrixVector.data());
 
         ssboNormalMatrixVector[0] = glm::transpose(glm::inverse(modelViewMatrix));
-        glNamedBufferSubData(ssboNormalMatrixCPU, 0, sizeof(glm::mat4)* ssboNormalMatrixVector.size(), (const void*)ssboNormalMatrixVector.data());
+        glNamedBufferSubData(ssboNormalMatrixCPU, 0, sizeof(glm::mat4) * ssboNormalMatrixVector.size(), (const void*)ssboNormalMatrixVector.data());
 
         ssboMVPMatrixVector[0] = Global::projection * modelViewMatrix;
-        glNamedBufferSubData(ssboMVPMatrix, 0, sizeof(glm::mat4)* ssboMVPMatrixVector.size(), (const void*)ssboMVPMatrixVector.data());
+        glNamedBufferSubData(ssboMVPMatrix, 0, sizeof(glm::mat4) * ssboMVPMatrixVector.size(), (const void*)ssboMVPMatrixVector.data());
 
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
@@ -478,9 +499,9 @@ int main()
         /////////////////////////////////////
         ////// Floor Outline ////////////////
         /////////////////////////////////////
-   
+
         // Until order independent transparency is implemented, partly transparant objects need to be drawn last (even after the skybox)
-        if (Global::drawOutline) {  
+        if (Global::drawOutline) {
             singleColor.useShader();
 
             if (outlineAlpha >= 0.0f)
@@ -504,7 +525,7 @@ int main()
             floorVao.bindVertexArray();
             glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
             //glEnable(GL_DEPTH_TEST);
-            
+
             // De-init Stencil Buffer
             glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should pass the stencil test again
         }

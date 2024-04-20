@@ -5,10 +5,17 @@ TO DO
 - Model, BufferSubData, VertexAttribute en Texture .cpp maken/bijwerken
 - GL_SHADER_STORAGE_BUFFER class maken
 - 1 GL_SHADER_STORAGE_BUFFER met meerdere objecten/vectors erin mogelijk?
-- time class
-- licht in uniform buffers
-- licht vd spotlight klopt niet op de containers, of lijkt dat maar zo omdat floor wit is? klopt denk ik wel
+- time class maken
+- light class maken
 -  * light.strength wel op de goede plek in de functie?
+- avoid using vec3 at all https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
+
+v0.1.19 20-4-2024
+-----------------
+- added specific emissionMap,
+- 3 variants to use emission for flashlight in temp.cpp
+- removed emission from spotlight and flashlight
+- added texture loading to AI TEXTURE ASSET MANAGER 
 
 v0.1.18 19-4-2024
 -----------------
