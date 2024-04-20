@@ -128,7 +128,6 @@
     <ClInclude Include="VertexAttribute.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Shaders\light.shader" />
     <Text Include="Shaders\xyz.shader" />
   </ItemGroup>
   <ItemGroup>

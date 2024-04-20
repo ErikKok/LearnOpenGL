@@ -10,10 +10,13 @@ TO DO
 -  * light.strength wel op de goede plek in de functie?
 - avoid using vec3 at all https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
 
-v0.1.20 20-4-2024
+v0.1.21 20-4-2024
 -----------------
 - smoothstep instead of clamp for flashlight/spotlight
 - added emission back for flashlight :D
+- replaced light.shader with singleColor.shader (was basically same shader)
+- LightCube draw changed to singleColor and ssbo
+- added init for ssbo's (moved glNamedBufferStorage to top of renderloop)
 
 v0.1.19 20-4-2024
 -----------------

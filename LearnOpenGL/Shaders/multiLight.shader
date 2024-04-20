@@ -124,7 +124,7 @@ struct FlashLight {
     float quadratic;    // Long distance intensity
     float strength;     // Overall strength
     vec3 origin;        // 0.0f, 0.0f, 0.0f == shines straight from the center/camera
-    float emission;
+    float emissionStrength;     // Overall strength
 };
 uniform FlashLight flashLight;
 
@@ -231,8 +231,8 @@ vec3 CalcFlashLight(FlashLight light)
     float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.diffuse * spec * textureSpecular;
     // emission calculations (put them in main if needed by other functions, slower)
-    vec3 textureEmissionMap = vec3(texture(material.flashlightMap, vs_out.TexCoords));
-    vec3 textureEmissionResult = vec3(texture(material.flashlightResult, vs_out.TexCoords));
+    vec3 textureflashlightMap = vec3(texture(material.flashlightMap, vs_out.TexCoords));
+    vec3 textureflashlightResult = vec3(texture(material.flashlightResult, vs_out.TexCoords));
     // #1. emission: using specularMap as stamp, with if statement
     //vec3 emission = vec3(0.0f);                         // Default no textureEmission visible
     //if (textureSpecular.r == 0.0f) {                    // if textureSpecular == black (or whatever you choose)
@@ -241,7 +241,7 @@ vec3 CalcFlashLight(FlashLight light)
     // #2. emission: using specularMap as stamp, no if statement, a bit quicker, but less flexible (disable textureEmissionResult calculation)
     //vec3 emission = textureSpecular.r * light.emission * textureEmissionResult;
     // #3. emission: using specific emissionMap as stamp, a bit slower
-    vec3 emission = textureEmissionMap.r * light.emission * textureEmissionResult;
+    vec3 emission = textureflashlightMap.r * light.emissionStrength * textureflashlightResult;
     // cone
     vec3 cameraDirection = vec3(0.0f, 0.0f, 1.0f); // camera.m_front with negated z-axis
     float theta = dot(lightDir, cameraDirection);

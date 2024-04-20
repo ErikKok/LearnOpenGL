@@ -1,15 +1,17 @@
 #pragma once
 
 // First make a vector (e.g. ssbo1ModelViewVector):
-// - fill it with the maximum amount of elements
-// OR
-// - reserve the maximum amount of elements
-// Only then insert the data into the buffer with glNamedBufferStorage
+// Define some max count int and resize or fill the vector
+
+// Only then insert the data into the buffer with glNamedBufferStorage (or specify the size manually)
 // The size of the the buffer is fixed for the rest of it's life span after executing glNamedBufferStorage
-// I guess you could manually specify a size @ glNamedBufferStorage, insert that into the buffer and fill the vector later. But you have to make sure to fill ALL the data before binding/using the ssbo. Untested.
+// glNamedBufferStorage is executed first with the maximum size you need, just use this once I guess.
 //
+// If you want to replace existing ssbo data, then use glNamedBufferSubData starting from byte 0
+// glNamedBufferSubData(ssboModelView, 0, sizeof(glm::mat4)* ssbo1ModelViewVector.size(), (const void*)ssbo1ModelViewVector.data());
+// 
 // When you need to draw less then the maximum amount of elements of the vector
-// You could either clear the vectors...
+// You could either clear the vectors first...
 //ssbo1ModelViewVector.clear();
 //ssbo2NormalViewCPUVector.clear();
 // ... and fill them again from element 0
@@ -19,7 +21,3 @@
 // just fill element 0 if you just need to draw 1 instance
 //ssbo1ModelViewVector[0] = modelView;
 // Be sure not the use the other, not-updated, elements
-
-// Replace existing ssbo data starting from byte 0
-//glNamedBufferSubData(ssboModelView, 0, sizeof(glm::mat4)* ssbo1ModelViewVector.size(), (const void*)ssbo1ModelViewVector.data());
-

@@ -1,17 +1,15 @@
 #shader vertex
 #version 450 core
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 aTexCoords;
 
-out vec2 TexCoords;
+// Just render some vertexes in a single color, without textures or lighting
 
-layout(binding = 2, std430) readonly buffer ssboMVPMatrix {
+layout(binding = 4, std430) readonly buffer ssboMVPMatrix {
     mat4 MVPMatrix[];
 };
 
 void main()
 {
-    TexCoords = aTexCoords;
     gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
 }
 
@@ -19,7 +17,7 @@ void main()
 #version 330 core
 out vec4 FragColor;
 
-uniform vec4 color;
+uniform vec4 color; // TODO array van maken?
 
 void main()
 {

@@ -103,9 +103,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Shaders\light.shader">
-      <Filter>Shader Files</Filter>
-    </Text>
     <Text Include="Shaders\xyz.shader">
       <Filter>Shader Files</Filter>
     </Text>

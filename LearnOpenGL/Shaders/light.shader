@@ -1,5 +1,8 @@
 #shader vertex
 #version 420 core
+
+// Just render some vertexes in a single color, without textures or lighting
+
 layout (location = 0) in vec3 aPos;
 
 uniform mat4 MVPMatrix;
@@ -13,9 +16,9 @@ void main()
 #version 330 core
 out vec4 FragColor;
 
-uniform vec3 lightColor;
+uniform vec3 color;
 
 void main()
 {
-    FragColor = vec4(lightColor, 1.0);
+    FragColor = vec4(color, 1.0);
 }
