@@ -76,6 +76,8 @@ struct Material {
     //sampler2D height1;
     sampler2D emission;
     float emissionStrength;
+    sampler2D flashlightMap;
+    sampler2D flashlightResult;
     float shininess;    // Impacts the scattering/radius of the specular highlight
 };   
 uniform Material material;
@@ -122,6 +124,7 @@ struct FlashLight {
     float quadratic;    // Long distance intensity
     float strength;     // Overall strength
     vec3 origin;        // 0.0f, 0.0f, 0.0f == shines straight from the center/camera
+    float emission;
 };
 uniform FlashLight flashLight;
 
@@ -179,7 +182,7 @@ vec3 CalcSpotLight(SpotLight light)
     vec3 specular = light.diffuse * spec * textureSpecular;
     // cone
     float theta = dot(lightDir, normalize(-light.direction));
-    float intensity = clamp((theta - light.outerCutOff) / light.epsilon, 0.0f, 1.0f);
+    float intensity = smoothstep(0.0, 1.0, (theta - light.outerCutOff) / light.epsilon);
     diffuse *= intensity;
     specular *= intensity;
     // attenuation
@@ -191,8 +194,34 @@ vec3 CalcSpotLight(SpotLight light)
     return (diffuse + specular) * light.strength;
 }
 
+// Without Emission
+//vec3 CalcFlashLight(FlashLight light)
+//{   
+//    vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
+//    // diffuse
+//    float diff = max(dot(normalView, lightDir), 0.0f);
+//    vec3 diffuse = light.diffuse * diff * textureDiffuse;
+//    // specular
+//    vec3 reflectDir = reflect(-lightDir, normalView);
+//    float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
+//    vec3 specular = light.diffuse * spec * textureSpecular;
+//    // cone
+//    vec3 cameraDirection = vec3(0.0f, 0.0f, 1.0f); // camera.m_front with negated z-axis
+//    float theta = dot(lightDir, cameraDirection);
+//    float intensity = smoothstep(0.0, 1.0, (theta - light.outerCutOff) / light.epsilon);
+//    diffuse *= intensity;
+//    specular *= intensity;
+//    // attenuation
+//    float distance = length(light.origin - vs_out.FragPosView);
+//    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+//    diffuse  *= attenuation;
+//    specular *= attenuation;
+//
+//    return (diffuse + specular) * light.strength;
+//}
+
 vec3 CalcFlashLight(FlashLight light)
-{   
+{
     vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
@@ -201,19 +230,33 @@ vec3 CalcFlashLight(FlashLight light)
     vec3 reflectDir = reflect(-lightDir, normalView);
     float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.diffuse * spec * textureSpecular;
+    // emission calculations (put them in main if needed by other functions, slower)
+    vec3 textureEmissionMap = vec3(texture(material.flashlightMap, vs_out.TexCoords));
+    vec3 textureEmissionResult = vec3(texture(material.flashlightResult, vs_out.TexCoords));
+    // #1. emission: using specularMap as stamp, with if statement
+    //vec3 emission = vec3(0.0f);                         // Default no textureEmission visible
+    //if (textureSpecular.r == 0.0f) {                    // if textureSpecular == black (or whatever you choose)
+    //    emission = light.emission * textureEmission;    // show textureEmission
+    //}
+    // #2. emission: using specularMap as stamp, no if statement, a bit quicker, but less flexible (disable textureEmissionResult calculation)
+    //vec3 emission = textureSpecular.r * light.emission * textureEmissionResult;
+    // #3. emission: using specific emissionMap as stamp, a bit slower
+    vec3 emission = textureEmissionMap.r * light.emission * textureEmissionResult;
     // cone
     vec3 cameraDirection = vec3(0.0f, 0.0f, 1.0f); // camera.m_front with negated z-axis
     float theta = dot(lightDir, cameraDirection);
-    float intensity = clamp((theta - light.outerCutOff) / light.epsilon, 0.0f, 1.0f);
+    float intensity = smoothstep(0.0, 1.0, (theta - light.outerCutOff) / light.epsilon);
     diffuse *= intensity;
     specular *= intensity;
+    emission *= intensity;
     // attenuation
     float distance = length(light.origin - vs_out.FragPosView);
-    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
-    diffuse  *= attenuation;
+    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    diffuse *= attenuation;
     specular *= attenuation;
+    emission *= attenuation;
 
-    return (diffuse + specular) * light.strength;
+    return (diffuse + specular + emission) * light.strength;
 }
 
 void main()

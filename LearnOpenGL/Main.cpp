@@ -178,8 +178,9 @@ int main()
     multiLight.setFloat("flashLight.constant", 1.0f);
     multiLight.setFloat("flashLight.linear", 0.045f);
     multiLight.setFloat("flashLight.quadratic", 0.0075f);
-    multiLight.setFloat("flashLight.strength", 1.5f);
+    multiLight.setFloat("flashLight.strength", 0.7f);
     multiLight.setVec3("flashLight.origin", 0.0f, 0.0f, 0.0f);
+    multiLight.setFloat("flashLight.emission", 0.8f);
 
     /////////////////////////////////////
     ////// LightCube ////////////////////
@@ -263,8 +264,8 @@ int main()
     /* 08 */ Texture cubeDiffuse("Textures\\container2.png");                   
     /* 09 */ Texture cubeSpecular("Textures\\container2_specular.png");         
     /* 10 */ Texture cubeEmission("Textures\\emission.png");
-    /* 11 */ 
-    /* 12 */
+    /* 11 */ Texture flashlightMap("Textures\\container2_emission.png");
+    /* 12 */ Texture flashlightResult("Textures\\matrix.jpg");
     /* 13 */
     /* 14 */
     /* 15 */
@@ -281,8 +282,8 @@ int main()
     /* 08 */ cubeDiffuse.bindTexture(8);
     /* 09 */ cubeSpecular.bindTexture(9);
     /* 10 */ cubeEmission.bindTexture(10);
-    /* 11 */ 
-    /* 12 */
+    /* 11 */ flashlightMap.bindTexture(11);
+    /* 12 */ flashlightResult.bindTexture(12);
     /* 13 */
     /* 14 */
     /* 15 */
@@ -365,7 +366,7 @@ int main()
         spotLightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f)) + 0.2f;
         spotLightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f)) + 0.2f;
         spotLightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3f)) + 0.2f;
-        multiLight.setVec3("spotLight.diffuse", (spotLightColor * glm::vec3(0.5f)));
+        multiLight.setVec3("spotLight.diffuse", (spotLightColor * glm::vec3(0.5f))); // TODO remove float, is same as Strength?
 
         /////////////////////////////////////
         ////// LightCube ////////////////////
@@ -397,6 +398,9 @@ int main()
         multiLight.setInt("material.specular1", 9);
         multiLight.setInt("material.emission", 10);
         multiLight.setFloat("material.emissionStrength", 1.0f);
+        multiLight.setInt("material.flashlightMap", 11);
+        multiLight.setInt("material.flashlightResult", 12);
+        multiLight.setFloat("flashLight.emission", 1.2f);
 
         cubeVao.bindVertexArray();
 
@@ -452,6 +456,7 @@ int main()
 
         multiLight.setFloat("material.shininess", 64.0f);
         multiLight.setInt("material.emission", 0); // black - 'disable' emission with a black texture
+        multiLight.setFloat("flashLight.emission", 0.0f);
         ourModel.Draw(multiLight);
 
         /////////////////////////////////////
@@ -467,6 +472,7 @@ int main()
         multiLight.setInt("material.diffuse1", 4);
         multiLight.setInt("material.specular1", 0); // black
         multiLight.setFloat("material.emissionStrength", 0.0f); // 'disable' emission with zero strength
+        multiLight.setFloat("flashLight.emission", 0.0f);
 
         modelViewMatrix = Global::getModelViewMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f));
         ssboModelViewMatrixVector[0] = modelViewMatrix;
