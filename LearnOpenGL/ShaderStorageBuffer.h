@@ -14,10 +14,15 @@
 // You could either clear the vectors first...
 //ssbo1ModelViewVector.clear();
 //ssbo2NormalViewCPUVector.clear();
-// ... and fill them again from element 0
+// ... and fill them again with emplace_bakc 
 //ssbo1ModelViewVector.emplace_back(modelView);
 //ssbo2NormalViewCPUVector.emplace_back(glm::transpose(glm::inverse(modelView)));
+// OR
+// do not clear, but fill per element in a loop
 // OR
 // just fill element 0 if you just need to draw 1 instance
 //ssbo1ModelViewVector[0] = modelView;
 // Be sure not the use the other, not-updated, elements
+
+// TODO what is you want to change the buffer size?
+// Do you need to delete ssbo and re-init?

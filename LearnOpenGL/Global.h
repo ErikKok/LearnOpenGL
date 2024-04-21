@@ -25,7 +25,7 @@ inline Shader* flashLight{ nullptr }; // points to multiLight
 namespace Global {
     inline int windowWidth{ 1920 };
     inline int windowHeight{ 1080 };
-    inline Camera camera((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), glm::vec3(8.0f, 1.5f, 8.0f));
+    inline Camera camera((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), glm::vec3(0.0f, 1.5f, 15.0f)); // 8.0f, 1.5f, 8.0f
     inline glm::mat4 view{};
     inline glm::mat4 projection{};
     inline bool windowsHasMouseFocus{ false };

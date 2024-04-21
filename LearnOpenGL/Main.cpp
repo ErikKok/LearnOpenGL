@@ -313,12 +313,12 @@ int main()
         glm::mat4 modelViewMatrix{};
 
         // Init ssbo's //////////////////////
-        int ssboVectorCount{ 10 }; // TODO, int best type?
+        const int ssboVectorCount{ 10 }; // TODO, int best type?
 
         GLuint ssboModelViewMatrix{};
         glCreateBuffers(1, &ssboModelViewMatrix);
-        std::vector<glm::mat4> ssboModelViewMatrixVector{};
-        ssboModelViewMatrixVector.resize(ssboVectorCount);
+        std::array<glm::mat4, ssboVectorCount> ssboModelViewMatrixVector{};
+        //ssboModelViewMatrixVector.resize(ssboVectorCount);
         glNamedBufferStorage(ssboModelViewMatrix, sizeof(glm::mat4) * ssboModelViewMatrixVector.size(), (const void*)ssboModelViewMatrixVector.data(), GL_DYNAMIC_STORAGE_BIT);
 
         GLuint ssboNormalMatrixCPU{};
@@ -417,7 +417,7 @@ int main()
 
         cubeVao.bindVertexArray();
 
-        ssboModelViewMatrixVector.clear();
+        //ssboModelViewMatrixVector.clear();
         ssboNormalMatrixVector.clear();
         ssboMVPMatrixVector.clear();
 
@@ -441,7 +441,8 @@ int main()
             //}
 
             modelViewMatrix = Global::view * model;
-            ssboModelViewMatrixVector.emplace_back(modelViewMatrix);
+            //ssboModelViewMatrixVector.emplace_back(modelViewMatrix);
+            ssboModelViewMatrixVector[i] = modelViewMatrix; // TODO wat is sneller, geen clear meer nodig toch? rename
             ssboNormalMatrixVector.emplace_back(glm::transpose(glm::inverse(modelViewMatrix)));
             ssboMVPMatrixVector.emplace_back(Global::projection * modelViewMatrix);
         }

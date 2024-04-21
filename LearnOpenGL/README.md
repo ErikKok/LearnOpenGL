@@ -10,7 +10,7 @@ TO DO
 -  * light.strength wel op de goede plek in de functie?
 - avoid using vec3 at all https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
 
-v0.1.21 20-4-2024
+v0.1.21 21-4-2024
 -----------------
 - smoothstep instead of clamp for flashlight/spotlight
 - added emission back for flashlight :D
