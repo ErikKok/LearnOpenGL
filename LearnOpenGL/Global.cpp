@@ -82,6 +82,21 @@ void Global::clearStencilBuffer() {
     glStencilMask(0x00);
 }
 
+void Global::cheap2Copy() {
+    bool cheap{ sizeof(glm::vec3) <= 2 * sizeof(void*) };
+    std::println("Is glm::vec3 cheap to copy: {} (provided there are no additional setup costs)", cheap);
+    cheap = sizeof(glm::vec4) <= 2 * sizeof(void*);
+    std::println("Is glm::vec4 cheap to copy: {} (provided there are no additional setup costs)", cheap);
+    cheap = sizeof(glm::mat3) <= 2 * sizeof(void*);
+    std::println("Is glm::mat3 cheap to copy: {} (provided there are no additional setup costs)", cheap);
+    cheap = sizeof(glm::mat4) <= 2 * sizeof(void*);
+    std::println("Is glm::mat4 cheap to copy: {} (provided there are no additional setup costs)", cheap);
+    cheap = sizeof(Shader) <= 2 * sizeof(void*);
+    std::println("Is Shader cheap to copy: {} (provided there are no additional setup costs)", cheap);
+    //cheap = sizeof(Texture) <= 2 * sizeof(void*);
+    //std::println("Is Texture cheap to copy: {} (provided there are no additional setup costs)", cheap);
+}
+
 int Global::init(GLFWwindow* window)
 {
     assert(sizeof(int) == sizeof(GLint) && "size of int and GL_INT is not equal"); 

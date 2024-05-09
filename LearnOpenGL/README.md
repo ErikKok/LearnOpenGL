@@ -9,6 +9,12 @@ TO DO
 - light class maken
 -  * light.strength wel op de goede plek in de functie?
 - avoid using vec3 at all https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
+- energy conservation, see comments at Blinn-Phong
+- Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
+
+v0.1.22 9-5-2024
+-----------------
+- added Blinn-Phong
 
 v0.1.21 21-4-2024
 -----------------

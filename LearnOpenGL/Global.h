@@ -46,6 +46,7 @@ namespace Global {
     void initStencilBuffer();
     void clearStencilBuffer();
 
+    void cheap2Copy();
 
     int init(GLFWwindow* window);
     void processInput(GLFWwindow* window);
