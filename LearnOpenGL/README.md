@@ -2,15 +2,22 @@ TO DO
 - Calling glUniform is quite expensive during run-time. Structure your programme so that glUniform is only called when the value needs to change. This might be the case every time that you draw a new object (e.g. its position might be different), but some uniforms may not change often (e.g. projection matrix).
 - Logging https://antongerdelan.net/opengl/glcontext2.html
 - Uniform location cache
-- Model, BufferSubData, VertexAttribute en Texture .cpp maken/bijwerken
+- Model, BufferSubData, VertexAttribute, ShaderStorageBuffer .cpp maken/bijwerken
 - GL_SHADER_STORAGE_BUFFER class maken
 - 1 GL_SHADER_STORAGE_BUFFER met meerdere objecten/vectors erin mogelijk?
 - time class maken
 - light class maken
--  * light.strength wel op de goede plek in de functie?
+-  * light.strength wel op de goede plek in de shader/functie?
 - avoid using vec3 at all https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
 - energy conservation, see comments at Blinn-Phong
 - Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
+- which attenuation values/formula is best/sufficient in combination with gamma correction
+
+v0.1.23 10-5-2024
+-----------------
+- fixed Blinn-Phong
+- added convertToLinearSpace to Texture and Model functions
+- added gamma correction
 
 v0.1.22 9-5-2024
 -----------------

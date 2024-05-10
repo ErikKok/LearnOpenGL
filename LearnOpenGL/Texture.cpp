@@ -15,7 +15,7 @@
 #include <sstream>
 #include <cstdint>
 
-Texture::Texture(const std::string& filePath)
+Texture::Texture(const std::string& filePath, bool convertToLinearSpace)
     :m_filePath{ filePath }
 {
     glGenTextures(1, &m_id);
@@ -30,14 +30,23 @@ Texture::Texture(const std::string& filePath)
     if (!textureData)
         std::println("Failed to load texture");
     GLenum format{};
+    GLenum internalFormat{};
     assert(textureNrChannels == 1 || textureNrChannels == 3 || textureNrChannels == 4 && "Image format not supported");
-    if (textureNrChannels == 1) [[unlikely]]
+    if (textureNrChannels == 1) {  [[unlikely]]
         format = GL_RED;
-    else if (textureNrChannels == 3) [[likely]]
+        internalFormat = GL_RED;
+    }
+    else if (textureNrChannels == 3) { [[likely]]
         format = GL_RGB;
-    else if (textureNrChannels == 4)
+        internalFormat = GL_SRGB;
+    }
+    else if (textureNrChannels == 4) {
         format = GL_RGBA;
-    glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);
+        internalFormat = GL_SRGB_ALPHA;
+    }
+    if (!convertToLinearSpace)
+        internalFormat = format;
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(textureData);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -59,7 +68,7 @@ Texture::Texture(uint32_t color)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
     //glGenerateMipmap(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -88,7 +97,7 @@ Texture::Texture(const std::vector<std::string>& faces)
         assert(textureNrChannels == 3 && "Cubemap not in RGB format!");
         if (!textureData)
             std::println("Failed to load texture {}", faces[i]);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
         stbi_image_free(textureData);
         Global::glCheckError();
     }
@@ -134,11 +143,12 @@ void Texture::activeTexture() const
     Global::glCheckError();
 }
 
-// Check if texture is bound:
+//// Check if texture is bound:
 //GLint returnData{};
 //// activate proper texture unit (i) and check if texture is already bound
 //glActiveTexture(GL_TEXTURE0 + i);
 //glGetIntegerv(GL_TEXTURE_BINDING_2D, &returnData); // Get currently bound Texture
 //unsigned int textureId{ texture.getId() };
+//// Bind texture if unbound
 //if (textureId != static_cast<unsigned int>(returnData))
 //glBindTexture(GL_TEXTURE_2D, textureId);

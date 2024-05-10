@@ -203,7 +203,10 @@ void Model::loadMaterialTextures(aiMaterial* material, aiTextureType type, std::
             }
         }
         if (!alreadyLoaded) {
-            auto texture{ std::make_shared<Texture>(m_directory + "\\" + textureFilename.C_Str()) };
+            bool convertToLinearSpace{ false };
+            if (typeName == "diffuse")
+                convertToLinearSpace = true;
+            auto texture{ std::make_shared<Texture>(m_directory + "\\" + textureFilename.C_Str(), convertToLinearSpace) };
             texture->setType(typeName);
             texture->setfileName(textureFilename.C_Str());
 

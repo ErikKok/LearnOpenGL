@@ -9,9 +9,9 @@
 
 class Texture {
 public:
-	Texture(const std::string& filePath);					// Constructor
-	Texture(uint32_t color);								// Constructor single color
-	Texture(const std::vector<std::string>& faces);			// Constructor cubemap
+	Texture(const std::string& filePath, bool convertToLinearSpace = true);	// Constructor	// Default converts to Linear Space
+	Texture(uint32_t color);								// Constructor single color		// Always converts to Linear Space
+	Texture(const std::vector<std::string>& faces);			// Constructor cubemap			// Always converts to Linear Space
 	Texture(const Texture& other) = delete;					// Copy constructor
 	Texture& operator=(const Texture& other) = delete;		// Copy assignment
 	Texture(Texture&& other) noexcept = delete; 			// Move constructor	
