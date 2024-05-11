@@ -75,7 +75,8 @@ void Mesh::Draw(Shader& shader)
             //count = std::to_string(heightCount++); // transfer unsigned int to string
 
         std::string result{ "material." + m_textures[i]->getTypeAsString() + count };
-        shader.setInt(result, m_textures[i]->getBound());
+        if (!Global::shadowMapPass)
+            shader.setInt(result, m_textures[i]->getBound());
     }
     m_vao->bindVertexArray();
     glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(m_vertices.size()), GL_UNSIGNED_INT, 0, 1);

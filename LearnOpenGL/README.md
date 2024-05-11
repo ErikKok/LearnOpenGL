@@ -19,6 +19,7 @@ TO DO
 
 v0.1.24 11-5-2024
 -----------------
+- quad with shadowmap working
 - implemented textureType
 
 v0.1.23 11-5-2024

@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-enum textureType {
+enum class textureType {
 	undefined,
 	diffuse,
 	specular,
@@ -16,15 +16,18 @@ enum textureType {
 	singleColor,
 	cubeMap,
 	depthMap,
+	max_textureTypes,
 };
 
 constexpr std::array textureTypeName{ "undefined", "diffuse", "specular", "normal", "height", "singleColor", "cubeMap", "depthMap" };
+static_assert(std::size(textureTypeName) == static_cast<int>(textureType::max_textureTypes));
 
 class Texture {
 public:
 	Texture(const std::string& filePath, bool convertToLinearSpace = true);	// Constructor	// Default converts to Linear Space
 	Texture(uint32_t color);								// Constructor single color		// Always converts to Linear Space
-	Texture(const std::vector<std::string>& faces);			// Constructor cubemap			// Always converts to Linear Space
+	Texture(const std::vector<std::string>& faces);			// Constructor cubeMap			// Always converts to Linear Space
+	Texture(textureType textureType, GLsizei width, GLsizei height); // Constructor depthMap
 	Texture(const Texture& other) = delete;					// Copy constructor
 	Texture& operator=(const Texture& other) = delete;		// Copy assignment
 	Texture(Texture&& other) noexcept = delete; 			// Move constructor	
@@ -37,7 +40,7 @@ public:
 
 	const unsigned int getId() const { return m_id; };
 	const textureType getType() const { return m_type; };
-	const std::string getTypeAsString() const { return textureTypeName[m_type]; };
+	const std::string getTypeAsString() const { return textureTypeName[static_cast<int>(m_type)]; };
 	void setType(textureType type) { m_type = type; };
 	const std::string_view getfileName() const { return m_fileName; };
 	void setfileName(std::string fileName) { m_fileName = fileName; };

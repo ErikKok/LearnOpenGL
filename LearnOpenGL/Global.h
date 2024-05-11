@@ -35,6 +35,10 @@ namespace Global {
     inline bool paused{ false };
     inline bool drawOutline{ false };
 
+    inline bool shadowMapPass{ false };
+    inline int shadowMapWidth{ 1024 };
+    inline int shadowMapHeight{ 1024 };
+
     GLenum glCheckError_(const char* file, int line);
     #define glCheckError() glCheckError_(__FILE__, __LINE__)
     void glClearError();

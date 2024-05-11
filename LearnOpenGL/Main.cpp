@@ -1,5 +1,6 @@
 #pragma once
 #include "BufferSubData.h"
+#include "Buffers.h"
 #include "Camera.h"
 #include "Data.h"
 #include "ElementBuffer.h"
@@ -55,6 +56,31 @@ int main()
     Global::glCheckError();
 
     UniformBuffer projectionUbo(sizeof(glm::mat4), 0);
+
+    /////////////////////////////////////
+    ////// DepthMap /////////////////////
+    std::println("CREATE DepthMap");/////
+
+    FrameBuffer depthMapFbo;
+    Texture depthMap(textureType::depthMap, Global::shadowMapWidth,Global::shadowMapHeight);
+
+    glNamedFramebufferTexture(depthMapFbo.getId(), GL_DEPTH_ATTACHMENT, depthMap.getId(), 0);
+    glNamedFramebufferDrawBuffer(depthMapFbo.getId(), GL_NONE);
+    glNamedFramebufferReadBuffer(depthMapFbo.getId(), GL_NONE);
+
+    if (glCheckNamedFramebufferStatus(depthMapFbo.getId(), GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::println("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+
+    // Quad
+    VertexArray quadVao;
+    VertexBuffer quadVbo(sizeof(Data::framebuffer), &Data::framebuffer);
+    VertexAttributeLayout quadLayout{};
+    quadLayout.pushVertexAttributeLayout<float>(2);
+    quadLayout.pushVertexAttributeLayout<float>(2);
+    quadVao.addVertexAttributeLayout(quadVbo, quadLayout);
+
+    Shader shadowMapShader("Shaders\\shadowMap.shader");
+    Shader debugShadowMapShader("Shaders\\debugShadowMap.shader");
 
     /////////////////////////////////////
     ////// Skybox ///////////////////////
@@ -250,7 +276,7 @@ int main()
     /////////////////////////////////////////////////////////////////////////////////////
     /* 01 */ black.bindTexture(0);
     /* 01 */ white.bindTexture(1);
-    /* 02 */ 
+    /* 02 */ depthMap.bindTexture(2);
     /* 03 */ flashlight.bindTexture(3);
     /* 04 */ floor.bindTexture(4);
     /* 05 */
@@ -269,16 +295,42 @@ int main()
     
     Shader singleColor("Shaders\\singleColor.shader");
 
+    // Init uniforms ////////////////////
+    /////////////////////////////////////
+    glm::mat4 model{};
+    glm::mat4 modelViewMatrix{};
+    glm::mat4 lightSpaceMatrix{};
+
+    // Init ssbo's //////////////////////
+    const int ssboArrayCount{ 10 };
+
+    GLuint ssboShadowModel{};
+    glCreateBuffers(1, &ssboShadowModel);
+    std::array<glm::mat4, ssboArrayCount> ssboShadowModelArray{};
+    glNamedBufferStorage(ssboShadowModel, sizeof(glm::mat4)* ssboShadowModelArray.size(), (const void*)ssboShadowModelArray.data(), GL_DYNAMIC_STORAGE_BIT);
+
+    GLuint ssboModelViewMatrix{};
+    glCreateBuffers(1, &ssboModelViewMatrix);
+    std::array<glm::mat4, ssboArrayCount> ssboModelViewMatrixArray{};
+    glNamedBufferStorage(ssboModelViewMatrix, sizeof(glm::mat4)* ssboModelViewMatrixArray.size(), (const void*)ssboModelViewMatrixArray.data(), GL_DYNAMIC_STORAGE_BIT);
+
+    GLuint ssboNormalMatrixCPU{};
+    glCreateBuffers(1, &ssboNormalMatrixCPU);
+    std::array<glm::mat4, ssboArrayCount> ssboNormalMatrixArray{};
+    glNamedBufferStorage(ssboNormalMatrixCPU, sizeof(glm::mat4)* ssboNormalMatrixArray.size(), (const void*)ssboNormalMatrixArray.data(), GL_DYNAMIC_STORAGE_BIT);
+
+    GLuint ssboMVPMatrix{};
+    glCreateBuffers(1, &ssboMVPMatrix);
+    std::array<glm::mat4, ssboArrayCount> ssboMVPMatrixArray{};
+    glNamedBufferStorage(ssboMVPMatrix, sizeof(glm::mat4)* ssboMVPMatrixArray.size(), (const void*)ssboMVPMatrixArray.data(), GL_DYNAMIC_STORAGE_BIT);
+
+    ///// START Renderloop
+
     Global::getInformation();
     Global::glCheckError();
     std::println("START Renderloop *******************************");
 
     while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        Global::clearStencilBuffer();
-
         // per-frame time logic
         float currentFrame{ static_cast<float>(glfwGetTime()) };
         Global::deltaTime = currentFrame - Global::lastFrame;
@@ -286,37 +338,103 @@ int main()
         //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
         //std::println("Position: {}, {}, {}", Global::camera.m_position.x, Global::camera.m_position.y, Global::camera.m_position.z);
         //std::println("Front: {}, {}, {}", Global::camera.m_front.x, Global::camera.m_front.y, Global::camera.m_front.z);
-
+        Global::clearStencilBuffer();
         Global::processInput(window);
+        //glClearColor(1.0f, 0.0f, 1.0f, 1.0f); // magenta
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Render shadowMap
+        /////////////////////////////////////////////////////////////////////////////////////
+        
+        debugShadowMapShader.useShader();
+        debugShadowMapShader.setInt("shadowMap", 2);
+
+        //float near_plane = 1.0f, far_plane = 7.5f;
+        // TODO use same planes as regular camera?
+        glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, Global::camera.getNearPlane(), Global::camera.getFarPlane());
+        glm::mat4 lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // TODO getUp
+        lightSpaceMatrix = lightProjection * lightView;
+
+        shadowMapShader.useShader();
+        shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);      
+
+        glViewport(0, 0, Global::shadowMapWidth, Global::shadowMapHeight);
+        Global::shadowMapPass = true;
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo.getId()); // TODO
+        glClear(GL_DEPTH_BUFFER_BIT);
+        
+        /////////////////////////////////////
+        ////// Cubes ////////////////////////
+        /////////////////////////////////////
+
+        shadowMapShader.useShader();
+
+        cubeVao.bindVertexArray();
+
+        for (unsigned int i = 0u; i < std::size(Data::cubePositions); i++)
+        {
+            assert(std::size(Data::cubePositions) <= ssboArrayCount && "Loop will create more instances then ssbo can hold");
+
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, Data::cubePositions[i]);
+            if (i == 2 || i == 5 || i == 8) {
+                float angle = 25.0f + (15 * i);
+                model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+            }
+            if (i == 3) { // wall
+                model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
+                model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
+            }
+            //if (i == 9) { // floor // TODO only draws this 10th (9th) cube when uncommented?
+            //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+            //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
+            //}
+            //shadowMapShader.setMat4("model", model);
+            ssboShadowModelArray[i] = model;
+        }
+        glNamedBufferSubData(ssboShadowModel, 0, sizeof(glm::mat4) * ssboShadowModelArray.size(), (const void*)ssboShadowModelArray.data());
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, ssboShadowModel);
+
+        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
+
+        /////////////////////////////////////
+        ////// Model ////////////////////////
+        /////////////////////////////////////
+
+        model = glm::translate(model, glm::vec3(4.0f, 3.0f, 2.0f));
+        model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+
+        ssboShadowModelArray[0] = model;
+        glNamedBufferSubData(ssboShadowModel, 0, sizeof(glm::mat4) * ssboShadowModelArray.size(), (const void*)ssboShadowModelArray.data());
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, ssboShadowModel);
+
+        ourModel.Draw(shadowMapShader);
+
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        Global::shadowMapPass = false;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0); // TODO
+
+        glViewport(0, 0, Global::windowWidth, Global::windowHeight);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
+        
+        // Show shadowMap on quad
+        debugShadowMapShader.useShader();
+        quadVao.bindVertexArray();
+        //depthMap.bindTexture(2);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        //glfwSwapBuffers(window);
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Render scene
+        /////////////////////////////////////////////////////////////////////////////////////
 
         //Global::camera.fakeGravity(Global::deltaTime);
 
         Global::view = Global::camera.GetViewMatrix();
         Global::projection = Global::camera.getProjectionMatrix();
 
-        // Init uniforms ////////////////////
-        /////////////////////////////////////
-        glm::mat4 model{};
-        glm::mat4 modelViewMatrix{};
-
-        // Init ssbo's //////////////////////
-        const int ssboArrayCount{ 10 };
-
-        GLuint ssboModelViewMatrix{};
-        glCreateBuffers(1, &ssboModelViewMatrix);
-        std::array<glm::mat4, ssboArrayCount> ssboModelViewMatrixArray{};
-        glNamedBufferStorage(ssboModelViewMatrix, sizeof(glm::mat4) * ssboModelViewMatrixArray.size(), (const void*)ssboModelViewMatrixArray.data(), GL_DYNAMIC_STORAGE_BIT);
-
-        GLuint ssboNormalMatrixCPU{};
-        glCreateBuffers(1, &ssboNormalMatrixCPU);
-        std::array<glm::mat4, ssboArrayCount> ssboNormalMatrixArray{};
-        glNamedBufferStorage(ssboNormalMatrixCPU, sizeof(glm::mat4) * ssboNormalMatrixArray.size(), (const void*)ssboNormalMatrixArray.data(), GL_DYNAMIC_STORAGE_BIT);
-
-        GLuint ssboMVPMatrix{};
-        glCreateBuffers(1, &ssboMVPMatrix);
-        std::array<glm::mat4, ssboArrayCount> ssboMVPMatrixArray{};
-        glNamedBufferStorage(ssboMVPMatrix, sizeof(glm::mat4) * ssboMVPMatrixArray.size(), (const void*)ssboMVPMatrixArray.data(), GL_DYNAMIC_STORAGE_BIT);
-        
         // Init uniforms buffers ////////////
         //projectionUbo.bindUniformBuffer();
         BufferSubDataLayout projectionLayout{};

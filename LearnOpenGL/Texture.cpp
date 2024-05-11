@@ -109,26 +109,27 @@ Texture::Texture(const std::vector<std::string>& faces)
     std::println("CREATE cubeMap id: {}", m_id);
 }
 
-//// Creates a depthMap:
-//Texture::Texture(uint32_t color)
-//    :m_singleColor{ color }
-//    , m_type{ textureType::depthMap }
-//    , m_width{ 1 }
-//    , m_height{ 1 }
-//{
-//    glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
-//    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-//    glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//
-//    glBindTexture(GL_TEXTURE_2D, m_id);
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
-//    glBindTexture(GL_TEXTURE_2D, 0);
-//
-//    Global::glCheckError();
-//    std::println("CREATE texture single color id: {}", m_id);
-//}
+// Creates a depthMap:
+Texture::Texture(textureType textureType, GLsizei width, GLsizei height)
+    : m_type{ textureType::depthMap }
+    , m_width{ width }
+    , m_height{ height }
+{
+    assert(textureType == textureType::depthMap && "Wrong textureType for this constructor");
+
+    glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
+    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_2D, m_id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    Global::glCheckError();
+    std::println("CREATE texture depthMap id: {}", m_id);
+}
 
 Texture::~Texture()
 {

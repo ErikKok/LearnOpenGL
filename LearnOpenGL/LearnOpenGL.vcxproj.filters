@@ -129,5 +129,11 @@
     <None Include="Shaders\normal.shader">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="Shaders\shadowMap.shader">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\debugShadowMap.shader">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

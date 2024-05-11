@@ -134,8 +134,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+    <None Include="Shaders\debugShadowMap.shader" />
     <None Include="Shaders\multiLight.shader" />
     <None Include="Shaders\normal.shader" />
+    <None Include="Shaders\shadowMap.shader" />
     <None Include="Shaders\singleColor.shader" />
     <None Include="Shaders\skybox.shader" />
   </ItemGroup>
