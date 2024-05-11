@@ -64,7 +64,7 @@ Texture::Texture(const std::string& filePath, bool convertToLinearSpace)
 // Creates single color, single pixel texture from a hex value:
 Texture::Texture(uint32_t color)
     :m_singleColor{ color }
-    ,m_type { "singleColor" }
+    ,m_type { textureType::singleColor }
     ,m_width{ 1 }
     ,m_height{ 1 }
 {
@@ -82,10 +82,10 @@ Texture::Texture(uint32_t color)
     std::println("CREATE texture single color id: {}", m_id);
 }
 
-// Loads a cubemap texture from 6 individual texture faces in order:
+// Loads a cubeMap texture from 6 individual texture faces in order:
 // +X (right), -X (left), +Y (top), -Y (bottom), +Z (front), -Z (back)
 Texture::Texture(const std::vector<std::string>& faces)
-    :m_type{ "cubemap" }
+    :m_type{ textureType::cubeMap }
     ,m_filePath{ faces[0] }
 {
     glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_id);
@@ -99,15 +99,36 @@ Texture::Texture(const std::vector<std::string>& faces)
     for (unsigned int i = 0u; i < faces.size(); i++)
     {
         unsigned char* textureData{ stbi_load(faces[i].c_str(), &m_width, &m_height, &textureNrChannels, 0) };
-        assert(textureNrChannels == 3 && "Cubemap not in RGB format!");
+        assert(textureNrChannels == 3 && "CubeMap not in RGB format!");
         if (!textureData)
             std::println("Failed to load texture {}", faces[i]);
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
         stbi_image_free(textureData);
         Global::glCheckError();
     }
-    std::println("CREATE cubemap id: {}", m_id);
+    std::println("CREATE cubeMap id: {}", m_id);
 }
+
+//// Creates a depthMap:
+//Texture::Texture(uint32_t color)
+//    :m_singleColor{ color }
+//    , m_type{ textureType::depthMap }
+//    , m_width{ 1 }
+//    , m_height{ 1 }
+//{
+//    glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
+//    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+//    glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//
+//    glBindTexture(GL_TEXTURE_2D, m_id);
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
+//    glBindTexture(GL_TEXTURE_2D, 0);
+//
+//    Global::glCheckError();
+//    std::println("CREATE texture single color id: {}", m_id);
+//}
 
 Texture::~Texture()
 {
@@ -120,7 +141,7 @@ void Texture::bindTexture(unsigned int textureUnit)
 {
     std::println("BIND texture id: {} | texture unit: {}", m_id, textureUnit);
     glActiveTexture(GL_TEXTURE0 + textureUnit);
-    if (m_type == "cubemap") [[unlikely]]
+    if (m_type == textureType::cubeMap) [[unlikely]]
         glBindTexture(GL_TEXTURE_CUBE_MAP, this->m_id);
     else [[likely]]
         glBindTexture(GL_TEXTURE_2D, this->m_id);
@@ -131,7 +152,7 @@ void Texture::bindTexture(unsigned int textureUnit)
 void Texture::unbindTexture()
 {
     std::println("UNBIND texture id: {}", m_id);
-    if (m_type == "cubemap") [[unlikely]]
+    if (m_type == textureType::cubeMap) [[unlikely]]
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     else [[likely]]
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -141,7 +162,7 @@ void Texture::unbindTexture()
 
 void Texture::activeTexture() const
 {
-    assert(m_type != "cubemap"); 
+    assert(m_type != textureType::cubeMap); 
     
     std::println("ACTIVE texture id: {} | texture unit: {}", m_id, m_boundTextureUnit);
     glActiveTexture(GL_TEXTURE0 + m_boundTextureUnit);

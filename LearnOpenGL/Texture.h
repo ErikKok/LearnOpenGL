@@ -7,6 +7,19 @@
 #include <string>
 #include <vector>
 
+enum textureType {
+	undefined,
+	diffuse,
+	specular,
+	normal,
+	height,
+	singleColor,
+	cubeMap,
+	depthMap,
+};
+
+constexpr std::array textureTypeName{ "undefined", "diffuse", "specular", "normal", "height", "singleColor", "cubeMap", "depthMap" };
+
 class Texture {
 public:
 	Texture(const std::string& filePath, bool convertToLinearSpace = true);	// Constructor	// Default converts to Linear Space
@@ -23,9 +36,10 @@ public:
 	void unbindTexture();
 
 	const unsigned int getId() const { return m_id; };
-	const std::string_view getType() const { return m_type; };
+	const textureType getType() const { return m_type; };
+	const std::string getTypeAsString() const { return textureTypeName[m_type]; };
+	void setType(textureType type) { m_type = type; };
 	const std::string_view getfileName() const { return m_fileName; };
-	void setType(std::string type) { m_type = type; };
 	void setfileName(std::string fileName) { m_fileName = fileName; };
 	const int getBound() const { return m_boundTextureUnit; };
 	void setBound(int textureUnit) { m_boundTextureUnit = textureUnit; };
@@ -34,7 +48,7 @@ private:
 	unsigned int m_id{};
 	int m_boundTextureUnit{ -1 };	// -1 == not bound to a texture unit
 	uint32_t m_singleColor{0};		// 0  == not a single color texture (type will be singleColor)
-	std::string m_type{ "undefined"};
+	textureType m_type{ textureType::undefined};
 	std::string m_filePath{};
 	std::string m_fileName{};
 	GLsizei m_width{};

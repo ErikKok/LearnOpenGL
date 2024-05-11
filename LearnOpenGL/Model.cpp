@@ -169,27 +169,27 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
     // we assume a convention for sampler names in the shaders. Each texture should be named as '<typename>N' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER
     // 1. diffuse maps
-    loadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse", meshTextures);
+    loadMaterialTextures(material, aiTextureType_DIFFUSE, textureType::diffuse, meshTextures);
     // 2. specular maps
-    loadMaterialTextures(material, aiTextureType_SPECULAR, "specular", meshTextures);
+    loadMaterialTextures(material, aiTextureType_SPECULAR, textureType::specular, meshTextures);
     // 3. normal maps
-    //loadMaterialTextures(material, aiTextureType_HEIGHT, "normal", meshTextures);
+    //loadMaterialTextures(material, aiTextureType_HEIGHT, textureType::normal, meshTextures);
     // 4. height maps
-    //loadMaterialTextures(material, aiTextureType_AMBIENT, "height", meshTextures);
+    //loadMaterialTextures(material, aiTextureType_AMBIENT, textureType::height, meshTextures);
 
     return Mesh(vertices, indices, meshTextures);
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
-void Model::loadMaterialTextures(aiMaterial* material, aiTextureType type, std::string typeName, std::vector<SPtr<Texture>>& meshTextures)
+void Model::loadMaterialTextures(aiMaterial* material, aiTextureType aiTextureType, textureType textureType, std::vector<SPtr<Texture>>& meshTextures)
 {
     //std::println("START Model loadMaterialTextures");
     m_texturesLoaded.reserve(4); // magic number
     bool alreadyLoaded{};
-    for (unsigned int i{ 0u }; i < material->GetTextureCount(type); i++)
+    for (unsigned int i{ 0u }; i < material->GetTextureCount(aiTextureType); i++)
     {
         aiString textureFilename{};
-        material->GetTexture(type, i, &textureFilename);
+        material->GetTexture(aiTextureType, i, &textureFilename);
 
         // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
         alreadyLoaded = false;
@@ -204,10 +204,10 @@ void Model::loadMaterialTextures(aiMaterial* material, aiTextureType type, std::
         }
         if (!alreadyLoaded) {
             bool convertToLinearSpace{ false };
-            if (typeName == "diffuse")
+            if (textureType == textureType::diffuse)
                 convertToLinearSpace = true;
             auto texture{ std::make_shared<Texture>(m_directory + "\\" + textureFilename.C_Str(), convertToLinearSpace) };
-            texture->setType(typeName);
+            texture->setType(textureType);
             texture->setfileName(textureFilename.C_Str());
 
             // Store each shared_ptr<Texture> in the model object

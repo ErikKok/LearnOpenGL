@@ -62,19 +62,19 @@ void Mesh::Draw(Shader& shader)
         
         // retrieve texture number (the N in <typename>N)
         std::string count{};
-        std::string type{ m_textures[i]->getType() };
-        if (type == "diffuse")
+        textureType textureType{ m_textures[i]->getType() }; // textureType
+        if (textureType == textureType::diffuse)
             count = std::to_string(diffuseCount++);
-        else if (type == "specular")
+        else if (textureType == textureType::specular)
             count = std::to_string(specularCount++); // transfer unsigned int to string 
-        else if (type == "normal") // TODO
+        else if (textureType == textureType::normal) // TODO
             break;
             //count = std::to_string(normalCount++); // transfer unsigned int to string
-        else if (type == "height") // TODO
+        else if (textureType == textureType::height) // TODO
             break;
             //count = std::to_string(heightCount++); // transfer unsigned int to string
 
-        std::string result{ "material." + type + count };
+        std::string result{ "material." + m_textures[i]->getTypeAsString() + count };
         shader.setInt(result, m_textures[i]->getBound());
     }
     m_vao->bindVertexArray();

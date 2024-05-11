@@ -17,6 +17,10 @@ TO DO
 - implement Bindless Textures
 - implement immutable textures
 
+v0.1.24 11-5-2024
+-----------------
+- implemented textureType
+
 v0.1.23 11-5-2024
 -----------------
 - fixed Blinn-Phong
