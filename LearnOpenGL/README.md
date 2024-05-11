@@ -3,7 +3,7 @@ TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
 - Uniform location cache
 - Model, BufferSubData, VertexAttribute, ShaderStorageBuffer .cpp maken/bijwerken
-- GL_SHADER_STORAGE_BUFFER class maken
+- GL_SHADER_STORAGE_BUFFER class maken in buffers.h
 - 1 GL_SHADER_STORAGE_BUFFER met meerdere objecten/vectors erin mogelijk?
 - time class maken
 - light class maken
@@ -12,12 +12,17 @@ TO DO
 - energy conservation, see comments at Blinn-Phong
 - Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
 - which attenuation values/formula is best/sufficient in combination with gamma correction
+- refactor to use DSA
+- refactor to use create instead of gen and bind
+- implement Bindless Textures
+- implement immutable textures
 
-v0.1.23 10-5-2024
+v0.1.23 11-5-2024
 -----------------
 - fixed Blinn-Phong
 - added convertToLinearSpace to Texture and Model functions
 - added gamma correction
+- implemented glCreateTextures
 
 v0.1.22 9-5-2024
 -----------------

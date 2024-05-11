@@ -18,12 +18,11 @@
 Texture::Texture(const std::string& filePath, bool convertToLinearSpace)
     :m_filePath{ filePath }
 {
-    glGenTextures(1, &m_id);
-    glBindTexture(GL_TEXTURE_2D, m_id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     stbi_set_flip_vertically_on_load(true);
     int textureNrChannels{};
     unsigned char* textureData{ stbi_load(filePath.c_str(), &m_width, &m_height, &textureNrChannels, 0) };
@@ -46,10 +45,18 @@ Texture::Texture(const std::string& filePath, bool convertToLinearSpace)
     }
     if (!convertToLinearSpace)
         internalFormat = format;
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(textureData);
+    Global::glCheckError();
+    glBindTexture(GL_TEXTURE_2D, m_id);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);  
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    // TODO when using immutable textures, how to deal with convertToLinearSpace?
+    // https://stackoverflow.com/questions/65831143/srgb-conversion-opengl
+    //glTextureStorage2D(m_id, 1, internalFormat, m_width, m_height);
+    //glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, format, GL_UNSIGNED_BYTE, textureData);
+
+    glGenerateTextureMipmap(m_id);
+    stbi_image_free(textureData);
     Global::glCheckError();
     std::println("CREATE texture id: {}, filePath: {}", m_id, m_filePath);
 }
@@ -61,17 +68,16 @@ Texture::Texture(uint32_t color)
     ,m_width{ 1 }
     ,m_height{ 1 }
 {
-    glGenTextures(1, &m_id);
+    glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     glBindTexture(GL_TEXTURE_2D, m_id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
-    //glGenerateMipmap(GL_TEXTURE_2D);
-
     glBindTexture(GL_TEXTURE_2D, 0);
+
     Global::glCheckError();
     std::println("CREATE texture single color id: {}", m_id);
 }
@@ -82,8 +88,7 @@ Texture::Texture(const std::vector<std::string>& faces)
     :m_type{ "cubemap" }
     ,m_filePath{ faces[0] }
 {
-    glGenTextures(1, &m_id);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
+    glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_id);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
