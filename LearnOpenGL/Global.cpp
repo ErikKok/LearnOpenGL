@@ -28,36 +28,18 @@ void Global::glClearError()
     while (glGetError() != GL_NO_ERROR);
 }
 
-//void Global::transform(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view)
-//{
-//    glm::mat4 model{ 1.0f };
-//    model = glm::translate(model, translate);
-//    model = glm::rotate(model, glm::radians(rotateDegrees), rotateVec3);
-//    model = glm::scale(model, scale);
-//    glm::mat4 modelView{ view * model }; // TODO Global::view
-//    shader.setMat4("modelView", modelView);
-//}
-
-// Takes in full transform parameters in World space, and outputs model in View space
-glm::mat4 Global::getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
-{ 
+// Takes in full transformation parameters in World space, and outputs model in World space
+glm::mat4 Global::getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+{
     glm::mat4 model{ 1.0f };
-    model = glm::translate(model, translate);
-    model = glm::rotate(model, glm::radians(rotateDegrees), rotateVec3);
-    model = glm::scale(model, scale);
-    return Global::view * model;
+    return glm::translate(model, translate) * glm::rotate(model, glm::radians(rotateDegrees), rotateVec3) * glm::scale(model, scale);
 }
 
-//void Global::transformNormalViewCPU(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view)
-//{
-//    glm::mat4 model{ 1.0f };
-//    model = glm::translate(model, translate);
-//    model = glm::rotate(model, glm::radians(rotateDegrees), rotateVec3);
-//    model = glm::scale(model, scale);
-//    glm::mat4 modelView{ view * model }; // TODO Global::view
-//    shader.setMat4("modelView", modelView);
-//    shader.setMat3("NormalViewCPU", glm::transpose(glm::inverse(modelView)));
-//}
+// Takes in full transformation parameters in World space, and outputs model in View space
+glm::mat4 Global::getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+{ 
+    return Global::view * getModelMatrix(translate, rotateDegrees, rotateVec3, scale);
+}
 
 void Global::initStencilBuffer() {
     glEnable(GL_STENCIL_TEST);
@@ -145,18 +127,18 @@ void Global::processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::FORWARD);
+        Global::camera.processKeyboard(CameraMovement::FORWARD);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::BACKWARD);
+        Global::camera.processKeyboard(CameraMovement::BACKWARD);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::LEFT);
+        Global::camera.processKeyboard(CameraMovement::LEFT);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::RIGHT);
+        Global::camera.processKeyboard(CameraMovement::RIGHT);
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::UP);
+        Global::camera.processKeyboard(CameraMovement::UP);
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        Global::camera.ProcessKeyboard(CameraMovement::DOWN);
+        Global::camera.processKeyboard(CameraMovement::DOWN);
 }
 
 #pragma warning( suppress : 4100 )
@@ -216,7 +198,6 @@ void Global::framebuffer_size_callback(GLFWwindow* window, int width, int height
     Global::windowWidth = width;
     Global::windowHeight = height;
     Global::camera.setAspectRatio((static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight)));
-    Global::camera.recalculateProjectionMatrix();
     Global::glCheckError();
 }
 
@@ -255,13 +236,13 @@ void Global::mouse_callback(GLFWwindow* window, double currentXPosIn, double cur
     lastXPos = currentXPos;
     lastYPos = currentYPos;
 
-    Global::camera.ProcessMouseMovement(xoffset, yoffset);
+    Global::camera.processMouseMovement(xoffset, yoffset);
 }
 
 #pragma warning( suppress : 4100 )
 void Global::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    Global::camera.ProcessMouseScroll(static_cast<float>(yoffset));
+    Global::camera.processMouseScroll(static_cast<float>(yoffset));
 }
 
 #pragma warning( suppress : 4100 )

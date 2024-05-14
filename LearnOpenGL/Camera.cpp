@@ -14,15 +14,8 @@ Camera::Camera(float aspectRatio, glm::vec3 initPosition)
     recalculateProjectionMatrix();
 }
 
-
-
-void Camera::fakeGravity(GLfloat deltaTime) {
-    if (m_position.y > 0.15f)
-        m_position.y -= 0.2f * m_movementSpeed * deltaTime;
-}
-
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-const glm::mat4 Camera::GetViewMatrix() const
+const glm::mat4 Camera::getViewMatrix() const
 {
     glm::mat4 view{ glm::lookAt(m_position, m_position + m_front, m_up) };
     //glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), m_up); // view from above, disable mouse
@@ -72,15 +65,26 @@ const glm::mat4 Camera::GetViewMatrix() const
     return view;
 }
 
-const glm::mat4 Camera::GetReverseViewMatrix() const
+const glm::mat4 Camera::getReverseViewMatrix() const
 {
     glm::mat4 view{ glm::lookAt(m_position, m_position + -m_front, m_up) };
 
     return view;
 }
 
+void Camera::fakeGravity(GLfloat deltaTime) {
+    if (m_position.y > 0.15f)
+        m_position.y -= 0.2f * m_movementSpeed * deltaTime;
+}
+
+void Camera::setAspectRatio(float x)
+{
+    m_aspectRatio = x;
+    recalculateProjectionMatrix();
+};
+
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void Camera::ProcessKeyboard(CameraMovement direction)
+void Camera::processKeyboard(CameraMovement direction)
 {      
     float velocity{ m_movementSpeed * Global::deltaTime };
 
@@ -108,7 +112,7 @@ void Camera::ProcessKeyboard(CameraMovement direction)
 }
 
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-void Camera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch)
+void Camera::processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch)
 {
     xoffset *= m_mouseSensitivity;
     yoffset *= m_mouseSensitivity;
@@ -128,7 +132,7 @@ void Camera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean co
 }
 
 // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-void Camera::ProcessMouseScroll(GLfloat yoffset)
+void Camera::processMouseScroll(GLfloat yoffset)
 {
     m_fov -= (GLfloat)yoffset * 3;
     if (m_fov < 1.0f)
@@ -160,4 +164,9 @@ void Camera::updateCameraVectors()
     //Create a transformation matrix from Pitch and Yaw
     //    Apply that matrix to all three reference axises.
     //    (Optional)re - orthogonalize the resulting three vectors using cross products.
+}
+
+void Camera::recalculateProjectionMatrix()
+{
+    m_projection = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane);
 }

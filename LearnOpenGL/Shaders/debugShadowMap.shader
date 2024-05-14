@@ -1,6 +1,6 @@
 #shader vertex
 #version 330 core
-layout (location = 0) in vec2 aPos; // vec2! not vec3 as in some other shaders
+layout (location = 0) in vec2 aPos;         // vec2! not vec3 as in some other shaders
 layout (location = 1) in vec2 aTexCoords;
 
 out vec2 TexCoords;
@@ -14,12 +14,12 @@ void main()
 } 
 
 #shader fragment
-#version 330 core
+#version 420 core
 out vec4 FragColor;
   
 in vec2 TexCoords;
 
-uniform sampler2D shadowMap;
+layout (binding=2) uniform sampler2D shadowMap;
 
 void main()
 { 

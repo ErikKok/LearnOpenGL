@@ -43,10 +43,9 @@ namespace Global {
     #define glCheckError() glCheckError_(__FILE__, __LINE__)
     void glClearError();
 
-    //void transform(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
+    glm::mat4 getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
     glm::mat4 getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
 
-    //void transformNormalViewCPU(const Shader& shader, glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale, const glm::mat4& view);
     void initStencilBuffer();
     void clearStencilBuffer();
 

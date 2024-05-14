@@ -22,27 +22,24 @@ public:
     const float getFarPlane() const { return m_farPlane; };
     const float getFov() const { return m_fov; };
     const float getAspectRatio() const { return m_aspectRatio; };
+    const glm::mat4 getProjectionMatrix() const { return m_projection; }; // was niet () const 14-5-2024
+    const glm::mat4 getViewMatrix() const;
+    const glm::mat4 getReverseViewMatrix() const; // not a rearviewmirror, just looking backwards
 
     void fakeGravity(GLfloat deltaTime);
+    void setAspectRatio(float x);
 
-    // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    const glm::mat4 GetViewMatrix() const;
-    const glm::mat4 GetReverseViewMatrix() const; // not a rearviewmirror, just looking backwards
-    const glm::mat4 getProjectionMatrix() { return m_projection; };
-    void setAspectRatio(float x) { m_aspectRatio = x; };
-    void recalculateProjectionMatrix() { m_projection = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane); };
-
-    void ProcessKeyboard(CameraMovement direction);
-    void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
-    void ProcessMouseScroll(GLfloat yoffset);
+    void processKeyboard(CameraMovement direction);
+    void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
+    void processMouseScroll(GLfloat yoffset);
 
 private:
     // camera Attributes
     glm::vec3 m_position{};
     glm::vec3 m_front{}; // m_position + m_front = center = is where you are looking at (direction vector)
-    glm::vec3 m_up{ 0.0f, 1.0f, 0.0f }; // TODO dubbelop met m_worldup?
+    glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
     glm::vec3 m_right{};
-    const glm::vec3 m_worldup{ 0.0f, 1.0f, 0.0f };
+    const glm::vec3 m_worldup{ 0.0f, 1.0f, 0.0f }; // default m_up value
     const GLfloat m_nearPlane{ 0.1f };
     const GLfloat m_farPlane{ 100.0f };
     // euler Angles
@@ -53,8 +50,9 @@ private:
     GLfloat m_mouseSensitivity{ 0.035f };
     GLfloat m_fov{ 45.0f };
     float m_aspectRatio{};
-    glm::mat4 m_projection{}; 
+    glm::mat4 m_projection{};
 
     // update m_front, m_right and m_up Vectors using the updated Euler angles
     void updateCameraVectors();
+    void recalculateProjectionMatrix();
 };
