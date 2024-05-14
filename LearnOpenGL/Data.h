@@ -345,6 +345,27 @@ namespace Data{
          0u, 6u, 1u,
     };
 
+    constexpr glm::mat4 biasMatrix(
+        0.5f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.5f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.5f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f
+    );
+
+    //So your depthBias matrix, which you use to convert from normalized device coordinates(in ranage[-1, 1]) to texture coordinates(in range[0, 1]), should look like this:
+
+    //mat4 depthBias = mat4(0.5, 0.0, 0.0, 0.0,
+    //    0.0, 0.5, 0.0, 0.0,
+    //    0.0, 0.0, 0.5, 0.0,
+    //    0.5, 0.5, 0.5, 1.0);
+    //or this:
+
+    //mat4 depthBias = mat4(
+    //    vec4(0.5, 0.0, 0.0, 0.0),
+    //    vec4(0.0, 0.5, 0.0, 0.0),
+    //    vec4(0.0, 0.0, 0.5, 0.0),
+    //    vec4(0.5, 0.5, 0.5, 1.0));
+
     //constexpr std::array singleCube{
     //    //      X      Y      Z      Normal1  Normal2   Normal3
     //            -0.5f, -0.5f, -0.5f,  0.0f,    0.0f,     -1.0f,

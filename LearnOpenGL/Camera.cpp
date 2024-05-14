@@ -14,9 +14,7 @@ Camera::Camera(float aspectRatio, glm::vec3 initPosition)
     recalculateProjectionMatrix();
 }
 
-const float Camera::getFov() const { return m_fov; };
-const float Camera::getNearPlane() const { return m_nearPlane; };
-const float Camera::getFarPlane() const { return m_farPlane; };
+
 
 void Camera::fakeGravity(GLfloat deltaTime) {
     if (m_position.y > 0.15f)

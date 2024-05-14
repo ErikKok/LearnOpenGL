@@ -1,13 +1,14 @@
 #shader vertex
 #version 450 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 aTexCoords;
+layout (location = 0) in vec3 aPos;         // local space
+layout (location = 1) in vec2 aTexCoords;   // range [0,1] 
 layout (location = 2) in vec3 aNormal;
 
 out VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
-    vec3 FragPosView;
-    vec3 NormalView;
+    vec3 FragPosView; // view space
+    vec3 NormalView;  // view space
+    vec4 ShadowCoord; // clip space
 } vs_out;
 
 layout(binding = 2, std430) readonly buffer ssboModelViewMatrix {
@@ -22,12 +23,19 @@ layout(binding = 4, std430) readonly buffer ssboMVPMatrix {
     mat4 MVPMatrix[];
 };
 
+layout(binding = 6, std430) readonly buffer ssboLightMVPMatrix {
+    mat4 LightMVPMatrix[];
+};
+
+//uniform mat4 lightSpaceMatrix;
+
 void main()
 {
     vs_out.TexCoords = aTexCoords;
-    vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0));
-    vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
-    gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
+    vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0));    // TODO mat4 wordt naar vec3 gecast blijkbaar, kan beter vantevoren al gebeuren?
+    vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;                // TODO mat4 wordt naar mat3 gecast blijkbaar, kan beter vantevoren al gebeuren?
+    vs_out.ShadowCoord = LightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
+    gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0); // clip space
 }
 
 //shader geometry
@@ -67,6 +75,7 @@ in VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
     vec3 FragPosView;
     vec3 NormalView;
+    vec4 ShadowCoord;
 } vs_out;
 
 struct Material {
@@ -134,6 +143,24 @@ vec3 viewDirView = normalize(-vs_out.FragPosView);
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
+uniform sampler2D shadowMap;
+
+//float ShadowCalculation(vec4 fragPosLight)
+//{
+//    // perform perspective divide
+//    vec3 projCoords = fragPosLight.xyz / fragPosLight.w;
+//    // transform to [0,1] range
+//    projCoords = projCoords * 0.5 + 0.5;
+//    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+//    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+//    // get depth of current fragment from light's perspective
+//    float currentDepth = projCoords.z;
+//    // check whether current frag pos is in shadow
+//    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+//
+//    return shadow;
+//}  
+//float shadow = ShadowCalculation(vs_out.FragPosLight);  
 
 vec3 CalcDirLight(DirLight light)
 {
@@ -152,7 +179,26 @@ vec3 CalcDirLight(DirLight light)
 
     vec3 specular = light.diffuse * spec * textureSpecular;
 
-    return (ambient + diffuse + specular) * light.strength;
+
+    // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
+    vec4 ShadowCoord2 = vs_out.ShadowCoord * 0.5 + 0.5;
+
+    // perform perspective divide, nog nodig?
+    // convert from clip space to normalized device coordinates:
+    ShadowCoord2 = vec4(ShadowCoord2.xyz / ShadowCoord2.w, 1.0f); // only needed for perspective projection, not orthographic projection
+    //ShadowCoord2 = ShadowCoord2 / ShadowCoord2.w; // zelfde resultaat / berekening
+    float visibility = 1.0f;
+    // ShadowCoord2.xy = coordinates on shadowMap
+    // texture(shadowMap, ShadowCoord2.xy).x = closest depth from the light's point of view (or use .r instead of .x)
+    // ShadowCoord2.z = distance from light from the current camera's point of view
+    float bias = 0.0005; // prevent shadow acne
+    if (texture(shadowMap, ShadowCoord2.xy).x < ShadowCoord2.z - bias) {
+        visibility = 0.25f;
+    }
+
+    return visibility * (ambient + diffuse + specular) * light.strength;
+    //return (ambient + (1.0 - shadow) * (diffuse + specular)) * light.strength;
+    //return (ambient + diffuse + specular) * light.strength;
 }
 
 vec3 CalcPointLight(PointLight light)
@@ -289,5 +335,10 @@ void main()
     // emission
     vec3 emissionMaterial = texture(material.emission, vs_out.TexCoords).rgb * material.emissionStrength;
 
+ 
+
+
     FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + resultFlashLight + emissionMaterial, 1.0);
+
+    //FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + resultFlashLight + emissionMaterial, 1.0);
 }

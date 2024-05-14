@@ -17,6 +17,10 @@ TO DO
 - implement Bindless Textures
 - implement immutable textures
 
+v0.1.25 14-5-2024
+-----------------
+- directional shadow mapping
+
 v0.1.24 11-5-2024
 -----------------
 - quad with shadowmap working

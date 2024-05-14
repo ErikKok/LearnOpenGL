@@ -57,3 +57,6 @@ private:
 	GLsizei m_width{};
 	GLsizei m_height{};
 };
+
+// TODO
+// Shadowmap: choose GL_DEPTH_COMPONENT bit: GL_DEPTH_COMPONENT32 is probably overkill, and as of 4.5, isn't a required format for OpenGL implementations to support (though 16 and 24 bit ones are)

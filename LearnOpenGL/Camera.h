@@ -18,9 +18,10 @@ class Camera
 public:
     Camera(float aspectRatio, glm::vec3 initPosition = glm::vec3(0.0f, 0.0f, 0.0f));
 
-    const float getFov() const;
-    const float getNearPlane() const;
-    const float getFarPlane() const;
+    const float getNearPlane() const { return m_nearPlane; };
+    const float getFarPlane() const { return m_farPlane; };
+    const float getFov() const { return m_fov; };
+    const float getAspectRatio() const { return m_aspectRatio; };
 
     void fakeGravity(GLfloat deltaTime);
 
@@ -39,7 +40,7 @@ private:
     // camera Attributes
     glm::vec3 m_position{};
     glm::vec3 m_front{}; // m_position + m_front = center = is where you are looking at (direction vector)
-    glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
+    glm::vec3 m_up{ 0.0f, 1.0f, 0.0f }; // TODO dubbelop met m_worldup?
     glm::vec3 m_right{};
     const glm::vec3 m_worldup{ 0.0f, 1.0f, 0.0f };
     const GLfloat m_nearPlane{ 0.1f };

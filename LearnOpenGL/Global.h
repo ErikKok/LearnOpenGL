@@ -36,8 +36,8 @@ namespace Global {
     inline bool drawOutline{ false };
 
     inline bool shadowMapPass{ false };
-    inline int shadowMapWidth{ 1024 };
-    inline int shadowMapHeight{ 1024 };
+    inline int shadowMapWidth{ 4096 };
+    inline int shadowMapHeight{ 4096 };
 
     GLenum glCheckError_(const char* file, int line);
     #define glCheckError() glCheckError_(__FILE__, __LINE__)
