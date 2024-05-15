@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Global.h"
+#include "Texture.h" // for UPtr
+
 #include <array>
 
 #include <glad/glad.h>
-
-class Texture;
 
 enum class framebufferType {
 	undefined,
@@ -24,19 +25,14 @@ public:
 	FrameBuffer(FrameBuffer&& other) noexcept = delete; 			// Move constructor	
 	FrameBuffer& operator=(FrameBuffer&& other) noexcept = delete;	// Move assignment
 	~FrameBuffer();													// Destructor
+	
+	const unsigned int getId() const { return m_id; };
 
 	void bindFrameBuffer();
 	void unbindFrameBuffer();
 
-	const unsigned int getId() const { return m_id; };
-
 private:
 	GLuint m_id{};
 	framebufferType m_type{ framebufferType::undefined };
-	SPtr<Texture> m_depthMap{};
-	//glm::mat4 view{};?
-	//glm::mat4 projection{};?
+	UPtr<Texture> m_depthMap{};
 };
-
-
-// class GL_SHADER_STORAGE_BUFFER

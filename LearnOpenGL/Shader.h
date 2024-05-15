@@ -1,7 +1,5 @@
 #pragma once
 
-//#include "Global.h"
-
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
@@ -11,6 +9,8 @@ class Shader
 {
 public:
     Shader(const std::string& shaderPath);
+
+    const unsigned int getId() const { return m_id; };
 
     void useShader();
 
@@ -28,8 +28,6 @@ public:
     void setMat2(const std::string& name, const glm::mat2& mat) const;
     void setMat3(const std::string& name, const glm::mat3& mat) const;
     void setMat4(const std::string& name, const glm::mat4& mat) const;
-
-    const unsigned int getId() const { return m_id; };
 
 private:
     int getLocation(const std::string& name) const;

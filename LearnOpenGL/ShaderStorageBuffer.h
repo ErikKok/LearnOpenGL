@@ -1,5 +1,38 @@
 #pragma once
 
+#include <vector>
+
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+class ShaderStorageBuffer {
+public:
+	ShaderStorageBuffer(int bindingPoint, int arrayCount);							// Constructor
+	ShaderStorageBuffer(const ShaderStorageBuffer& other) = delete;					// Copy constructor
+	ShaderStorageBuffer& operator=(const ShaderStorageBuffer& other) = delete;		// Copy assignment
+	ShaderStorageBuffer(ShaderStorageBuffer&& other) noexcept = delete; 			// Move constructor	
+	ShaderStorageBuffer& operator=(ShaderStorageBuffer&& other) noexcept = delete;	// Move assignment
+	~ShaderStorageBuffer();															// Destructor
+
+	const unsigned int getId() const { return m_id; };
+
+	void bindShaderStorageBuffer();
+	void unbindShaderStorageBuffer();
+	void updateShaderStorageBuffer();
+	void setVector(const glm::mat4& vector, int i = 0);
+	void updateBindShaderStorageBuffer();
+	void setVectorUpdateBindShaderStorageBuffer(const glm::mat4& vector, int i = 0);
+
+private:
+	GLuint m_id{};
+	int m_bindingPoint{};
+	int m_arrayCount{};
+	std::vector<glm::mat4> m_vector{}; // TODO other types
+};
+
+// USAGE (without this class)
 // First define some max count int (e.g. ssboArrayCount) 
 // Make and initialize an array (e.g. ssbo1ModelViewArray)
 // Array can be left empty or filled at this point

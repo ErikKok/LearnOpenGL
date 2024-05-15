@@ -11,10 +11,10 @@ public:
     ElementBuffer& operator=(ElementBuffer&& other) noexcept = delete;	// Move assignment
     ~ElementBuffer();
 
+    const GLuint getId() const { return m_id; };
+
     void bindElementBuffer() const;
     void unbindElementBuffer() const;
-
-    const GLuint getId() const { return m_id; };
 
 private:
     GLuint m_id{};

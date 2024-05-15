@@ -1,11 +1,9 @@
 #pragma once
 
 #include "Buffers.h"
-//#include "ElementBuffer.h"
 #include "Global.h"
 #include "Shader.h"
 #include "Texture.h"
-//#include "VertexBuffer.h"
 #include "VertexArray.h"
 
 #include <memory> // for std::unique_ptr and std::make_unique
@@ -33,6 +31,7 @@ public:
     ~Mesh() = default;									// Destructor
 
     void Draw(Shader& shader);
+
 private:
     std::vector<Vertex> m_vertices;
     std::vector<unsigned int> m_indices;

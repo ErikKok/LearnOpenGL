@@ -10,12 +10,12 @@ public:
 	UniformBuffer& operator=(UniformBuffer&& other) noexcept = delete;	// Move assignment
 	~UniformBuffer();
 
+	const GLuint getId() const { return m_id; };
+
 	void bindUniformBuffer() const;
 	void unbindUniformBuffer() const;
 
 	void addUniformBufferSubData(BufferSubDataLayout& layout);
-
-	const GLuint getId() const { return m_id; };
 
 private:
 	GLuint m_id{};

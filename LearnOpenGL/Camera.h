@@ -22,7 +22,7 @@ public:
     const float getFarPlane() const { return m_farPlane; };
     const float getFov() const { return m_fov; };
     const float getAspectRatio() const { return m_aspectRatio; };
-    const glm::mat4 getProjectionMatrix() const { return m_projection; }; // was niet () const 14-5-2024
+    const glm::mat4 getProjectionMatrix() const { return m_projection; };
     const glm::mat4 getViewMatrix() const;
     const glm::mat4 getReverseViewMatrix() const; // not a rearviewmirror, just looking backwards
 

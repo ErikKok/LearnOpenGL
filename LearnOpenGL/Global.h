@@ -11,12 +11,17 @@
 
 #include <print>
 
+// Shared and Unique pointers
+// Used for game engine specific references/assets only, which maybe will be handled by an asset manager in the future
+// See https://youtu.be/HkGZ378nArE?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT
 // TODO - in de namespace plaatsen?
 template <typename T>
 using SPtr = std::shared_ptr<T>;
 
 template <typename T>
 using UPtr = std::unique_ptr<T>;
+
+////////////////////////////////////////////////////////////////////////////
 
 // TODO - niet meer global
 class Shader;
@@ -36,6 +41,7 @@ namespace Global {
     inline bool drawOutline{ false };
 
     inline bool shadowMapPass{ false };
+    inline bool debugQuadVisible{ false };
 
     GLenum glCheckError_(const char* file, int line);
     #define glCheckError() glCheckError_(__FILE__, __LINE__)

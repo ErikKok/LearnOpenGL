@@ -2,21 +2,25 @@ TO DO
 - Calling glUniform is quite expensive during run-time. Structure your programme so that glUniform is only called when the value needs to change. This might be the case every time that you draw a new object (e.g. its position might be different), but some uniforms may not change often (e.g. projection matrix).
 - Logging https://antongerdelan.net/opengl/glcontext2.html
 - Uniform location cache
-- Model, BufferSubData, VertexAttribute, ShaderStorageBuffer .cpp maken/bijwerken
-- GL_SHADER_STORAGE_BUFFER class maken in buffers.h
+- Model, BufferSubData, VertexAttribute .cpp maken/bijwerken
 - 1 GL_SHADER_STORAGE_BUFFER met meerdere objecten/vectors erin mogelijk?
 - time class maken
 - light class maken
 -  * light.strength wel op de goede plek in de shader/functie?
 - avoid using vec3 at all https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
-- energy conservation, see comments at Blinn-Phong
+- implement energy conservation? see comments at Blinn-Phong
 - Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
 - which attenuation values/formula is best/sufficient in combination with gamma correction
 - refactor to use DSA
 - refactor to use create instead of gen and bind
 - implement Bindless Textures
 - implement immutable textures
-- make debugQuad toggable
+- xyz en skybox shader ubo vervangen, kan efficienter
+
+v0.1.28 15-5-2024
+-----------------
+- made debugQuad toggable
+- added ShaderStorageBuffer class
 
 v0.1.27 15-5-2024
 -----------------

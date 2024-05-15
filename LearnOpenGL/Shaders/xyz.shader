@@ -11,16 +11,16 @@ out vec3 Color;
 //    vec3 ColorArray;
 //} vs_out;
 
-layout (std140, binding = 0) uniform projectionUbo
+layout (std140, binding = 0) uniform projectionMatrixUbo
 {
-    mat4 projection;   
+    mat4 projectionMatrix;   
 };
 
 uniform mat4 view;
 
 void main()
 {
-    gl_Position = projection * view * vec4(aPos, 1.0);
+    gl_Position = projectionMatrix * view * vec4(aPos, 1.0);
     Color = aColor; // vs_out.Color = ColorArray
 }
 

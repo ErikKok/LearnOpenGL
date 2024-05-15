@@ -187,6 +187,9 @@ void Global::key_callback(GLFWwindow* window, int key, int scancode, int action,
     if (key == GLFW_KEY_P && action == GLFW_PRESS)
         Global::paused = !Global::paused;
 
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS)
+        Global::debugQuadVisible = !debugQuadVisible;
+
     if (key == GLFW_KEY_V && action == GLFW_PRESS)
         glfwSwapInterval(0);
 }
