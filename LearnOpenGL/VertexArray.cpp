@@ -2,7 +2,7 @@
 #include "VertexArray.h"
 
 #include "Global.h"
-#include "VertexBuffer.h"
+//#include "VertexBuffer.h"
 
 #include <print>
 

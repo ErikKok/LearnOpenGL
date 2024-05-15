@@ -1,10 +1,11 @@
 #pragma once
 
-#include "ElementBuffer.h"
+#include "Buffers.h"
+//#include "ElementBuffer.h"
 #include "Global.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "VertexBuffer.h"
+//#include "VertexBuffer.h"
 #include "VertexArray.h"
 
 #include <memory> // for std::unique_ptr and std::make_unique

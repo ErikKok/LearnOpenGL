@@ -141,7 +141,7 @@ vec3 viewDirView = normalize(-vs_out.FragPosView);
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
-layout (binding=2) uniform sampler2D shadowMap;
+layout (binding=2) uniform sampler2D depthMap;
 
 //float ShadowCalculation(vec4 fragPosLight)
 //{
@@ -177,8 +177,8 @@ vec3 CalcDirLight(DirLight light)
 
     vec3 specular = light.diffuse * spec * textureSpecular;
 
-
     // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
+    // TODO more efficient to do this before sending to Shader?
     vec4 ShadowCoord2 = vs_out.ShadowCoord * 0.5 + 0.5;
 
     // perform perspective divide, nog nodig?
@@ -193,12 +193,11 @@ vec3 CalcDirLight(DirLight light)
     // prevent shadow acne 
     //float bias = max(0.05 * (1.0 - dot(normalView, lightDir)), 0.005); // used twice dot(normalView, lightDir) // sommige schaduwen verdwijnen?
     float bias = 0.00005;
-    if (texture(shadowMap, ShadowCoord2.xy).x < ShadowCoord2.z - bias) {
+    if (texture(depthMap, ShadowCoord2.xy).x < ShadowCoord2.z - bias) {
         visibility = 0.25f;
     }
 
     return visibility * (ambient + diffuse + specular) * light.strength;
-    //return (ambient + (1.0 - shadow) * (diffuse + specular)) * light.strength;
     //return (ambient + diffuse + specular) * light.strength;
 }
 
@@ -336,10 +335,5 @@ void main()
     // emission
     vec3 emissionMaterial = texture(material.emission, vs_out.TexCoords).rgb * material.emissionStrength;
 
- 
-
-
     FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + resultFlashLight + emissionMaterial, 1.0);
-
-    //FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + resultFlashLight + emissionMaterial, 1.0);
 }

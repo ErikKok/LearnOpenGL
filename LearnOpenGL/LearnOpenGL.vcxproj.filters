@@ -57,7 +57,7 @@
     <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Buffers.cpp">
+    <ClCompile Include="FrameBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -107,6 +107,9 @@
     <ClInclude Include="Buffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FrameBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\xyz.shader">
@@ -132,7 +135,7 @@
     <None Include="Shaders\shadowMap.shader">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="Shaders\debugShadowMap.shader">
+    <None Include="Shaders\debugQuad.shader">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

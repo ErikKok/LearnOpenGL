@@ -1,5 +1,4 @@
 #pragma once
-#include "Texture.h"
 
 #include <array>
 #include <optional>
@@ -35,20 +34,22 @@ public:
 	~Texture();												// Destructor
 
 	void activeTexture() const;
-	void bindTexture(unsigned int);
+	void bindTexture(GLuint);
 	void unbindTexture();
 
-	const unsigned int getId() const { return m_id; };
+	const GLuint getId() const { return m_id; };
+	const int getBound() const { return m_boundTextureUnit; };
+	void setBound(int textureUnit) { m_boundTextureUnit = textureUnit; };
 	const textureType getType() const { return m_type; };
 	const std::string getTypeAsString() const { return textureTypeName[static_cast<int>(m_type)]; };
 	void setType(textureType type) { m_type = type; };
 	const std::string_view getfileName() const { return m_fileName; };
 	void setfileName(std::string fileName) { m_fileName = fileName; };
-	const int getBound() const { return m_boundTextureUnit; };
-	void setBound(int textureUnit) { m_boundTextureUnit = textureUnit; };
+	const GLuint getWidth() const { return m_width; };
+	const GLuint getHeight() const { return m_height; };
 
 private:
-	unsigned int m_id{};
+	GLuint m_id{};
 	int m_boundTextureUnit{ -1 };	// -1 == not bound to a texture unit
 	uint32_t m_singleColor{0};		// 0  == not a single color texture (type will be singleColor)
 	textureType m_type{ textureType::undefined};

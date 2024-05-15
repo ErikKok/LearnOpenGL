@@ -19,10 +19,10 @@ out vec4 FragColor;
   
 in vec2 TexCoords;
 
-layout (binding=2) uniform sampler2D shadowMap;
+layout (binding=2) uniform sampler2D someTexture;
 
 void main()
 { 
-    float depthValue = texture(shadowMap, TexCoords).r;
+    float depthValue = texture(someTexture, TexCoords).r;
     FragColor = vec4(vec3(depthValue), 1.0);
 }

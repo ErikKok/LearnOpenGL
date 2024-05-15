@@ -16,6 +16,12 @@ TO DO
 - refactor to use create instead of gen and bind
 - implement Bindless Textures
 - implement immutable textures
+- make debugQuad toggable
+
+v0.1.27 15-5-2024
+-----------------
+- added FrameBuffer class
+- implemented buffers.h
 
 v0.1.26 14-5-2024
 -----------------

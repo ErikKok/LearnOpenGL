@@ -97,8 +97,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Buffers.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="ElementBuffer.cpp" />
     <ClCompile Include="Global.cpp" />
@@ -118,6 +118,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Data.h" />
     <ClInclude Include="ElementBuffer.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
@@ -134,7 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
-    <None Include="Shaders\debugShadowMap.shader" />
+    <None Include="Shaders\debugQuad.shader" />
     <None Include="Shaders\multiLight.shader" />
     <None Include="Shaders\normal.shader" />
     <None Include="Shaders\shadowMap.shader" />

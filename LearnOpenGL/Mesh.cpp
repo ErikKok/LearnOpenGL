@@ -3,11 +3,11 @@
 #include "mesh.h"
 
 #include "Data.h"
-#include "ElementBuffer.h"
+//#include "ElementBuffer.h"
 #include "Global.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "VertexBuffer.h"
+//#include "VertexBuffer.h"
 #include "VertexArray.h"
 
 #include <assimp/Importer.hpp>

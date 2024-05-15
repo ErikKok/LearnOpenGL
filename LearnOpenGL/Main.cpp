@@ -1,17 +1,17 @@
 #pragma once
-#include "BufferSubData.h"
+//#include "BufferSubData.h"
 #include "Buffers.h"
 #include "Camera.h"
 #include "Data.h"
-#include "ElementBuffer.h"
+//#include "ElementBuffer.h"
 #include "Global.h"
 #include "Model.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "VertexBuffer.h"
+//#include "VertexBuffer.h"
 #include "VertexArray.h"
 #include "VertexAttribute.h"
-#include "UniformBuffer.h"
+//#include "UniformBuffer.h"
 
 // External header warning level: 0
 #include <glad/glad.h>
@@ -59,31 +59,32 @@ int main()
     ////// ShadowMap ////////////////////
     std::println("CREATE DepthMap");/////
 
-    FrameBuffer depthMapFbo;
-    Texture depthMap(textureType::depthMap, Global::shadowMapWidth,Global::shadowMapHeight);
+    Texture depthMap(textureType::depthMap, 4096, 4096);
+    FrameBuffer depthMapFbo(depthMap);
 
-    glNamedFramebufferTexture(depthMapFbo.getId(), GL_DEPTH_ATTACHMENT, depthMap.getId(), 0);
-    glNamedFramebufferDrawBuffer(depthMapFbo.getId(), GL_NONE);
-    glNamedFramebufferReadBuffer(depthMapFbo.getId(), GL_NONE);
+    //glNamedFramebufferTexture(depthMapFbo.getId(), GL_DEPTH_ATTACHMENT, depthMap.getId(), 0);
+    //glNamedFramebufferDrawBuffer(depthMapFbo.getId(), GL_NONE);
+    //glNamedFramebufferReadBuffer(depthMapFbo.getId(), GL_NONE);
 
-    if (glCheckNamedFramebufferStatus(depthMapFbo.getId(), GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::println("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+    //if (glCheckNamedFramebufferStatus(depthMapFbo.getId(), GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    //    std::println("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
 
     Shader shadowMapShader("Shaders\\shadowMap.shader");
-
-    // Quad
+    
+    /////////////////////////////////////
+    ////// Quad /////////////////////////
+    std::println("CREATE Quad");/////////
     VertexArray quadVao;
     VertexBuffer quadVbo(sizeof(Data::framebuffer), &Data::framebuffer);
     VertexAttributeLayout quadLayout{};
     quadLayout.pushVertexAttributeLayout<float>(2); // 2 coordinates, not 3!
     quadLayout.pushVertexAttributeLayout<float>(2);
     quadVao.addVertexAttributeLayout(quadVbo, quadLayout);
-    Shader debugShadowMapShader("Shaders\\debugShadowMap.shader");
-    //debugShadowMapShader.useShader();
-    //debugShadowMapShader.setInt("shadowMap", 2); // gezet via layout (binding=2)
-
+    Shader debugQuadShader("Shaders\\debugQuad.shader");
+    debugQuadShader.useShader();
+    //debugQuadShader.setInt("someTexture", 2); // gezet via layout (binding=2)
     // TODO eerste z = nu -1.0f zodat quad exact(?) op de voorgrond staat, waarom is dat -1.0?
-    debugShadowMapShader.setMat4("model", Global::getModelMatrix(glm::vec3(0.6f, 0.6f, -1.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.0f))); // transform quad
+    debugQuadShader.setMat4("model", Global::getModelMatrix(glm::vec3(0.6f, 0.6f, -1.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.0f)));
 
     /////////////////////////////////////
     ////// Skybox ///////////////////////
@@ -387,10 +388,8 @@ int main()
         // the cuboid needs to line up with the lights direction        
         glm::mat4 depthViewMatrix = glm::lookAt(glm::vec3(dirLightDirection), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        glViewport(0, 0, Global::shadowMapWidth, Global::shadowMapHeight);
+        depthMapFbo.bindFrameBuffer();
         Global::shadowMapPass = true;
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFbo.getId());
-        glClear(GL_DEPTH_BUFFER_BIT);
         //glCullFace(GL_FRONT); // instead of bias in the shader, we draw back faces (culling front faces)
         shadowMapShader.useShader();
 
@@ -454,14 +453,15 @@ int main()
         //glCullFace(GL_BACK);
         
         Global::shadowMapPass = false;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        depthMapFbo.unbindFrameBuffer();
+        //
         glViewport(0, 0, Global::windowWidth, Global::windowHeight);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
 
         /////////////////////////////////////////////////////////////////////////////////////
         
         // Draw quad with shadowMap
-        debugShadowMapShader.useShader();
+        debugQuadShader.useShader();
         quadVao.bindVertexArray();
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
