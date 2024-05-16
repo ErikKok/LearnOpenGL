@@ -30,10 +30,10 @@ layout(binding = 5, std430) readonly buffer ssboLightMVPMatrix {
 void main()
 {
     vs_out.TexCoords = aTexCoords;
-    vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0));    // TODO mat4 wordt naar vec3 gecast blijkbaar, kan beter vantevoren al gebeuren?
-    vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;                // TODO mat4 wordt naar mat3 gecast blijkbaar, kan beter vantevoren al gebeuren?
+    vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0));
+    vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
     vs_out.ShadowCoord = LightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
-    gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);                       // clip space
+    gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0); // clip space
 }
 
 //shader geometry
@@ -94,6 +94,7 @@ struct DirLight {
     vec3 diffuse;       // Light color
     float ambient;      // Ambient strength
     float strength;     // Overall strength
+    sampler2D depthMap;
 };
 uniform DirLight dirLight;
 
@@ -141,25 +142,6 @@ vec3 viewDirView = normalize(-vs_out.FragPosView);
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
-layout (binding=2) uniform sampler2D depthMap;
-
-//float ShadowCalculation(vec4 fragPosLight)
-//{
-//    // perform perspective divide
-//    vec3 projCoords = fragPosLight.xyz / fragPosLight.w;
-//    // transform to [0,1] range
-//    projCoords = projCoords * 0.5 + 0.5;
-//    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-//    float closestDepth = texture(shadowMap, projCoords.xy).r; 
-//    // get depth of current fragment from light's perspective
-//    float currentDepth = projCoords.z;
-//    // check whether current frag pos is in shadow
-//    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
-//
-//    return shadow;
-//}  
-//float shadow = ShadowCalculation(vs_out.FragPosLight);  
-
 vec3 CalcDirLight(DirLight light)
 {
     vec3 lightDir = normalize(light.direction);
@@ -177,9 +159,11 @@ vec3 CalcDirLight(DirLight light)
 
     vec3 specular = light.diffuse * spec * textureSpecular;
 
+    // shadow
+
     // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
     // TODO more efficient to do this before sending to Shader?
-    vec4 ShadowCoord2 = vs_out.ShadowCoord * 0.5 + 0.5;
+    vec4 ShadowCoord = vs_out.ShadowCoord * 0.5 + 0.5;
 
     // perform perspective divide, nog nodig?
     // convert from clip space to normalized device coordinates:
@@ -192,10 +176,26 @@ vec3 CalcDirLight(DirLight light)
 
     // prevent shadow acne 
     //float bias = max(0.05 * (1.0 - dot(normalView, lightDir)), 0.005); // used twice dot(normalView, lightDir) // sommige schaduwen verdwijnen?
-    float bias = 0.00005;
-    if (texture(depthMap, ShadowCoord2.xy).x < ShadowCoord2.z - bias) {
-        visibility = 0.25f;
+    //float bias = 0.00005;
+    //    if (texture(depthMap, ShadowCoord2.xy).x < ShadowCoord2.z) { // - bias ) {
+    //        visibility = 0.25f;
+    //    }
+    
+    // PCF 9 samples
+    vec2 texelSize = 1.0f / textureSize(light.depthMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            //float pcfDepth = texture(depthMap, ShadowCoord2.xy + vec2(x, y) * texelSize).r; 
+            visibility += ShadowCoord.z > (texture(light.depthMap, ShadowCoord.xy + vec2(x, y) * texelSize).x) ? 0.0f : 1.0f; // - bias removed
+        }    
     }
+    visibility /= 9.0f;
+
+    // keep the visibility at 1.0, not to cast shadows outside the farPlane region of the light's frustum
+    if(ShadowCoord.z > 1.0f)
+        visibility = 1.0f;
 
     return visibility * (ambient + diffuse + specular) * light.strength;
     //return (ambient + diffuse + specular) * light.strength;

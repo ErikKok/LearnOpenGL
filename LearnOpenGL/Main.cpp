@@ -53,11 +53,11 @@ int main()
     Global::glCheckError();
 
     /////////////////////////////////////
-    ////// depthMap /////////////////////
-    std::println("CREATE DepthMap");/////
+    ////// depthMap dirLight ////////////
+    std::println("CREATE DepthMap dirLight ");
 
-    Texture depthMap(textureType::depthMap, 4096, 4096);
-    FrameBuffer depthMapFBO(depthMap);
+    Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
+    FrameBuffer depthMapDirLightFBO(depthMapDirLight);
     Shader shadowMapShader("Shaders\\shadowMap.shader");
 
     /////////////////////////////////////
@@ -96,6 +96,7 @@ int main()
     multiLight.setVec3("dirLight.diffuse", (dirLightColor));
     multiLight.setFloat("dirLight.strength", 0.25f);
     multiLight.setFloat("dirLight.ambient", 0.3f);
+    multiLight.setInt("dirLight.depthMap", 2);
 
     // PointLight (max amount hard coded in shader TODO)
     glm::vec3 pointLightPositions[] = { // World space
@@ -253,7 +254,7 @@ int main()
     /////////////////////////////////////////////////////////////////////////////////////
     /* 01 */ black.bindTexture(0);
     /* 01 */ white.bindTexture(1);
-    /* 02 */ depthMap.bindTexture(2);               // sampler2D gezet via layout (binding=2) in debugShadowMap en multiLight Shaders
+    /* 02 */ depthMapDirLight.bindTexture(2); // layout (binding=2) uniform sampler2D in debugShadowMap
     /* 03 */ flashlight.bindTexture(3);
     /* 04 */ floor.bindTexture(4);
     /* 05 */
@@ -325,7 +326,7 @@ int main()
         //std::println("position spotlight {}, {}, {}", spotLightPos.x, spotLightPos.y, spotLightPos.z);
 
         /////////////////////////////////////////////////////////////////////////////////////
-        // Start ShadowPass /////////////////////////////////////////////////////////////////
+        // Start ShadowPass dirLight ////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
         // Compute the ModelView matrix from the light's point of view
@@ -336,13 +337,13 @@ int main()
         glm::mat4 depthViewMatrix = glm::lookAt(glm::vec3(dirLightDirection), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 depthViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix;
 
-        depthMapFBO.bindFrameBuffer();
+        depthMapDirLightFBO.bindFrameBuffer();
         Global::shadowMapPass = true;
-        //glCullFace(GL_FRONT); // instead of bias in the shader, we draw back faces (culling front faces)
+        glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way
         shadowMapShader.useShader();
 
         /////////////////////////////////////
-        ////// Cubes ShadowPass /////////////
+        ////// Cubes ShadowPass dirLight ////
         /////////////////////////////////////
 
         cubeVAO.bindVertexArray();
@@ -372,7 +373,7 @@ int main()
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
 
         /////////////////////////////////////
-        ////// Model ShadowPass /////////////
+        ////// Model ShadowPass dirLight ////
         /////////////////////////////////////
 
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -381,7 +382,7 @@ int main()
         ourModel.Draw(shadowMapShader);
 
         /////////////////////////////////////
-        ////// Floor ShadowPass /////////////
+        ////// Floor ShadowPass dirLight ////
         /////////////////////////////////////
 
         floorVAO.bindVertexArray();
@@ -391,12 +392,12 @@ int main()
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
         /////////////////////////////////////////////////////////////////////////////////////
-        // End ShadowPass ///////////////////////////////////////////////////////////////////
+        // End ShadowPass dirLight //////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        //glCullFace(GL_BACK);      
+        glCullFace(GL_BACK);      
         Global::shadowMapPass = false;
-        depthMapFBO.unbindFrameBuffer();
+        depthMapDirLightFBO.unbindFrameBuffer();
         
         /////////////////////////////////////////////////////////////////////////////////////
         // Render scene normal //////////////////////////////////////////////////////////////

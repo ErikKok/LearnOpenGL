@@ -15,6 +15,13 @@ TO DO
 - refactor to use create instead of gen and bind
 - implement Bindless Textures
 - implement immutable textures
+- use sampler2DShadow
+
+v0.1.30 16-5-2024
+-----------------
+- fixed casting shadows outside depthMap and light's frustum
+- depthMap through materials
+- added PCF
 
 v0.1.29 16-5-2024
 -----------------
