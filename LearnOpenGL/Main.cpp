@@ -52,38 +52,35 @@ int main()
 
     Global::glCheckError();
 
-    UniformBuffer projectionMatrixUbo(sizeof(glm::mat4), 0); // for skybox and xyz
-
-
     /////////////////////////////////////
     ////// depthMap /////////////////////
     std::println("CREATE DepthMap");/////
 
     Texture depthMap(textureType::depthMap, 4096, 4096);
-    FrameBuffer depthMapFbo(depthMap);
+    FrameBuffer depthMapFBO(depthMap);
     Shader shadowMapShader("Shaders\\shadowMap.shader");
 
     /////////////////////////////////////
     ////// Skybox ///////////////////////
     std::println("CREATE Skybox");///////
 
-    VertexArray skyboxVao;
-    VertexBuffer skyboxVbo(sizeof(Data::skybox1), &Data::skybox1);
+    VertexArray skyboxVAO;
+    VertexBuffer skyboxVBO(sizeof(Data::skybox1), &Data::skybox1);
     VertexAttributeLayout skyboxLayout;
     skyboxLayout.pushVertexAttributeLayout<float>(3);
-    skyboxVao.addVertexAttributeLayout(skyboxVbo, skyboxLayout);
+    skyboxVAO.addVertexAttributeLayout(skyboxVBO, skyboxLayout);
     Shader skyboxShader("Shaders\\skybox.shader");
 
     /////////////////////////////////////
     ////// XYZ //////////////////////////
     std::println("CREATE XYZ");//////////
 
-    VertexArray xyzVao;
-    VertexBuffer xyzVbo(sizeof(Data::xyz), &Data::xyz);
+    VertexArray xyzVAO;
+    VertexBuffer xyzVBO(sizeof(Data::xyz), &Data::xyz);
     VertexAttributeLayout xyzLayout;
     xyzLayout.pushVertexAttributeLayout<float>(3);
     xyzLayout.pushVertexAttributeLayout<float>(3);
-    xyzVao.addVertexAttributeLayout(xyzVbo, xyzLayout);
+    xyzVAO.addVertexAttributeLayout(xyzVBO, xyzLayout);
     Shader xyzShader("Shaders\\xyz.shader");
 
     /////////////////////////////////////
@@ -179,39 +176,38 @@ int main()
     ////// LightCube ////////////////////
     std::println("CREATE LightCube");////
 
-    VertexArray lightVao;
-    VertexBuffer cubeVbo(sizeof(Data::cube), &Data::cube);
+    VertexArray lightVAO;
+    VertexBuffer cubeVBO(sizeof(Data::cube), &Data::cube);
     VertexAttributeLayout lightLayout;
     lightLayout.pushVertexAttributeLayout<float>(3);
     lightLayout.setVertexStride(32);
-    lightVao.addVertexAttributeLayout(cubeVbo, lightLayout);
+    lightVAO.addVertexAttributeLayout(cubeVBO, lightLayout);
 
     /////////////////////////////////////
     ////// Cubes ////////////////////////
     std::println("CREATE Cubes");////////
 
-    VertexArray cubeVao;
+    VertexArray cubeVAO;
     VertexAttributeLayout cubeLayout;
     cubeLayout.pushVertexAttributeLayout<float>(3);
     cubeLayout.pushVertexAttributeLayout<float>(2);
     cubeLayout.pushVertexAttributeLayout<float>(3);
-    cubeVao.addVertexAttributeLayout(cubeVbo, cubeLayout);
+    cubeVAO.addVertexAttributeLayout(cubeVBO, cubeLayout);
     ElementBuffer cubeTestEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
 
     /////////////////////////////////////
     ////// Floor ////////////////////////
     std::println("CREATE Floor");////////
 
-    VertexArray floorVao;
-    VertexBuffer floorVbo(sizeof(Data::floor2), &Data::floor2);
-    VertexAttributeLayout floorlayout{};
-    floorlayout.pushVertexAttributeLayout<float>(3);
-    floorlayout.pushVertexAttributeLayout<float>(2);
-    floorlayout.pushVertexAttributeLayout<float>(3);
-    floorVao.addVertexAttributeLayout(floorVbo, floorlayout);
-    ElementBuffer floorEbo(sizeof(Data::floorIndices), &Data::floorIndices);
-    // For floor outline
-    float outlineAlpha{ 0.0f };
+    VertexArray floorVAO;
+    VertexBuffer floorVBO(sizeof(Data::floor2), &Data::floor2);
+    VertexAttributeLayout floorLayout{};
+    floorLayout.pushVertexAttributeLayout<float>(3);
+    floorLayout.pushVertexAttributeLayout<float>(2);
+    floorLayout.pushVertexAttributeLayout<float>(3);
+    floorVAO.addVertexAttributeLayout(floorVBO, floorLayout);
+    ElementBuffer floorEBO(sizeof(Data::floorIndices), &Data::floorIndices);
+    float floorOutlineAlpha{ 0.0f };
 
     ////////////////////////////////////
     ////// Models //////////////////////
@@ -257,7 +253,7 @@ int main()
     /////////////////////////////////////////////////////////////////////////////////////
     /* 01 */ black.bindTexture(0);
     /* 01 */ white.bindTexture(1);
-    /* 02 */ depthMap.bindTexture(2);               // gezet via layout (binding=2) in debugShadowMap en multiLight Shaders
+    /* 02 */ depthMap.bindTexture(2);               // sampler2D gezet via layout (binding=2) in debugShadowMap en multiLight Shaders
     /* 03 */ flashlight.bindTexture(3);
     /* 04 */ floor.bindTexture(4);
     /* 05 */
@@ -272,27 +268,25 @@ int main()
     /* 14 */
     /* 15 */
     /* 16 - 31 */// Reserved for Model::Draw
+    std::println("************************************************");
     /////////////////////////////////////////////////////////////////////////////////////
     
     Shader singleColor("Shaders\\singleColor.shader");
 
-    // Init uniforms/variables //////////
+    // Init uniforms/variables/SSBO /////
     /////////////////////////////////////
     glm::mat4 model{};
     glm::mat4 modelViewMatrix{};
-
-    // Init ssbo's //////////////////////
-    const int ssboArrayCount{ 10 };
-    ShaderStorageBuffer ssboNormalMatrixCPU(2, ssboArrayCount);
-    ShaderStorageBuffer ssboModelViewMatrix(3, ssboArrayCount);
-    ShaderStorageBuffer ssboMVPMatrix(4, ssboArrayCount);
-    ShaderStorageBuffer ssboLightMVPMatrix(5, ssboArrayCount);
-
-    ///// START Renderloop
+    const int ArrayCountSSBO{ 10 };
+    ShaderStorageBuffer NormalMatrixSSBO(2, ArrayCountSSBO);
+    ShaderStorageBuffer ModelViewMatrixSSBO(3, ArrayCountSSBO);
+    ShaderStorageBuffer MVPMatrixSSBO(4, ArrayCountSSBO);
+    ShaderStorageBuffer LightMVPMatrixSSBO(5, ArrayCountSSBO);
 
     Global::getInformation();
     Global::glCheckError();
     std::println("START Renderloop *******************************");
+    std::println("************************************************");
 
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
@@ -331,7 +325,7 @@ int main()
         //std::println("position spotlight {}, {}, {}", spotLightPos.x, spotLightPos.y, spotLightPos.z);
 
         /////////////////////////////////////////////////////////////////////////////////////
-        // Init ShadowPass
+        // Start ShadowPass /////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
         // Compute the ModelView matrix from the light's point of view
@@ -342,7 +336,7 @@ int main()
         glm::mat4 depthViewMatrix = glm::lookAt(glm::vec3(dirLightDirection), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 depthViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix;
 
-        depthMapFbo.bindFrameBuffer();
+        depthMapFBO.bindFrameBuffer();
         Global::shadowMapPass = true;
         //glCullFace(GL_FRONT); // instead of bias in the shader, we draw back faces (culling front faces)
         shadowMapShader.useShader();
@@ -351,11 +345,11 @@ int main()
         ////// Cubes ShadowPass /////////////
         /////////////////////////////////////
 
-        cubeVao.bindVertexArray();
+        cubeVAO.bindVertexArray();
 
         for (unsigned int i = 0u; i < std::size(Data::cubePositions); i++)
         {
-            assert(std::size(Data::cubePositions) <= ssboArrayCount && "Loop will create more instances then ssbo can hold");
+            assert(std::size(Data::cubePositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
 
             model = glm::mat4(1.0f);
             model = glm::translate(model, Data::cubePositions[i]);
@@ -371,9 +365,9 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
-            ssboLightMVPMatrix.setVector(depthViewProjectionMatrix * model, i);
+            LightMVPMatrixSSBO.setVector(depthViewProjectionMatrix * model, i);
         }
-        ssboLightMVPMatrix.updateBindShaderStorageBuffer();
+        LightMVPMatrixSSBO.updateBindShaderStorageBuffer();
 
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
 
@@ -382,7 +376,7 @@ int main()
         /////////////////////////////////////
 
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-        ssboLightMVPMatrix.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
+        LightMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
 
         ourModel.Draw(shadowMapShader);
 
@@ -390,43 +384,38 @@ int main()
         ////// Floor ShadowPass /////////////
         /////////////////////////////////////
 
-        floorVao.bindVertexArray();
+        floorVAO.bindVertexArray();
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
-        ssboLightMVPMatrix.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
+        LightMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
 
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
         /////////////////////////////////////////////////////////////////////////////////////
+        // End ShadowPass ///////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
 
-        //glCullFace(GL_BACK);
-        
+        //glCullFace(GL_BACK);      
         Global::shadowMapPass = false;
-        depthMapFbo.unbindFrameBuffer();
-        //
+        depthMapFBO.unbindFrameBuffer();
+        
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Render scene normal //////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
+
         glViewport(0, 0, Global::windowWidth, Global::windowHeight);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
-
-        /////////////////////////////////////////////////////////////////////////////////////
-        // Render scene normal
-        /////////////////////////////////////////////////////////////////////////////////////
 
         //Global::camera.fakeGravity(Global::deltaTime);
         Global::view = Global::camera.getViewMatrix();
         Global::projection = Global::camera.getProjectionMatrix();
-
-        // Init uniforms buffers ////////////
-        //projectionUbo.bindUniformBuffer(); // commented, because there is just 1 ubo
-        BufferSubDataLayout projectionMatrixLayout{}; // needs to be in renderloop? why
-        projectionMatrixLayout.pushUniformBufferSubData(Global::projection);
-        projectionMatrixUbo.addUniformBufferSubData(projectionMatrixLayout);
 
         /////////////////////////////////////
         ////// XYZ //////////////////////////
         /////////////////////////////////////
 
         xyzShader.useShader();
-        xyzVao.bindVertexArray();
-        xyzShader.setMat4("view", Global::view);
+        xyzVAO.bindVertexArray();
+        xyzShader.setMat4("viewProjectionMatrix", Global::projection * Global::view);
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
 
         // hier stond voorheen de Lights sectie
@@ -437,23 +426,23 @@ int main()
 
         // spotlight - Draaiende LightCube
         singleColor.useShader();
-        lightVao.bindVertexArray();
+        lightVAO.bindVertexArray();
 
-        ssboMVPMatrix.setVectorUpdateBindShaderStorageBuffer(Global::projection * Global::getModelViewMatrix(glm::vec3(spotLightPos), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
+        MVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(Global::projection * Global::getModelViewMatrix(glm::vec3(spotLightPos), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 
         singleColor.setVec4("color", glm::vec4(spotLightColor, 1.0f));
         glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
 
         // pointlights - 4 vaste LightCubes
         for (int i = 0; i < std::size(pointLightPositions); i++) {
-            assert(std::size(pointLightPositions) <= ssboArrayCount && "Loop will create more instances then ssbo can hold");
+            assert(std::size(pointLightPositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
             
             singleColor.useShader();
-            lightVao.bindVertexArray();
-            ssboMVPMatrix.setVector(Global::projection * Global::getModelViewMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)), i);
+            lightVAO.bindVertexArray();
+            MVPMatrixSSBO.setVector(Global::projection * Global::getModelViewMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)), i);
             singleColor.setVec4("color", glm::vec4(pointLightColors[i], 1.0f)); // TODO deze uniform is geen array, dus kleur is zelfde voor alle cubes
         }
-        ssboMVPMatrix.updateBindShaderStorageBuffer();
+        MVPMatrixSSBO.updateBindShaderStorageBuffer();
         glDrawArraysInstanced(GL_TRIANGLES, 0, 36, std::size(pointLightPositions));
 
         /////////////////////////////////////
@@ -470,11 +459,11 @@ int main()
         multiLight.setInt("material.flashlightResult", 12);
         multiLight.setFloat("flashLight.emissionStrength", 1.0f);
 
-        cubeVao.bindVertexArray();
+        cubeVAO.bindVertexArray();
 
         for (unsigned int i = 0u; i < std::size(Data::cubePositions); i++)
         {
-            assert(std::size(Data::cubePositions) <= ssboArrayCount && "Loop will create more instances then ssbo can hold");
+            assert(std::size(Data::cubePositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
 
             model = glm::mat4(1.0f);
             model = glm::translate(model, Data::cubePositions[i]);
@@ -492,16 +481,16 @@ int main()
             //}
 
             modelViewMatrix = Global::view * model;
-            ssboNormalMatrixCPU.setVector(glm::transpose(glm::inverse(modelViewMatrix)), i);
-            ssboModelViewMatrix.setVector(modelViewMatrix, i);
-            ssboMVPMatrix.setVector(Global::projection * modelViewMatrix, i);
-            ssboLightMVPMatrix.setVector(depthViewProjectionMatrix * model, i);
+            NormalMatrixSSBO.setVector(glm::transpose(glm::inverse(modelViewMatrix)), i);
+            ModelViewMatrixSSBO.setVector(modelViewMatrix, i);
+            MVPMatrixSSBO.setVector(Global::projection * modelViewMatrix, i);
+            LightMVPMatrixSSBO.setVector(depthViewProjectionMatrix * model, i);
         }
 
-        ssboNormalMatrixCPU.updateBindShaderStorageBuffer();
-        ssboModelViewMatrix.updateBindShaderStorageBuffer();
-        ssboMVPMatrix.updateBindShaderStorageBuffer();
-        ssboLightMVPMatrix.updateBindShaderStorageBuffer();
+        NormalMatrixSSBO.updateBindShaderStorageBuffer();
+        ModelViewMatrixSSBO.updateBindShaderStorageBuffer();
+        MVPMatrixSSBO.updateBindShaderStorageBuffer();
+        LightMVPMatrixSSBO.updateBindShaderStorageBuffer();
 
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
 
@@ -513,10 +502,10 @@ int main()
 
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         modelViewMatrix = Global::view * model;
-        ssboNormalMatrixCPU.setVectorUpdateBindShaderStorageBuffer(glm::transpose(glm::inverse(modelViewMatrix)));
-        ssboModelViewMatrix.setVectorUpdateBindShaderStorageBuffer(modelViewMatrix);
-        ssboMVPMatrix.setVectorUpdateBindShaderStorageBuffer(Global::projection * modelViewMatrix);
-        ssboLightMVPMatrix.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
+        NormalMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(glm::transpose(glm::inverse(modelViewMatrix)));
+        ModelViewMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(modelViewMatrix);
+        MVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(Global::projection * modelViewMatrix);
+        LightMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
 
         multiLight.setFloat("material.shininess", 256.0f);
         multiLight.setInt("material.emission", 0); // black - 'disable' emission with a black texture
@@ -530,7 +519,7 @@ int main()
         glStencilMask(0xFF); // enable writing to the stencil buffer
 
         multiLight.useShader();
-        floorVao.bindVertexArray();
+        floorVAO.bindVertexArray();
         multiLight.setFloat("material.shininess", 8.0f);
         multiLight.setInt("material.diffuse1", 4);
         multiLight.setInt("material.specular1", 0); // black
@@ -539,10 +528,10 @@ int main()
 
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f));
         modelViewMatrix = Global::view * model;
-        ssboNormalMatrixCPU.setVectorUpdateBindShaderStorageBuffer(glm::transpose(glm::inverse(modelViewMatrix)));
-        ssboModelViewMatrix.setVectorUpdateBindShaderStorageBuffer(modelViewMatrix);
-        ssboMVPMatrix.setVectorUpdateBindShaderStorageBuffer(Global::projection * modelViewMatrix);
-        ssboLightMVPMatrix.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
+        NormalMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(glm::transpose(glm::inverse(modelViewMatrix)));
+        ModelViewMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(modelViewMatrix);
+        MVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(Global::projection * modelViewMatrix);
+        LightMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
         
         glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
@@ -556,8 +545,8 @@ int main()
 
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.useShader();
-        skyboxShader.setMat4("viewTranslationRemoved", glm::mat3(Global::view)); // Global::camera.GetViewMatrix())); // remove translation from the view matrix (cast to mat3 and back to mat4)
-        skyboxVao.bindVertexArray();
+        skyboxShader.setMat4("viewProjectionMatrixTranslationRemoved", Global::projection * glm::mat4(glm::mat3(Global::view))); // remove translation from the view matrix (cast to mat3 and back to mat4)
+        skyboxVAO.bindVertexArray();
         //cubemapTexture.bindTexture(); // No need to bind if there is just a single GL_TEXTURE_CUBE_MAP
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthFunc(GL_LESS); // set depth function back to default
@@ -570,20 +559,20 @@ int main()
         if (Global::drawOutline) {
             singleColor.useShader();
 
-            if (outlineAlpha >= 0.0f)
-                outlineAlpha += 0.01f;
-            if (outlineAlpha >= 1.0f)
-                outlineAlpha = 0.0f;
+            if (floorOutlineAlpha >= 0.0f)
+                floorOutlineAlpha += 0.01f;
+            if (floorOutlineAlpha >= 1.0f)
+                floorOutlineAlpha = 0.0f;
             glm::vec4 color{ 1.0f, 0.28f, 0.26f, 0.0f };
-            color.w = outlineAlpha;
+            color.w = floorOutlineAlpha;
             singleColor.setVec4("color", color);
 
             glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
 
             modelViewMatrix = Global::getModelViewMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(26.0, 26.0, 2.0));
-            ssboMVPMatrix.setVectorUpdateBindShaderStorageBuffer(Global::projection * modelViewMatrix);
+            MVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(Global::projection * modelViewMatrix);
 
-            floorVao.bindVertexArray();
+            floorVAO.bindVertexArray();
 
             glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
             glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
@@ -595,12 +584,12 @@ int main()
 
         // Draw debug quad (toggle with Q)
         if (Global::debugQuadVisible) {
-            VertexArray quadVao;
-            VertexBuffer quadVbo(sizeof(Data::framebuffer), &Data::framebuffer);
+            VertexArray quadVAO;
+            VertexBuffer quadVBO(sizeof(Data::framebuffer), &Data::framebuffer);
             VertexAttributeLayout quadLayout{};
             quadLayout.pushVertexAttributeLayout<float>(2); // 2 coordinates, not 3!
             quadLayout.pushVertexAttributeLayout<float>(2);
-            quadVao.addVertexAttributeLayout(quadVbo, quadLayout);
+            quadVAO.addVertexAttributeLayout(quadVBO, quadLayout);
             Shader debugQuadShader("Shaders\\debugQuad.shader");
             debugQuadShader.useShader();
             //debugQuadShader.setInt("someTexture", 2); // gezet via layout (binding=2)

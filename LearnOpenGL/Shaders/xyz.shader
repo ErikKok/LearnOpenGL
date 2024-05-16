@@ -1,5 +1,5 @@
 #shader vertex
-#version 420 core
+#version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 
@@ -11,16 +11,11 @@ out vec3 Color;
 //    vec3 ColorArray;
 //} vs_out;
 
-layout (std140, binding = 0) uniform projectionMatrixUbo
-{
-    mat4 projectionMatrix;   
-};
-
-uniform mat4 view;
+uniform mat4 viewProjectionMatrix;
 
 void main()
 {
-    gl_Position = projectionMatrix * view * vec4(aPos, 1.0);
+    gl_Position = viewProjectionMatrix * vec4(aPos, 1.0);
     Color = aColor; // vs_out.Color = ColorArray
 }
 

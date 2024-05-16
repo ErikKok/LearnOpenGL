@@ -15,7 +15,10 @@ TO DO
 - refactor to use create instead of gen and bind
 - implement Bindless Textures
 - implement immutable textures
-- xyz en skybox shader ubo vervangen, kan efficienter
+
+v0.1.29 16-5-2024
+-----------------
+- replaced and move ubo/uniform calculations to cpu in xyz en skybox shader
 
 v0.1.28 15-5-2024
 -----------------

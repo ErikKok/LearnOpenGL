@@ -32,7 +32,7 @@ private:
 	const glm::mat4 m_data{};
 };
 
-class BufferSubDataLayout {
+class BufferSubDataLayout { // TODO needs to be in renderloop? why?
 public:
 	BufferSubDataLayout() {};
 

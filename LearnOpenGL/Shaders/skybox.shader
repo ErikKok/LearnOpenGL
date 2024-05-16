@@ -1,20 +1,15 @@
 #shader vertex
-#version 420 core
+#version 330 core
 layout (location = 0) in vec3 aPos;
 
 out vec3 TexCoords;
 
-layout (std140, binding = 0) uniform projectionMatrixUbo
-{
-    mat4 projectionMatrix;   
-};
-
-uniform mat4 viewTranslationRemoved;
+uniform mat4 viewProjectionMatrixTranslationRemoved;
 
 void main()
 {
     TexCoords = aPos;
-    vec4 pos = projectionMatrix * viewTranslationRemoved * vec4(aPos, 1.0);
+    vec4 pos = viewProjectionMatrixTranslationRemoved * vec4(aPos, 1.0);
     gl_Position = pos.xyww;
 }  
 
