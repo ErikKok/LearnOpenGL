@@ -3,11 +3,9 @@
 #include "mesh.h"
 
 #include "Data.h"
-//#include "ElementBuffer.h"
 #include "Global.h"
 #include "Shader.h"
 #include "Texture.h"
-//#include "VertexBuffer.h"
 #include "VertexArray.h"
 
 #include <assimp/Importer.hpp>
@@ -75,7 +73,7 @@ void Mesh::Draw(Shader& shader)
             //count = std::to_string(heightCount++); // transfer unsigned int to string
 
         std::string result{ "material." + m_textures[i]->getTypeAsString() + count };
-        if (!Global::shadowMapPass)
+        if (!FrameBuffer::s_depthMapPassActive)
             shader.setInt(result, m_textures[i]->getBound());
     }
     m_vao->bindVertexArray();

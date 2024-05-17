@@ -16,14 +16,14 @@ FrameBuffer::FrameBuffer()
 	std::println("CREATE FrameBuffer id: {}", m_id);
 }
 
-FrameBuffer::FrameBuffer(Texture& depthMap)
+FrameBuffer::FrameBuffer(Texture& texture)
 	: m_type{ framebufferType::depthMap }
-	, m_depthMap{ &depthMap }
+	, m_texture{ &texture }
 {
-	assert(depthMap.getType() == textureType::depthMap && "Texture has wrong Type for this constructor");
+	assert(texture.getType() == textureType::depthMap && "Texture has wrong Type for this constructor");
 	
 	glCreateFramebuffers(1, &m_id);
-	glNamedFramebufferTexture(m_id, GL_DEPTH_ATTACHMENT, m_depthMap->getId(), 0);
+	glNamedFramebufferTexture(m_id, GL_DEPTH_ATTACHMENT, m_texture->getId(), 0);
 	glNamedFramebufferDrawBuffer(m_id, GL_NONE);
 	glNamedFramebufferReadBuffer(m_id, GL_NONE);
 
@@ -43,12 +43,6 @@ FrameBuffer::~FrameBuffer()
 void FrameBuffer::bindFrameBuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_id);
-
-	if (m_type == framebufferType::depthMap) {
-		glViewport(0, 0, m_depthMap->getWidth(), m_depthMap->getHeight());
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
-
 	Global::glCheckError();
 }
 
@@ -56,4 +50,31 @@ void FrameBuffer::unbindFrameBuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	Global::glCheckError();
+}
+
+void FrameBuffer::initDepthMapFrameBuffer(Shader shader)
+{
+	assert(m_type == framebufferType::depthMap && "Wrong framebufferType");
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_id);
+
+	s_depthMapPassActive = true;
+	glViewport(0, 0, m_texture->getWidth(), m_texture->getHeight());
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way
+	shader.useShader();
+	shader.setBool("orthographic", m_orthographic);
+	//shader.bindTexture(x);
+
+	Global::glCheckError();
+}
+
+void FrameBuffer::deinitDepthMapFrameBuffer()
+{
+	assert(m_type == framebufferType::depthMap && "Wrong framebufferType");
+	
+	glCullFace(GL_BACK);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	Global::glCheckError();
+	s_depthMapPassActive = false;
 }

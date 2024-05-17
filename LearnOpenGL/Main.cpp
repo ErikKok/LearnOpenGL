@@ -53,14 +53,6 @@ int main()
     Global::glCheckError();
 
     /////////////////////////////////////
-    ////// depthMap dirLight ////////////
-    std::println("CREATE DepthMap dirLight ");
-
-    Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
-    FrameBuffer depthMapDirLightFBO(depthMapDirLight);
-    Shader shadowMapShader("Shaders\\shadowMap.shader");
-
-    /////////////////////////////////////
     ////// Skybox ///////////////////////
     std::println("CREATE Skybox");///////
 
@@ -155,6 +147,7 @@ int main()
     multiLight.setFloat("spotLight.linear", 0.014f);
     multiLight.setFloat("spotLight.quadratic", 0.07f);
     multiLight.setFloat("spotLight.strength", 1.0f);
+    multiLight.setInt("spotLight.depthMap", 5);
 
     // FlashLight
     flashLight = &multiLight; // TODO
@@ -172,6 +165,27 @@ int main()
     multiLight.setFloat("flashLight.strength", 2.5f);
     multiLight.setVec3("flashLight.origin", 0.0f, 0.0f, 0.0f);
     multiLight.setFloat("flashLight.emissionStrength", 0.8f);
+
+    /////////////////////////////////////
+    ////// depthMap /////////////////////
+    std::println("CREATE DepthMap");/////
+
+    Shader shadowMapShader("Shaders\\shadowMap.shader");
+
+    // DirLight depthMap
+    Texture depthMapDirLightTexture(textureType::depthMap, 4096, 4096);
+    FrameBuffer depthMapDirLightFBO(depthMapDirLightTexture);
+    depthMapDirLightFBO.setOrthographic(true);
+    depthMapDirLightFBO.setNearPlane(10.0f);
+    depthMapDirLightFBO.calculateProjectionMatrixOrthographic();
+    depthMapDirLightFBO.setViewMatrix(glm::lookAt(glm::vec3(dirLightDirection), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+    depthMapDirLightFBO.calculateViewProjectionMatrix();
+
+    // SpotLight depthMap
+    Texture depthMapSpotLightTexture(textureType::depthMap, 4096, 4096);
+    FrameBuffer depthMapSpotLightFBO(depthMapSpotLightTexture);
+    depthMapSpotLightFBO.setFov(84.0f);
+    depthMapSpotLightFBO.calculateProjectionMatrixPerspective(depthMapSpotLightTexture);
 
     /////////////////////////////////////
     ////// LightCube ////////////////////
@@ -254,10 +268,10 @@ int main()
     /////////////////////////////////////////////////////////////////////////////////////
     /* 01 */ black.bindTexture(0);
     /* 01 */ white.bindTexture(1);
-    /* 02 */ depthMapDirLight.bindTexture(2); // layout (binding=2) uniform sampler2D in debugShadowMap
+    /* 02 */ depthMapDirLightTexture.bindTexture(2);
     /* 03 */ flashlight.bindTexture(3);
     /* 04 */ floor.bindTexture(4);
-    /* 05 */
+    /* 05 */ depthMapSpotLightTexture.bindTexture(5);
     /* 06 */
     /* 07 */
     /* 08 */ cubeDiffuse.bindTexture(8);
@@ -282,7 +296,8 @@ int main()
     ShaderStorageBuffer NormalMatrixSSBO(2, ArrayCountSSBO);
     ShaderStorageBuffer ModelViewMatrixSSBO(3, ArrayCountSSBO);
     ShaderStorageBuffer MVPMatrixSSBO(4, ArrayCountSSBO);
-    ShaderStorageBuffer LightMVPMatrixSSBO(5, ArrayCountSSBO);
+    ShaderStorageBuffer LightOrthoMVPMatrixSSBO(5, ArrayCountSSBO);
+    ShaderStorageBuffer LightPerspectiveMVPMatrixSSBO(6, ArrayCountSSBO);
 
     Global::getInformation();
     Global::glCheckError();
@@ -323,24 +338,15 @@ int main()
         spotLightColor.y = static_cast<float>(sin(glfwGetTime() * 0.50f));
         spotLightColor.z = static_cast<float>(sin(glfwGetTime() * 0.75f));
         multiLight.setVec3("spotLight.diffuse", spotLightColor);
-        //std::println("position spotlight {}, {}, {}", spotLightPos.x, spotLightPos.y, spotLightPos.z);
+        //std::println("spotLightLightDirection spotlight {}, {}, {}", spotLightLightDirection.x, spotLightLightDirection.y, spotLightLightDirection.z);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass dirLight ////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        // Compute the ModelView matrix from the light's point of view
-        // projection matrix determines the dimensions of the view cuboid
-        glm::mat4 depthProjectionMatrix = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, -10.0f, 100.0f);
-        // view matrix determines it's position and orientation in the world
-        // the cuboid needs to line up with the lights direction        
-        glm::mat4 depthViewMatrix = glm::lookAt(glm::vec3(dirLightDirection), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 depthViewProjectionMatrix = depthProjectionMatrix * depthViewMatrix;
+        loadTime = static_cast<float>(glfwGetTime());
 
-        depthMapDirLightFBO.bindFrameBuffer();
-        Global::shadowMapPass = true;
-        glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way
-        shadowMapShader.useShader();
+        depthMapDirLightFBO.initDepthMapFrameBuffer(shadowMapShader);
 
         /////////////////////////////////////
         ////// Cubes ShadowPass dirLight ////
@@ -366,9 +372,9 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
-            LightMVPMatrixSSBO.setVector(depthViewProjectionMatrix * model, i);
+            LightOrthoMVPMatrixSSBO.setVector(depthMapDirLightFBO.getViewProjectionMatrix() * model, i);
         }
-        LightMVPMatrixSSBO.updateBindShaderStorageBuffer();
+        LightOrthoMVPMatrixSSBO.updateBindShaderStorageBuffer();
 
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
 
@@ -377,7 +383,7 @@ int main()
         /////////////////////////////////////
 
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-        LightMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
+        LightOrthoMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthMapDirLightFBO.getViewProjectionMatrix() * model);
 
         ourModel.Draw(shadowMapShader);
 
@@ -387,7 +393,7 @@ int main()
 
         floorVAO.bindVertexArray();
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
-        LightMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
+        LightOrthoMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthMapDirLightFBO.getViewProjectionMatrix() * model);
 
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
@@ -395,14 +401,82 @@ int main()
         // End ShadowPass dirLight //////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        glCullFace(GL_BACK);      
-        Global::shadowMapPass = false;
-        depthMapDirLightFBO.unbindFrameBuffer();
-        
+        depthMapDirLightFBO.deinitDepthMapFrameBuffer();
+        //std::println("End ShadowPass dirLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Start ShadowPass spotLight ///////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        loadTime = static_cast<float>(glfwGetTime());
+
+        //die spotLightPos wordt nog getranslate ofzo? coords printen ter controle
+
+        depthMapSpotLightFBO.initDepthMapFrameBuffer(shadowMapShader);
+        depthMapSpotLightFBO.setViewMatrix(glm::lookAt(glm::vec3(spotLightPos), glm::vec3(spotLightLightDirection), glm::vec3(0.0f, 1.0f, 0.0f)));
+        depthMapSpotLightFBO.calculateViewProjectionMatrix();
+
+        /////////////////////////////////////
+        ////// Cubes ShadowPass spotLight ///
+        /////////////////////////////////////
+
+        cubeVAO.bindVertexArray();
+
+        for (unsigned int i = 0u; i < std::size(Data::cubePositions); i++)
+        {
+            assert(std::size(Data::cubePositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
+
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, Data::cubePositions[i]);
+            if (i == 2 || i == 5 || i == 8) {
+                float angle = 25.0f + (15 * i);
+                model = glm::rotate(model, (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+            }
+            if (i == 3) { // wall
+                model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
+                model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
+            }
+            //if (i == 9) { // floor // TODO only draws this 10th (9th) cube when uncommented?
+            //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+            //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
+            //}
+            LightPerspectiveMVPMatrixSSBO.setVector(depthMapSpotLightFBO.getViewProjectionMatrix() * model, i);
+        }
+        LightPerspectiveMVPMatrixSSBO.updateBindShaderStorageBuffer();
+
+        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
+
+        /////////////////////////////////////
+        ////// Model ShadowPass spotLight ///
+        /////////////////////////////////////
+
+        model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+        LightPerspectiveMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthMapSpotLightFBO.getViewProjectionMatrix() * model);
+
+        ourModel.Draw(shadowMapShader);
+
+        /////////////////////////////////////
+        ////// Floor ShadowPass spotLight ///
+        /////////////////////////////////////
+
+        floorVAO.bindVertexArray();
+        model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
+        LightPerspectiveMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthMapSpotLightFBO.getViewProjectionMatrix() * model);
+
+        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // End ShadowPass spotLight /////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        depthMapSpotLightFBO.deinitDepthMapFrameBuffer();
+        //std::println("End ShadowPass spotLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
+
         /////////////////////////////////////////////////////////////////////////////////////
         // Render scene normal //////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
+        loadTime = static_cast<float>(glfwGetTime());
         glViewport(0, 0, Global::windowWidth, Global::windowHeight);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);      
 
@@ -429,7 +503,7 @@ int main()
         singleColor.useShader();
         lightVAO.bindVertexArray();
 
-        MVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(Global::projection * Global::getModelViewMatrix(glm::vec3(spotLightPos), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
+        MVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(Global::projection * Global::getModelViewMatrix(glm::vec3(spotLightPos), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 
         singleColor.setVec4("color", glm::vec4(spotLightColor, 1.0f));
         glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
@@ -485,13 +559,15 @@ int main()
             NormalMatrixSSBO.setVector(glm::transpose(glm::inverse(modelViewMatrix)), i);
             ModelViewMatrixSSBO.setVector(modelViewMatrix, i);
             MVPMatrixSSBO.setVector(Global::projection * modelViewMatrix, i);
-            LightMVPMatrixSSBO.setVector(depthViewProjectionMatrix * model, i);
+            LightOrthoMVPMatrixSSBO.setVector(depthMapDirLightFBO.getViewProjectionMatrix() * model, i);
+            LightPerspectiveMVPMatrixSSBO.setVector(depthMapSpotLightFBO.getViewProjectionMatrix() * model, i);
         }
 
         NormalMatrixSSBO.updateBindShaderStorageBuffer();
         ModelViewMatrixSSBO.updateBindShaderStorageBuffer();
         MVPMatrixSSBO.updateBindShaderStorageBuffer();
-        LightMVPMatrixSSBO.updateBindShaderStorageBuffer();
+        LightOrthoMVPMatrixSSBO.updateBindShaderStorageBuffer();
+        LightPerspectiveMVPMatrixSSBO.updateBindShaderStorageBuffer();
 
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
 
@@ -506,7 +582,8 @@ int main()
         NormalMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(glm::transpose(glm::inverse(modelViewMatrix)));
         ModelViewMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(modelViewMatrix);
         MVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(Global::projection * modelViewMatrix);
-        LightMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
+        LightOrthoMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthMapDirLightFBO.getViewProjectionMatrix() * model);
+        LightPerspectiveMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthMapSpotLightFBO.getViewProjectionMatrix() * model);
 
         multiLight.setFloat("material.shininess", 256.0f);
         multiLight.setInt("material.emission", 0); // black - 'disable' emission with a black texture
@@ -532,7 +609,8 @@ int main()
         NormalMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(glm::transpose(glm::inverse(modelViewMatrix)));
         ModelViewMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(modelViewMatrix);
         MVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(Global::projection * modelViewMatrix);
-        LightMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthViewProjectionMatrix * model);
+        LightOrthoMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthMapDirLightFBO.getViewProjectionMatrix() * model);
+        LightPerspectiveMVPMatrixSSBO.setVectorUpdateBindShaderStorageBuffer(depthMapSpotLightFBO.getViewProjectionMatrix() * model);
         
         glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
@@ -582,8 +660,10 @@ int main()
             // De-init Stencil Buffer
             glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should pass the stencil test again
         }
+        //std::println("End Renderpass time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
 
         // Draw debug quad (toggle with Q)
+        // Set texture sampler2D binding in Shader itself
         if (Global::debugQuadVisible) {
             VertexArray quadVAO;
             VertexBuffer quadVBO(sizeof(Data::framebuffer), &Data::framebuffer);
@@ -593,9 +673,11 @@ int main()
             quadVAO.addVertexAttributeLayout(quadVBO, quadLayout);
             Shader debugQuadShader("Shaders\\debugQuad.shader");
             debugQuadShader.useShader();
-            //debugQuadShader.setInt("someTexture", 2); // gezet via layout (binding=2)
             // TODO eerste z = nu -1.0f zodat quad exact(?) op de voorgrond staat, waarom is dat -1.0?
             debugQuadShader.setMat4("model", Global::getModelMatrix(glm::vec3(0.6f, 0.6f, -1.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.0f)));
+            debugQuadShader.setBool("orthographic", depthMapSpotLightFBO.getOrthographic());
+            debugQuadShader.setFloat("nearPlane", depthMapSpotLightFBO.getNearPlane());
+            debugQuadShader.setFloat("farPlane", depthMapSpotLightFBO.getFarPlane());
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 

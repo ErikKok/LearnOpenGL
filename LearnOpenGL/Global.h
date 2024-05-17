@@ -40,7 +40,6 @@ namespace Global {
     inline bool paused{ false };
     inline bool drawOutline{ false };
 
-    inline bool shadowMapPass{ false };
     inline bool debugQuadVisible{ false };
 
     GLenum glCheckError_(const char* file, int line);

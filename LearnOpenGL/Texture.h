@@ -51,7 +51,7 @@ public:
 private:
 	GLuint m_id{};
 	int m_boundTextureUnit{ -1 };	// -1 == not bound to a texture unit
-	uint32_t m_singleColor{0};		// 0  == not a single color texture (type will be singleColor)
+	uint32_t m_singleColor{ 0 };		// 0  == not a single color texture (type will be singleColor)
 	textureType m_type{ textureType::undefined};
 	std::string m_filePath{};
 	std::string m_fileName{};

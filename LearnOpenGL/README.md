@@ -17,6 +17,10 @@ TO DO
 - implement immutable textures
 - use sampler2DShadow
 
+v0.1.31 17-5-2024
+-----------------
+- depthPass logic added to FrameBuffer class
+
 v0.1.30 16-5-2024
 -----------------
 - fixed casting shadows outside depthMap and light's frustum
