@@ -102,6 +102,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="ElementBuffer.cpp" />
     <ClCompile Include="Global.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Global.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
@@ -138,6 +140,9 @@
     <None Include="README.md" />
     <None Include="Shaders\debugQuad.shader" />
     <None Include="Shaders\multiLight.shader" />
+    <None Include="Shaders\shadowMapDirLight.shader" />
+    <None Include="Shaders\shadowMapFlashLight.shader" />
+    <None Include="Shaders\shadowMapSpotLight.shader" />
     <None Include="Shaders\visualizeNormals.shader" />
     <None Include="Shaders\shadowMap.shader" />
     <None Include="Shaders\singleColor.shader" />

@@ -40,19 +40,19 @@ FrameBuffer::~FrameBuffer()
 	Global::glCheckError();
 }
 
-void FrameBuffer::bindFrameBuffer()
+void FrameBuffer::bind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_id);
 	Global::glCheckError();
 }
 
-void FrameBuffer::unbindFrameBuffer()
+void FrameBuffer::unbind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	Global::glCheckError();
 }
 
-void FrameBuffer::initDepthMapFrameBuffer(Shader shader)
+void FrameBuffer::startDepthMap(Shader shader)
 {
 	assert(m_type == framebufferType::depthMap && "Wrong framebufferType");
 
@@ -63,13 +63,13 @@ void FrameBuffer::initDepthMapFrameBuffer(Shader shader)
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way
 	shader.useShader();
-	shader.setBool("orthographic", m_orthographic);
+	//shader.setBool("orthographic", m_orthographic);
 	//shader.bindTexture(x);
 
 	Global::glCheckError();
 }
 
-void FrameBuffer::deinitDepthMapFrameBuffer()
+void FrameBuffer::stopDepthMap()
 {
 	assert(m_type == framebufferType::depthMap && "Wrong framebufferType");
 	

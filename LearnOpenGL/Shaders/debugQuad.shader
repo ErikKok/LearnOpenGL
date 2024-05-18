@@ -19,7 +19,7 @@ out vec4 FragColor;
   
 in vec2 TexCoords;
 
-layout (binding=5) uniform sampler2D someTexture;
+layout (binding=6) uniform sampler2D someTexture;
 
 uniform bool orthographic;
 uniform float nearPlane;
@@ -29,7 +29,7 @@ void main()
 { 
     float depthValue = texture(someTexture, TexCoords).r;
 
-    // if type = depthMap {
+        // if type = depthMap {
 
         if (orthographic) {  // Transform non-linear depth values to linear for visibility when using perspective projection
 
@@ -37,7 +37,7 @@ void main()
         }
         else if (!orthographic) { // Orthographic projection
             depthValue = depthValue * 2.0f - 1.0f; // Back to NDC 
-            depthValue = (2.0f * nearPlane * farPlane) / (farPlane + nearPlane - depthValue * (farPlane - nearPlane));
+            depthValue = (2.0f * nearPlane * farPlane) / (farPlane + nearPlane - depthValue * (farPlane - nearPlane)); // Linearized
             FragColor = vec4(vec3(depthValue / farPlane), 1.0f);
         }
     // }

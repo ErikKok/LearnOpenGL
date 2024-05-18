@@ -33,9 +33,9 @@ public:
 	Texture& operator=(Texture&& other) noexcept = delete;	// Move assignment
 	~Texture();												// Destructor
 
-	void activeTexture() const;
-	void bindTexture(GLuint);
-	void unbindTexture();
+	//void activeTexture() const;
+	void bind(GLuint);
+	void unbind();
 
 	const GLuint getId() const { return m_id; };
 	const int getBound() const { return m_boundTextureUnit; };

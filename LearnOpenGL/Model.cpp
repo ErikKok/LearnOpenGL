@@ -39,7 +39,7 @@ void Model::Draw(Shader& shader)
         assert(i <= 15 && "Model uses > 16 textures, this is not supported!");
         if (m_texturesLoaded[i]->getBound() == -1) {
             // activate proper texture unit (i) and bind texture
-            m_texturesLoaded[i]->bindTexture(i+16);
+            m_texturesLoaded[i]->bind(i+16);
             // save TU in texture
             m_texturesLoaded[i]->setBound(i+16);
         }

@@ -32,7 +32,13 @@ void Global::glClearError()
 glm::mat4 Global::getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 {
     glm::mat4 model{ 1.0f };
-    return glm::translate(model, translate) * glm::rotate(model, glm::radians(rotateDegrees), rotateVec3) * glm::scale(model, scale);
+    if (translate != glm::vec3(0.0f, 0.0f, 0.0f))
+        model = glm::translate(model, translate);
+    if (rotateVec3 != glm::vec3(0.0f, 0.0f, 0.0f))
+        model = glm::rotate(model, glm::radians(rotateDegrees), rotateVec3);
+    if (scale != glm::vec3(0.0f, 0.0f, 0.0f))
+        model = glm::scale(model, scale);
+    return model;
 }
 
 // Takes in full transformation parameters in World space, and outputs model in View space

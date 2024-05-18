@@ -51,11 +51,11 @@ public:
 	const glm::mat4 getViewProjectionMatrix() const { return m_viewProjectionMatrix; };
 	void calculateViewProjectionMatrix() { m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix; };
 
-	void bindFrameBuffer();
-	void unbindFrameBuffer();
+	void bind();
+	void unbind();
 
-	void initDepthMapFrameBuffer(Shader shader);
-	void deinitDepthMapFrameBuffer();
+	void startDepthMap(Shader shader);
+	void stopDepthMap();
 
 private:
 	GLuint m_id{};
@@ -71,5 +71,5 @@ private:
 	glm::mat4 m_projectionMatrix{};
 	glm::mat4 m_viewMatrix{};
 	glm::mat4 m_viewProjectionMatrix{};
-	bool m_orthographic{ false }; // true == perspective
+	bool m_orthographic{ false }; // false == perspective
 };

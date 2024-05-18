@@ -18,12 +18,12 @@ public:
 
 	const unsigned int getId() const { return m_id; };
 
-	void bindShaderStorageBuffer();
-	void unbindShaderStorageBuffer();
-	void updateShaderStorageBuffer();
+	void bind();
+	void unbind();
+	void update();
 	void setVector(const glm::mat4& vector, int i = 0);
-	void updateBindShaderStorageBuffer();
-	void setVectorUpdateBindShaderStorageBuffer(const glm::mat4& vector, int i = 0);
+	void updateAndBind();
+	void setVectorAndUpdateAndBind(const glm::mat4& vector, int i = 0);
 
 private:
 	GLuint m_id{};

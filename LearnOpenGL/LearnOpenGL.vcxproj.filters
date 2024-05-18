@@ -69,6 +69,9 @@
     <ClCompile Include="VertexBuffer.cpp">
       <Filter>Source Files\Buffers</Filter>
     </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -119,6 +122,9 @@
     <ClInclude Include="Buffers.h">
       <Filter>Header Files\Buffers</Filter>
     </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Shaders\xyz.shader">
@@ -145,6 +151,15 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Shaders\debugQuad.shader">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\shadowMapFlashLight.shader">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\shadowMapDirLight.shader">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\shadowMapSpotLight.shader">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

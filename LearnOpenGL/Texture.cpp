@@ -141,7 +141,7 @@ Texture::~Texture()
         Global::glCheckError();
 }
 
-void Texture::bindTexture(GLuint textureUnit)
+void Texture::bind(GLuint textureUnit)
 {
     std::println("BIND texture id: {} | texture unit: {}", m_id, textureUnit);
     glActiveTexture(GL_TEXTURE0 + textureUnit);
@@ -153,7 +153,7 @@ void Texture::bindTexture(GLuint textureUnit)
     Global::glCheckError();
 }
 
-void Texture::unbindTexture()
+void Texture::unbind()
 {
     std::println("UNBIND texture id: {}", m_id);
     if (m_type == textureType::cubeMap) [[unlikely]]
@@ -164,14 +164,14 @@ void Texture::unbindTexture()
     Global::glCheckError();
 }
 
-void Texture::activeTexture() const
-{
-    assert(m_type != textureType::cubeMap); 
-    
-    std::println("ACTIVE texture id: {} | texture unit: {}", m_id, m_boundTextureUnit);
-    glActiveTexture(GL_TEXTURE0 + m_boundTextureUnit);
-    Global::glCheckError();
-}
+//void Texture::activeTexture() const
+//{
+//    assert(m_type != textureType::cubeMap); 
+//    
+//    std::println("ACTIVE texture id: {} | texture unit: {}", m_id, m_boundTextureUnit);
+//    glActiveTexture(GL_TEXTURE0 + m_boundTextureUnit);
+//    Global::glCheckError();
+//}
 
 //// Check if texture is bound:
 //GLint returnData{};

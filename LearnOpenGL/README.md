@@ -5,7 +5,6 @@ TO DO
 - Model, BufferSubData, VertexAttribute .cpp maken/bijwerken
 - 1 GL_SHADER_STORAGE_BUFFER met meerdere objecten/vectors erin mogelijk?
 - time class maken
-- light class maken
 -  * light.strength wel op de goede plek in de shader/functie?
 - avoid using vec3 at all https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
 - implement energy conservation? see comments at Blinn-Phong
@@ -16,6 +15,13 @@ TO DO
 - implement Bindless Textures
 - implement immutable textures
 - use sampler2DShadow
+- cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
+- depthMap naar eigen class?
+
+v0.1.32 18-5-2024
+-----------------
+- added light class
+- added flashLight shadow
 
 v0.1.31 17-5-2024
 -----------------
