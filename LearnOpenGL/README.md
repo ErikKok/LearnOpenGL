@@ -20,6 +20,10 @@ TO DO
 
 v0.1.32 18-5-2024
 -----------------
+- moved dir/spotlight to new class
+
+v0.1.32 18-5-2024
+-----------------
 - added light class
 - added flashLight shadow
 

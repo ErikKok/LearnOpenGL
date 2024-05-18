@@ -105,7 +105,7 @@ uniform Material material;
 
 struct DirLight {
     vec3 direction;     // View Space
-    vec3 diffuse;       // Light color
+    vec3 color;       // Light color
     float ambient;      // Ambient strength
     float strength;     // Overall strength
     sampler2D depthMap;
@@ -114,7 +114,7 @@ uniform DirLight dirLight;
 
 struct PointLight {
     vec3 position;      // View Space
-    vec3 diffuse;       // Light color
+    vec3 color;       // Light color
     float constant;     // Usually kept at 1.0f
     float linear;       // Short distance intensity
     float quadratic;    // Long distance intensity
@@ -128,7 +128,7 @@ struct SpotLight {
     vec3 direction;     // View Space
     float outerCutOff;  // Outer cone
     float epsilon;      // Gradually fade the light between inner and outer cone
-    vec3 diffuse;       // Light color
+    vec3 color;       // Light color
     float constant;     // Usually kept at 1.0f
     float linear;       // Short distance intensity
     float quadratic;    // Long distance intensity
@@ -141,7 +141,7 @@ struct FlashLight {
     bool on;            // Flashlight on or off
     float outerCutOff;  // Outer cone
     float epsilon;      // Gradually fade the light between inner and outer cone
-    vec3 diffuse;       // Light color
+    vec3 color;       // Light color
     float constant;     // Usually kept at 1.0f
     float linear;       // Short distance intensity
     float quadratic;    // Long distance intensity
@@ -165,7 +165,7 @@ vec3 CalcDirLight(DirLight light)
     vec3 ambient = light.ambient * textureDiffuse;
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
-    vec3 diffuse = light.diffuse * diff * textureDiffuse;
+    vec3 diffuse = light.color * diff * textureDiffuse;
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
@@ -173,7 +173,7 @@ vec3 CalcDirLight(DirLight light)
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
 
-    vec3 specular = light.diffuse * spec * textureSpecular;
+    vec3 specular = light.color * spec * textureSpecular;
 
     // shadow
     vec4 ShadowCoord = vs_out.dirLightShadowCoord * 0.5 + 0.5;
@@ -197,13 +197,13 @@ vec3 CalcPointLight(PointLight light)
     vec3 lightDir = normalize(light.position - vs_out.FragPosView);
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
-    vec3 diffuse = light.diffuse * diff * textureDiffuse;
+    vec3 diffuse = light.color * diff * textureDiffuse;
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
-    vec3 specular = light.diffuse * spec * textureSpecular;
+    vec3 specular = light.color * spec * textureSpecular;
     // attenuation
     float distance = length(light.position - vs_out.FragPosView);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
@@ -219,13 +219,13 @@ vec3 CalcSpotLight(SpotLight light)
     vec3 lightDir = normalize(light.position - vs_out.FragPosView);
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
-    vec3 diffuse = light.diffuse * diff * textureDiffuse;
+    vec3 diffuse = light.color * diff * textureDiffuse;
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
-    vec3 specular = light.diffuse * spec * textureSpecular;
+    vec3 specular = light.color * spec * textureSpecular;
     // cone
     float theta = dot(lightDir, normalize(-light.direction));
     float intensity = smoothstep(0.0, 1.0, (theta - light.outerCutOff) / light.epsilon);
@@ -279,11 +279,11 @@ vec3 CalcSpotLight(SpotLight light)
 //    vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
 //    // diffuse
 //    float diff = max(dot(normalView, lightDir), 0.0f);
-//    vec3 diffuse = light.diffuse * diff * textureDiffuse;
+//    vec3 diffuse = light.color * diff * textureDiffuse;
 //    // specular
 //    vec3 reflectDir = reflect(-lightDir, normalView);
 //    float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
-//    vec3 specular = light.diffuse * spec * textureSpecular;
+//    vec3 specular = light.color * spec * textureSpecular;
 //    // cone
 //    vec3 cameraDirection = vec3(0.0f, 0.0f, 1.0f); // camera.m_front with negated z-axis
 //    float theta = dot(lightDir, cameraDirection);
@@ -304,13 +304,13 @@ vec3 CalcFlashLight(FlashLight light)
     vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
-    vec3 diffuse = light.diffuse * diff * textureDiffuse;
+    vec3 diffuse = light.color * diff * textureDiffuse;
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
-    vec3 specular = light.diffuse * spec * textureSpecular;
+    vec3 specular = light.color * spec * textureSpecular;
     // emission calculations (put them in main if needed by other functions, slower)
     vec3 textureflashlightMap = vec3(texture(material.flashlightMap, vs_out.TexCoords));
     vec3 textureflashlightResult = vec3(texture(material.flashlightResult, vs_out.TexCoords));

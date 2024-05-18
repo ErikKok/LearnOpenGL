@@ -53,6 +53,8 @@ int main()
 
     Global::glCheckError();
 
+    Global::view = Global::camera.getViewMatrix();
+
     /////////////////////////////////////
     ////// Skybox ///////////////////////
     std::println("CREATE Skybox");///////
@@ -85,8 +87,8 @@ int main()
 
     // DirLight
     DirectionalLight sun;
-    sun.setDirection(glm::vec3(0.7f, 0.9f, 0.8f)); 
-    sun.setColor(glm::vec3(1.0f, 1.0f, 0.95f));
+    sun.setDirection(0.7f, 0.9f, 0.8f); 
+    sun.setColor(1.0f, 1.0f, 0.95f);
     sun.setStrength(0.25f);
     sun.setDepthMap(2);
     sun.setAmbient(0.3f);
@@ -112,44 +114,42 @@ int main()
     // See -> https://computergraphics.stackexchange.com/questions/5323/dynamic-array-in-glsl
     multiLight.setInt("pointLightsCount", 4);
 
-    multiLight.setVec3("pointLights[0].diffuse", pointLightColors[0]);  // red, distance 50
+    multiLight.setVec3("pointLights[0].color", pointLightColors[0]);  // red, distance 50
     multiLight.setFloat("pointLights[0].constant", 1.0f);
     multiLight.setFloat("pointLights[0].linear", 0.09f);
     multiLight.setFloat("pointLights[0].quadratic", 0.032f);
     multiLight.setFloat("pointLights[0].strength", 1.0f);
 
-    multiLight.setVec3("pointLights[1].diffuse", pointLightColors[1]);  // green, distance 50
+    multiLight.setVec3("pointLights[1].color", pointLightColors[1]);  // green, distance 50
     multiLight.setFloat("pointLights[1].constant", 1.0f);
     multiLight.setFloat("pointLights[1].linear", 0.09f);
     multiLight.setFloat("pointLights[1].quadratic", 0.032f);
     multiLight.setFloat("pointLights[1].strength", 2.0f);
 
-    multiLight.setVec3("pointLights[2].diffuse", pointLightColors[2]);  // blue, distance 325
+    multiLight.setVec3("pointLights[2].color", pointLightColors[2]);  // blue, distance 325
     multiLight.setFloat("pointLights[2].constant", 1.0f);
     multiLight.setFloat("pointLights[2].linear", 0.09f);
     multiLight.setFloat("pointLights[2].quadratic", 0.032f);
     multiLight.setFloat("pointLights[2].strength", 3.0f);
 
-    multiLight.setVec3("pointLights[3].diffuse", pointLightColors[3]);  // white, distance 13
+    multiLight.setVec3("pointLights[3].color", pointLightColors[3]);  // white, distance 13
     multiLight.setFloat("pointLights[3].constant", 1.0f);
     multiLight.setFloat("pointLights[3].linear", 0.35f);
     multiLight.setFloat("pointLights[3].quadratic", 0.44f);
     multiLight.setFloat("pointLights[3].strength", 1.0f);
 
     // SpotLight
-    glm::vec3 spotLightLightDirection{ 0.0f, -1.0f, 0.0f }; // World space
-    float spotLightCutOff{ glm::cos(glm::radians(36.0f)) };
-    float spotLightOuterCutOff{ glm::cos(glm::radians(48.0f)) };
-    multiLight.setFloat("spotLight.outerCutOff", spotLightOuterCutOff);
-    float spotLightEpsilon{ spotLightCutOff - spotLightOuterCutOff };
-    multiLight.setFloat("spotLight.epsilon", spotLightEpsilon);
-    glm::vec3 spotLightColor{ 1.0f, 1.0f, 1.0f };
-    multiLight.setVec3("spotLight.diffuse", spotLightColor);
-    multiLight.setFloat("spotLight.constant", 1.0f);
-    multiLight.setFloat("spotLight.linear", 0.014f);
-    multiLight.setFloat("spotLight.quadratic", 0.07f);
-    multiLight.setFloat("spotLight.strength", 1.0f);
-    multiLight.setInt("spotLight.depthMap", 5);
+    SpotLight spotlight;
+    spotlight.setPosition(0.0f, -1.0f, 0.0f);
+    spotlight.setDirection(0.0f, -1.0f, 0.0f);
+    spotlight.setColor(1.0f, 1.0f, 1.0f);
+    spotlight.setStrength(1.2f);
+    spotlight.setDepthMap(5);
+    spotlight.setConstant(1.0f);
+    spotlight.setQuadratic(0.07f);
+    spotlight.setInnerCutOff(36.0f);
+    spotlight.setOuterCutOff(48.0f);
+    spotlight.sendToShader(multiLight);
 
     // FlashLight
     flashLight = &multiLight; // TODO
@@ -160,7 +160,7 @@ int main()
     float flashLightEpsilon{ flashLightCutOff - flashLightOuterCutOff };
     multiLight.setFloat("flashLight.epsilon", flashLightEpsilon);
     glm::vec3 flashlightColor{ 1.0f, 1.0f, 1.0f };
-    multiLight.setVec3("flashLight.diffuse", flashlightColor);
+    multiLight.setVec3("flashLight.color", flashlightColor);
     multiLight.setFloat("flashLight.constant", 1.0f);
     multiLight.setFloat("flashLight.linear", 0.045f);
     multiLight.setFloat("flashLight.quadratic", 0.0075f);
@@ -173,7 +173,6 @@ int main()
     /////////////////////////////////////
     ////// depthMap /////////////////////
     std::println("CREATE DepthMap");/////
-
 
     // DirLight depthMap
     Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
@@ -334,24 +333,19 @@ int main()
         /////////////////////////////////////
 
         multiLight.useShader();
-        // Transform Directional Light to View Space
-        multiLight.setVec3("dirLight.direction", Global::view * glm::vec4(sun.getDirection(), 0.0f));                // View space
-        // Transform Pointlight positions to View Space
         multiLight.setVec3("pointLights[0].position", glm::vec3(Global::view * glm::vec4(pointLightPositions[0], 1.0)));  // red
         multiLight.setVec3("pointLights[1].position", glm::vec3(Global::view * glm::vec4(pointLightPositions[1], 1.0)));  // green
         multiLight.setVec3("pointLights[2].position", glm::vec3(Global::view * glm::vec4(pointLightPositions[2], 1.0)));  // blue
         multiLight.setVec3("pointLights[3].position", glm::vec3(Global::view * glm::vec4(pointLightPositions[3], 1.0)));  // white
+
         // Transform Spotlight direction to View Space
-        multiLight.setVec3("spotLight.direction", Global::view * glm::vec4(spotLightLightDirection, 0.0f));         // View space
+        spotlight.updateDirection(multiLight);
         // Calculate Spotlight position and transform to View Space
-        glm::vec3 spotLightPos = glm::vec3((3.0f * sin(glfwGetTime())), 6.5f, (4.5f * cos(glfwGetTime())));         // World space
-        multiLight.setVec3("spotLight.position", Global::view * glm::vec4(spotLightPos, 1.0f));                     // View space
+        spotlight.setPosition(3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())));
+        spotlight.updatePosition(multiLight);
         // Calculate Spotlight color
-        spotLightColor.x = static_cast<float>(sin(glfwGetTime() * 0.25f));
-        spotLightColor.y = static_cast<float>(sin(glfwGetTime() * 0.50f));
-        spotLightColor.z = static_cast<float>(sin(glfwGetTime() * 0.75f));
-        multiLight.setVec3("spotLight.diffuse", spotLightColor);
-        //std::println("spotLightLightDirection spotlight {}, {}, {}", spotLightLightDirection.x, spotLightLightDirection.y, spotLightLightDirection.z);
+        spotlight.setColor(static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)));
+        spotlight.updateColor(multiLight);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass dirLight ////////////////////////////////////////////////////////
@@ -424,7 +418,7 @@ int main()
         loadTime = static_cast<float>(glfwGetTime());
 
         depthMapSpotLightFBO.startDepthMap(shadowMapSpotLight);
-        depthMapSpotLightFBO.setViewMatrix(glm::lookAt(glm::vec3(spotLightPos), glm::vec3(spotLightLightDirection), glm::vec3(0.0f, 1.0f, 0.0f)));
+        depthMapSpotLightFBO.setViewMatrix(glm::lookAt(spotlight.getPosition(), spotlight.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f)));
         depthMapSpotLightFBO.calculateViewProjectionMatrix();
 
         /////////////////////////////////////
@@ -580,9 +574,9 @@ int main()
         singleColor.useShader();
         lightVAO.bindVertexArray();
 
-        MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::projection * Global::getModelViewMatrix(glm::vec3(spotLightPos), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
+        MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::projection * Global::getModelViewMatrix(spotlight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 
-        singleColor.setVec4("color", glm::vec4(spotLightColor, 1.0f));
+        singleColor.setVec4("color", glm::vec4(spotlight.getColor(), 1.0f));
         glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
 
         // pointlights - 4 vaste LightCubes
