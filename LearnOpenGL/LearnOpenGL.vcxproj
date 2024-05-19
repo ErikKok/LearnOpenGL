@@ -119,6 +119,7 @@
     <ClInclude Include="BufferSubData.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Data.h" />
+    <ClInclude Include="DepthMap.h" />
     <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Global.h" />

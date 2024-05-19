@@ -39,7 +39,7 @@ void PointLight::updatePosition(Shader shader)
 
 void SpotLight::sendToShader(Shader shader)
 {
-    //shader.setInt("dirLight.on", m_on);
+    //shader.setInt("spotLight.on", m_on);
     shader.setVec3("spotLight.color", m_color); //////// naam
     shader.setVec3("spotLight.position", Global::view * glm::vec4(m_position, 1.0f));
     shader.setVec3("spotLight.direction", Global::view * glm::vec4(m_direction, 0.0f));
@@ -72,6 +72,7 @@ void SpotLight::updateColor(Shader shader)
 
 void FlashLight::sendToShader(Shader shader)
 {
+    shader.setInt("flashLight.on", m_on);
     shader.setVec3("flashLight.color", m_color); //////// naam
     shader.setVec3("flashLight.position", Global::view * glm::vec4(m_position, 0.0f));
     shader.setVec3("flashLight.direction", Global::view * glm::vec4(m_direction, 0.0f));
@@ -83,7 +84,7 @@ void FlashLight::sendToShader(Shader shader)
     shader.setFloat("flashLight.constant", 1.0f);
     shader.setFloat("flashLight.linear", 0.014f);
     shader.setFloat("flashLight.quadratic", 0.07f);
-    shader.setVec3("flashLight.origin", m_origin);
+    shader.setVec3("flashLight.origin", m_offset);
     shader.setFloat("flashLight.emissionStrength", m_emissionStrength);
 }
 
@@ -95,4 +96,10 @@ void FlashLight::updatePosition(Shader shader)
 void FlashLight::updateDirection(Shader shader)
 {
     shader.setVec3("flashLight.direction", Global::view * glm::vec4(m_direction, 0.0f));
+}
+
+void FlashLight::toggle(Shader shader)
+{
+    m_on = !m_on;
+    shader.setInt("flashLight.on", m_on);
 }

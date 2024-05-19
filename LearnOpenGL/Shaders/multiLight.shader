@@ -354,8 +354,10 @@ vec3 CalcFlashLight(FlashLight light)
     shadow /= 9.0f;
 
     // Outside the farPlane region of the light's frustum keep the shadow at 1.0f, not to cast shadows
-    if(ShadowCoord.z > 1.0f)
+    if(ShadowCoord.z > 1.0f) {
         shadow = 1.0f;
+        //emission = vec3(0.0f, 0.0f, 0.0f);
+    }
 
     return shadow * (diffuse + specular + emission) * light.strength;
 }

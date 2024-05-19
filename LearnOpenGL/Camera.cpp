@@ -15,9 +15,9 @@ Camera::Camera(float aspectRatio, glm::vec3 initPosition)
 }
 
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-const glm::mat4 Camera::getViewMatrix() const
+const glm::mat4 Camera::getViewMatrix(glm::vec3 offset) const
 {
-    glm::mat4 view{ glm::lookAt(m_position, m_position + m_front, m_up) };
+    glm::mat4 view{ glm::lookAt(m_position + offset, (m_position + offset) + m_front, m_up) };
     //glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), m_up); // view from above, disable mouse
     // TODO 
     // m_position = eye aka target = the position of the camera's viewpoint

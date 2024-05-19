@@ -132,30 +132,38 @@ void Global::processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::FORWARD);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        Global::cameraFlashLight.processKeyboard(CameraMovement::FORWARD);
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::BACKWARD);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        Global::cameraFlashLight.processKeyboard(CameraMovement::BACKWARD);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::LEFT);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        Global::cameraFlashLight.processKeyboard(CameraMovement::LEFT);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::RIGHT);
+        Global::cameraFlashLight.processKeyboard(CameraMovement::RIGHT);
+    }
 
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::UP);
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+        Global::cameraFlashLight.processKeyboard(CameraMovement::UP);
+    }
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::DOWN);
+        Global::cameraFlashLight.processKeyboard(CameraMovement::DOWN);
+    }
 }
 
 #pragma warning( suppress : 4100 )
 void Global::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    static bool flashLightOn{ true }; // opposite of value set in main.cpp
-    if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-        flashLight->useShader();
-        flashLight->setBool("flashLight.on", flashLightOn);
-        flashLightOn = !flashLightOn;
-    }
+    if (key == GLFW_KEY_F && action == GLFW_PRESS)
+        flashLightOnUpdated = false;
 
     static int polygonMode{ 0 };
     if (key == GLFW_KEY_L && action == GLFW_PRESS) {
@@ -246,12 +254,14 @@ void Global::mouse_callback(GLFWwindow* window, double currentXPosIn, double cur
     lastYPos = currentYPos;
 
     Global::camera.processMouseMovement(xoffset, yoffset);
+    Global::cameraFlashLight.processMouseMovement(xoffset, yoffset);
 }
 
 #pragma warning( suppress : 4100 )
 void Global::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     Global::camera.processMouseScroll(static_cast<float>(yoffset));
+    Global::cameraFlashLight.processMouseScroll(static_cast<float>(yoffset));
 }
 
 #pragma warning( suppress : 4100 )

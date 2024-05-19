@@ -85,14 +85,7 @@ int main()
     Shader multiLight("Shaders\\multiLight.shader");
     multiLight.useShader();
 
-    // DirLight
-    DirectionalLight sun;
-    sun.setDirection(0.7f, 0.9f, 0.8f); 
-    sun.setColor(1.0f, 1.0f, 0.95f);
-    sun.setStrength(0.25f);
-    sun.setDepthMap(2);
-    sun.setAmbient(0.3f);
-    sun.sendToShader(multiLight);
+
 
     // PointLight (max amount hard coded in shader TODO)
     glm::vec3 pointLightPositions[] = { // World space
@@ -138,41 +131,18 @@ int main()
     multiLight.setFloat("pointLights[3].quadratic", 0.44f);
     multiLight.setFloat("pointLights[3].strength", 1.0f);
 
-    // SpotLight
-    SpotLight spotlight;
-    spotlight.setPosition(0.0f, -1.0f, 0.0f);
-    spotlight.setDirection(0.0f, -1.0f, 0.0f);
-    spotlight.setColor(1.0f, 1.0f, 1.0f);
-    spotlight.setStrength(1.2f);
-    spotlight.setDepthMap(5);
-    spotlight.setConstant(1.0f);
-    spotlight.setQuadratic(0.07f);
-    spotlight.setInnerCutOff(36.0f);
-    spotlight.setOuterCutOff(48.0f);
-    spotlight.sendToShader(multiLight);
-
-    // FlashLight
-    flashLight = &multiLight; // TODO
-    multiLight.setBool("flashLight.on", false);
-    float flashLightCutOff{ glm::cos(glm::radians(8.5f)) };
-    float flashLightOuterCutOff{ glm::cos(glm::radians(12.5f)) };
-    multiLight.setFloat("flashLight.outerCutOff", flashLightOuterCutOff);
-    float flashLightEpsilon{ flashLightCutOff - flashLightOuterCutOff };
-    multiLight.setFloat("flashLight.epsilon", flashLightEpsilon);
-    glm::vec3 flashlightColor{ 1.0f, 1.0f, 1.0f };
-    multiLight.setVec3("flashLight.color", flashlightColor);
-    multiLight.setFloat("flashLight.constant", 1.0f);
-    multiLight.setFloat("flashLight.linear", 0.045f);
-    multiLight.setFloat("flashLight.quadratic", 0.0075f);
-    multiLight.setFloat("flashLight.strength", 2.5f);
-    glm::vec3 flashLightOrigin{ -2.0f, -1.0f, 0.0f };
-    multiLight.setVec3("flashLight.origin", flashLightOrigin);
-    multiLight.setFloat("flashLight.emissionStrength", 0.8f);
-    multiLight.setInt("flashLight.depthMap", 6);
-
     /////////////////////////////////////
-    ////// depthMap /////////////////////
-    std::println("CREATE DepthMap");/////
+    ////// light / depthMap /////////////
+    std::println("CREATE Light / DepthMap");
+
+    // DirLight
+    DirectionalLight sun;
+    sun.setDirection(0.7f, 0.9f, 0.8f);
+    sun.setColor(1.0f, 1.0f, 0.95f);
+    sun.setStrength(0.25f);
+    sun.setDepthMap(2);
+    sun.setAmbient(0.3f);
+    sun.sendToShader(multiLight);
 
     // DirLight depthMap
     Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
@@ -184,12 +154,43 @@ int main()
     depthMapDirLightFBO.calculateViewProjectionMatrix();
     Shader shadowMapDirLight("Shaders\\shadowMapDirLight.shader");
 
+    // SpotLight
+    SpotLight spotlight;
+    spotlight.setPosition(0.0f, -1.0f, 0.0f);
+    spotlight.setDirection(0.0f, -1.0f, 0.0f);
+    spotlight.setColor(1.0f, 1.0f, 1.0f);
+    spotlight.setStrength(1.2f);
+    spotlight.setDepthMap(5);
+    spotlight.setConstant(1.0f);
+    spotlight.setLinear(0.014f);
+    spotlight.setQuadratic(0.07f);
+    spotlight.setInnerCutOff(36.0f);
+    spotlight.setOuterCutOff(48.0f);
+    spotlight.sendToShader(multiLight);
+
     // SpotLight depthMap
     Texture depthMapSpotLight(textureType::depthMap, 4096, 4096);
     FrameBuffer depthMapSpotLightFBO(depthMapSpotLight);
     depthMapSpotLightFBO.setFov(84.0f);
     depthMapSpotLightFBO.calculateProjectionMatrixPerspective(depthMapSpotLight);
     Shader shadowMapSpotLight("Shaders\\shadowMapSpotLight.shader");
+
+    // FlashLight
+    FlashLight flashLight;
+    flashLight.setOn(false);
+    flashLight.setPosition(0.0f, -1.0f, 0.0f);
+    flashLight.setDirection(0.0f, -1.0f, 0.0f);
+    flashLight.setColor(1.0f, 1.0f, 1.0f);
+    flashLight.setStrength(2.5f);
+    flashLight.setDepthMap(6);
+    flashLight.setConstant(1.0f);
+    flashLight.setLinear(0.045f);
+    flashLight.setQuadratic(0.0075f);
+    flashLight.setInnerCutOff(8.5f);
+    flashLight.setOuterCutOff(12.5f);
+    flashLight.setEmissionStrength(0.8f);
+    flashLight.setOffset(0.4f, -0.5f, -0.3f);
+    flashLight.sendToShader(multiLight);
 
     // FlashLight depthMap
     Texture depthMapFlashLight(textureType::depthMap, 4096, 4096);
@@ -418,7 +419,13 @@ int main()
         loadTime = static_cast<float>(glfwGetTime());
 
         depthMapSpotLightFBO.startDepthMap(shadowMapSpotLight);
-        depthMapSpotLightFBO.setViewMatrix(glm::lookAt(spotlight.getPosition(), spotlight.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f)));
+        glm::vec3 cameraPos = spotlight.getPosition();
+        glm::mat4 view = glm::lookAt(cameraPos, glm::vec3(cameraPos.x, 0.0f, cameraPos.z), glm::vec3(0.0f, 0.0f, -1.0f));
+        depthMapSpotLightFBO.setViewMatrix(view);
+
+        //glm::vec3 cameraPos = glm::normalize(glm::cross(glm::vec3(cameraFront), glm::vec3(0.0f, 1.0f, 0.0f)));
+
+        //depthMapSpotLightFBO.setViewMatrix(glm::lookAt(spotlight.getPosition(), (cameraPos + spotlight.getDirection()), glm::vec3(0.0f, 1.0f, 0.0f)));
         depthMapSpotLightFBO.calculateViewProjectionMatrix();
 
         /////////////////////////////////////
@@ -474,7 +481,7 @@ int main()
         // End ShadowPass spotLight /////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        depthMapFlashLightFBO.stopDepthMap();
+        depthMapSpotLightFBO.stopDepthMap();
         //std::println("End ShadowPass spotLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
 
         /////////////////////////////////////////////////////////////////////////////////////
@@ -483,8 +490,14 @@ int main()
 
         loadTime = static_cast<float>(glfwGetTime());
 
+        if (!Global::flashLightOnUpdated) {
+            multiLight.useShader();
+            flashLight.toggle(multiLight);
+            Global::flashLightOnUpdated = true;
+        }
+
         depthMapFlashLightFBO.startDepthMap(shadowMapFlashLight);
-        depthMapFlashLightFBO.setViewMatrix(glm::lookAt(glm::vec3(flashLightOrigin), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+        depthMapFlashLightFBO.setViewMatrix(Global::cameraFlashLight.getViewMatrix());
         depthMapFlashLightFBO.calculateViewProjectionMatrix();
 
         /////////////////////////////////////

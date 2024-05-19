@@ -5,7 +5,6 @@ TO DO
 - Model, BufferSubData, VertexAttribute .cpp maken/bijwerken
 - 1 GL_SHADER_STORAGE_BUFFER met meerdere objecten/vectors erin mogelijk?
 - time class maken
--  * light.strength wel op de goede plek in de shader/functie?
 - avoid using vec3 at all https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
 - implement energy conservation? see comments at Blinn-Phong
 - Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
@@ -17,6 +16,12 @@ TO DO
 - use sampler2DShadow
 - cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
 - depthMap naar eigen class?
+- emission = vec3(0.0f, 0.0f, 0.0f); in de schaduw
+
+v0.1.33 19-5-2024
+-----------------
+- moved flashlight to new class
+- adjusted flastlight toggle (no more shader* in Global)
 
 v0.1.32 18-5-2024
 -----------------

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Camera.h"
-#include "Shader.h"
+#include "Light.h"
+//#include "Shader.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -21,16 +22,11 @@ using SPtr = std::shared_ptr<T>;
 template <typename T>
 using UPtr = std::unique_ptr<T>;
 
-////////////////////////////////////////////////////////////////////////////
-
-// TODO - niet meer global
-class Shader;
-inline Shader* flashLight{ nullptr }; // points to multiLight
-
 namespace Global {
     inline int windowWidth{ 1920 };
     inline int windowHeight{ 1080 };
     inline Camera camera((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), glm::vec3(0.0f, 1.5f, 15.0f)); // 8.0f, 1.5f, 8.0f
+    inline Camera cameraFlashLight((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), glm::vec3(0.0f, 1.5f, 15.0f) + glm::vec3(0.4f, -0.5f, -0.3f)); // TODO getOffset
     inline glm::mat4 view{};
     inline glm::mat4 projection{};
     inline bool windowsHasMouseFocus{ false };
@@ -41,6 +37,7 @@ namespace Global {
     inline bool drawOutline{ false };
 
     inline bool debugQuadVisible{ false };
+    inline bool flashLightOnUpdated{ true };
 
     GLenum glCheckError_(const char* file, int line);
     #define glCheckError() glCheckError_(__FILE__, __LINE__)
