@@ -17,6 +17,11 @@ TO DO
 - cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
 - depthMap naar eigen class?
 - emission = vec3(0.0f, 0.0f, 0.0f); in de schaduw
+- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
+
+v0.1.34 21-5-2024
+-----------------
+- added ability to visualize frustum
 
 v0.1.33 19-5-2024
 -----------------

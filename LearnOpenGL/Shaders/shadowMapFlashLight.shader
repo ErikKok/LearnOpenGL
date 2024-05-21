@@ -8,7 +8,7 @@ layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
 
 void main()
 {
-    gl_Position = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
+    gl_Position = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
 }  
 
 #shader fragment

@@ -41,9 +41,9 @@ private:
     glm::vec3 m_front{}; // m_position + m_front = center = is where you are looking at (direction vector)
     glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
     glm::vec3 m_right{};
-    const glm::vec3 m_worldup{ 0.0f, 1.0f, 0.0f }; // default m_up value
+    const glm::vec3 m_defaultUp{ 0.0f, 1.0f, 0.0f };
     const GLfloat m_nearPlane{ 0.1f };
-    const GLfloat m_farPlane{ 100.0f };
+    const GLfloat m_farPlane{ 400.0f };
     // euler Angles
     GLfloat m_yaw{ -90.0f };
     GLfloat m_pitch{ 0.0f };
@@ -58,3 +58,21 @@ private:
     void updateCameraVectors();
     void recalculateProjectionMatrix();
 };
+
+//class OrthographicCamera : public Camera{
+//public:
+//    void recalculateProjectionMatrix() override;
+//
+//private:
+//    float m_left{ -20.0f };
+//    float m_right{ 20.0f };
+//    float m_bottom{ -20.0f };
+//    float m_top{ 20.0f };
+//};
+//
+//class PerspectiveCamera : public Camera {
+//public:
+//    void recalculateProjectionMatrix() override;
+//
+//private:
+//};

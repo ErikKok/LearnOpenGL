@@ -31,6 +31,10 @@ public:
 	const unsigned int getId() const { return m_id; };
 	const float getFov() const { return m_fov; };
 	void setFov(float x) { m_fov = x; };
+	//const float getLeft() const { return m_left; };
+	//const float getRight() const { return m_right; };
+	//const float getBottom() const { return m_bottom; };
+	//const float getTop() const { return m_top; };
 	const float getNearPlane() const { return m_nearPlane; };
 	void setNearPlane(float x) { m_nearPlane = x; };
 	const float getFarPlane() const { return m_farPlane; };
@@ -57,19 +61,54 @@ public:
 	void startDepthMap(Shader shader);
 	void stopDepthMap();
 
+	//std::array<float, 42> getArray()
+	//{
+	//	return {
+	//		m_right, m_top,    m_farPlane,  // Back-top-right
+	//		m_left,  m_top,    m_farPlane,  // Back-top-left
+	//		m_right, m_bottom, m_farPlane,  // Back-bottom-right
+	//		m_left,  m_bottom, m_farPlane,  // Back-bottom-left
+	//		m_left,  m_bottom, m_nearPlane, // Front-bottom-left
+	//		m_left,  m_top,    m_farPlane,  // Back-top-left
+	//		m_left,  m_top,    m_nearPlane, // Front-top-left
+	//		m_right, m_top,    m_farPlane,  // Back-top-right
+	//		m_right, m_top,    m_nearPlane, // Front-top-right
+	//		m_right, m_bottom, m_farPlane,  // Back-bottom-right
+	//		m_right, m_bottom, m_nearPlane, // Front-bottom-right
+	//		m_left,  m_bottom, m_nearPlane, // Front-bottom-left
+	//		m_right, m_top,    m_nearPlane, // Front-top-right
+	//		m_left,  m_top,    m_nearPlane, // Front-top-left
+	//	
+	//		//+0.5, +0.5, -0.5, // Back-top-right
+	//		//-0.5, +0.5, -0.5, // Back-top-left
+	//		//+0.5, -0.5, -0.5, // Back-bottom-right
+	//		//-0.5, -0.5, -0.5, // Back-bottom-left
+	//		//-0.5, -0.5, +0.5, // Front-bottom-left
+	//		//-0.5, +0.5, -0.5, // Back-top-left
+	//		//-0.5, +0.5, +0.5, // Front-top-left
+	//		//+0.5, +0.5, -0.5, // Back-top-right
+	//		//+0.5, +0.5, +0.5, // Front-top-right
+	//		//+0.5, -0.5, -0.5, // Back-bottom-right
+	//		//+0.5, -0.5, +0.5, // Front-bottom-right
+	//		//-0.5, -0.5, +0.5, // Front-bottom-left
+	//		//+0.5, +0.5, +0.5, // Front-top-right
+	//		//-0.5, +0.5, +0.5, // Front-top-left
+	//	};
+	//};
+
 private:
 	GLuint m_id{};
 	framebufferType m_type{ framebufferType::undefined };
 	UPtr<Texture> m_texture{};
-	float m_fov{ 90.0f };
-	float m_left{ -20.0f };
-	float m_right{ 20.0f };
-	float m_bottom{ -20.0f };
-	float m_top{ 20.0f };
-	float m_nearPlane{ 0.1f };
-	float m_farPlane{ 100.0f };
+	float m_fov{ 90.0f };				// Used for Perspective ProjectionMatrix
+	float m_left{ -20.0f };				// Used for Orthographic ProjectionMatrix
+	float m_right{ 20.0f };				// Used for Orthographic ProjectionMatrix
+	float m_bottom{ -20.0f };			// Used for Orthographic ProjectionMatrix
+	float m_top{ 20.0f };				// Used for Orthographic ProjectionMatrix
+	float m_nearPlane{ 0.1f };			// For Orthographic interpreted as distance along the view direction, for Perspective as distance front the camera
+	float m_farPlane{ 100.0f };			// For Orthographic interpreted as distance along the view direction, for Perspective as distance front the camera
 	glm::mat4 m_projectionMatrix{};
 	glm::mat4 m_viewMatrix{};
 	glm::mat4 m_viewProjectionMatrix{};
-	bool m_orthographic{ false }; // false == perspective
+	bool m_orthographic{ false };		// false == perspective
 };

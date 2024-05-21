@@ -85,8 +85,6 @@ int main()
     Shader multiLight("Shaders\\multiLight.shader");
     multiLight.useShader();
 
-
-
     // PointLight (max amount hard coded in shader TODO)
     glm::vec3 pointLightPositions[] = { // World space
         glm::vec3(0.7f, 11.2f,   2.0f),
@@ -148,7 +146,8 @@ int main()
     Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
     FrameBuffer depthMapDirLightFBO(depthMapDirLight);
     depthMapDirLightFBO.setOrthographic(true);
-    depthMapDirLightFBO.setNearPlane(10.0f);
+    depthMapDirLightFBO.setNearPlane(15.0f);
+    depthMapDirLightFBO.setFarPlane(35.0f);
     depthMapDirLightFBO.calculateProjectionMatrixOrthographic();
     depthMapDirLightFBO.setViewMatrix(glm::lookAt(sun.getDirection(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
     depthMapDirLightFBO.calculateViewProjectionMatrix();
@@ -171,7 +170,9 @@ int main()
     // SpotLight depthMap
     Texture depthMapSpotLight(textureType::depthMap, 4096, 4096);
     FrameBuffer depthMapSpotLightFBO(depthMapSpotLight);
-    depthMapSpotLightFBO.setFov(84.0f);
+    depthMapSpotLightFBO.setFov((36.0f + 48.0f) * 1.15f); // InnerCutOff + OuterCutOff + 15% for attenuation
+    depthMapSpotLightFBO.setNearPlane(0.1f);
+    depthMapSpotLightFBO.setFarPlane(10.0f);
     depthMapSpotLightFBO.calculateProjectionMatrixPerspective(depthMapSpotLight);
     Shader shadowMapSpotLight("Shaders\\shadowMapSpotLight.shader");
 
@@ -181,7 +182,7 @@ int main()
     flashLight.setPosition(0.0f, -1.0f, 0.0f);
     flashLight.setDirection(0.0f, -1.0f, 0.0f);
     flashLight.setColor(1.0f, 1.0f, 1.0f);
-    flashLight.setStrength(2.5f);
+    flashLight.setStrength(5.5f); // waarom zo zwak resultaat?
     flashLight.setDepthMap(6);
     flashLight.setConstant(1.0f);
     flashLight.setLinear(0.045f);
@@ -195,9 +196,11 @@ int main()
     // FlashLight depthMap
     Texture depthMapFlashLight(textureType::depthMap, 4096, 4096);
     FrameBuffer depthMapFlashLightFBO(depthMapFlashLight);
-    depthMapFlashLightFBO.setFov(90.0f);
+    depthMapFlashLightFBO.setFov(45.0f); // TODO needs to sync with camera 
+    depthMapFlashLightFBO.setNearPlane(0.1f); // TODO needs to sync with camera
+    depthMapFlashLightFBO.setFarPlane(400.0f); // TODO needs to sync with camera
     depthMapFlashLightFBO.calculateProjectionMatrixPerspective(depthMapFlashLight);
-    Shader shadowMapFlashLight("Shaders\\shadowMapFlashLight.shader");   
+    Shader shadowMapFlashLight("Shaders\\shadowMapFlashLight.shader");
 
     /////////////////////////////////////
     ////// LightCube ////////////////////
@@ -260,11 +263,11 @@ int main()
     // Set material uniforms to the correct texture unit / values before each draw call
     std::println("AI TEXTURE ASSET MANAGER ***********************");
     /* 01 GL_TEXTURE_CUBE_MAP */ Texture cubemapTexture(Data::skybox1Faces);
-    /* 01 */ Texture blackTexture(0x00000000);                                         
-    /* 01 */ Texture whiteTexture(0xffffffff);                                        
-    /* 02 */                        
+    /* 01 */ Texture blackTexture(0x00000000);
+    /* 01 */ Texture whiteTexture(0xffffffff);
+    /* 02 */
     /* 03 */ Texture flashlightTexture("Textures\\flashlight.jpg");
-    /* 04 */ Texture floorTexture("Textures\\floor.jpg");                              
+    /* 04 */ Texture floorTexture("Textures\\floor.jpg");
     /* 05 */
     /* 06 */
     /* 07 */
@@ -288,7 +291,7 @@ int main()
     /* 07 */
     /* 08 */ cubeDiffuse.bind(8);
     /* 09 */ cubeSpecular.bind(9);
-    /* 10 */ //cubeEmission.bindTexture(10);
+    /* 10 */ cubeEmission.bind(10);
     /* 11 */ flashlightMap.bind(11);
     /* 12 */ flashlightResult.bind(12);
     /* 13 */
@@ -297,7 +300,7 @@ int main()
     /* 16 - 31 */// Reserved for Model::Draw
     std::println("************************************************");
     /////////////////////////////////////////////////////////////////////////////////////
-    
+
     Shader singleColor("Shaders\\singleColor.shader");
 
     // Init uniforms/variables/SSBO /////
@@ -578,7 +581,7 @@ int main()
         glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
 
         // hier stond voorheen de Lights sectie
-        
+
         /////////////////////////////////////
         ////// LightCube ////////////////////
         /////////////////////////////////////
@@ -595,7 +598,7 @@ int main()
         // pointlights - 4 vaste LightCubes
         for (int i = 0; i < std::size(pointLightPositions); i++) {
             assert(std::size(pointLightPositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
-            
+
             singleColor.useShader();
             lightVAO.bindVertexArray();
             MVPMatrixSSBO.setVector(Global::projection * Global::getModelViewMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)), i);
@@ -698,8 +701,8 @@ int main()
         MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::projection * modelViewMatrix);
         dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapDirLightFBO.getViewProjectionMatrix() * model);
         spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapSpotLightFBO.getViewProjectionMatrix() * model);
-        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapFlashLightFBO.getViewProjectionMatrix()* model);
-        
+        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapFlashLightFBO.getViewProjectionMatrix() * model);
+
         glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
         glEnable(GL_CULL_FACE);
@@ -742,17 +745,79 @@ int main()
             floorVAO.bindVertexArray();
 
             glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
-            glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
+            glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
             glEnable(GL_CULL_FACE);
 
             // De-init Stencil Buffer
             glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should pass the stencil test again
         }
+
         //std::println("End Renderpass time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
 
-        // Draw debug quad (toggle with Q)
-        // Set texture sampler2D binding in Shader itself
+        // Draw frustum - toggle with K
+        // Set corresponding FBO's below
+        if (Global::frustumVisible) {
+            VertexArray cubeNDCVAO;
+            VertexBuffer cubeNDCVBO(sizeof(Data::cubeNDC), &Data::cubeNDC);
+            VertexAttributeLayout cubeNDCLayout;
+            cubeNDCLayout.pushVertexAttributeLayout<float>(3);
+            cubeNDCVAO.addVertexAttributeLayout(cubeNDCVBO, cubeNDCLayout);
+            Shader frustum("Shaders\\frustum.shader");
+
+            //
+
+            frustum.useShader();
+            cubeNDCVAO.bindVertexArray();
+            frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
+            frustum.setMat4("inverseMatrix", glm::inverse(depthMapDirLightFBO.getViewProjectionMatrix()));
+            frustum.setMat4("viewProjectionMatrix", Global::projection * Global::view);
+
+            glDisable(GL_CULL_FACE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f });
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            glEnable(GL_CULL_FACE);
+
+            //
+
+            frustum.useShader();
+            cubeNDCVAO.bindVertexArray();
+            frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
+            frustum.setMat4("inverseMatrix", glm::inverse(depthMapSpotLightFBO.getViewProjectionMatrix()));
+            frustum.setMat4("viewProjectionMatrix", Global::projection * Global::view);
+
+            glDisable(GL_CULL_FACE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f });
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            glEnable(GL_CULL_FACE);
+
+            //
+
+            frustum.useShader();
+            cubeNDCVAO.bindVertexArray();
+            frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
+            frustum.setMat4("inverseMatrix", glm::inverse(depthMapFlashLightFBO.getViewProjectionMatrix())); // Global::cameraFlashLight.getProjectionMatrix()* Global::cameraFlashLight.getViewMatrix())); // TODO
+            frustum.setMat4("viewProjectionMatrix", Global::projection * Global::view);
+
+            glDisable(GL_CULL_FACE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f });
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            glEnable(GL_CULL_FACE);
+        }
+
+        // Draw debug quad - toggle with Q
+        // Set texture sampler2D binding in Shader itself + use corresponding FBO below
         if (Global::debugQuadVisible) {
+            FrameBuffer* useFBO{ &depthMapFlashLightFBO };
+
             VertexArray quadVAO;
             VertexBuffer quadVBO(sizeof(Data::framebuffer), &Data::framebuffer);
             VertexAttributeLayout quadLayout{};
@@ -763,9 +828,10 @@ int main()
             debugQuadShader.useShader();
             // TODO eerste z = nu -1.0f zodat quad exact(?) op de voorgrond staat, waarom is dat -1.0?
             debugQuadShader.setMat4("model", Global::getModelMatrix(glm::vec3(0.6f, 0.6f, -1.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.0f)));
-            debugQuadShader.setBool("orthographic", depthMapFlashLightFBO.getOrthographic());
-            debugQuadShader.setFloat("nearPlane", depthMapFlashLightFBO.getNearPlane());
-            debugQuadShader.setFloat("farPlane", depthMapFlashLightFBO.getFarPlane());
+            debugQuadShader.setBool("orthographic", useFBO->getOrthographic());
+            debugQuadShader.setFloat("nearPlane", useFBO->getNearPlane());
+            debugQuadShader.setFloat("farPlane", useFBO->getFarPlane());
+
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 

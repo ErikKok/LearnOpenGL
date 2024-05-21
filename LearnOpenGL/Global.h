@@ -38,6 +38,7 @@ namespace Global {
 
     inline bool debugQuadVisible{ false };
     inline bool flashLightOnUpdated{ true };
+    inline bool frustumVisible{ false };
 
     GLenum glCheckError_(const char* file, int line);
     #define glCheckError() glCheckError_(__FILE__, __LINE__)

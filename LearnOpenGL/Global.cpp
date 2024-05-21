@@ -165,6 +165,9 @@ void Global::key_callback(GLFWwindow* window, int key, int scancode, int action,
     if (key == GLFW_KEY_F && action == GLFW_PRESS)
         flashLightOnUpdated = false;
 
+    if (key == GLFW_KEY_K && action == GLFW_PRESS)
+        Global::frustumVisible = !frustumVisible;
+
     static int polygonMode{ 0 };
     if (key == GLFW_KEY_L && action == GLFW_PRESS) {
         if (polygonMode == 0) {
@@ -185,6 +188,7 @@ void Global::key_callback(GLFWwindow* window, int key, int scancode, int action,
             polygonMode = 0;
         }
     }
+
     if (key == GLFW_KEY_M && action == GLFW_PRESS) {
         if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);

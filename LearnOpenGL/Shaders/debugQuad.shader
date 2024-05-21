@@ -10,7 +10,7 @@ uniform mat4 model;
 void main()
 {  
     TexCoords = aTexCoords;
-    gl_Position = model * vec4(aPos, 0.0, 1.0);
+    gl_Position = model * vec4(aPos, 0.0f, 1.0f);
 } 
 
 #shader fragment

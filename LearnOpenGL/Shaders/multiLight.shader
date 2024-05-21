@@ -8,8 +8,8 @@ out VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
     vec3 FragPosView;               // view space
     vec3 NormalView;                // view space
-    vec4 dirLightShadowCoord;          // clip space   // Orthographic
-    vec4 spotLightShadowCoord;    // clip space   // Perspective
+    vec4 dirLightShadowCoord;       // clip space   // Orthographic
+    vec4 spotLightShadowCoord;      // clip space   // Perspective
     vec4 flashLightShadowCoord;     // clip space   // Perspective
 } vs_out;
 
@@ -40,12 +40,12 @@ layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
 void main()
 {
     vs_out.TexCoords = aTexCoords;
-    vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0));
+    vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
     vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
-    vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
-    vs_out.spotLightShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
-    vs_out.flashLightShadowCoord = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
-    gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0); // clip space
+    vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
+    vs_out.spotLightShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
+    vs_out.flashLightShadowCoord = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
+    gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // clip space
 }
 
 //shader geometry
@@ -105,7 +105,7 @@ uniform Material material;
 
 struct DirLight {
     vec3 direction;     // View Space
-    vec3 color;       // Light color
+    vec3 color;         // Light color
     float ambient;      // Ambient strength
     float strength;     // Overall strength
     sampler2D depthMap;
@@ -114,7 +114,7 @@ uniform DirLight dirLight;
 
 struct PointLight {
     vec3 position;      // View Space
-    vec3 color;       // Light color
+    vec3 color;         // Light color
     float constant;     // Usually kept at 1.0f
     float linear;       // Short distance intensity
     float quadratic;    // Long distance intensity
@@ -128,7 +128,7 @@ struct SpotLight {
     vec3 direction;     // View Space
     float outerCutOff;  // Outer cone
     float epsilon;      // Gradually fade the light between inner and outer cone
-    vec3 color;       // Light color
+    vec3 color;         // Light color
     float constant;     // Usually kept at 1.0f
     float linear;       // Short distance intensity
     float quadratic;    // Long distance intensity
@@ -141,7 +141,7 @@ struct FlashLight {
     bool on;            // Flashlight on or off
     float outerCutOff;  // Outer cone
     float epsilon;      // Gradually fade the light between inner and outer cone
-    vec3 color;       // Light color
+    vec3 color;         // Light color
     float constant;     // Usually kept at 1.0f
     float linear;       // Short distance intensity
     float quadratic;    // Long distance intensity
@@ -161,11 +161,14 @@ vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 vec3 CalcDirLight(DirLight light)
 {
     vec3 lightDir = normalize(light.direction);
+
     // ambient
     vec3 ambient = light.ambient * textureDiffuse;
+
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
+
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
@@ -175,9 +178,9 @@ vec3 CalcDirLight(DirLight light)
 
     vec3 specular = light.color * spec * textureSpecular;
 
-    // shadow
-    vec4 ShadowCoord = vs_out.dirLightShadowCoord * 0.5 + 0.5;
-    float shadow = 1.0f; // 1.0f = no shadow
+    // shadow - 1.0f = no shadow, 0.0f = full shadow
+    float shadow = 0.0f;
+    vec4 ShadowCoord = vs_out.dirLightShadowCoord * 0.5f + 0.5f;
     vec2 texelSize = 1.0f / textureSize(light.depthMap, 0);
     for(int x = -1; x <= 1; ++x) {
         for(int y = -1; y <= 1; ++y) {
@@ -185,7 +188,6 @@ vec3 CalcDirLight(DirLight light)
         }    
     }
     shadow /= 9.0f;
-
     if(ShadowCoord.z > 1.0f)
         shadow = 1.0f;
 
@@ -195,15 +197,18 @@ vec3 CalcDirLight(DirLight light)
 vec3 CalcPointLight(PointLight light)
 {
     vec3 lightDir = normalize(light.position - vs_out.FragPosView);
+
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
+
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
+
     // attenuation
     float distance = length(light.position - vs_out.FragPosView);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
@@ -217,20 +222,24 @@ vec3 CalcPointLight(PointLight light)
 vec3 CalcSpotLight(SpotLight light)
 {   
     vec3 lightDir = normalize(light.position - vs_out.FragPosView);
+
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
+
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
+
     // cone
     float theta = dot(lightDir, normalize(-light.direction));
-    float intensity = smoothstep(0.0, 1.0, (theta - light.outerCutOff) / light.epsilon);
+    float intensity = smoothstep(0.0f, 1.0f, (theta - light.outerCutOff) / light.epsilon);
     diffuse *= intensity;
     specular *= intensity;
+
     // attenuation
     float distance = length(light.position - vs_out.FragPosView);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));      
@@ -238,13 +247,12 @@ vec3 CalcSpotLight(SpotLight light)
     diffuse  *= attenuation;
     specular *= attenuation;
 
-    // shadow
-    float shadow = 1.0f; // 1.0f = no shadow
+    // shadow - 1.0f = no shadow, 0.0f = full shadow
+    float shadow = 0.0f;
     // perform perspective divide
     vec3 ShadowCoord = vs_out.spotLightShadowCoord.xyz / vs_out.spotLightShadowCoord.w;
     // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
-    ShadowCoord = ShadowCoord * 0.5 + 0.5;
-
+    ShadowCoord = ShadowCoord * 0.5f + 0.5f;
     // prevent shadow acne 
     //float bias = max(0.05 * (1.0 - dot(normalView, lightDir)), 0.005); // used twice dot(normalView, lightDir) // TODO sommige schaduwen verdwijnen?
     //float bias = 0.00005; // fixed
@@ -265,7 +273,6 @@ vec3 CalcSpotLight(SpotLight light)
         }    
     }
     shadow /= 9.0f;
-
     // Outside the farPlane region of the light's frustum keep the shadow at 1.0f, not to cast shadows
     if(ShadowCoord.z > 1.0f)
         shadow = 1.0f;
@@ -302,16 +309,51 @@ vec3 CalcSpotLight(SpotLight light)
 vec3 CalcFlashLight(FlashLight light)
 {
     vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
+
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
+
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
-    // emission calculations (put them in main if needed by other functions, slower)
+
+    // cone
+    vec3 cameraDirection = vec3(0.0f, 0.0f, 1.0f); // camera.m_front with negated z-axis
+    float theta = dot(lightDir, cameraDirection);
+    float intensity = smoothstep(0.0f, 1.0f, (theta - light.outerCutOff) / light.epsilon);
+    diffuse *= intensity;
+    specular *= intensity;
+
+    // attenuation
+    float distance = length(light.origin - vs_out.FragPosView);
+    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    //float attenuation = 1.0f / distance; // linear
+    diffuse *= attenuation;
+    specular *= attenuation;   
+
+    // shadow - 1.0f = no shadow, 0.0f = full shadow
+    float shadow = 0.0f;
+    // perform perspective divide
+    vec3 ShadowCoord = vs_out.flashLightShadowCoord.xyz / vs_out.flashLightShadowCoord.w;
+    // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
+    ShadowCoord = ShadowCoord * 0.5 + 0.5;
+    vec2 texelSize = 1.0f / textureSize(light.depthMap, 0);
+    for(int x = -1; x <= 1; ++x) {
+        for(int y = -1; y <= 1; ++y) {
+            shadow += ShadowCoord.z > (texture(light.depthMap, ShadowCoord.xy + vec2(x, y) * texelSize).x) ? 0.0f : 1.0f; // - bias removed
+        }    
+    }
+    shadow /= 9.0f;    
+    // Outside the farPlane region of the light's frustum keep the shadow at 1.0f, not to cast shadows
+    if(ShadowCoord.z > 1.0f) {
+        shadow = 1.0f;
+    }
+
+    // emission (put them in main if needed by other functions, slower)
     vec3 textureflashlightMap = vec3(texture(material.flashlightMap, vs_out.TexCoords));
     vec3 textureflashlightResult = vec3(texture(material.flashlightResult, vs_out.TexCoords));
     // #1. emission: using specularMap as stamp, with if statement
@@ -323,41 +365,9 @@ vec3 CalcFlashLight(FlashLight light)
     //vec3 emission = textureSpecular.r * light.emission * textureEmissionResult;
     // #3. emission: using specific emissionMap as stamp, a bit slower
     vec3 emission = textureflashlightMap.r * light.emissionStrength * textureflashlightResult;
-    // cone
-    vec3 cameraDirection = vec3(0.0f, 0.0f, 1.0f); // camera.m_front with negated z-axis
-    float theta = dot(lightDir, cameraDirection);
-    float intensity = smoothstep(0.0, 1.0, (theta - light.outerCutOff) / light.epsilon);
-    diffuse *= intensity;
-    specular *= intensity;
+    emission *= shadow;
     emission *= intensity;
-    // attenuation
-    float distance = length(light.origin - vs_out.FragPosView);
-    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-    //float attenuation = 1.0f / distance; // linear
-    diffuse *= attenuation;
-    specular *= attenuation;
     emission *= attenuation;
-
-    // shadow
-    float shadow = 1.0f; // 1.0f = no shadow
-    // perform perspective divide
-    vec3 ShadowCoord = vs_out.flashLightShadowCoord.xyz / vs_out.flashLightShadowCoord.w;
-    // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
-    ShadowCoord = ShadowCoord * 0.5 + 0.5;
-
-    vec2 texelSize = 1.0f / textureSize(light.depthMap, 0);
-    for(int x = -1; x <= 1; ++x) {
-        for(int y = -1; y <= 1; ++y) {
-            shadow += ShadowCoord.z > (texture(light.depthMap, ShadowCoord.xy + vec2(x, y) * texelSize).x) ? 0.0f : 1.0f; // - bias removed
-        }    
-    }
-    shadow /= 9.0f;
-
-    // Outside the farPlane region of the light's frustum keep the shadow at 1.0f, not to cast shadows
-    if(ShadowCoord.z > 1.0f) {
-        shadow = 1.0f;
-        //emission = vec3(0.0f, 0.0f, 0.0f);
-    }
 
     return shadow * (diffuse + specular + emission) * light.strength;
 }
@@ -376,7 +386,6 @@ void main()
     if (flashLight.on)
         resultFlashLight = CalcFlashLight(flashLight);       
 
-    // emission
     vec3 emissionMaterial = texture(material.emission, vs_out.TexCoords).rgb * material.emissionStrength;
 
     FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + resultFlashLight + emissionMaterial, 1.0);

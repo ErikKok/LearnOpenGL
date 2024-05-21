@@ -15,10 +15,10 @@ layout(binding = 6, std430) readonly buffer LightPerspectiveMVPMatrixSSBO {
 void main()
 {
     if (orthographic) {
-        gl_Position = LightOrthoMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
+        gl_Position = LightOrthoMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     }
     else if (!orthographic) {
-        gl_Position = LightPerspectiveMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
+        gl_Position = LightPerspectiveMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     }
 }  
 

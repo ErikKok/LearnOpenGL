@@ -1,6 +1,5 @@
 #pragma once
 
-
 //class DepthMap { // inheritance FrameBuffer?
 //public:
 //
@@ -25,3 +24,11 @@
 //};
 
 // of moet de light class een camera* krijgen?
+
+//Scene
+//
+//model
+//andere objecten / meshes
+//light
+//framebuffer
+//camera

@@ -10,7 +10,7 @@ layout(binding = 4, std430) readonly buffer ssboMVPMatrix {
 
 void main()
 {
-    gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
+    gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
 }
 
 #shader fragment

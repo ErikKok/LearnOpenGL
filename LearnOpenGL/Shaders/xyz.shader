@@ -15,7 +15,7 @@ uniform mat4 viewProjectionMatrix;
 
 void main()
 {
-    gl_Position = viewProjectionMatrix * vec4(aPos, 1.0);
+    gl_Position = viewProjectionMatrix * vec4(aPos, 1.0f);
     Color = aColor; // vs_out.Color = ColorArray
 }
 

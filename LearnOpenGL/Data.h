@@ -299,7 +299,7 @@ namespace Data{
         glm::vec3(0.0f,  4.0f,  0.0f), //
         glm::vec3(0.0f,  6.0f,  0.0f),
 
-        glm::vec3(0.0f,  0.5f,  0.0f),
+        glm::vec3(0.0f,  8.5f,  0.0f),
         glm::vec3(0.0f,  0.5f,  2.0f), //
         glm::vec3(0.0f,  0.5f,  4.0f),
     };
@@ -343,6 +343,70 @@ namespace Data{
          0u, 4u, 5u,
          0u, 5u, 6u,
          0u, 6u, 1u,
+    };
+
+    constexpr std::array cubeStrip = { // does not draw correct? starts or ends at 0, 0, 0?
+        -1.0f,  1.0f,  1.0f,      // Front-top-left
+         1.0f,  1.0f,  1.0f,      // Front-top-right
+        -1.0f, -1.0f,  1.0f,      // Front-bottom-left
+         1.0f, -1.0f,  1.0f,      // Front-bottom-right
+         1.0f, -1.0f, -1.0f,      // Back-bottom-right
+         1.0f,  1.0f,  1.0f,      // Front-top-right
+         1.0f,  1.0f, -1.0f,      // Back-top-right
+        -1.0f,  1.0f,  1.0f,      // Front-top-left
+        -1.0f,  1.0f, -1.0f,      // Back-top-left
+        -1.0f, -1.0f,  1.0f,      // Front-bottom-left
+        -1.0f, -1.0f, -1.0f,      // Back-bottom-left
+         1.0f, -1.0f, -1.0f,      // Back-bottom-right
+        -1.0f,  1.0f, -1.0f,      // Back-top-left
+         1.0f,  1.0f, -1.0f,      // Back-top-right 
+    };
+
+    constexpr std::array cubeNDC{
+        // X     Y      Z
+        // Back face
+         -1.0f, -1.0f, -1.0f, 
+          1.0f,  1.0f, -1.0f, 
+          1.0f, -1.0f, -1.0f, 
+          1.0f,  1.0f, -1.0f, 
+         -1.0f, -1.0f, -1.0f, 
+         -1.0f,  1.0f, -1.0f, 
+         // Front face            
+         -1.0f, -1.0f,  1.0f, 
+          1.0f, -1.0f,  1.0f, 
+          1.0f,  1.0f,  1.0f, 
+          1.0f,  1.0f,  1.0f, 
+         -1.0f,  1.0f,  1.0f, 
+         -1.0f, -1.0f,  1.0f, 
+         // Left face             
+         -1.0f,  1.0f,  1.0f, 
+         -1.0f,  1.0f, -1.0f, 
+         -1.0f, -1.0f, -1.0f, 
+         -1.0f, -1.0f, -1.0f, 
+         -1.0f, -1.0f,  1.0f, 
+         -1.0f,  1.0f,  1.0f, 
+         // Right face            
+          1.0f,  1.0f,  1.0f, 
+          1.0f, -1.0f, -1.0f, 
+          1.0f,  1.0f, -1.0f, 
+          1.0f, -1.0f, -1.0f, 
+          1.0f,  1.0f,  1.0f, 
+          1.0f, -1.0f,  1.0f, 
+          // Bottom face           
+         -1.0f, -1.0f, -1.0f,
+          1.0f, -1.0f, -1.0f,
+          1.0f, -1.0f,  1.0f,
+          1.0f, -1.0f,  1.0f,
+         -1.0f, -1.0f,  1.0f,
+         -1.0f, -1.0f, -1.0f,
+          // Top face              
+         -1.0f,  1.0f, -1.0f,
+          1.0f,  1.0f,  1.0f,
+          1.0f,  1.0f, -1.0f,
+          1.0f,  1.0f,  1.0f,
+         -1.0f,  1.0f, -1.0f,
+         -1.0f,  1.0f,  1.0f,
+
     };
 
     //constexpr glm::mat4 biasMatrix(

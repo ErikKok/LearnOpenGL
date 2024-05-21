@@ -165,5 +165,8 @@
     <None Include="Shaders\shadowMapSpotLight.shader">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="Shaders\frustum.shader">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

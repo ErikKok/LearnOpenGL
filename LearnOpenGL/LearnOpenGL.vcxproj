@@ -140,6 +140,7 @@
   <ItemGroup>
     <None Include="README.md" />
     <None Include="Shaders\debugQuad.shader" />
+    <None Include="Shaders\frustum.shader" />
     <None Include="Shaders\multiLight.shader" />
     <None Include="Shaders\shadowMapDirLight.shader" />
     <None Include="Shaders\shadowMapFlashLight.shader" />

@@ -8,7 +8,7 @@ layout(binding = 5, std430) readonly buffer dirLightMVPMatrixSSBO {
 
 void main()
 {
-    gl_Position = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0);
+    gl_Position = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
 }  
 
 #shader fragment

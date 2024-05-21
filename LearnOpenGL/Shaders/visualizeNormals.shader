@@ -18,7 +18,7 @@ uniform mat3 NormalMatrix;
 void main()
 {
     vs_out.normal = NormalMatrix * aNormal;
-    gl_Position = modelViewMatrix * vec4(aPos, 1.0);
+    gl_Position = modelViewMatrix * vec4(aPos, 1.0f);
 }
 
 #shader geometry
@@ -42,7 +42,7 @@ void main()
     for (int i = 0; i < gl_in.length(); i++) {
         gl_Position = projection * gl_in[i].gl_Position;
         EmitVertex();
-        gl_Position = projection * (gl_in[i].gl_Position + vec4(gs_in[i].normal, 0.0) * MAGNITUDE);
+        gl_Position = projection * (gl_in[i].gl_Position + vec4(gs_in[i].normal, 0.0f) * MAGNITUDE);
         EmitVertex();
         EndPrimitive();
     }
