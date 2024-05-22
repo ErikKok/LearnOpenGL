@@ -6,24 +6,31 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera::Camera(float aspectRatio, glm::vec3 initPosition)
-    : m_aspectRatio {aspectRatio }
-    , m_position{ initPosition }
+Camera::Camera(float aspectRatio, glm::vec3 position, glm::vec3 front, glm::vec3 up)
+    : m_aspectRatio{ aspectRatio }
+    , m_position{ position }
+    , m_front{ front }
+    , m_up{ up }
+    , m_defaultUp{ up }
 {
     updateCameraVectors();
-    recalculateProjectionMatrix();
+    calculateViewMatrix();
+    calculateProjectionMatrixPerspective();
+    calculateViewProjectionMatrix();
 }
 
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-const glm::mat4 Camera::getViewMatrix(glm::vec3 offset) const
+const glm::mat4 Camera::calculateViewMatrix()
 {
-    glm::mat4 view{ glm::lookAt(m_position + offset, (m_position + offset) + m_front, m_up) };
+    glm::mat4 view{ glm::lookAt(m_position, m_position + m_front, m_up) };
     //glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), m_up); // view from above, disable mouse
     // TODO 
     // m_position = eye aka target = the position of the camera's viewpoint
     // m_position = center = is where you are looking at (a position)
     // m_position + m_front = center = is where you are looking at (a direction vector)
 
+    // not a rearviewmirror, just looking backwards:
+    // glm::mat4 view{ glm::lookAt(m_position, m_position + -m_front, m_up) };
 
     // eye is the position of the camera's viewpoint, and center is where you are looking at (a position). If you want to use a direction vector D instead of a center position,
     //    you can simply use eye + D as the center position, where D can be a unit vector for example.
@@ -62,13 +69,7 @@ const glm::mat4 Camera::getViewMatrix(glm::vec3 offset) const
     //rotation[2][2] = zaxis.z;
 
     //glm::mat4 view{ rotation * translation };
-    return view;
-}
-
-const glm::mat4 Camera::getReverseViewMatrix() const
-{
-    glm::mat4 view{ glm::lookAt(m_position, m_position + -m_front, m_up) };
-
+    m_viewMatrix = view;
     return view;
 }
 
@@ -80,7 +81,7 @@ void Camera::fakeGravity(GLfloat deltaTime) {
 void Camera::setAspectRatio(float x)
 {
     m_aspectRatio = x;
-    recalculateProjectionMatrix();
+    calculateProjectionMatrixPerspective();
 };
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
@@ -139,7 +140,7 @@ void Camera::processMouseScroll(GLfloat yoffset)
         m_fov = 1.0f;
     if (m_fov > 45.0f)
         m_fov = 45.0f;
-    recalculateProjectionMatrix();
+    calculateProjectionMatrixPerspective();
 }
 
 // update m_front, m_right and m_up Vectors using the updated Euler angles
@@ -166,7 +167,12 @@ void Camera::updateCameraVectors()
     //    (Optional)re - orthogonalize the resulting three vectors using cross products.
 }
 
-void Camera::recalculateProjectionMatrix()
+void Camera::calculateProjectionMatrixPerspective()
 {
-    m_projection = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane);
+    m_projectionMatrix = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane);
+}
+
+void Camera::calculateProjectionMatrixOrthographic()
+{
+    m_projectionMatrix = glm::ortho(m_leftOrtho, m_rightOrtho, m_bottomOrtho, m_topOrtho, m_nearPlaneOrtho, m_farPlaneOrtho); // TODO minus?
 }

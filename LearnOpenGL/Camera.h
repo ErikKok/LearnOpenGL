@@ -16,20 +16,27 @@ enum class CameraMovement {
 class Camera
 {
 public:
-    Camera(float aspectRatio, glm::vec3 initPosition = glm::vec3(0.0f, 0.0f, 0.0f));
+    Camera(float aspectRatio, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
 
     const glm::vec3 getPosition() const { return m_position; };
     const glm::vec3 getUp() const { return m_up; };
     const float getNearPlane() const { return m_nearPlane; };
     const float getFarPlane() const { return m_farPlane; };
-    const float getFov() const { return m_fov; };
     const float getAspectRatio() const { return m_aspectRatio; };
-    const glm::mat4 getProjectionMatrix() const { return m_projection; };
-    const glm::mat4 getViewMatrix(glm::vec3 offset = glm::vec3(0.0f, 0.0f, 0.0f)) const;
-    const glm::mat4 getReverseViewMatrix() const; // not a rearviewmirror, just looking backwards
+    void setAspectRatio(float x);
+
+    const glm::mat4 calculateViewMatrix();
+    const glm::mat4 getViewMatrix() const { return m_viewMatrix; };
+    void setViewMatrix(glm::mat4 mat4) { m_viewMatrix = mat4; };
+
+    void calculateProjectionMatrixPerspective();
+    void calculateProjectionMatrixOrthographic();
+    const glm::mat4 getProjectionMatrix() const { return m_projectionMatrix; };
+
+    void calculateViewProjectionMatrix() { m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix; };
+    const glm::mat4 getViewProjectionMatrix() const { return m_viewProjectionMatrix; };
 
     void fakeGravity(GLfloat deltaTime);
-    void setAspectRatio(float x);
 
     void processKeyboard(CameraMovement direction);
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
@@ -38,8 +45,8 @@ public:
 private:
     // camera Attributes
     glm::vec3 m_position{};
-    glm::vec3 m_front{}; // m_position + m_front = center = is where you are looking at (direction vector)
-    glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
+    glm::vec3 m_front{};
+    glm::vec3 m_up{};
     glm::vec3 m_right{};
     const glm::vec3 m_defaultUp{ 0.0f, 1.0f, 0.0f };
     const GLfloat m_nearPlane{ 0.1f };
@@ -52,15 +59,24 @@ private:
     GLfloat m_mouseSensitivity{ 0.035f };
     GLfloat m_fov{ 45.0f };
     float m_aspectRatio{};
-    glm::mat4 m_projection{};
+    glm::mat4 m_viewMatrix{};
+    glm::mat4 m_projectionMatrix{};
+    glm::mat4 m_viewProjectionMatrix{};
+
+    float m_leftOrtho{ -20.0f };				// Used for Orthographic ProjectionMatrix
+    float m_rightOrtho{ 20.0f };				// Used for Orthographic ProjectionMatrix
+    float m_bottomOrtho{ -20.0f };			// Used for Orthographic ProjectionMatrix
+    float m_topOrtho{ 20.0f };				// Used for Orthographic ProjectionMatrix
+    float m_nearPlaneOrtho{ -15.0f };
+    float m_farPlaneOrtho{ 35.0f };
 
     // update m_front, m_right and m_up Vectors using the updated Euler angles
     void updateCameraVectors();
-    void recalculateProjectionMatrix();
 };
 
 //class OrthographicCamera : public Camera{
 //public:
+//     void calculateProjectionMatrixOrthographic() { m_projectionMatrix = glm::ortho(m_left, m_right, m_bottom, m_top, -m_nearPlane, m_farPlane); };
 //    void recalculateProjectionMatrix() override;
 //
 //private:
@@ -72,7 +88,11 @@ private:
 //
 //class PerspectiveCamera : public Camera {
 //public:
+//     void calculateProjectionMatrixPerspective(Texture& texture) { m_projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(texture.getWidth() / texture.getHeight()), m_nearPlane, m_farPlane); };
 //    void recalculateProjectionMatrix() override;
+// 
+//    const float getFov() const { return m_fov; };
 //
 //private:
+//
 //};

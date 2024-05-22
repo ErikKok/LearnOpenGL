@@ -53,7 +53,7 @@ int main()
 
     Global::glCheckError();
 
-    Global::view = Global::camera.getViewMatrix();
+    //Global::view = Global::camera.calculateViewMatrix();
 
     /////////////////////////////////////
     ////// Skybox ///////////////////////
@@ -135,7 +135,8 @@ int main()
 
     // DirLight
     DirectionalLight sun;
-    sun.setDirection(0.7f, 0.9f, 0.8f);
+    sun.setDirection(0.7f, 0.9f, 0.8f); // TODO light position == camera position == needs to sync, or delete 1
+    Global::cameraDirLightDirection = { 0.7f, 0.9f, 0.8f }; // TODO light position == camera position == needs to sync, or delete 1
     sun.setColor(1.0f, 1.0f, 0.95f);
     sun.setStrength(0.25f);
     sun.setDepthMap(2);
@@ -145,17 +146,21 @@ int main()
     // DirLight depthMap
     Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
     FrameBuffer depthMapDirLightFBO(depthMapDirLight);
-    depthMapDirLightFBO.setOrthographic(true);
-    depthMapDirLightFBO.setNearPlane(15.0f);
-    depthMapDirLightFBO.setFarPlane(35.0f);
-    depthMapDirLightFBO.calculateProjectionMatrixOrthographic();
-    depthMapDirLightFBO.setViewMatrix(glm::lookAt(sun.getDirection(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-    depthMapDirLightFBO.calculateViewProjectionMatrix();
+    //depthMapDirLightFBO.setOrthographic(true); // TODO needs to sync with camera 
+    //depthMapDirLightFBO.setNearPlane(-15.0f); // TODO needs to sync with camera 
+    //depthMapDirLightFBO.setFarPlane(35.0f); // TODO needs to sync with camera 
+    //depthMapDirLightFBO.calculateProjectionMatrixOrthographic();
+    //depthMapDirLightFBO.setViewMatrix(glm::lookAt(sun.getDirection(), sun.getDirection() - sun.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))); // sun.getDirection() - sun.getDirection() == glm::vec3(0.0f, 0.0f, 0.0f)
+    Global::cameraDirLight.setViewMatrix(glm::lookAt(sun.getDirection(), sun.getDirection() - sun.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))); // TODO
+    Global::cameraDirLight.calculateProjectionMatrixOrthographic(); // TODO constructor doet perspective default...
+    Global::cameraDirLight.calculateViewProjectionMatrix();
+    //depthMapDirLightFBO.calculateViewProjectionMatrix();
     Shader shadowMapDirLight("Shaders\\shadowMapDirLight.shader");
 
     // SpotLight
     SpotLight spotlight;
-    spotlight.setPosition(0.0f, -1.0f, 0.0f);
+    spotlight.setPosition(0.0f, -1.0f, 0.0f); // TODO light position == camera position == needs to sync, or delete 1
+    Global::cameraSpotLightPosition = { 0.0f, -1.0f, 0.0f }; // TODO light position == camera position == needs to sync, or delete 1
     spotlight.setDirection(0.0f, -1.0f, 0.0f);
     spotlight.setColor(1.0f, 1.0f, 1.0f);
     spotlight.setStrength(1.2f);
@@ -170,16 +175,17 @@ int main()
     // SpotLight depthMap
     Texture depthMapSpotLight(textureType::depthMap, 4096, 4096);
     FrameBuffer depthMapSpotLightFBO(depthMapSpotLight);
-    depthMapSpotLightFBO.setFov((36.0f + 48.0f) * 1.15f); // InnerCutOff + OuterCutOff + 15% for attenuation
-    depthMapSpotLightFBO.setNearPlane(0.1f);
-    depthMapSpotLightFBO.setFarPlane(10.0f);
-    depthMapSpotLightFBO.calculateProjectionMatrixPerspective(depthMapSpotLight);
+    depthMapSpotLightFBO.setFov((36.0f + 48.0f) * 1.15f); // InnerCutOff + OuterCutOff + 15% for attenuation // TODO needs to sync with camera 
+    depthMapSpotLightFBO.setNearPlane(0.1f); // TODO needs to sync with camera 
+    depthMapSpotLightFBO.setFarPlane(10.0f); // TODO needs to sync with camera 
+    //depthMapSpotLightFBO.calculateProjectionMatrixPerspective(depthMapSpotLight);
     Shader shadowMapSpotLight("Shaders\\shadowMapSpotLight.shader");
 
     // FlashLight
     FlashLight flashLight;
     flashLight.setOn(false);
-    flashLight.setPosition(0.0f, -1.0f, 0.0f);
+    flashLight.setPosition(0.0f, 1.5f, 15.0f); // TODO light position == camera position == needs to sync, or delete 1
+    Global::cameraFlashLightPosition = { 0.0f, 1.5f, 15.0f }; // TODO light position == camera position == needs to sync, or delete 1
     flashLight.setDirection(0.0f, -1.0f, 0.0f);
     flashLight.setColor(1.0f, 1.0f, 1.0f);
     flashLight.setStrength(5.5f); // waarom zo zwak resultaat?
@@ -199,7 +205,7 @@ int main()
     depthMapFlashLightFBO.setFov(45.0f); // TODO needs to sync with camera 
     depthMapFlashLightFBO.setNearPlane(0.1f); // TODO needs to sync with camera
     depthMapFlashLightFBO.setFarPlane(400.0f); // TODO needs to sync with camera
-    depthMapFlashLightFBO.calculateProjectionMatrixPerspective(depthMapFlashLight);
+    //depthMapFlashLightFBO.calculateProjectionMatrixPerspective(depthMapFlashLight);
     Shader shadowMapFlashLight("Shaders\\shadowMapFlashLight.shader");
 
     /////////////////////////////////////
@@ -359,6 +365,8 @@ int main()
 
         depthMapDirLightFBO.startDepthMap(shadowMapDirLight);
 
+        Global::cameraDirLight.calculateViewProjectionMatrix();
+
         /////////////////////////////////////
         ////// Cubes ShadowPass dirLight ////
         /////////////////////////////////////
@@ -383,7 +391,7 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
-            dirLightMVPMatrixSSBO.setVector(depthMapDirLightFBO.getViewProjectionMatrix() * model, i);
+            dirLightMVPMatrixSSBO.setVector(Global::cameraDirLight.getViewProjectionMatrix() * model, i);
         }
         dirLightMVPMatrixSSBO.updateAndBind();
 
@@ -394,7 +402,7 @@ int main()
         /////////////////////////////////////
 
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-        dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapDirLightFBO.getViewProjectionMatrix() * model);
+        dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraDirLight.getViewProjectionMatrix() * model);
 
         ourModel.Draw(shadowMapDirLight);
 
@@ -404,7 +412,7 @@ int main()
 
         floorVAO.bindVertexArray();
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
-        dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapDirLightFBO.getViewProjectionMatrix() * model);
+        dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraDirLight.getViewProjectionMatrix() * model);
 
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
@@ -422,14 +430,15 @@ int main()
         loadTime = static_cast<float>(glfwGetTime());
 
         depthMapSpotLightFBO.startDepthMap(shadowMapSpotLight);
-        glm::vec3 cameraPos = spotlight.getPosition();
-        glm::mat4 view = glm::lookAt(cameraPos, glm::vec3(cameraPos.x, 0.0f, cameraPos.z), glm::vec3(0.0f, 0.0f, -1.0f));
-        depthMapSpotLightFBO.setViewMatrix(view);
+        glm::vec3 cameraPos = spotlight.getPosition(); // TODO sync light and camera classes
+        //glm::mat4 view = glm::lookAt(cameraPos, glm::vec3(cameraPos.x, 0.0f, cameraPos.z), glm::vec3(0.0f, 0.0f, -1.0f));
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
 
-        //glm::vec3 cameraPos = glm::normalize(glm::cross(glm::vec3(cameraFront), glm::vec3(0.0f, 1.0f, 0.0f)));
+        //depthMapSpotLightFBO.setViewMatrix(view);
+        //depthMapSpotLightFBO.calculateViewProjectionMatrix();
 
-        //depthMapSpotLightFBO.setViewMatrix(glm::lookAt(spotlight.getPosition(), (cameraPos + spotlight.getDirection()), glm::vec3(0.0f, 1.0f, 0.0f)));
-        depthMapSpotLightFBO.calculateViewProjectionMatrix();
+        Global::cameraSpotLight.setViewMatrix(view); // TODO
+        Global::cameraSpotLight.calculateViewProjectionMatrix();
 
         /////////////////////////////////////
         ////// Cubes ShadowPass spotLight ///
@@ -455,7 +464,7 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
-            spotLightMVPMatrixSSBO.setVector(depthMapSpotLightFBO.getViewProjectionMatrix() * model, i);
+            spotLightMVPMatrixSSBO.setVector(Global::cameraSpotLight.getViewProjectionMatrix() * model, i);
         }
         spotLightMVPMatrixSSBO.updateAndBind();
 
@@ -466,7 +475,7 @@ int main()
         /////////////////////////////////////
 
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-        spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapSpotLightFBO.getViewProjectionMatrix() * model);
+        spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraSpotLight.getViewProjectionMatrix() * model);
 
         ourModel.Draw(shadowMapSpotLight);
 
@@ -476,7 +485,7 @@ int main()
 
         floorVAO.bindVertexArray();
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
-        spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapSpotLightFBO.getViewProjectionMatrix() * model);
+        spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraSpotLight.getViewProjectionMatrix() * model);
 
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
@@ -500,8 +509,11 @@ int main()
         }
 
         depthMapFlashLightFBO.startDepthMap(shadowMapFlashLight);
-        depthMapFlashLightFBO.setViewMatrix(Global::cameraFlashLight.getViewMatrix());
-        depthMapFlashLightFBO.calculateViewProjectionMatrix();
+        //depthMapFlashLightFBO.setViewMatrix(Global::cameraFlashLight.calculateViewMatrix()); // TODO
+        //depthMapFlashLightFBO.calculateViewProjectionMatrix();
+
+        Global::cameraFlashLight.calculateViewMatrix();
+        Global::cameraFlashLight.calculateViewProjectionMatrix();
 
         /////////////////////////////////////
         ////// Cubes ShadowPass flashLight //
@@ -527,7 +539,7 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
-            flashLightMVPMatrixSSBO.setVector(depthMapFlashLightFBO.getViewProjectionMatrix() * model, i);
+            flashLightMVPMatrixSSBO.setVector(Global::cameraFlashLight.getViewProjectionMatrix() * model, i);
         }
         flashLightMVPMatrixSSBO.updateAndBind();
 
@@ -538,7 +550,7 @@ int main()
         /////////////////////////////////////
 
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapFlashLightFBO.getViewProjectionMatrix() * model);
+        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
         ourModel.Draw(shadowMapFlashLight);
 
@@ -548,7 +560,7 @@ int main()
 
         floorVAO.bindVertexArray();
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
-        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapFlashLightFBO.getViewProjectionMatrix() * model);
+        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
@@ -568,7 +580,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //Global::camera.fakeGravity(Global::deltaTime);
-        Global::view = Global::camera.getViewMatrix();
+        Global::view = Global::camera.calculateViewMatrix();
         Global::projection = Global::camera.getProjectionMatrix();
 
         /////////////////////////////////////
@@ -646,9 +658,9 @@ int main()
             NormalMatrixSSBO.setVector(glm::transpose(glm::inverse(modelViewMatrix)), i);
             ModelViewMatrixSSBO.setVector(modelViewMatrix, i);
             MVPMatrixSSBO.setVector(Global::projection * modelViewMatrix, i);
-            dirLightMVPMatrixSSBO.setVector(depthMapDirLightFBO.getViewProjectionMatrix() * model, i);
-            spotLightMVPMatrixSSBO.setVector(depthMapSpotLightFBO.getViewProjectionMatrix() * model, i);
-            flashLightMVPMatrixSSBO.setVector(depthMapFlashLightFBO.getViewProjectionMatrix() * model, i);
+            dirLightMVPMatrixSSBO.setVector(Global::cameraDirLight.getViewProjectionMatrix() * model, i);
+            spotLightMVPMatrixSSBO.setVector(Global::cameraSpotLight.getViewProjectionMatrix() * model, i);
+            flashLightMVPMatrixSSBO.setVector(Global::cameraFlashLight.getViewProjectionMatrix() * model, i);
         }
 
         NormalMatrixSSBO.updateAndBind();
@@ -671,9 +683,9 @@ int main()
         NormalMatrixSSBO.setVectorAndUpdateAndBind(glm::transpose(glm::inverse(modelViewMatrix)));
         ModelViewMatrixSSBO.setVectorAndUpdateAndBind(modelViewMatrix);
         MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::projection * modelViewMatrix);
-        dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapDirLightFBO.getViewProjectionMatrix() * model);
-        spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapSpotLightFBO.getViewProjectionMatrix() * model);
-        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapFlashLightFBO.getViewProjectionMatrix() * model);
+        dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraDirLight.getViewProjectionMatrix() * model);
+        spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraSpotLight.getViewProjectionMatrix() * model);
+        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
         multiLight.setFloat("material.shininess", 256.0f);
         multiLight.setInt("material.emission", 0); // black - 'disable' emission with a black texture
@@ -699,9 +711,9 @@ int main()
         NormalMatrixSSBO.setVectorAndUpdateAndBind(glm::transpose(glm::inverse(modelViewMatrix)));
         ModelViewMatrixSSBO.setVectorAndUpdateAndBind(modelViewMatrix);
         MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::projection * modelViewMatrix);
-        dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapDirLightFBO.getViewProjectionMatrix() * model);
-        spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapSpotLightFBO.getViewProjectionMatrix() * model);
-        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(depthMapFlashLightFBO.getViewProjectionMatrix() * model);
+        dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraDirLight.getViewProjectionMatrix() * model);
+        spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraSpotLight.getViewProjectionMatrix() * model);
+        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix()* model);
 
         glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
         glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
@@ -769,7 +781,7 @@ int main()
             frustum.useShader();
             cubeNDCVAO.bindVertexArray();
             frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
-            frustum.setMat4("inverseMatrix", glm::inverse(depthMapDirLightFBO.getViewProjectionMatrix()));
+            frustum.setMat4("inverseMatrix", glm::inverse(Global::cameraDirLight.getViewProjectionMatrix()));
             frustum.setMat4("viewProjectionMatrix", Global::projection * Global::view);
 
             glDisable(GL_CULL_FACE);
@@ -785,7 +797,7 @@ int main()
             frustum.useShader();
             cubeNDCVAO.bindVertexArray();
             frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
-            frustum.setMat4("inverseMatrix", glm::inverse(depthMapSpotLightFBO.getViewProjectionMatrix()));
+            frustum.setMat4("inverseMatrix", glm::inverse(Global::cameraSpotLight.getViewProjectionMatrix()));
             frustum.setMat4("viewProjectionMatrix", Global::projection * Global::view);
 
             glDisable(GL_CULL_FACE);
@@ -798,25 +810,25 @@ int main()
 
             //
 
-            frustum.useShader();
-            cubeNDCVAO.bindVertexArray();
-            frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
-            frustum.setMat4("inverseMatrix", glm::inverse(depthMapFlashLightFBO.getViewProjectionMatrix())); // Global::cameraFlashLight.getProjectionMatrix()* Global::cameraFlashLight.getViewMatrix())); // TODO
-            frustum.setMat4("viewProjectionMatrix", Global::projection * Global::view);
+            //frustum.useShader();
+            //cubeNDCVAO.bindVertexArray();
+            //frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
+            //frustum.setMat4("inverseMatrix", glm::inverse(depthMapFlashLightFBO.getViewProjectionMatrix())); // Global::cameraFlashLight.getProjectionMatrix()* Global::cameraFlashLight.getViewMatrix())); // TODO
+            //frustum.setMat4("viewProjectionMatrix", Global::projection * Global::view);
 
-            glDisable(GL_CULL_FACE);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f });
-            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
-            glEnable(GL_CULL_FACE);
+            //glDisable(GL_CULL_FACE);
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            //glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            //frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f });
+            //glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            //glEnable(GL_CULL_FACE);
         }
 
         // Draw debug quad - toggle with Q
         // Set texture sampler2D binding in Shader itself + use corresponding FBO below
         if (Global::debugQuadVisible) {
-            FrameBuffer* useFBO{ &depthMapFlashLightFBO };
+            FrameBuffer* useFBO{ &depthMapSpotLightFBO }; // TODO get from camera class
 
             VertexArray quadVAO;
             VertexBuffer quadVBO(sizeof(Data::framebuffer), &Data::framebuffer);
@@ -828,9 +840,9 @@ int main()
             debugQuadShader.useShader();
             // TODO eerste z = nu -1.0f zodat quad exact(?) op de voorgrond staat, waarom is dat -1.0?
             debugQuadShader.setMat4("model", Global::getModelMatrix(glm::vec3(0.6f, 0.6f, -1.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.0f)));
-            debugQuadShader.setBool("orthographic", useFBO->getOrthographic());
-            debugQuadShader.setFloat("nearPlane", useFBO->getNearPlane());
-            debugQuadShader.setFloat("farPlane", useFBO->getFarPlane());
+            debugQuadShader.setBool("orthographic", useFBO->getOrthographic()); // TODO get from camera class
+            debugQuadShader.setFloat("nearPlane", useFBO->getNearPlane()); // TODO get from camera class
+            debugQuadShader.setFloat("farPlane", useFBO->getFarPlane()); // TODO get from camera class
 
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }

@@ -85,7 +85,7 @@ void FlashLight::sendToShader(Shader shader)
     shader.setFloat("flashLight.linear", 0.014f);
     shader.setFloat("flashLight.quadratic", 0.07f);
     shader.setVec3("flashLight.origin", m_offset);
-    //shader.setFloat("flashLight.emissionStrength", m_emissionStrength); // TODO
+    //shader.setFloat("flashLight.emissionStrength", m_emissionStrength); //
 }
 
 void FlashLight::updatePosition(Shader shader)

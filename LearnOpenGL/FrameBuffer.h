@@ -46,7 +46,7 @@ public:
 	// projection matrix determines the dimensions of the view cuboid
 	const glm::mat4 getProjectionMatrix() const { return m_projectionMatrix; };
 	//void setProjectionMatrix(glm::mat4 mat4) { m_projectionMatrix = mat4; };
-	void calculateProjectionMatrixOrthographic() { m_projectionMatrix = glm::ortho(m_left, m_right, m_bottom, m_top, -m_nearPlane, m_farPlane); };
+	void calculateProjectionMatrixOrthographic() { m_projectionMatrix = glm::ortho(m_left, m_right, m_bottom, m_top, m_nearPlane, m_farPlane); };
 	void calculateProjectionMatrixPerspective(Texture& texture) { m_projectionMatrix = glm::perspective(glm::radians(m_fov), static_cast<float>(texture.getWidth() / texture.getHeight()), m_nearPlane, m_farPlane); };
 	// view matrix determines it's position and orientation in the world
 	// the cuboid needs to line up with the lights direction       
@@ -60,41 +60,6 @@ public:
 
 	void startDepthMap(Shader shader);
 	void stopDepthMap();
-
-	//std::array<float, 42> getArray()
-	//{
-	//	return {
-	//		m_right, m_top,    m_farPlane,  // Back-top-right
-	//		m_left,  m_top,    m_farPlane,  // Back-top-left
-	//		m_right, m_bottom, m_farPlane,  // Back-bottom-right
-	//		m_left,  m_bottom, m_farPlane,  // Back-bottom-left
-	//		m_left,  m_bottom, m_nearPlane, // Front-bottom-left
-	//		m_left,  m_top,    m_farPlane,  // Back-top-left
-	//		m_left,  m_top,    m_nearPlane, // Front-top-left
-	//		m_right, m_top,    m_farPlane,  // Back-top-right
-	//		m_right, m_top,    m_nearPlane, // Front-top-right
-	//		m_right, m_bottom, m_farPlane,  // Back-bottom-right
-	//		m_right, m_bottom, m_nearPlane, // Front-bottom-right
-	//		m_left,  m_bottom, m_nearPlane, // Front-bottom-left
-	//		m_right, m_top,    m_nearPlane, // Front-top-right
-	//		m_left,  m_top,    m_nearPlane, // Front-top-left
-	//	
-	//		//+0.5, +0.5, -0.5, // Back-top-right
-	//		//-0.5, +0.5, -0.5, // Back-top-left
-	//		//+0.5, -0.5, -0.5, // Back-bottom-right
-	//		//-0.5, -0.5, -0.5, // Back-bottom-left
-	//		//-0.5, -0.5, +0.5, // Front-bottom-left
-	//		//-0.5, +0.5, -0.5, // Back-top-left
-	//		//-0.5, +0.5, +0.5, // Front-top-left
-	//		//+0.5, +0.5, -0.5, // Back-top-right
-	//		//+0.5, +0.5, +0.5, // Front-top-right
-	//		//+0.5, -0.5, -0.5, // Back-bottom-right
-	//		//+0.5, -0.5, +0.5, // Front-bottom-right
-	//		//-0.5, -0.5, +0.5, // Front-bottom-left
-	//		//+0.5, +0.5, +0.5, // Front-top-right
-	//		//-0.5, +0.5, +0.5, // Front-top-left
-	//	};
-	//};
 
 private:
 	GLuint m_id{};
