@@ -15,62 +15,46 @@ Camera::Camera(float aspectRatio, glm::vec3 position, glm::vec3 front, glm::vec3
 {
     updateCameraVectors();
     calculateViewMatrix();
-    calculateProjectionMatrixPerspective();
-    calculateViewProjectionMatrix();
+    calculateProjectionMatrix();
+}
+
+OrthographicCamera::OrthographicCamera(glm::vec3 direction, float left, float right, float bottom, float top)
+    : m_direction{ direction }
+    , m_leftOrtho{ left }
+    , m_rightOrtho{ right }
+    , m_bottomOrtho{ bottom }
+    , m_topOrtho{ top }
+{
+    updateCameraVectors();
+    calculateViewMatrix();
+    calculateProjectionMatrix();
 }
 
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-const glm::mat4 Camera::calculateViewMatrix()
+const void Camera::calculateViewMatrix()
 {
-    glm::mat4 view{ glm::lookAt(m_position, m_position + m_front, m_up) };
-    //glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), m_up); // view from above, disable mouse
+   m_viewMatrix = glm::lookAt(m_position, m_position + m_front, m_up);
+   m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
+
     // TODO 
     // m_position = eye aka target = the position of the camera's viewpoint
     // m_position = center = is where you are looking at (a position)
     // m_position + m_front = center = is where you are looking at (a direction vector)
 
+    // eye is the position of the camera's viewpoint, and center is where you are looking at (a position). If you want to use a direction vector D instead of a center position,
+    // you can simply use eye + D as the center position, where D can be a unit vector for example.
+ 
     // not a rearviewmirror, just looking backwards:
     // glm::mat4 view{ glm::lookAt(m_position, m_position + -m_front, m_up) };
 
-    // eye is the position of the camera's viewpoint, and center is where you are looking at (a position). If you want to use a direction vector D instead of a center position,
-    //    you can simply use eye + D as the center position, where D can be a unit vector for example.
-   
-    //glm::vec3 temp{
-    // temp.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch)),
-    // temp.y = sin(glm::radians(m_pitch)),
-    // temp.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch))
-    //};
+    // view from above, disable mouse
+    //glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), m_up);
+}
 
-    //m_front = glm::normalize(temp);
-    //m_right = glm::normalize(glm::cross(m_front, m_worldup));  // normalize the vectors, because their length gets closer to 0 the more you look m_up or down which results in slower movement.
-    //m_up = glm::normalize(glm::cross(m_right, m_front));
-
-
-    //glm::vec3 zaxis{ glm::normalize( -temp) };
-    //glm::vec3 xaxis = glm::normalize(glm::cross(glm::normalize(m_worldup), zaxis));
-    //glm::vec3 yaxis = glm::cross(zaxis, xaxis);
-
-    ////glm::mat4 translation{ glm::vec4(1.0f, 0.0f, 0.0f, -m_position.x), glm::vec4(0.0f, 1.0f, 0.0f, -m_position.y), glm::vec4(0.0f, 0.0f, 1.0f, -m_position.z), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) };
-    ////glm::mat4 rotation{ glm::vec4(xaxis.x, xaxis.y, xaxis.z, 0.0f), glm::vec4(yaxis.x, yaxis.y, yaxis.z, 0.0f), glm::vec4(zaxis.x, zaxis.y, zaxis.z, 0.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) };
-
-    //glm::mat4 translation = glm::mat4(1.0f); // Identity matrix by default
-    //translation[3][0] = -m_position.x; // Third column, first row
-    //translation[3][1] = -m_position.y;
-    //translation[3][2] = -m_position.z;
-    //glm::mat4 rotation = glm::mat4(1.0f);
-    //rotation[0][0] = xaxis.x; // First column, first row
-    //rotation[1][0] = xaxis.y;
-    //rotation[2][0] = xaxis.z;
-    //rotation[0][1] = yaxis.x; // First column, second row
-    //rotation[1][1] = yaxis.y;
-    //rotation[2][1] = yaxis.z;
-    //rotation[0][2] = zaxis.x; // First column, third row
-    //rotation[1][2] = zaxis.y;
-    //rotation[2][2] = zaxis.z;
-
-    //glm::mat4 view{ rotation * translation };
-    m_viewMatrix = view;
-    return view;
+const void OrthographicCamera::calculateViewMatrix()
+{
+    m_viewMatrix = glm::lookAt(m_direction, { 0.0f, 0.0f, 0.0f }, m_up);
+    m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
 }
 
 void Camera::fakeGravity(GLfloat deltaTime) {
@@ -104,6 +88,8 @@ void Camera::processKeyboard(CameraMovement direction)
         m_position.x += m_right.x * velocity;
         m_position.z += m_right.z * velocity;
     }
+
+    calculateViewMatrix();
 }
 
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -134,7 +120,7 @@ void Camera::processMouseScroll(GLfloat yoffset)
         m_fov = 1.0f;
     if (m_fov > 45.0f)
         m_fov = 45.0f;
-    calculateProjectionMatrixPerspective();
+    calculateProjectionMatrix();
 }
 
 // update m_front, m_right and m_up Vectors using the updated Euler angles
@@ -148,6 +134,8 @@ void Camera::updateCameraVectors()
     m_front = glm::normalize(temp);
     m_right = glm::normalize(glm::cross(m_front, m_defaultUp));  // normalize the vectors, because their length gets closer to 0 the more you look m_up or down which results in slower movement.
     m_up = glm::normalize(glm::cross(m_right, m_front));
+    
+    calculateViewMatrix();
 
     // TODO
     // This is a very "lazy" way to determine the right and up vectors.It makes a bunch of assumptions, including one that you will never, ever look straight up or down.
@@ -159,14 +147,4 @@ void Camera::updateCameraVectors()
     //Create a transformation matrix from Pitch and Yaw
     //    Apply that matrix to all three reference axises.
     //    (Optional)re - orthogonalize the resulting three vectors using cross products.
-}
-
-void Camera::calculateProjectionMatrixPerspective()
-{
-    m_projectionMatrix = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane);
-}
-
-void Camera::calculateProjectionMatrixOrthographic()
-{
-    m_projectionMatrix = glm::ortho(m_leftOrtho, m_rightOrtho, m_bottomOrtho, m_topOrtho, m_nearPlane, m_farPlane);
 }

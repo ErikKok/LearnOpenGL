@@ -44,7 +44,7 @@ glm::mat4 Global::getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::
 // Takes in full transformation parameters in World space, and outputs model in View space
 glm::mat4 Global::getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 { 
-    return Global::view * getModelMatrix(translate, rotateDegrees, rotateVec3, scale);
+    return Global::camera.getViewMatrix() * getModelMatrix(translate, rotateDegrees, rotateVec3, scale);
 }
 
 void Global::initStencilBuffer() {

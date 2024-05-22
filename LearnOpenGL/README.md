@@ -18,7 +18,14 @@ TO DO
 - depthMap naar eigen class?
 - emission = vec3(0.0f, 0.0f, 0.0f); in de schaduw
 - flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
-- flashlight frustum draait niet goed mee als je je omdraait
+- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
+
+v0.1.37 22-5-2024
+-----------------
+- moved (almost?) everything to Camera class
+- removed Global::view and ::projection
+- Camera now recalulates view/projectionmatrix if anything relevant changes
+- added OrthographicCamera
 
 v0.1.36 22-5-2024
 -----------------

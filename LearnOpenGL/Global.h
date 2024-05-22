@@ -31,8 +31,6 @@ namespace Global {
     inline glm::vec3 cameraFlashLightPosition{ 0.0f, 1.5f, 15.0f }; // init here for now
     inline Camera cameraFlashLight(1.0f, cameraFlashLightPosition + glm::vec3(0.4f, -0.5f, -0.3f)); // TODO get aspectratio from depthmap texture
 
-    inline glm::mat4 view{};
-    inline glm::mat4 projection{};
     inline bool windowsHasMouseFocus{ false };
 
     inline GLfloat deltaTime{ 0.0f };	// time between current frame and last frame
