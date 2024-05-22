@@ -21,9 +21,13 @@ public:
     const glm::vec3 getPosition() const { return m_position; };
     const glm::vec3 getUp() const { return m_up; };
     const float getNearPlane() const { return m_nearPlane; };
+    void setNearPlane(float x) { m_nearPlane = x; calculateProjectionMatrixPerspective(); };
     const float getFarPlane() const { return m_farPlane; };
+    void setFarPlane(float x) { m_farPlane = x; calculateProjectionMatrixPerspective(); };
     const float getAspectRatio() const { return m_aspectRatio; };
-    void setAspectRatio(float x);
+    void setAspectRatio(float x) { m_aspectRatio = x; calculateProjectionMatrixPerspective(); };
+    const float getFov() const { return m_fov; };
+    void setFov(float x) { m_fov = x; calculateProjectionMatrixPerspective(); };
 
     const glm::mat4 calculateViewMatrix();
     const glm::mat4 getViewMatrix() const { return m_viewMatrix; };
@@ -49,8 +53,8 @@ private:
     glm::vec3 m_up{};
     glm::vec3 m_right{};
     const glm::vec3 m_defaultUp{ 0.0f, 1.0f, 0.0f };
-    const GLfloat m_nearPlane{ 0.1f };
-    const GLfloat m_farPlane{ 400.0f };
+    GLfloat m_nearPlane{ 0.1f };
+    GLfloat m_farPlane{ 400.0f };
     // euler Angles
     GLfloat m_yaw{ -90.0f };
     GLfloat m_pitch{ 0.0f };
@@ -62,13 +66,12 @@ private:
     glm::mat4 m_viewMatrix{};
     glm::mat4 m_projectionMatrix{};
     glm::mat4 m_viewProjectionMatrix{};
-
+     
+    // recalculate projectionMatrix after changing
     float m_leftOrtho{ -20.0f };				// Used for Orthographic ProjectionMatrix
     float m_rightOrtho{ 20.0f };				// Used for Orthographic ProjectionMatrix
     float m_bottomOrtho{ -20.0f };			// Used for Orthographic ProjectionMatrix
     float m_topOrtho{ 20.0f };				// Used for Orthographic ProjectionMatrix
-    float m_nearPlaneOrtho{ -15.0f };
-    float m_farPlaneOrtho{ 35.0f };
 
     // update m_front, m_right and m_up Vectors using the updated Euler angles
     void updateCameraVectors();

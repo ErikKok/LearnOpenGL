@@ -1,6 +1,6 @@
 #shader vertex
 #version 330 core
-layout (location = 0) in vec3 aPos; // Normalized device coordinates of a 1x1 cube
+layout (location = 0) in vec3 aPos; // Normalized device coordinates of a cube ranging from 1 to -1
 
 uniform mat4 inverseMatrix; // Inverse depthMapDirLightFBO ViewProjectionMatrix // World space
 uniform mat4 viewProjectionMatrix; // VPM of the current scene in wich to render the frustum

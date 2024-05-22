@@ -78,12 +78,6 @@ void Camera::fakeGravity(GLfloat deltaTime) {
         m_position.y -= 0.2f * m_movementSpeed * deltaTime;
 }
 
-void Camera::setAspectRatio(float x)
-{
-    m_aspectRatio = x;
-    calculateProjectionMatrixPerspective();
-};
-
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 void Camera::processKeyboard(CameraMovement direction)
 {      
@@ -174,5 +168,5 @@ void Camera::calculateProjectionMatrixPerspective()
 
 void Camera::calculateProjectionMatrixOrthographic()
 {
-    m_projectionMatrix = glm::ortho(m_leftOrtho, m_rightOrtho, m_bottomOrtho, m_topOrtho, m_nearPlaneOrtho, m_farPlaneOrtho); // TODO minus?
+    m_projectionMatrix = glm::ortho(m_leftOrtho, m_rightOrtho, m_bottomOrtho, m_topOrtho, m_nearPlane, m_farPlane);
 }

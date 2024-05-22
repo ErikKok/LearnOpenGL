@@ -20,6 +20,10 @@ TO DO
 - flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
 - flashlight frustum draait niet goed mee als je je omdraait
 
+v0.1.36 22-5-2024
+-----------------
+- moved framebuffer/depthmap further to camera class
+
 v0.1.35 22-5-2024
 -----------------
 - added camera's for the shadowmaps

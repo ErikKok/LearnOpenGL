@@ -27,14 +27,9 @@ namespace Global {
     inline int windowHeight{ 1080 };
     inline Camera camera((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), glm::vec3(0.0f, 1.5f, 15.0f)); // 8.0f, 1.5f, 8.0f
 
-    inline glm::vec3 cameraDirLightDirection{ 0.7f, 0.9f, 0.8f }; // init here for now
-    inline Camera cameraDirLight((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), cameraDirLightDirection, cameraDirLightDirection - cameraDirLightDirection); // sun.getDirection() - sun.getDirection() == glm::vec3(0.0f, 0.0f, 0.0f)
-
-    inline glm::vec3 cameraSpotLightPosition{ 0.0f, -1.0f, 0.0f }; // init here for now
-    inline Camera cameraSpotLight((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), cameraSpotLightPosition, cameraSpotLightPosition + glm::vec3(0.0f, -cameraSpotLightPosition.y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
-
+    // in global because of toggle
     inline glm::vec3 cameraFlashLightPosition{ 0.0f, 1.5f, 15.0f }; // init here for now
-    inline Camera cameraFlashLight((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), cameraFlashLightPosition + glm::vec3(0.4f, -0.5f, -0.3f));
+    inline Camera cameraFlashLight(1.0f, cameraFlashLightPosition + glm::vec3(0.4f, -0.5f, -0.3f)); // TODO get aspectratio from depthmap texture
 
     inline glm::mat4 view{};
     inline glm::mat4 projection{};

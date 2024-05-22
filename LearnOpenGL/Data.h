@@ -345,7 +345,7 @@ namespace Data{
          0u, 6u, 1u,
     };
 
-    constexpr std::array cubeStrip = { // does not draw correct? starts or ends at 0, 0, 0?
+    constexpr std::array cubeStrip{ // does not draw correct? starts or ends at 0, 0, 0?
         -1.0f,  1.0f,  1.0f,      // Front-top-left
          1.0f,  1.0f,  1.0f,      // Front-top-right
         -1.0f, -1.0f,  1.0f,      // Front-bottom-left
@@ -360,6 +360,24 @@ namespace Data{
          1.0f, -1.0f, -1.0f,      // Back-bottom-right
         -1.0f,  1.0f, -1.0f,      // Back-top-left
          1.0f,  1.0f, -1.0f,      // Back-top-right 
+    };
+
+    // GL_TRIANGLE_STRIP Vertex Array
+    constexpr std::array cubeStrip2{
+         1.0f,	 1.0f,	 1.0f,      // 0 Front-top-right
+        -1.0f,	 1.0f,	 1.0f,      // 1 Front-top-left
+         1.0f,	 1.0f,	-1.0f,      // 2 Back-top-right
+        -1.0f,   1.0f,	-1.0f,      // 3 Back-top-left
+         1.0f,	-1.0f,	 1.0f,      // 4 Front-bottom-right
+        -1.0f,	-1.0f, 	 1.0f,      // 5 Front-bottom-left
+        -1.0f,	-1.0f,	-1.0f,      // 6 Back-bottom-left
+         1.0f,	-1.0f,	-1.0f,      // 7 Back-bottom-right
+    };
+
+    // GL_TRIANGLE_STRIP Elements Array
+    constexpr std::array cubeStrip2Elements{
+        3, 2, 6, 7, 4, 2, 0,
+        3, 1, 6, 5, 4, 1, 0
     };
 
     constexpr std::array cubeNDC{
