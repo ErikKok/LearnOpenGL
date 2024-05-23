@@ -3,7 +3,8 @@
 #include "mesh.h"
 
 #include "Data.h"
-#include "Global.h"
+#include "Global.h" 
+#include "Renderer.h" // for Material
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexArray.h"
@@ -45,7 +46,7 @@ void Mesh::setupMesh()
 }
 
 #pragma warning( suppress : 4100 )
-void Mesh::Draw(Shader& shader)
+void Mesh::Draw(Material& material)
 {
     // Set sampler2D uniforms to the correct texture unit for each texture in this Mesh
 
@@ -64,7 +65,7 @@ void Mesh::Draw(Shader& shader)
         if (textureType == textureType::diffuse)
             count = std::to_string(diffuseCount++);
         else if (textureType == textureType::specular)
-            count = std::to_string(specularCount++); // transfer unsigned int to string 
+            count = std::to_string(specularCount++); // transfer unsigned int to string
         else if (textureType == textureType::normal) // TODO
             break;
             //count = std::to_string(normalCount++); // transfer unsigned int to string
@@ -74,8 +75,19 @@ void Mesh::Draw(Shader& shader)
 
         std::string result{ "material." + m_textures[i]->getTypeAsString() + count };
         if (!FrameBuffer::s_depthMapPassActive)
-            shader.setInt(result, m_textures[i]->getBound());
-    }
+            material.shader.setInt(result, m_textures[i]->getBound());   
+    };
+
     m_vao->bindVertexArray();
+
+    // set remaining material properties
+    if (!FrameBuffer::s_depthMapPassActive) {
+        material.shader.setInt("material.emission", material.emission);
+        material.shader.setFloat("material.emissionStrength", material.emissionStrength);
+        material.shader.setFloat("material.shininess", material.shininess);
+        material.shader.setInt("material.flashLightEmissionMap", material.flashLightEmissionMap);
+        material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
+    }
+
     glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(m_vertices.size()), GL_UNSIGNED_INT, 0, 1);
 }

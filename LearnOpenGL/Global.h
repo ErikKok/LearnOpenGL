@@ -29,7 +29,7 @@ namespace Global {
 
     // in global because of toggle
     inline glm::vec3 cameraFlashLightPosition{ 0.0f, 1.5f, 15.0f }; // init here for now
-    inline Camera cameraFlashLight(1.0f, cameraFlashLightPosition + glm::vec3(0.4f, -0.5f, -0.3f)); // TODO get aspectratio from depthmap texture
+    inline Camera cameraFlashLight(1.77f, cameraFlashLightPosition + glm::vec3(0.4f, -0.5f, -0.3f)); // TODO get aspectratio from depthmap texture
 
     inline bool windowsHasMouseFocus{ false };
 

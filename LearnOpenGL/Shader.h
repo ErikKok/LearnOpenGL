@@ -12,7 +12,7 @@ public:
 
     const unsigned int getId() const { return m_id; };
 
-    void useShader();
+    void useShader() const;
 
     void setBool(const std::string& name, bool value) const;
     void setInt(const std::string& name, GLint value) const;
@@ -31,7 +31,7 @@ public:
 
 private:
     int getLocation(const std::string& name) const;
-    void checkCompileErrors(GLuint shader, std::string_view type);
+    void checkCompileErrors(GLuint shader, std::string_view type) const;
 
     unsigned int m_id;
 };

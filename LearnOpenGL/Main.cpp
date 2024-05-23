@@ -6,6 +6,7 @@
 #include "Global.h"
 #include "Light.h"
 #include "Model.h"
+#include "Renderer.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexArray.h"
@@ -53,7 +54,8 @@ int main()
 
     Global::glCheckError();
 
-    //Global::view = Global::camera.calculateViewMatrix();
+    Renderer renderer;
+
 
     /////////////////////////////////////
     ////// Skybox ///////////////////////
@@ -142,7 +144,7 @@ int main()
     sun.setAmbient(0.3f);
     sun.sendToShader(multiLight);
 
-    OrthographicCamera cameraDirLight(sun.getDirection(), -20.0f, 20.0f, -20.0f, 20.0f); 
+    OrthographicCamera cameraDirLight(sun.getDirection(), -20.0f, 20.0f, -20.0f, 20.0f);
 
     // DirLight depthMap
     Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
@@ -153,6 +155,7 @@ int main()
     cameraDirLight.setViewMatrix(glm::lookAt(sun.getDirection(), sun.getDirection() - sun.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))); // TODO
     cameraDirLight.calculateProjectionMatrix(); // TODO constructor doet perspective default...
     Shader shadowMapDirLight("Shaders\\shadowMapDirLight.shader");
+    //renderer.sshaderShadowMapDirLight = shadowMapDirLight; 
 
     // SpotLight
     SpotLight spotlight;
@@ -172,12 +175,13 @@ int main()
     Camera cameraSpotLight(1.0f, spotlight.getPosition(), spotlight.getPosition() + glm::vec3(0.0f, -spotlight.getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
 
     // SpotLight depthMap
-    Texture depthMapSpotLight(textureType::depthMap, 4096, 4096);
+    Texture depthMapSpotLight(textureType::depthMap, 1024, 1024);
     FrameBuffer depthMapSpotLightFBO(depthMapSpotLight);
     cameraSpotLight.setFov((36.0f + 48.0f) * 1.15f); // InnerCutOff + OuterCutOff + 15% for attenuation
     cameraSpotLight.setNearPlane(0.1f);
     cameraSpotLight.setFarPlane(10.0f);
     Shader shadowMapSpotLight("Shaders\\shadowMapSpotLight.shader");
+    //Renderer::shaderShadowMapDirLight = shadowMapSpotLight;
 
     // FlashLight
     FlashLight flashLight;
@@ -197,13 +201,16 @@ int main()
     flashLight.setOffset(0.4f, -0.5f, -0.3f);
     flashLight.sendToShader(multiLight);
 
+    Camera flashLightCamera(1.0f, glm::vec3(0.0f, 1.5f, 15.0f) + glm::vec3(0.4f, -0.5f, -0.3f)); // TODO get aspectratio from depthmap texture
+
     // FlashLight depthMap
-    Texture depthMapFlashLight(textureType::depthMap, 4096, 4096);
+    Texture depthMapFlashLight(textureType::depthMap, 1920, 1080);
     FrameBuffer depthMapFlashLightFBO(depthMapFlashLight);
-    Global::cameraFlashLight.setFov(45.0f);
+    Global::cameraFlashLight.setFov(60.0f);
     Global::cameraFlashLight.setNearPlane(0.1f);
     Global::cameraFlashLight.setFarPlane(400.0f);
     Shader shadowMapFlashLight("Shaders\\shadowMapFlashLight.shader");
+    //Renderer::shaderShadowMapDirLight = shadowMapFlashLight;
 
     /////////////////////////////////////
     ////// LightCube ////////////////////
@@ -228,6 +235,28 @@ int main()
     cubeVAO.addVertexAttributeLayout(cubeVBO, cubeLayout);
     ElementBuffer cubeTestEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
 
+    Material cubeMaterial{
+        .shader{ multiLight },
+        .shaderShadowMapDirLight { shadowMapDirLight },
+        .diffuse1{ 8 },
+        .specular1{ 9 },
+        .emission{ 10 },
+        .emissionStrength{ 0.5f },
+        .shininess{ 32.0f },
+        .flashLightEmissionMap{ 11 },
+        .flashLightEmissionTexture{ 12 },
+    };
+
+    //multiLight.useShader();
+    //multiLight.setFloat("material.shininess", 32.0f);
+    //multiLight.setInt("material.diffuse1", 8);
+    //multiLight.setInt("material.specular1", 9);
+    //multiLight.setInt("material.emission", 10);
+    //multiLight.setFloat("material.emissionStrength", 0.5f);
+    //multiLight.setInt("material.flashLightEmissionMap", 11);
+    //multiLight.setInt("material.flashLightEmissionTexture", 12);
+    //multiLight.setFloat("flashLight.emissionStrength", 1.0f);
+
     /////////////////////////////////////
     ////// Floor ////////////////////////
     std::println("CREATE Floor");////////
@@ -242,13 +271,25 @@ int main()
     ElementBuffer floorEBO(sizeof(Data::floorIndices), &Data::floorIndices);
     float floorOutlineAlpha{ 0.0f };
 
+    Material floorMaterial{
+        .shader{ multiLight },
+        .shaderShadowMapDirLight { shadowMapDirLight },
+        .diffuse1{ 4 },
+        .specular1{ 0 },
+        .emission{ 0 },
+        .emissionStrength{ 0.0f },
+        .shininess{ 8.0f },
+        .flashLightEmissionMap{ 0 },
+        .flashLightEmissionTexture{ 12 },
+    };
+
     ////////////////////////////////////
     ////// Models //////////////////////
     std::println("LOAD Model");/////////
 
     float loadTime{ static_cast<float>(glfwGetTime()) };
 
-    Shader ourModelShader("Shaders\\multiLight.shader");
+    //Shader ourModelShader("Shaders\\multiLight.shader");
     Model ourModel("Models/Backpack/backpack.obj");
     //Model ourModel("Models/Nanosuit/nanosuit.obj");
     //Model ourModel("Models/Cyborg/cyborg.obj");
@@ -256,6 +297,18 @@ int main()
     //Model ourModel("Models/Rock/rock.obj");
     //Model ourModel("Models/Vampire/dancing_vampire.dae"); // crash
     //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
+
+    Material modelMaterial{
+        .shader{ multiLight },
+        .shaderShadowMapDirLight { shadowMapDirLight },
+        .diffuse1{ 0 },
+        .specular1{ 0 },
+        .emission{ 0 },
+        .emissionStrength{ 0.0f },
+        .shininess{ 256.0f },
+        .flashLightEmissionMap{ 0 },
+        .flashLightEmissionTexture{ 0 },
+    };
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -269,7 +322,7 @@ int main()
     /* 01 */ Texture blackTexture(0x00000000);
     /* 01 */ Texture whiteTexture(0xffffffff);
     /* 02 */
-    /* 03 */ Texture flashlightTexture("Textures\\flashlight.jpg");
+    /* 03 */ Texture flashLightTexture("Textures\\flashlight.jpg");
     /* 04 */ Texture floorTexture("Textures\\floor.jpg");
     /* 05 */
     /* 06 */
@@ -277,8 +330,8 @@ int main()
     /* 08 */ Texture cubeDiffuse("Textures\\container2.png");
     /* 09 */ Texture cubeSpecular("Textures\\container2_specular.png");
     /* 10 */ Texture cubeEmission("Textures\\emission.png");
-    /* 11 */ Texture flashlightMap("Textures\\container2_emission.png");
-    /* 12 */ Texture flashlightResult("Textures\\matrix.jpg");
+    /* 11 */ Texture flashLightEmissionMapTexture("Textures\\container2_emission.png");
+    /* 12 */ Texture flashLightEmissionTexture("Textures\\matrix.jpg");
     /* 13 */
     /* 14 */
     /* 15 */
@@ -287,7 +340,7 @@ int main()
     /* 01 */ blackTexture.bind(0);
     /* 01 */ whiteTexture.bind(1);
     /* 02 */ depthMapDirLight.bind(2);
-    /* 03 */ flashlightTexture.bind(3);
+    /* 03 */ flashLightTexture.bind(3);
     /* 04 */ floorTexture.bind(4);
     /* 05 */ depthMapSpotLight.bind(5);
     /* 06 */ depthMapFlashLight.bind(6);
@@ -295,8 +348,8 @@ int main()
     /* 08 */ cubeDiffuse.bind(8);
     /* 09 */ cubeSpecular.bind(9);
     /* 10 */ cubeEmission.bind(10);
-    /* 11 */ flashlightMap.bind(11);
-    /* 12 */ flashlightResult.bind(12);
+    /* 11 */ flashLightEmissionMapTexture.bind(11);
+    /* 12 */ flashLightEmissionTexture.bind(12);
     /* 13 */
     /* 14 */
     /* 15 */
@@ -360,6 +413,8 @@ int main()
 
         loadTime = static_cast<float>(glfwGetTime());
 
+        //Renderer::s_renderPassActive = renderPassType::depthMapDirLight;
+
         depthMapDirLightFBO.startDepthMap(shadowMapDirLight);
 
         /////////////////////////////////////
@@ -390,7 +445,9 @@ int main()
         }
         dirLightMVPMatrixSSBO.updateAndBind();
 
-        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
+        renderer.draw(cubeVAO, cubeTestEBO, cubeMaterial, std::size(Data::cubePositions));
+
+        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
 
         /////////////////////////////////////
         ////// Model ShadowPass dirLight ////
@@ -399,7 +456,7 @@ int main()
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraDirLight.getViewProjectionMatrix() * model);
 
-        ourModel.Draw(shadowMapDirLight);
+        ourModel.Draw(modelMaterial, shadowMapDirLight);
 
         /////////////////////////////////////
         ////// Floor ShadowPass dirLight ////
@@ -409,7 +466,9 @@ int main()
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
         dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraDirLight.getViewProjectionMatrix() * model);
 
-        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
+        renderer.draw(floorVAO, floorEBO, floorMaterial);
+
+        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // End ShadowPass dirLight //////////////////////////////////////////////////////////
@@ -423,6 +482,8 @@ int main()
         /////////////////////////////////////////////////////////////////////////////////////
 
         loadTime = static_cast<float>(glfwGetTime());
+
+        //Renderer::s_renderPassActive = renderPassType::depthMapSpotLight;
 
         depthMapSpotLightFBO.startDepthMap(shadowMapSpotLight);
         glm::vec3 cameraPos = spotlight.getPosition(); // TODO sync light position with camera classes
@@ -468,7 +529,7 @@ int main()
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraSpotLight.getViewProjectionMatrix() * model);
 
-        ourModel.Draw(shadowMapSpotLight);
+        ourModel.Draw(modelMaterial, shadowMapSpotLight);
 
         /////////////////////////////////////
         ////// Floor ShadowPass spotLight ///
@@ -492,6 +553,8 @@ int main()
         /////////////////////////////////////////////////////////////////////////////////////
 
         loadTime = static_cast<float>(glfwGetTime());
+
+        //Renderer::s_renderPassActive = renderPassType::depthMapFlashLight;
 
         if (!Global::flashLightOnUpdated) {
             multiLight.useShader();
@@ -538,7 +601,7 @@ int main()
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
-        ourModel.Draw(shadowMapFlashLight);
+        ourModel.Draw(modelMaterial, shadowMapFlashLight);
 
         /////////////////////////////////////
         ////// Floor ShadowPass flashLight //
@@ -564,6 +627,8 @@ int main()
         loadTime = static_cast<float>(glfwGetTime());
         glViewport(0, 0, Global::windowWidth, Global::windowHeight);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //Renderer::s_renderPassActive = renderPassType::normal;
 
         //Global::camera.fakeGravity(Global::deltaTime);
 
@@ -611,8 +676,8 @@ int main()
         multiLight.setInt("material.specular1", 9);
         multiLight.setInt("material.emission", 10);
         multiLight.setFloat("material.emissionStrength", 0.5f);
-        multiLight.setInt("material.flashlightMap", 11);
-        multiLight.setInt("material.flashlightResult", 12);
+        multiLight.setInt("material.flashLightEmissionMap", 11);
+        multiLight.setInt("material.flashLightEmissionTexture", 12);
         multiLight.setFloat("flashLight.emissionStrength", 1.0f);
 
         cubeVAO.bindVertexArray();
@@ -652,13 +717,15 @@ int main()
         spotLightMVPMatrixSSBO.updateAndBind();
         flashLightMVPMatrixSSBO.updateAndBind();
 
-        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
+        renderer.draw(cubeVAO, cubeTestEBO, cubeMaterial, std::size(Data::cubePositions));
+
+        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
 
         /////////////////////////////////////
         ////// Model ////////////////////////
         /////////////////////////////////////
 
-        multiLight.useShader();
+        //multiLight.useShader();
 
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         modelViewMatrix = Global::camera.getViewMatrix() * model;
@@ -669,10 +736,14 @@ int main()
         spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraSpotLight.getViewProjectionMatrix() * model);
         flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
-        multiLight.setFloat("material.shininess", 256.0f);
-        multiLight.setInt("material.emission", 0); // black - 'disable' emission with a black texture
-        multiLight.setFloat("flashLight.emissionStrength", 0.0f);
-        ourModel.Draw(multiLight);
+        //multiLight.setFloat("material.shininess", 256.0f);
+        //multiLight.setInt("material.emission", 0); // black - 'disable' emission with a black texture
+        //multiLight.setFloat("flashLight.emissionStrength", 0.0f);
+        //modelMaterial.shader.setInt("material.emission", modelMaterial.emission);
+
+        //modelMaterial.shader.useShader(); // TODO verplaatsen naar Draw()
+        //ourModel.Draw2(modelMaterial);
+        ourModel.Draw(modelMaterial, multiLight);
 
         /////////////////////////////////////
         ////// Floor ////////////////////////
@@ -680,25 +751,27 @@ int main()
 
         glStencilMask(0xFF); // enable writing to the stencil buffer
 
-        multiLight.useShader();
-        floorVAO.bindVertexArray();
-        multiLight.setFloat("material.shininess", 8.0f);
-        multiLight.setInt("material.diffuse1", 4);
-        multiLight.setInt("material.specular1", 0); // black
-        multiLight.setFloat("material.emissionStrength", 0.0f); // 'disable' emission with zero strength
-        multiLight.setFloat("flashLight.emissionStrength", 0.0f);
+        //multiLight.useShader();
+        //floorVAO.bindVertexArray();
+        //multiLight.setFloat("material.shininess", 8.0f);
+        //multiLight.setInt("material.diffuse1", 4);
+        //multiLight.setInt("material.specular1", 0); // black
+        //multiLight.setFloat("material.emissionStrength", 0.0f); // 'disable' emission with zero strength
+        //multiLight.setFloat("flashLight.emissionStrength", 0.0f);
 
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f));
         modelViewMatrix = Global::camera.getViewMatrix() * model;
         NormalMatrixSSBO.setVectorAndUpdateAndBind(glm::transpose(glm::inverse(modelViewMatrix)));
         ModelViewMatrixSSBO.setVectorAndUpdateAndBind(modelViewMatrix);
-        MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::camera.getProjectionMatrix()* modelViewMatrix);
+        MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::camera.getProjectionMatrix() * modelViewMatrix);
         dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraDirLight.getViewProjectionMatrix() * model);
         spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraSpotLight.getViewProjectionMatrix() * model);
-        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix()* model);
+        flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
         glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
-        glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
+
+        renderer.draw(floorVAO, floorEBO, floorMaterial);
+        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
         glEnable(GL_CULL_FACE);
 
         glStencilMask(0x00); // disable writing to the stencil buffer
@@ -734,7 +807,7 @@ int main()
             glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
 
             modelViewMatrix = Global::getModelViewMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(26.0, 26.0, 2.0));
-            MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::camera.getProjectionMatrix()* modelViewMatrix);
+            MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::camera.getProjectionMatrix() * modelViewMatrix);
 
             floorVAO.bindVertexArray();
 
@@ -792,19 +865,19 @@ int main()
 
             //
 
-            //frustum.useShader();
-            //cubeNDCVAO.bindVertexArray();
-            //frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
-            //frustum.setMat4("inverseMatrix", glm::inverse(depthMapFlashLightFBO.getViewProjectionMatrix())); // Global::cameraFlashLight.getProjectionMatrix()* Global::cameraFlashLight.getViewMatrix())); // TODO
-            //frustum.setMat4("viewProjectionMatrix", Global::projection * Global::view);
+            frustum.useShader();
+            cubeNDCVAO.bindVertexArray();
+            frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
+            frustum.setMat4("inverseMatrix", glm::inverse(Global::cameraFlashLight.getViewProjectionMatrix())); // Global::cameraFlashLight.getProjectionMatrix()* Global::cameraFlashLight.getViewMatrix())); // TODO
+            frustum.setMat4("viewProjectionMatrix", Global::camera.getViewProjectionMatrix());
 
-            //glDisable(GL_CULL_FACE);
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            //glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            //frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f });
-            //glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
-            //glEnable(GL_CULL_FACE);
+            glDisable(GL_CULL_FACE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f });
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            glEnable(GL_CULL_FACE);
         }
 
         // Draw debug quad - toggle with Q

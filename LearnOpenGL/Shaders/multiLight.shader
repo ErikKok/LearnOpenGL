@@ -95,11 +95,11 @@ struct Material {
     sampler2D specular1;
     //sampler2D normal1;
     //sampler2D height1;
-    sampler2D emission;
-    float emissionStrength;
-    sampler2D flashlightMap;
-    sampler2D flashlightResult;
-    float shininess;    // Impacts the scattering/radius of the specular highlight
+    sampler2D emission;         // Texture used used for emission on the object itself (no emissionMap involved, just 100% coverage)
+    float emissionStrength;     // Strength for emission
+    float shininess;            // Impacts the scattering/radius of the specular highlight
+    sampler2D flashLightEmissionMap;    // EmissionMap used for flashLight emission
+    sampler2D flashLightEmissionTexture; // Texture used for flashLight emission
 };   
 uniform Material material;
 
@@ -354,8 +354,8 @@ vec3 CalcFlashLight(FlashLight light)
     }
 
     // emission (put them in main if needed by other functions, slower)
-    vec3 textureflashlightMap = vec3(texture(material.flashlightMap, vs_out.TexCoords));
-    vec3 textureflashlightResult = vec3(texture(material.flashlightResult, vs_out.TexCoords));
+    vec3 textureFlashlightEmissionMap = vec3(texture(material.flashLightEmissionMap, vs_out.TexCoords));
+    vec3 textureFlashlightEmissionTexture = vec3(texture(material.flashLightEmissionTexture, vs_out.TexCoords));
     // #1. emission: using specularMap as stamp, with if statement
     //vec3 emission = vec3(0.0f);                         // Default no textureEmission visible
     //if (textureSpecular.r == 0.0f) {                    // if textureSpecular == black (or whatever you choose)
@@ -364,7 +364,7 @@ vec3 CalcFlashLight(FlashLight light)
     // #2. emission: using specularMap as stamp, no if statement, a bit quicker, but less flexible (disable textureEmissionResult calculation)
     //vec3 emission = textureSpecular.r * light.emission * textureEmissionResult;
     // #3. emission: using specific emissionMap as stamp, a bit slower
-    vec3 emission = textureflashlightMap.r * light.emissionStrength * textureflashlightResult;
+    vec3 emission = textureFlashlightEmissionMap.r * light.emissionStrength * textureFlashlightEmissionTexture;
     emission *= shadow;
     emission *= intensity;
     emission *= attenuation;
@@ -386,6 +386,7 @@ void main()
     if (flashLight.on)
         resultFlashLight = CalcFlashLight(flashLight);       
 
+    // emission - no emissionMap involved, just 100% coverage
     vec3 emissionMaterial = texture(material.emission, vs_out.TexCoords).rgb * material.emissionStrength;
 
     FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + resultFlashLight + emissionMaterial, 1.0);

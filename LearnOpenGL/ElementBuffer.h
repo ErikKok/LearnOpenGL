@@ -12,10 +12,12 @@ public:
     ~ElementBuffer();
 
     const GLuint getId() const { return m_id; };
+    const GLuint getCount() const { return m_count; };
 
     void bindElementBuffer() const;
     void unbindElementBuffer() const;
 
 private:
     GLuint m_id{};
+    GLuint m_count{};
 };

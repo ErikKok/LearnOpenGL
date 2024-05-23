@@ -16,9 +16,18 @@ TO DO
 - use sampler2DShadow
 - cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
 - depthMap naar eigen class?
-- emission = vec3(0.0f, 0.0f, 0.0f); in de schaduw
-- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
-- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
+- flashlight
+	- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
+	- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
+	- flashlight frustum is niet meer beeldvullend NA eerste gebruik zoomfunctie
+- test cube triangle strip
+- check of functies const kunnen worden
+- shader: in useShader een if maken of de shader al actief i?
+
+v0.1.38 22-5-2024
+-----------------
+- added Renderer Class
+- added Material Struct
 
 v0.1.37 22-5-2024
 -----------------

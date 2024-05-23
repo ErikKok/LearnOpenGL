@@ -2,6 +2,7 @@
 
 #include "Buffers.h"
 #include "Global.h"
+#include "Renderer.h" // for Material
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexArray.h"
@@ -30,7 +31,7 @@ public:
     Mesh& operator=(Mesh&& other) noexcept = default;	// Move assignment
     ~Mesh() = default;									// Destructor
 
-    void Draw(Shader& shader);
+    void Draw(Material& material);
 
 private:
     std::vector<Vertex> m_vertices;

@@ -124,11 +124,16 @@ Shader::Shader(const std::string& shaderPath)
     //    Why didn't he realise that he can avoid the whole mutable situation by caching all uniforms at the creation of the shader?
 }
 
-void Shader::useShader()
+void Shader::useShader() const
 {
     //std::println("USE Shader: {}", m_id); 
     glUseProgram(m_id);
     Global::glCheckError();
+
+    //GLint returnData{};
+    //glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
+    //assert(returnData == static_cast<GLint>(material.shader.getId()) && "Wrong shader active");
+    //if (returnData != static_cast<GLint>(material.shader.getId()))
 }
 
 int Shader::getLocation(const std::string& name) const{
@@ -210,7 +215,7 @@ void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
     glUniformMatrix4fv(Shader::getLocation(name), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::checkCompileErrors(GLuint shader, std::string_view type)
+void Shader::checkCompileErrors(GLuint shader, std::string_view type) const
 {
     int success{};
     char infoLog[1024];

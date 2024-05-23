@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Global.h"
+#include "Camera.h"
 
 GLenum Global::glCheckError_(const char* file, int line)
 {

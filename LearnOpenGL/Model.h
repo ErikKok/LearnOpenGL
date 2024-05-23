@@ -2,6 +2,7 @@
 
 #include "Global.h"
 #include "Mesh.h"
+#include "Renderer.h" // for Material
 #include "Shader.h"
 #include "Texture.h"
 
@@ -20,7 +21,9 @@ public:
     Model& operator=(const Model& other) = delete;		// Copy assignment
     Model(Model&& other) noexcept = default; 			// Move constructor	
     Model& operator=(Model&& other) noexcept = default;	// Move assignment
-    void Draw(Shader& shader);
+    
+    // TODO Takes in a separate Shader otherwise you have to make a lot of materials
+    void Draw(Material& material, Shader& shader);
 
     // int getUniqueTexturesCount() return m_texturesLoaded.size();
 

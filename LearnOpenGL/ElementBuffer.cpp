@@ -8,6 +8,7 @@
 #include <cassert>
 
 ElementBuffer::ElementBuffer(size_t size, const GLvoid* data)
+	: m_count{ static_cast<GLuint>(size / sizeof(GL_FLOAT)) }
 {
 	glGenBuffers(1, &m_id);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);

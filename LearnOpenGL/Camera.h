@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -16,6 +18,10 @@ enum class CameraMovement {
 class Camera
 {
 public:
+    //static inline std::vector<Camera> cameras;
+    //Camera::cameras.emplace_back(1.0f, glm::vec3(0.0f, 1.5f, 15.0f) + glm::vec3(0.4f, -0.5f, -0.3f));
+    //Camera::cameras[1].whatever
+
     Camera(float aspectRatio, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
 
     const glm::vec3 getPosition() const { return m_position; };
