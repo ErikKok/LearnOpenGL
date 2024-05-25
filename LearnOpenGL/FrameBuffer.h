@@ -35,7 +35,7 @@ public:
 	void bind();
 	void unbind();
 
-	void startDepthMap(Shader shader);
+	void startDepthMap(const Shader* shader);
 	void stopDepthMap();
 
 private:

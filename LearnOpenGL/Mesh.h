@@ -31,16 +31,16 @@ public:
     Mesh& operator=(Mesh&& other) noexcept = default;	// Move assignment
     ~Mesh() = default;									// Destructor
 
-    void Draw(Material& material);
+    void Draw(const Material& material);
 
 private:
     std::vector<Vertex> m_vertices;
     std::vector<unsigned int> m_indices;
     std::vector<SPtr<Texture>> m_textures;
-    std::unique_ptr<VertexArray> m_vao; 
-    std::unique_ptr<VertexBuffer> m_vbo;
-    std::unique_ptr<ElementBuffer> m_ebo;
-    std::unique_ptr<VertexAttributeLayout> m_layout;
+    std::unique_ptr<VertexArray> m_vao{ nullptr };
+    std::unique_ptr<VertexBuffer> m_vbo{ nullptr };
+    std::unique_ptr<ElementBuffer> m_ebo{ nullptr };
+    std::unique_ptr<VertexAttributeLayout> m_layout{ nullptr };
 
     void setupMesh();
 };

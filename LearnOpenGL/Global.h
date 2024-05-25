@@ -16,11 +16,24 @@
 // Used for game engine specific references/assets only, which maybe will be handled by an asset manager in the future
 // See https://youtu.be/HkGZ378nArE?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT
 // TODO - in de namespace plaatsen?
+
+// Usage
+// Class data member: std::unique_ptr<Type> name{ nullptr };
+// Initialize: name = std::make_unique<Type>(optional arguments);
+// 'Stand alone':
+// std::unique_ptr name{ std::make_unique<Type>(optional arguments) };
+// auto name{ std::make_unique<Type>(optional arguments) }; (shorter, same result)
+//
+//.get() = get a raw resource pointer from a std::unique_ptr
+
 template <typename T>
 using SPtr = std::shared_ptr<T>;
 
 template <typename T>
 using UPtr = std::unique_ptr<T>;
+
+
+////////////////////////
 
 namespace Global {
     inline int windowWidth{ 1920 };

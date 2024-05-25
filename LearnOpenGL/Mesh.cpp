@@ -21,10 +21,10 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
     :m_vertices{vertices}
     ,m_indices{indices}
     ,m_textures{textures}
-    ,m_vao{ new VertexArray{} }
-    ,m_vbo{ new VertexBuffer(m_vertices.size() * sizeof(Vertex), &m_vertices[0])}
-    ,m_ebo{ new ElementBuffer(m_indices.size() * sizeof(unsigned int), &m_indices[0])}
-    ,m_layout{ new VertexAttributeLayout{} }
+    ,m_vao{ std::make_unique<VertexArray>() }
+    ,m_vbo{ std::make_unique<VertexBuffer>(m_vertices.size() * sizeof(Vertex), &m_vertices[0]) }
+    ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(unsigned int), &m_indices[0]) }
+    ,m_layout{ std::make_unique<VertexAttributeLayout>() }
 {
     //std::println("CREATE Mesh");
     setupMesh();
@@ -46,7 +46,7 @@ void Mesh::setupMesh()
 }
 
 #pragma warning( suppress : 4100 )
-void Mesh::Draw(Material& material)
+void Mesh::Draw(const Material& material)
 {
     // Set sampler2D uniforms to the correct texture unit for each texture in this Mesh
 

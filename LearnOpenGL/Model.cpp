@@ -27,14 +27,14 @@ Model::Model(std::string const& path, bool gamma)
     loadModel(path);
 }
 #pragma warning( suppress : 4100 )
-void Model::Draw(Material& material, Shader& shader)
+void Model::Draw(const Material& material, const Shader* shader)
 {
     //GLint returnData{};
     //glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
     //assert(returnData == static_cast<GLint>(material.shader.getId()) && "Wrong shader active");
     //if (returnData != static_cast<GLint>(material.shader.getId()))
     
-    shader.useShader();
+    shader->useShader();
 
     // Bind all unique textures to a texture unit, so they are ready to use
     // Using TU 16 to 31 (always starting from 16, so only one model can be loaded at once -> TODO)
