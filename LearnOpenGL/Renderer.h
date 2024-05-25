@@ -7,6 +7,7 @@
 
 #include <memory> // for std::unique_ptr
 
+// TODO transparency opslaan in Material, of uit texture halen in constructor van een Material class
 struct Material {
 	Shader& shader;
 	int diffuse1{ 0 };				// sampler2D
@@ -41,6 +42,7 @@ public:
 	void createShaderShadowMapFlashLight(std::string string) { m_shaderShadowMapFlashLight = std::make_unique<Shader>(string); };
 	const Shader* getShaderSingleColor() const { return m_shaderSingleColor.get(); };
 	void createShaderSingleColor(std::string string) { m_shaderSingleColor = std::make_unique<Shader>(string); };
+	void createShaderSkybox(std::string string) { m_shaderSkybox = std::make_unique<Shader>(string); };
 
 	void clear()
 	{
@@ -50,7 +52,7 @@ public:
 
 	// TODO store the vao/ebo's etc in a list/batch/whatever, order them, then batch render them
 	// void draw(RederBatch);
-	void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const
+	void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1, bool triangleStrip = false) const
 	{
 		if (m_renderPassActive == renderPassType::normal) {
 			material.shader.useShader();
@@ -80,8 +82,10 @@ public:
 		}
 
 		vao.bindVertexArray();
-
-		glDrawElementsInstanced(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0, instances); // ebo.getCount() untested!
+		if (triangleStrip) // TODO dit uit de mesh halen, die uiteindelijk als invoer moet dienen voor deze functie
+			glDrawElementsInstanced(GL_TRIANGLE_STRIP, ebo.getCount(), GL_UNSIGNED_INT, 0, instances); // ebo.getCount() untested!
+		if (!triangleStrip)
+			glDrawElementsInstanced(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0, instances); // ebo.getCount() untested!
 
 		if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
 			//glCullFace(GL_BACK);
@@ -91,12 +95,15 @@ public:
 		//std::println("RENDERER draw");
 	};
 
-	void drawSingleColor(const VertexArray& vao, const ElementBuffer& ebo, const glm::vec4 color, GLsizei instances = 1) const
+	void drawSingleColor(const VertexArray& vao, const ElementBuffer& ebo, const glm::vec4 color, GLsizei instances = 1, bool triangleStrip = false) const
 	{
 		m_shaderSingleColor->useShader();
 		m_shaderSingleColor->setVec4("color", color);
 		vao.bindVertexArray();
-		glDrawElementsInstanced(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0, instances); // ebo.getCount() untested!
+		if (triangleStrip) // TODO dit uit de mesh halen, die uiteindelijk als invoer moet dienen voor deze functie
+			glDrawElementsInstanced(GL_TRIANGLE_STRIP, ebo.getCount(), GL_UNSIGNED_INT, 0, instances);
+		if (!triangleStrip)
+			glDrawElementsInstanced(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0, instances);
 
 		Global::glCheckError();
 	};
@@ -148,6 +155,28 @@ public:
 		zVAO.bindVertexArray();
 		m_shaderSingleColor->setVec4("color", { 0.0f, 0.0f, 1.0f, 1.0f });
 		glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(z.size()));
+
+		//constexpr std::array xyz{
+		//	// Positions             // Colors        
+		//	-10.0f,   0.0f,  0.0f,   1.0f, 0.0f, 0.0f,
+		//	 10.0f,   0.0f,  0.0f,   1.0f, 0.0f, 0.0f,
+		//	 0.0f,  -10.0f,  0.0f,   0.0f, 1.0f, 0.0f,
+		//	 0.0f,   10.0f,  0.0f,   0.0f, 1.0f, 0.0f,
+		//	 0.0f,    0.0f, -10.0f,  0.0f, 0.0f, 1.0f,
+		//	 0.0f,    0.0f,  10.0f,  0.0f, 0.0f, 1.0f,
+		//};
+	}
+
+	void drawSkybox(const VertexArray& vao, const ElementBuffer& ebo) {
+		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+		m_shaderSkybox->useShader();
+		m_shaderSkybox->setMat4("viewProjectionMatrixTranslationRemoved", Global::camera.getProjectionMatrix() * glm::mat4(glm::mat3(Global::camera.getViewMatrix()))); // remove translation from the view matrix (cast to mat3 and back to mat4)
+		vao.bindVertexArray();
+		//cubemapTexture.bindTexture(); // No need to bind if there is just a single GL_TEXTURE_CUBE_MAP
+		glCullFace(GL_FRONT); // TODO cube is viewed from the inside, however there is a simple correction, reverse the order of vertices, and it will become front-facing-outward (not inward). klopt dat? of zo laten...?
+		glDrawElementsInstanced(GL_TRIANGLE_STRIP, ebo.getCount(), GL_UNSIGNED_INT, 0, 1);
+		glCullFace(GL_BACK);
+		glDepthFunc(GL_LESS); // set depth function back to default
 	}
 
 private:
@@ -157,4 +186,15 @@ private:
 	std::unique_ptr<Shader> m_shaderShadowMapSpotLight{ nullptr };
 	std::unique_ptr<Shader> m_shaderShadowMapFlashLight{ nullptr };
 	std::unique_ptr<Shader> m_shaderSingleColor{ nullptr };
+	std::unique_ptr<Shader> m_shaderSkybox{ nullptr };
+
+	bool glStencilFuncActive{};
+	bool glDepthTestActive{}; // ?
+
+	//glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_CULL_FACE);
+	//glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 };

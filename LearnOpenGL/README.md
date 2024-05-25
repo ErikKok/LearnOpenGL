@@ -19,18 +19,24 @@ TO DO
 - flashlight
 	- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
 	- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
-		-	flashlight positie updaten na player positie is geupdated met offset
+	- flashlight positie updaten na player positie is geupdated met offset
 	- flashlight frustum is niet meer beeldvullend NA eerste gebruik zoomfunctie
-- test cube triangle strip
 - check of functies const kunnen worden
 - check of functies wel refs innemen ipv copy's, bij const Shader& shader in Light class
 - shader: in useShader een if maken of de shader al actief is?
+- glResult als global opslaan ipv elke keer opvragen
 - namen depthMap en shadowMap consistent maken
-- replace draw mesh/model with renderer draw - evntually
-- mesh class gebruiken,  door huidige te inheriten
-- XYZ kan via SingleColorShader worden gedaan
+- replace draw mesh/model with renderer draw - eventually
+- mesh class gebruiken, door huidige te inheriten
+- try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
+- remove s_depthMapPassActive, only used for Mesh::Draw()
 
-asset manager - unique ptr owns the object, returns a raw * if needed
+- asset manager - unique ptr owns the object, returns a raw * if needed
+
+v0.1.40 25-5-2024
+-----------------
+- replaced cube with cubeStrip and a cube with less elements
+- sorted Data.cpp
 
 v0.1.39 25-5-2024
 -----------------

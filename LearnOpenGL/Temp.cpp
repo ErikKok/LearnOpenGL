@@ -1,3 +1,43 @@
+//
+//constexpr std::array cubeIndices{
+//     bl, tr, br,        // Z+ back
+//     tr, bl, tl,
+//
+//     bl, br, tr,        // Z- front
+//     tr, tl, bl,
+//
+//     tr, tl, blu,     // X+ left
+//     blu, bru, tru,
+//
+//     tlu, bru, tru,     // X- right
+//     bru, tlu, blu,
+//
+//     tru, tlu, blu,     // Y- bottom
+//     blu, bru, tru,
+//
+//     tlu, bru, tru,     // Y+ top
+//     bru, tlu, blu,
+//};
+//
+//constexpr std::array cubeIndices{
+//     0u, 1u, 2u,        // Z+ back
+//     1u, 0u, 3u,
+//
+//     4u, 5u, 6u,        // Z- front
+//     6u, 7u, 4u,
+//
+//     8u, 9u, 10u,     // X+ left
+//     10u, 11u, 8u,
+//
+//     12u, 13u, 14u,     // X- right
+//     13u, 12u, 15u,
+//
+//     16u, 17u, 18u,     // Y- bottom
+//     18u, 19u, 16u,
+//
+//     20u, 21u, 22u,     // Y+ top
+//     21u, 20u, 23u,
+//};
 
 ////// SingleCube Main
 

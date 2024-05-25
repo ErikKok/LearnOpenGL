@@ -61,31 +61,7 @@ int main()
     renderer.createShaderShadowMapSpotLight("Shaders\\shadowMapSpotLight.shader");
     renderer.createShaderShadowMapFlashLight("Shaders\\shadowMapFlashLight.shader");
     renderer.createShaderSingleColor("Shaders\\singleColor.shader");
-
-    Shader singleColor("Shaders\\singleColor.shader");
-
-    /////////////////////////////////////
-    ////// Skybox ///////////////////////
-    std::println("CREATE Skybox");///////
-
-    VertexArray skyboxVAO;
-    VertexBuffer skyboxVBO(sizeof(Data::skybox1), &Data::skybox1);
-    VertexAttributeLayout skyboxLayout;
-    skyboxLayout.pushVertexAttributeLayout<float>(3);
-    skyboxVAO.addVertexAttributeLayout(skyboxVBO, skyboxLayout);
-    Shader skyboxShader("Shaders\\skybox.shader");
-
-    ///////////////////////////////////////
-    //////// XYZ //////////////////////////
-    //std::println("CREATE XYZ");//////////
-
-    //VertexArray xyzVAO;
-    //VertexBuffer xyzVBO(sizeof(Data::xyz), &Data::xyz);
-    //VertexAttributeLayout xyzLayout;
-    //xyzLayout.pushVertexAttributeLayout<float>(3);
-    //xyzLayout.pushVertexAttributeLayout<float>(3);
-    //xyzVAO.addVertexAttributeLayout(xyzVBO, xyzLayout);
-    //Shader xyzShader("Shaders\\xyz.shader");
+    renderer.createShaderSkybox("Shaders\\skybox.shader");
 
     /////////////////////////////////////
     ////// Lights ///////////////////////
@@ -160,7 +136,7 @@ int main()
     cameraDirLight.setNearPlane(-15.0f);
     cameraDirLight.setFarPlane(35.0f);
     cameraDirLight.setViewMatrix(glm::lookAt(sun.getDirection(), sun.getDirection() - sun.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))); // TODO
-    cameraDirLight.calculateProjectionMatrix(); // TODO constructor doet perspective default...
+    cameraDirLight.calculateProjectionMatrix();
 
     // SpotLight
     SpotLight spotlight;
@@ -214,28 +190,33 @@ int main()
     Global::cameraFlashLight.setFarPlane(400.0f);
 
     /////////////////////////////////////
-    ////// LightCube ////////////////////
-    std::println("CREATE LightCube");////
-
-    VertexArray lightVAO;
-    VertexBuffer cubeVBO(sizeof(Data::cube), &Data::cube);
-    VertexAttributeLayout lightLayout;
-    lightLayout.pushVertexAttributeLayout<float>(3);
-    lightLayout.setVertexStride(32);
-    lightVAO.addVertexAttributeLayout(cubeVBO, lightLayout);
-    ElementBuffer lightEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
-
-    /////////////////////////////////////
     ////// Cubes ////////////////////////
     std::println("CREATE Cubes");////////
 
-    VertexArray cubeVAO;
+    VertexArray cubeVAO; // 768 + 144 = 912 bytes
+    VertexBuffer cubeVBO(sizeof(Data::cube), &Data::cube);
     VertexAttributeLayout cubeLayout;
     cubeLayout.pushVertexAttributeLayout<float>(3);
     cubeLayout.pushVertexAttributeLayout<float>(2);
     cubeLayout.pushVertexAttributeLayout<float>(3);
     cubeVAO.addVertexAttributeLayout(cubeVBO, cubeLayout);
-    ElementBuffer cubeTestEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
+    ElementBuffer cubeEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
+
+    // Unused
+    //VertexArray cubeCoordsOnlyVAO; // 288 + 144 = 432 bytes
+    //VertexBuffer cubeCoordsOnlyVBO(sizeof(Data::cubeCoordsOnly), &Data::cubeCoordsOnly);
+    //VertexAttributeLayout cubeCoordsOnlyLayout;
+    //cubeCoordsOnlyLayout.pushVertexAttributeLayout<float>(3);
+    ////cubeCoordsOnlyLayout.setVertexStride(32);
+    //cubeCoordsOnlyVAO.addVertexAttributeLayout(cubeCoordsOnlyVBO, cubeCoordsOnlyLayout);
+    //cubeEBO.bindElementBuffer();
+
+    VertexArray cubeStripCoordsOnlyVAO; // 96 + 56 = 152 bytes
+    VertexBuffer cubeStripCoordsOnlyVBO(sizeof(Data::cubeStripCoordsOnly), &Data::cubeStripCoordsOnly);
+    VertexAttributeLayout cubeStripCoordsOnlyLayout;
+    cubeStripCoordsOnlyLayout.pushVertexAttributeLayout<float>(3);
+    cubeStripCoordsOnlyVAO.addVertexAttributeLayout(cubeStripCoordsOnlyVBO, cubeStripCoordsOnlyLayout);
+    ElementBuffer cubeStripEBO(sizeof(Data::cubeStripIndices), &Data::cubeStripIndices);
 
     Material cubeMaterial{
         .shader{ multiLight },
@@ -253,7 +234,7 @@ int main()
     std::println("CREATE Floor");////////
 
     VertexArray floorVAO;
-    VertexBuffer floorVBO(sizeof(Data::floor2), &Data::floor2);
+    VertexBuffer floorVBO(sizeof(Data::floor), &Data::floor);
     VertexAttributeLayout floorLayout{};
     floorLayout.pushVertexAttributeLayout<float>(3);
     floorLayout.pushVertexAttributeLayout<float>(2);
@@ -407,8 +388,6 @@ int main()
         ////// Cubes ShadowPass dirLight ////
         /////////////////////////////////////
 
-        cubeVAO.bindVertexArray();
-
         for (unsigned int i = 0u; i < std::size(Data::cubePositions); i++)
         {
             assert(std::size(Data::cubePositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
@@ -427,13 +406,12 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
+            model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
             dirLightMVPMatrixSSBO.setVector(cameraDirLight.getViewProjectionMatrix() * model, i);
         }
         dirLightMVPMatrixSSBO.updateAndBind();
 
-        renderer.draw(cubeVAO, cubeTestEBO, cubeMaterial, std::size(Data::cubePositions));
-
-        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
+        renderer.draw(cubeStripCoordsOnlyVAO, cubeStripEBO, cubeMaterial, std::size(Data::cubePositions), true);
 
         /////////////////////////////////////
         ////// Model ShadowPass dirLight ////
@@ -448,13 +426,10 @@ int main()
         ////// Floor ShadowPass dirLight ////
         /////////////////////////////////////
 
-        //floorVAO.bindVertexArray();
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
         dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraDirLight.getViewProjectionMatrix() * model);
 
         renderer.draw(floorVAO, floorEBO, floorMaterial);
-
-        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // End ShadowPass dirLight //////////////////////////////////////////////////////////
@@ -472,8 +447,8 @@ int main()
         renderer.setRenderPassActive(renderPassType::depthMapSpotLight);
 
         depthMapSpotLightFBO.startDepthMap(renderer.getShaderShadowMapSpotLight());
-        glm::vec3 cameraPos = spotlight.getPosition(); // TODO sync light position with camera classes
-        //glm::mat4 view = glm::lookAt(cameraPos, glm::vec3(cameraPos.x, 0.0f, cameraPos.z), glm::vec3(0.0f, 0.0f, -1.0f));
+
+        // TODO sync light position with camera classes
         glm::mat4 view = glm::lookAt(spotlight.getPosition(), spotlight.getPosition() + glm::vec3(0.0f, -spotlight.getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
 
         cameraSpotLight.setViewMatrix(view); // TODO
@@ -481,8 +456,6 @@ int main()
         /////////////////////////////////////
         ////// Cubes ShadowPass spotLight ///
         /////////////////////////////////////
-
-        //cubeVAO.bindVertexArray();
 
         for (unsigned int i = 0u; i < std::size(Data::cubePositions); i++)
         {
@@ -502,13 +475,12 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
+            model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
             spotLightMVPMatrixSSBO.setVector(cameraSpotLight.getViewProjectionMatrix() * model, i);
         }
         spotLightMVPMatrixSSBO.updateAndBind();
 
-        renderer.draw(cubeVAO, cubeTestEBO, cubeMaterial, std::size(Data::cubePositions));
-
-        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
+        renderer.draw(cubeStripCoordsOnlyVAO, cubeStripEBO, cubeMaterial, std::size(Data::cubePositions), true);
 
         /////////////////////////////////////
         ////// Model ShadowPass spotLight ///
@@ -523,13 +495,10 @@ int main()
         ////// Floor ShadowPass spotLight ///
         /////////////////////////////////////
 
-        //floorVAO.bindVertexArray();
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
         spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraSpotLight.getViewProjectionMatrix() * model);
 
         renderer.draw(floorVAO, floorEBO, floorMaterial);
-
-        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // End ShadowPass spotLight /////////////////////////////////////////////////////////
@@ -552,8 +521,6 @@ int main()
         ////// Cubes ShadowPass flashLight //
         /////////////////////////////////////
 
-        //cubeVAO.bindVertexArray();
-
         for (unsigned int i = 0u; i < std::size(Data::cubePositions); i++)
         {
             assert(std::size(Data::cubePositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
@@ -572,13 +539,12 @@ int main()
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
+            model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
             flashLightMVPMatrixSSBO.setVector(Global::cameraFlashLight.getViewProjectionMatrix() * model, i);
         }
         flashLightMVPMatrixSSBO.updateAndBind();
 
-        renderer.draw(cubeVAO, cubeTestEBO, cubeMaterial, std::size(Data::cubePositions));
-
-        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
+        renderer.draw(cubeStripCoordsOnlyVAO, cubeStripEBO, cubeMaterial, std::size(Data::cubePositions), true);
 
         /////////////////////////////////////
         ////// Model ShadowPass flashLight //
@@ -593,13 +559,10 @@ int main()
         ////// Floor ShadowPass flashLight //
         /////////////////////////////////////
 
-        //floorVAO.bindVertexArray();
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
         flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
         renderer.draw(floorVAO, floorEBO, floorMaterial);
-
-        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // End ShadowPass flashLight ////////////////////////////////////////////////////////
@@ -631,47 +594,28 @@ int main()
         ////// XYZ //////////////////////////
         /////////////////////////////////////
 
-        //xyzShader.useShader();
-        //xyzVAO.bindVertexArray();
-        //xyzShader.setMat4("viewProjectionMatrix", Global::camera.getViewProjectionMatrix());
-        //glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(Data::xyz.size()));
-
-        renderer.drawXYZ(MVPMatrixSSBO);
+        //renderer.drawXYZ(MVPMatrixSSBO);
 
         /////////////////////////////////////
         ////// LightCube ////////////////////
         /////////////////////////////////////
 
-        // spotlight - Draaiende LightCube
-        //singleColor.useShader();
-        //lightVAO.bindVertexArray();
-
         MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::camera.getProjectionMatrix() * Global::getModelViewMatrix(spotlight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 
-        //singleColor.setVec4("color", glm::vec4(spotlight.getColor(), 1.0f));
-        //glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
-
-        renderer.drawSingleColor(lightVAO, lightEBO, glm::vec4(spotlight.getColor(), 1.0f));
+        renderer.drawSingleColor(cubeStripCoordsOnlyVAO, cubeStripEBO, glm::vec4(spotlight.getColor(), 1.0f), 1, true);
 
         // pointlights - 4 vaste LightCubes
         for (int i = 0; i < std::size(pointLightPositions); i++) {
             assert(std::size(pointLightPositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
-
-            //singleColor.useShader();
-            //lightVAO.bindVertexArray();
             MVPMatrixSSBO.setVector(Global::camera.getProjectionMatrix() * Global::getModelViewMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)), i);
-            //singleColor.setVec4("color", glm::vec4(pointLightColors[i], 1.0f)); // TODO deze uniform is geen array, dus kleur is zelfde voor alle cubes
         }
         MVPMatrixSSBO.updateAndBind();
-        //glDrawArraysInstanced(GL_TRIANGLES, 0, 36, std::size(pointLightPositions));
 
-        renderer.drawSingleColor(lightVAO, lightEBO, { 1.0f, 0.0f, 1.0f, 1.0f }, 4);
+        renderer.drawSingleColor(cubeStripCoordsOnlyVAO, cubeStripEBO, { 1.0f, 0.0f, 1.0f, 1.0f }, 4, true); // TODO deze color uniform/parameter is geen array, dus kleur is zelfde voor alle cubes
 
         /////////////////////////////////////
         ////// Cubes ////////////////////////
         /////////////////////////////////////
-
-        //cubeVAO.bindVertexArray();
 
         for (unsigned int i = 0u; i < std::size(Data::cubePositions); i++)
         {
@@ -685,12 +629,13 @@ int main()
             }
             if (i == 3) { // wall
                 model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
-                model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
+                model = glm::scale(model, glm::vec3(20.0f, 20.0f, 1.0f));
             }
             //if (i == 9) { // floor // TODO only draws this 10th (9th) cube when uncommented?
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
+            model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
             modelViewMatrix = Global::camera.getViewMatrix() * model;
             NormalMatrixSSBO.setVector(glm::transpose(glm::inverse(modelViewMatrix)), i);
@@ -708,15 +653,11 @@ int main()
         spotLightMVPMatrixSSBO.updateAndBind();
         flashLightMVPMatrixSSBO.updateAndBind();
 
-        renderer.draw(cubeVAO, cubeTestEBO, cubeMaterial, std::size(Data::cubePositions));
-
-        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::cube.size()), GL_UNSIGNED_INT, 0, std::size(Data::cubePositions));
+        renderer.draw(cubeVAO, cubeEBO, cubeMaterial, std::size(Data::cubePositions));
 
         /////////////////////////////////////
         ////// Model ////////////////////////
         /////////////////////////////////////
-
-        //multiLight.useShader();
 
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         modelViewMatrix = Global::camera.getViewMatrix() * model;
@@ -727,13 +668,6 @@ int main()
         spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraSpotLight.getViewProjectionMatrix() * model);
         flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
-        //multiLight.setFloat("material.shininess", 256.0f);
-        //multiLight.setInt("material.emission", 0); // black - 'disable' emission with a black texture
-        //multiLight.setFloat("flashLight.emissionStrength", 0.0f);
-        //modelMaterial.shader.setInt("material.emission", modelMaterial.emission);
-
-        //modelMaterial.shader.useShader(); // TODO verplaatsen naar Draw()
-        //ourModel.Draw2(modelMaterial);
         ourModel.Draw(modelMaterial, &multiLight);
 
         /////////////////////////////////////
@@ -741,14 +675,6 @@ int main()
         /////////////////////////////////////
 
         glStencilMask(0xFF); // enable writing to the stencil buffer
-
-        //multiLight.useShader();
-        //floorVAO.bindVertexArray();
-        //multiLight.setFloat("material.shininess", 8.0f);
-        //multiLight.setInt("material.diffuse1", 4);
-        //multiLight.setInt("material.specular1", 0); // black
-        //multiLight.setFloat("material.emissionStrength", 0.0f); // 'disable' emission with zero strength
-        //multiLight.setFloat("flashLight.emissionStrength", 0.0f);
 
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f));
         modelViewMatrix = Global::camera.getViewMatrix() * model;
@@ -760,9 +686,7 @@ int main()
         flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
         glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
-
         renderer.draw(floorVAO, floorEBO, floorMaterial);
-        //glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
         glEnable(GL_CULL_FACE);
 
         glStencilMask(0x00); // disable writing to the stencil buffer
@@ -770,14 +694,8 @@ int main()
         /////////////////////////////////////
         ////// Skybox ///////////////////////
         /////////////////////////////////////
-
-        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-        skyboxShader.useShader();
-        skyboxShader.setMat4("viewProjectionMatrixTranslationRemoved", Global::camera.getProjectionMatrix() * glm::mat4(glm::mat3(Global::camera.getViewMatrix()))); // remove translation from the view matrix (cast to mat3 and back to mat4)
-        skyboxVAO.bindVertexArray();
-        //cubemapTexture.bindTexture(); // No need to bind if there is just a single GL_TEXTURE_CUBE_MAP
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glDepthFunc(GL_LESS); // set depth function back to default
+        
+        renderer.drawSkybox(cubeStripCoordsOnlyVAO, cubeStripEBO);
 
         /////////////////////////////////////
         ////// Floor Outline ////////////////
@@ -785,27 +703,20 @@ int main()
 
         // Until order independent transparency is implemented, partly transparant objects need to be drawn last (even after the skybox)
         if (Global::drawOutline) {
-            //singleColor.useShader();
-
             if (floorOutlineAlpha >= 0.0f)
                 floorOutlineAlpha += 0.01f;
             if (floorOutlineAlpha >= 1.0f)
                 floorOutlineAlpha = 0.0f;
             glm::vec4 color{ 1.0f, 0.28f, 0.26f, 0.0f };
             color.w = floorOutlineAlpha;
-            //singleColor.setVec4("color", color);
 
             glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
 
             modelViewMatrix = Global::getModelViewMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(26.0, 26.0, 2.0));
             MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::camera.getProjectionMatrix() * modelViewMatrix);
 
-            //floorVAO.bindVertexArray();
-
             glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
-            //glDrawElementsInstanced(GL_TRIANGLE_STRIP, static_cast<GLsizei>(Data::floor2.size()), GL_UNSIGNED_INT, 0, 1);
             renderer.drawSingleColor(floorVAO, floorEBO, color);
-
             glEnable(GL_CULL_FACE);
 
             // De-init Stencil Buffer
@@ -815,62 +726,46 @@ int main()
         //std::println("End Renderpass time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
 
         // Draw frustum - toggle with K
-        // Set corresponding FBO's below
         if (Global::frustumVisible) {
-            VertexArray cubeNDCVAO;
-            VertexBuffer cubeNDCVBO(sizeof(Data::cubeNDC), &Data::cubeNDC);
-            VertexAttributeLayout cubeNDCLayout;
-            cubeNDCLayout.pushVertexAttributeLayout<float>(3);
-            cubeNDCVAO.addVertexAttributeLayout(cubeNDCVBO, cubeNDCLayout);
             Shader frustum("Shaders\\frustum.shader");
-
-            //
-
             frustum.useShader();
-            cubeNDCVAO.bindVertexArray();
+            frustum.setMat4("viewProjectionMatrix", Global::camera.getViewProjectionMatrix());
+            cubeStripCoordsOnlyVAO.bindVertexArray();
+            glDisable(GL_CULL_FACE);
+
+            // DirLight
+
             frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
             frustum.setMat4("inverseMatrix", glm::inverse(cameraDirLight.getViewProjectionMatrix()));
-            frustum.setMat4("viewProjectionMatrix", Global::camera.getViewProjectionMatrix());
-
-            glDisable(GL_CULL_FACE);
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            glDrawElementsInstanced(GL_TRIANGLE_STRIP, cubeStripEBO.getCount(), GL_UNSIGNED_INT, 0, 1);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f });
-            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
-            glEnable(GL_CULL_FACE);
+            glDrawElementsInstanced(GL_TRIANGLE_STRIP, cubeStripEBO.getCount(), GL_UNSIGNED_INT, 0, 1);
 
-            //
+            // SpotLight
 
-            frustum.useShader();
-            cubeNDCVAO.bindVertexArray();
             frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
             frustum.setMat4("inverseMatrix", glm::inverse(cameraSpotLight.getViewProjectionMatrix()));
-            frustum.setMat4("viewProjectionMatrix", Global::camera.getViewProjectionMatrix());
-
-            glDisable(GL_CULL_FACE);
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
+            glDrawElementsInstanced(GL_TRIANGLE_STRIP, cubeStripEBO.getCount(), GL_UNSIGNED_INT, 0, 1);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f });
-            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
-            glEnable(GL_CULL_FACE);
+            glDrawElementsInstanced(GL_TRIANGLE_STRIP, cubeStripEBO.getCount(), GL_UNSIGNED_INT, 0, 1);
+
+            // FlashLight
+
+            //frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
+            //frustum.setMat4("inverseMatrix", glm::inverse(Global::cameraFlashLight.getViewProjectionMatrix()));
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            //glDrawElementsInstanced(GL_TRIANGLE_STRIP, cubeStripEBO.getCount(), GL_UNSIGNED_INT, 0, 1);
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            //frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f }); 
+            //glDrawElementsInstanced(GL_TRIANGLE_STRIP, cubeStripEBO.getCount(), GL_UNSIGNED_INT, 0, 1);
 
             //
 
-            //frustum.useShader();
-            //cubeNDCVAO.bindVertexArray();
-            //frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
-            //frustum.setMat4("inverseMatrix", glm::inverse(Global::cameraFlashLight.getViewProjectionMatrix())); // Global::cameraFlashLight.getProjectionMatrix()* Global::cameraFlashLight.getViewMatrix())); // TODO
-            //frustum.setMat4("viewProjectionMatrix", Global::camera.getViewProjectionMatrix());
-
-            //glDisable(GL_CULL_FACE);
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            //glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            //frustum.setVec4("color", { 1.0f, 0.0f, 0.0f, 0.1f });
-            //glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(Data::cubeNDC.size()));
-            //glEnable(GL_CULL_FACE);
+            glEnable(GL_CULL_FACE);
         }
 
         // Draw debug quad - toggle with Q
@@ -879,7 +774,7 @@ int main()
             Camera* useCamera{ &cameraDirLight };
 
             VertexArray quadVAO;
-            VertexBuffer quadVBO(sizeof(Data::framebuffer), &Data::framebuffer);
+            VertexBuffer quadVBO(sizeof(Data::quad), &Data::quad);
             VertexAttributeLayout quadLayout{};
             quadLayout.pushVertexAttributeLayout<float>(2); // 2 coordinates, not 3!
             quadLayout.pushVertexAttributeLayout<float>(2);
