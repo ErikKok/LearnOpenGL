@@ -27,6 +27,7 @@ private:
 	BufferSubData(const glm::mat4& data)
 		: m_data{ data }
 	{}
+
 	GLenum m_target{ GL_UNIFORM_BUFFER };
 	GLsizeiptr m_size{ sizeof(glm::mat4) };
 	const glm::mat4 m_data{};
@@ -34,7 +35,7 @@ private:
 
 class BufferSubDataLayout { // TODO declaration of this type needs to be in renderloop? why?
 public:
-	BufferSubDataLayout() {};
+	BufferSubDataLayout(){};
 
 	void pushUniformBufferSubData(const glm::mat4& data)
 	{
@@ -42,10 +43,7 @@ public:
 		Global::glCheckError();
 	}
 
-	inline std::vector<BufferSubData>& getBufferSubData()
-	{
-		return m_bufferSubData;
-	}
+	inline const std::vector<BufferSubData>& getBufferSubData() const { return m_bufferSubData;	}
 
 private:
 	std::vector<BufferSubData> m_bufferSubData;

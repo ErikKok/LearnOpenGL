@@ -40,8 +40,8 @@ layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
 void main()
 {
     vs_out.TexCoords = aTexCoords;
-    vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
     vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
+    vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
     vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.spotLightShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.flashLightShadowCoord = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
@@ -380,9 +380,9 @@ void main()
     for(int i = 0; i < pointLightsCount; i++)
         resultPointLight += CalcPointLight(pointLights[i]);
 
-    vec3 resultFlashLight = vec3(0.0f);
     vec3 resultSpotLight = CalcSpotLight(spotLight);
 
+    vec3 resultFlashLight = vec3(0.0f);
     if (flashLight.on)
         resultFlashLight = CalcFlashLight(flashLight);       
 

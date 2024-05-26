@@ -31,7 +31,7 @@ public:
     Mesh& operator=(Mesh&& other) noexcept = default;	// Move assignment
     ~Mesh() = default;									// Destructor
 
-    void Draw(const Material& material);
+    void Draw(const Material& material) const;
 
 private:
     std::vector<Vertex> m_vertices;
@@ -42,5 +42,5 @@ private:
     std::unique_ptr<ElementBuffer> m_ebo{ nullptr };
     std::unique_ptr<VertexAttributeLayout> m_layout{ nullptr };
 
-    void setupMesh();
+    void setupMesh() const;
 };

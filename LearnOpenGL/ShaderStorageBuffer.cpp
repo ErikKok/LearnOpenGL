@@ -24,19 +24,19 @@ ShaderStorageBuffer::~ShaderStorageBuffer()
 	Global::glCheckError();
 }
 
-void ShaderStorageBuffer::bind()
+void ShaderStorageBuffer::bind() const
 {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_bindingPoint, m_id);
 	Global::glCheckError();
 }
 
-void ShaderStorageBuffer::unbind()
+void ShaderStorageBuffer::unbind() const
 {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_bindingPoint, 0);
 	Global::glCheckError();
 }
 
-void ShaderStorageBuffer::update()
+void ShaderStorageBuffer::update() const
 {
 	glNamedBufferSubData(m_id, 0, sizeof(glm::mat4) * m_vector.size(), (const void*)m_vector.data());
 	Global::glCheckError();
@@ -47,7 +47,7 @@ void ShaderStorageBuffer::setVector(const glm::mat4& vector, int i)
 	m_vector[i] = vector;
 }
 
-void ShaderStorageBuffer::updateAndBind()
+void ShaderStorageBuffer::updateAndBind() const
 {
 	this->update();
 	this->bind();

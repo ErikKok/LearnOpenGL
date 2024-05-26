@@ -54,19 +54,20 @@ namespace Global {
     inline bool flashLightOnUpdated{ true };
     inline bool frustumVisible{ false };
 
-    GLenum glCheckError_(const char* file, int line);
+    const GLenum glCheckError_(const char* file, int line);
     #define glCheckError() glCheckError_(__FILE__, __LINE__)
     void glClearError();
 
-    glm::mat4 getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
-    glm::mat4 getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
+    const glm::mat4 getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
+    const glm::mat4 getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
 
     void initStencilBuffer();
     void clearStencilBuffer();
 
+    // https://www.learncpp.com/cpp-tutorial/pass-by-const-lvalue-reference/ - The cost of pass by value vs pass by reference
     void cheap2Copy();
 
-    int init(GLFWwindow* window);
+    const int init(GLFWwindow* window);
     void processInput(GLFWwindow* window);
     void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void framebuffer_size_callback(GLFWwindow* window, int width, int height);

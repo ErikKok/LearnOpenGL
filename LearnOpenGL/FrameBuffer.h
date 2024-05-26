@@ -32,11 +32,11 @@ public:
 	const bool getOrthographic() const { return m_orthographic; };
 	void setOrthographic(bool x) { m_orthographic = x; };
 
-	void bind();
-	void unbind();
+	void bind() const;
+	void unbind() const;
 
-	void startDepthMap(const Shader* shader);
-	void stopDepthMap();
+	void startDepthMap(const Shader* shader) const;
+	void stopDepthMap() const;
 
 private:
 	GLuint m_id{};

@@ -39,7 +39,7 @@ void UniformBuffer::unbindUniformBuffer() const
 	Global::glCheckError();
 }
 
-void UniformBuffer::addUniformBufferSubData(BufferSubDataLayout& layout)
+void UniformBuffer::addUniformBufferSubData(BufferSubDataLayout& layout) const
 {	
 	//std::println("ADD UniformBufferSubData id: {}", m_id);
 

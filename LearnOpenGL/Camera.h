@@ -37,7 +37,7 @@ public:
 
     virtual const void calculateViewMatrix();
     const glm::mat4 getViewMatrix() const { return m_viewMatrix; };
-    void setViewMatrix(glm::mat4 mat4) { m_viewMatrix = mat4; m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix; }; // TODO
+    void setViewMatrix(const glm::mat4& mat4) { m_viewMatrix = mat4; m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix; }; // TODO
 
     const glm::mat4 getViewProjectionMatrix() const { return m_viewProjectionMatrix; };
     virtual void calculateProjectionMatrix() { m_projectionMatrix = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane); m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix; }; // TODO

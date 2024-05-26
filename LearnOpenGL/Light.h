@@ -40,8 +40,8 @@ public:
     const float getAmbient() const { return m_ambient; };
     void setAmbient(float x) { m_ambient = x; };
 
-    void sendToShader(Shader shader);
-    void updateDirection(Shader shader);
+    void sendToShader(const Shader& shader) const;
+    void updateDirection(const Shader& shader) const;
 
 protected:
     float m_ambient{ 0.3f };
@@ -51,8 +51,8 @@ protected:
 
 class PointLight : public Light {
 public:
-    void sendToShader(Shader shader);
-    void updatePosition(Shader shader);
+    void sendToShader(const Shader& shader) const;
+    void updatePosition(const Shader& shader) const;
 };
 
 // SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,10 +70,10 @@ public:
     //const float getOuterCutOff() const { return m_outerCutOff; }; // need to convert radians back to degrees
     void setOuterCutOff(float x) { m_outerCutOff = glm::cos(glm::radians(x)); };
 
-    virtual void sendToShader(Shader shader);
-    virtual void updatePosition(Shader shader);
-    virtual void updateDirection(Shader shader);
-    virtual void updateColor(Shader shader);
+    virtual void sendToShader(const Shader& shader) const;
+    virtual void updatePosition(const Shader& shader) const;
+    virtual void updateDirection(const Shader& shader) const;
+    virtual void updateColor(const Shader& shader) const;
 
 protected:
     float m_constant{ 1.0f };         // Usually kept at 1.0f
@@ -92,10 +92,10 @@ public:
     const float getEmissionStrength() const { return m_emissionStrength; };
     void setEmissionStrength(float x) { m_emissionStrength = x; };
 
-    void sendToShader(Shader shader) override; // Transform World Space to View Space
-    void updatePosition(Shader shader) override;
-    void updateDirection(Shader shader) override;
-    void toggle(Shader shader);
+    void sendToShader(const Shader& shader) const override; // Transform World Space to View Space
+    void updatePosition(const Shader& shader) const override;
+    void updateDirection(const Shader& shader) const override;
+    void toggle(const Shader& shader);
 
 protected:
     glm::vec3 m_offset{ 0.4f, -0.5f, -0.3f }; // 0.0f, 0.0f, 0.0f == shines straight from the center/camera, offset for holding flashlight in right hand

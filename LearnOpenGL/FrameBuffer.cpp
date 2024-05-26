@@ -40,19 +40,19 @@ FrameBuffer::~FrameBuffer()
 	Global::glCheckError();
 }
 
-void FrameBuffer::bind()
+void FrameBuffer::bind() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_id);
 	Global::glCheckError();
 }
 
-void FrameBuffer::unbind()
+void FrameBuffer::unbind() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	Global::glCheckError();
 }
 
-void FrameBuffer::startDepthMap(const Shader* shader)
+void FrameBuffer::startDepthMap(const Shader* shader) const
 {
 	assert(m_type == framebufferType::depthMap && "Wrong framebufferType");
 
@@ -68,7 +68,7 @@ void FrameBuffer::startDepthMap(const Shader* shader)
 	Global::glCheckError();
 }
 
-void FrameBuffer::stopDepthMap()
+void FrameBuffer::stopDepthMap() const
 {
 	assert(m_type == framebufferType::depthMap && "Wrong framebufferType");
 	

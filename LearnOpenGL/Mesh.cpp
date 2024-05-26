@@ -30,23 +30,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
     setupMesh();
 }
 
-void Mesh::setupMesh()
-{
-    //std::println("SETUP Mesh");
-    // No need to bind anything, constructor already took care of that
-    m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
-    m_layout->pushVertexAttributeLayout<float>(2);      // 1 - tex coords
-    m_layout->pushVertexAttributeLayout<float>(3);      // 2 - normals
-    m_layout->pushVertexAttributeLayout<float>(3);      // 3 - Tangent
-    m_layout->pushVertexAttributeLayout<float>(3);      // 4 - Bitangent
-    //m_layout->pushVertexAttributeLayout<int>(4);      // 5 - BoneIDs
-    //m_layout->pushVertexAttributeLayout<float>(4);    // 6 - Weights
-    //m_layout->setVertexStride(88);
-    m_vao->addVertexAttributeLayout(*m_vbo, *m_layout);
-}
-
-#pragma warning( suppress : 4100 )
-void Mesh::Draw(const Material& material)
+void Mesh::Draw(const Material& material) const
 {
     // Set sampler2D uniforms to the correct texture unit for each texture in this Mesh
 
@@ -90,4 +74,19 @@ void Mesh::Draw(const Material& material)
     }
 
     glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(m_vertices.size()), GL_UNSIGNED_INT, 0, 1);
+}
+
+void Mesh::setupMesh() const
+{
+    //std::println("SETUP Mesh");
+    // No need to bind anything, constructor already took care of that
+    m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
+    m_layout->pushVertexAttributeLayout<float>(2);      // 1 - tex coords
+    m_layout->pushVertexAttributeLayout<float>(3);      // 2 - normals
+    m_layout->pushVertexAttributeLayout<float>(3);      // 3 - Tangent
+    m_layout->pushVertexAttributeLayout<float>(3);      // 4 - Bitangent
+    //m_layout->pushVertexAttributeLayout<int>(4);      // 5 - BoneIDs
+    //m_layout->pushVertexAttributeLayout<float>(4);    // 6 - Weights
+    //m_layout->setVertexStride(88);
+    m_vao->addVertexAttributeLayout(*m_vbo, *m_layout);
 }

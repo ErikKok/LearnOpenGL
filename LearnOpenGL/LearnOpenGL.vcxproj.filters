@@ -72,6 +72,12 @@
     <ClCompile Include="Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexAttribute.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -125,17 +131,9 @@
     <ClInclude Include="Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DepthMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Shaders\xyz.shader">
-      <Filter>Shader Files</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md">
@@ -153,19 +151,16 @@
     <None Include="Shaders\visualizeNormals.shader">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="Shaders\shadowMap.shader">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="Shaders\debugQuad.shader">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="Shaders\shadowMapFlashLight.shader">
+    <None Include="Shaders\depthMapFlashLight.shader">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="Shaders\shadowMapDirLight.shader">
+    <None Include="Shaders\depthMapDirLight.shader">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="Shaders\shadowMapSpotLight.shader">
+    <None Include="Shaders\depthMapSpotLight.shader">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Shaders\frustum.shader">

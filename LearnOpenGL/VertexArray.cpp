@@ -37,7 +37,7 @@ void VertexArray::unbindVertexArray() const
 	Global::glCheckError();
 }
 
-void VertexArray::addVertexAttributeLayout(const VertexBuffer& vb, VertexAttributeLayout& layout)
+void VertexArray::addVertexAttributeLayout(const VertexBuffer& vb, const VertexAttributeLayout& layout)
 {
 	//std::println("ADD VertexAttributeLayout id: {}", m_id);
 	

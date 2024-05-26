@@ -44,7 +44,7 @@ public:
 	const std::string getTypeAsString() const { return textureTypeName[static_cast<int>(m_type)]; };
 	void setType(textureType type) { m_type = type; };
 	const std::string_view getfileName() const { return m_fileName; };
-	void setfileName(std::string fileName) { m_fileName = fileName; };
+	void setfileName(const std::string& fileName) { m_fileName = fileName; };
 	const GLuint getWidth() const { return m_width; };
 	const GLuint getHeight() const { return m_height; };
 

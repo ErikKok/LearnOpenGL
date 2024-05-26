@@ -27,7 +27,7 @@ Model::Model(std::string const& path, bool gamma)
     loadModel(path);
 }
 #pragma warning( suppress : 4100 )
-void Model::Draw(const Material& material, const Shader* shader)
+void Model::Draw(const Material& material, const Shader* shader) const
 {
     //GLint returnData{};
     //glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);

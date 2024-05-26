@@ -3,7 +3,7 @@
 #include "Global.h"
 #include "Camera.h"
 
-GLenum Global::glCheckError_(const char* file, int line)
+const GLenum Global::glCheckError_(const char* file, int line)
 {
     GLenum errorCode{};
     while ((errorCode = glGetError()) != GL_NO_ERROR)
@@ -30,7 +30,7 @@ void Global::glClearError()
 }
 
 // Takes in full transformation parameters in World space, and outputs model in World space
-glm::mat4 Global::getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+const glm::mat4 Global::getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 {
     glm::mat4 model{ 1.0f };
     if (translate != glm::vec3(0.0f, 0.0f, 0.0f))
@@ -43,7 +43,7 @@ glm::mat4 Global::getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::
 }
 
 // Takes in full transformation parameters in World space, and outputs model in View space
-glm::mat4 Global::getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+const glm::mat4 Global::getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 { 
     return Global::camera.getViewMatrix() * getModelMatrix(translate, rotateDegrees, rotateVec3, scale);
 }
@@ -86,7 +86,7 @@ void Global::cheap2Copy() {
     //std::println("Is Texture cheap to copy: {} (provided there are no additional setup costs)", cheap);
 }
 
-int Global::init(GLFWwindow* window)
+const int Global::init(GLFWwindow* window)
 {
     assert(sizeof(int) == sizeof(GLint) && "size of int and GL_INT is not equal"); 
     assert(sizeof(unsigned int) == sizeof(GLuint) && "size of unsigned int and GLuint is not equal");

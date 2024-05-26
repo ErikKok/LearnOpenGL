@@ -15,7 +15,7 @@ public:
 	void bindUniformBuffer() const;
 	void unbindUniformBuffer() const;
 
-	void addUniformBufferSubData(BufferSubDataLayout& layout);
+	void addUniformBufferSubData(BufferSubDataLayout& layout) const;
 
 private:
 	GLuint m_id{};

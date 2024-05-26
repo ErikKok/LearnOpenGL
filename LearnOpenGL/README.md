@@ -1,37 +1,43 @@
 TO DO
-- Calling glUniform is quite expensive during run-time. Structure your programme so that glUniform is only called when the value needs to change. This might be the case every time that you draw a new object (e.g. its position might be different), but some uniforms may not change often (e.g. projection matrix).
 - Logging https://antongerdelan.net/opengl/glcontext2.html
-- Uniform location cache
-- Model, BufferSubData, VertexAttribute .cpp maken/bijwerken
 - 1 GL_SHADER_STORAGE_BUFFER met meerdere objecten/vectors erin mogelijk?
 - time class maken
-- avoid using vec3 at all https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
-- implement energy conservation? see comments at Blinn-Phong
-- Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
-- which attenuation values/formula is best/sufficient in combination with gamma correction
+- Optimization
+	- avoid using vec3 at all in interface blocks https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
+	- Uniform location cache
+	- Calling glUniform is quite expensive during run-time. Structure your programme so that glUniform is only called when the value needs to change. This might be the case every time that you draw a new object (e.g. its position might be different), but some uniforms may not change often (e.g. projection matrix).
+	- shader: in useShader een if maken of de shader al actief is?
+	- glResult als global opslaan ipv elke keer opvragen
+- Lighting
+	- implement energy conservation? see comments at Blinn-Phong
+	- Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
+	- which attenuation values/formula is best/sufficient in combination with gamma correction
+	- use sampler2DShadow
+	- flashlight
+		- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
+		- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
+		- flashlight positie updaten na player positie is geupdated met offset
+		- flashlight frustum is niet meer beeldvullend NA eerste gebruik zoomfunctie
+		- onderscheid SpotLight en FlashLight wel nodig?
 - refactor to use DSA
 - refactor to use create instead of gen and bind
 - implement Bindless Textures
 - implement immutable textures
-- use sampler2DShadow
 - cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
-- depthMap naar eigen class?
-- flashlight
-	- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
-	- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
-	- flashlight positie updaten na player positie is geupdated met offset
-	- flashlight frustum is niet meer beeldvullend NA eerste gebruik zoomfunctie
-- check of functies const kunnen worden
-- check of functies wel refs innemen ipv copy's, bij const Shader& shader in Light class
-- shader: in useShader een if maken of de shader al actief is?
-- glResult als global opslaan ipv elke keer opvragen
-- namen depthMap en shadowMap consistent maken
-- replace draw mesh/model with renderer draw - eventually
+- move draw mesh/model to renderer class - eventually
 - mesh class gebruiken, door huidige te inheriten
 - try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
 - remove s_depthMapPassActive, only used for Mesh::Draw()
 
 - asset manager - unique ptr owns the object, returns a raw * if needed
+
+v0.1.41 26-5-2024
+-----------------
+- Model, VertexAttribute, renderer .cpp gemaakt/bijgewerkt
+- check of functies/return types const kunnen worden
+- check of functies wel refs innemen ipv copy's
+- removed all glDraw's from main
+- namen depthMap en shadowMap consistent maken
 
 v0.1.40 25-5-2024
 -----------------

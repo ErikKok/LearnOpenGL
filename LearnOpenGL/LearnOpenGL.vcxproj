@@ -106,12 +106,14 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderStorageBuffer.cpp" />
     <ClCompile Include="Temp.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="VertexArray.cpp" />
+    <ClCompile Include="VertexAttribute.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -119,7 +121,6 @@
     <ClInclude Include="BufferSubData.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Data.h" />
-    <ClInclude Include="DepthMap.h" />
     <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Global.h" />
@@ -136,18 +137,14 @@
     <ClInclude Include="VertexAttribute.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Shaders\xyz.shader" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="README.md" />
     <None Include="Shaders\debugQuad.shader" />
     <None Include="Shaders\frustum.shader" />
     <None Include="Shaders\multiLight.shader" />
-    <None Include="Shaders\shadowMapDirLight.shader" />
-    <None Include="Shaders\shadowMapFlashLight.shader" />
-    <None Include="Shaders\shadowMapSpotLight.shader" />
+    <None Include="Shaders\depthMapDirLight.shader" />
+    <None Include="Shaders\depthMapFlashLight.shader" />
+    <None Include="Shaders\depthMapSpotLight.shader" />
     <None Include="Shaders\visualizeNormals.shader" />
-    <None Include="Shaders\shadowMap.shader" />
     <None Include="Shaders\singleColor.shader" />
     <None Include="Shaders\skybox.shader" />
   </ItemGroup>

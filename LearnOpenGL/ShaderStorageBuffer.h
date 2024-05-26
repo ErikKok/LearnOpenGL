@@ -18,11 +18,11 @@ public:
 
 	const unsigned int getId() const { return m_id; };
 
-	void bind();
-	void unbind();
-	void update();
+	void bind() const;
+	void unbind() const;
+	void update() const;
 	void setVector(const glm::mat4& vector, int i = 0);
-	void updateAndBind();
+	void updateAndBind() const;
 	void setVectorAndUpdateAndBind(const glm::mat4& vector, int i = 0);
 
 private:

@@ -15,7 +15,7 @@ public:
     void bindVertexArray() const;
     void unbindVertexArray() const;
 
-    void addVertexAttributeLayout(const VertexBuffer& vb, VertexAttributeLayout& layout);
+    void addVertexAttributeLayout(const VertexBuffer& vb, const VertexAttributeLayout& layout);
 
     const GLuint getId() const { return m_id; };
 

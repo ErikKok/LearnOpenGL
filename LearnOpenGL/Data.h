@@ -107,6 +107,14 @@ namespace Data{
         -1.0f,  1.0f,  1.0f,   0.0f,     0.0f,     0.0f,    1.0f,     0.0f,   // 23 bottom-left 
     };
 
+    //VertexArray cubeCoordsOnlyVAO; // 288 + 144 = 432 bytes
+    //VertexBuffer cubeCoordsOnlyVBO(sizeof(Data::cubeCoordsOnly), &Data::cubeCoordsOnly);
+    //VertexAttributeLayout cubeCoordsOnlyLayout;
+    //cubeCoordsOnlyLayout.pushVertexAttributeLayout<float>(3);
+    ////cubeCoordsOnlyLayout.setVertexStride(32);
+    //cubeCoordsOnlyVAO.addVertexAttributeLayout(cubeCoordsOnlyVBO, cubeCoordsOnlyLayout);
+    //cubeEBO.bindElementBuffer();
+
     constexpr std::array cubeCoordsOnly{
     //   X      Y      Z
         // Back face          
@@ -174,6 +182,13 @@ namespace Data{
     //    -1.0f,	-1.0f,	-1.0f,   0.0f,     0.0f,     0.0f,    0.0f,    -1.0f,    // 6 Back-bottom-left
     //     1.0f,	-1.0f,	-1.0f,   1.0f,     0.0f,     0.0f,    0.0f,    -1.0f,    // 7 Back-bottom-right
     //};
+
+    //VertexArray cubeStripCoordsOnlyVAO; // 96 + 56 = 152 bytes
+    //VertexBuffer cubeStripCoordsOnlyVBO(sizeof(Data::cubeStripCoordsOnly), &Data::cubeStripCoordsOnly);
+    //VertexAttributeLayout cubeStripCoordsOnlyLayout;
+    //cubeStripCoordsOnlyLayout.pushVertexAttributeLayout<float>(3);
+    //cubeStripCoordsOnlyVAO.addVertexAttributeLayout(cubeStripCoordsOnlyVBO, cubeStripCoordsOnlyLayout);
+    //ElementBuffer cubeStripEBO(sizeof(Data::cubeStripIndices), &Data::cubeStripIndices);
 
     constexpr std::array cubeStripCoordsOnly{
          1.0f,	 1.0f,	 1.0f,      // 0 Front-top-right
