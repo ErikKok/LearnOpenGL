@@ -4,7 +4,7 @@ TO DO
 - time class maken
 - Optimization
 	- avoid using vec3 at all in interface blocks https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
-	- Uniform location cache
+	- Uniform location cache https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions?tab=readme-ov-file#ideal-way-of-retrieving-all-uniform-names
 	- Calling glUniform is quite expensive during run-time. Structure your programme so that glUniform is only called when the value needs to change. This might be the case every time that you draw a new object (e.g. its position might be different), but some uniforms may not change often (e.g. projection matrix).
 	- shader: in useShader een if maken of de shader al actief is?
 	- glResult als global opslaan ipv elke keer opvragen
@@ -30,6 +30,10 @@ TO DO
 - remove s_depthMapPassActive, only used for Mesh::Draw()
 
 - asset manager - unique ptr owns the object, returns a raw * if needed
+
+v0.1.43 27-5-2024
+-----------------
+- VAO/VBO/EBO converted to DSA
 
 v0.1.42 27-5-2024
 -----------------

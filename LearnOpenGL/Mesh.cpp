@@ -73,6 +73,12 @@ void Mesh::Draw(const Material& material) const
         material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
     }
 
+    glVertexArrayVertexBuffer(m_vao->getId(), 0, m_vbo->getId(), 0, m_layout->getStride());
+    glVertexArrayElementBuffer(m_vao->getId(), m_ebo->getId());
+
+    // dit werkte nadat ebo weer gebind wordt.
+
+    // m_ebo->getCount()
     glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(m_vertices.size()), GL_UNSIGNED_INT, 0, 1);
 }
 

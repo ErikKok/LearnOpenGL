@@ -11,12 +11,12 @@ class VertexAttribute
 	friend class VertexArray;
 
 private:
-	VertexAttribute(GLenum type, GLint count, GLboolean normalized, uintptr_t offset);
+	VertexAttribute(GLenum type, GLint count, GLboolean normalized, GLuint offset);
 
 	GLenum m_type{};
 	GLint m_count{}; // number of components/types of this attribute (Caution! named size @ docs.gl)
 	GLboolean m_normalized{};
-	uintptr_t m_offset{}; // size in bytes of this attribute
+	GLuint m_offset{}; // size in bytes of this attribute
 };
 
 class VertexAttributeLayout {
@@ -47,5 +47,5 @@ public:
 
 private:
 	std::vector<VertexAttribute> m_vertexAttributes{};
-	GLsizei m_stride{};
+	GLuint m_stride{};
 };

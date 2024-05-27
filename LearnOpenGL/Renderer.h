@@ -53,6 +53,7 @@ public:
 	void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;
 	void drawSingleColor(const VertexArray& vao, const ElementBuffer& ebo, const glm::vec4 color, GLsizei instances = 1) const;
 	void drawXYZ(ShaderStorageBuffer& ssbo) const;
+	// Assumes SkyBox Texture is already bound, and will never change
 	void drawSkybox(const VertexArray& vao, const ElementBuffer& ebo) const;
 	void drawFrustum(const VertexArray& vao, const ElementBuffer& ebo, const glm::mat4& viewProjectionMatrix) const;
 	// Takes in a Camera, not a OrthograpicCamera!

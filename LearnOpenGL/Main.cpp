@@ -193,7 +193,7 @@ int main()
 
     /////////////////////////////////////
     ////// Quad /////////////////////////
-    std::println("CREATE Quad");/////////
+    //std::println("CREATE Quad");/////////
 
     VertexArray quadVAO;
     VertexBuffer quadVBO(sizeof(Data::quad), &Data::quad);
@@ -208,12 +208,13 @@ int main()
 
     VertexArray cubeVAO; // 768 + 144 = 912 bytes
     VertexBuffer cubeVBO(sizeof(Data::cube), &Data::cube);
+    ElementBuffer cubeEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
     VertexAttributeLayout cubeLayout;
     cubeLayout.pushVertexAttributeLayout<float>(3);
     cubeLayout.pushVertexAttributeLayout<float>(2);
     cubeLayout.pushVertexAttributeLayout<float>(3);
-    cubeVAO.addVertexAttributeLayout(cubeVBO, cubeLayout);
-    ElementBuffer cubeEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
+    cubeVAO.addVertexAttributeLayout(cubeVBO, cubeEBO, cubeLayout);
+
 
     Material cubeMaterial{
         .shader{ multiLight },
@@ -232,12 +233,13 @@ int main()
 
     VertexArray floorVAO;
     VertexBuffer floorVBO(sizeof(Data::floor), &Data::floor);
+    ElementBuffer floorEBO(sizeof(Data::floorIndices), &Data::floorIndices);
     VertexAttributeLayout floorLayout{};
     floorLayout.pushVertexAttributeLayout<float>(3);
     floorLayout.pushVertexAttributeLayout<float>(2);
     floorLayout.pushVertexAttributeLayout<float>(3);
-    floorVAO.addVertexAttributeLayout(floorVBO, floorLayout);
-    ElementBuffer floorEBO(sizeof(Data::floorIndices), &Data::floorIndices);
+    floorVAO.addVertexAttributeLayout(floorVBO, floorEBO, floorLayout);
+
     float floorOutlineAlpha{ 0.0f };
 
     Material floorMaterial{

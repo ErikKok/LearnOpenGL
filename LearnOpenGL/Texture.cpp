@@ -31,35 +31,16 @@ Texture::Texture(const std::string& filePath, bool convertToLinearSpace)
     GLenum format{};
     GLenum internalFormat{};
     assert(textureNrChannels == 3 || textureNrChannels == 4 && "Image format not supported");
-    //if (textureNrChannels == 1) {  [[unlikely]]
-    //    //format = GL_RED;
-    //    //internalFormat = GL_RED;
-    //    // DSA
-    //    format = GL_RED;
-    //    internalFormat = GL_R8; // ?
-    //}
+    //if (textureNrChannels == 1)  [[unlikely]] // GL_RED
     if (textureNrChannels == 3) { [[likely]]
-        //format = GL_RGB;
-        //internalFormat = GL_SRGB;
-        // DSA
         format = GL_RGB;
         convertToLinearSpace ? internalFormat = GL_SRGB8 : internalFormat = GL_RGB8;
     }
     else if (textureNrChannels == 4) {
-        //format = GL_RGBA;
-        //internalFormat = GL_SRGB_ALPHA;
-        // DSA
         format = GL_RGBA;
         convertToLinearSpace ? internalFormat = GL_SRGB8_ALPHA8 : internalFormat = GL_RGBA;
     }
 
-    // TODO check again and clean up
-    //glBindTexture(GL_TEXTURE_2D, m_id);
-    //glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);  
-    //glBindTexture(GL_TEXTURE_2D, 0);
-
-    // TODO when using immutable textures, how to deal with convertToLinearSpace?
-    // https://stackoverflow.com/questions/65831143/srgb-conversion-opengl
     glTextureStorage2D(m_id, 1, internalFormat, m_width, m_height);
     glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, format, GL_UNSIGNED_BYTE, textureData);
 
@@ -81,11 +62,6 @@ Texture::Texture(uint32_t color)
     glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // TODO check again and clean up
-    //glBindTexture(GL_TEXTURE_2D, m_id);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
-    //glBindTexture(GL_TEXTURE_2D, 0);
 
     glTextureStorage2D(m_id, 1, GL_SRGB8, m_width, m_height);
     glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
@@ -139,18 +115,12 @@ Texture::Texture(textureType textureType, GLsizei width, GLsizei height)
     glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
     // a sample outside the depthMap's border returns 1.0f, so no shadows are drawn:
     float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     glTextureParameterfv(m_id, GL_TEXTURE_BORDER_COLOR, borderColor);
 
-    // TODO check again and clean up
-    //glBindTexture(GL_TEXTURE_2D, m_id);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    //glBindTexture(GL_TEXTURE_2D, 0);
-
     glTextureStorage2D(m_id, 1, GL_DEPTH_COMPONENT24, m_width, m_height);
-    // TODO check again and clean up, not needed?
-    //glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 
     Global::glCheckError();
     std::println("CREATE texture depthMap id: {}", m_id);
@@ -170,18 +140,6 @@ void Texture::bind(GLuint textureUnit)
     // DSA
     glBindTextureUnit(textureUnit, m_id);
 
-    // TODO remove
-    //if (m_type == textureType::cubeMap) {
-    //    [[unlikely]]
-    //    glActiveTexture(GL_TEXTURE0 + textureUnit);
-    //    glBindTexture(GL_TEXTURE_CUBE_MAP, this->m_id);
-    //}
-    //else {
-    //    [[likely]]
-    //    glActiveTexture(GL_TEXTURE0 + textureUnit);
-    //    glBindTexture(GL_TEXTURE_2D, this->m_id);
-    //}
-
     setBound(textureUnit);
     Global::glCheckError();
 }
@@ -190,7 +148,7 @@ void Texture::bind(GLuint textureUnit)
 //{
 //    std::println("UNBIND texture id: {}", m_id);
 //
-//    // Not DSA, but not needed?
+//    // Not DSA, but not needed anyway?
 //
 //    if (m_type == textureType::cubeMap) [[unlikely]]
 //        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
