@@ -30,30 +30,38 @@ Texture::Texture(const std::string& filePath, bool convertToLinearSpace)
         std::println("Failed to load texture");
     GLenum format{};
     GLenum internalFormat{};
-    assert(textureNrChannels == 1 || textureNrChannels == 3 || textureNrChannels == 4 && "Image format not supported");
-    if (textureNrChannels == 1) {  [[unlikely]]
-        format = GL_RED;
-        internalFormat = GL_RED;
-    }
-    else if (textureNrChannels == 3) { [[likely]]
+    assert(textureNrChannels == 3 || textureNrChannels == 4 && "Image format not supported");
+    //if (textureNrChannels == 1) {  [[unlikely]]
+    //    //format = GL_RED;
+    //    //internalFormat = GL_RED;
+    //    // DSA
+    //    format = GL_RED;
+    //    internalFormat = GL_R8; // ?
+    //}
+    if (textureNrChannels == 3) { [[likely]]
+        //format = GL_RGB;
+        //internalFormat = GL_SRGB;
+        // DSA
         format = GL_RGB;
-        internalFormat = GL_SRGB;
+        convertToLinearSpace ? internalFormat = GL_SRGB8 : internalFormat = GL_RGB8;
     }
     else if (textureNrChannels == 4) {
+        //format = GL_RGBA;
+        //internalFormat = GL_SRGB_ALPHA;
+        // DSA
         format = GL_RGBA;
-        internalFormat = GL_SRGB_ALPHA;
+        convertToLinearSpace ? internalFormat = GL_SRGB8_ALPHA8 : internalFormat = GL_RGBA;
     }
-    if (!convertToLinearSpace)
-        internalFormat = format;
-    Global::glCheckError();
-    glBindTexture(GL_TEXTURE_2D, m_id);
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);  
-    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // TODO check again and clean up
+    //glBindTexture(GL_TEXTURE_2D, m_id);
+    //glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, textureData);  
+    //glBindTexture(GL_TEXTURE_2D, 0);
 
     // TODO when using immutable textures, how to deal with convertToLinearSpace?
     // https://stackoverflow.com/questions/65831143/srgb-conversion-opengl
-    //glTextureStorage2D(m_id, 1, internalFormat, m_width, m_height);
-    //glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, format, GL_UNSIGNED_BYTE, textureData);
+    glTextureStorage2D(m_id, 1, internalFormat, m_width, m_height);
+    glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, format, GL_UNSIGNED_BYTE, textureData);
 
     glGenerateTextureMipmap(m_id);
     stbi_image_free(textureData);
@@ -74,9 +82,13 @@ Texture::Texture(uint32_t color)
     glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glBindTexture(GL_TEXTURE_2D, m_id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    // TODO check again and clean up
+    //glBindTexture(GL_TEXTURE_2D, m_id);
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
+    //glBindTexture(GL_TEXTURE_2D, 0);
+
+    glTextureStorage2D(m_id, 1, GL_SRGB8, m_width, m_height);
+    glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
 
     Global::glCheckError();
     std::println("CREATE texture single color id: {}", m_id);
@@ -89,23 +101,28 @@ Texture::Texture(const std::vector<std::string>& faces)
     ,m_filePath{ faces[0] }
 {
     glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_id);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);   
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
     stbi_set_flip_vertically_on_load(false);
     int textureNrChannels{};
-    for (unsigned int i = 0u; i < faces.size(); i++)
+    glTextureStorage2D(m_id, 1, GL_SRGB8, 2048, 2048); // Converts it to linear space
+    for (int i = 0; i < faces.size(); i++)
     {
         unsigned char* textureData{ stbi_load(faces[i].c_str(), &m_width, &m_height, &textureNrChannels, 0) };
         assert(textureNrChannels == 3 && "CubeMap not in RGB format!");
         if (!textureData)
             std::println("Failed to load texture {}", faces[i]);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+        
+        glTextureSubImage3D(m_id, 0, 0, 0, i, m_width, m_height, 1, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+
         stbi_image_free(textureData);
         Global::glCheckError();
     }
+
     std::println("CREATE cubeMap id: {}", m_id);
 }
 
@@ -126,9 +143,14 @@ Texture::Texture(textureType textureType, GLsizei width, GLsizei height)
     float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     glTextureParameterfv(m_id, GL_TEXTURE_BORDER_COLOR, borderColor);
 
-    glBindTexture(GL_TEXTURE_2D, m_id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    // TODO check again and clean up
+    //glBindTexture(GL_TEXTURE_2D, m_id);
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    //glBindTexture(GL_TEXTURE_2D, 0);
+
+    glTextureStorage2D(m_id, 1, GL_DEPTH_COMPONENT24, m_width, m_height);
+    // TODO check again and clean up, not needed?
+    //glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 
     Global::glCheckError();
     std::println("CREATE texture depthMap id: {}", m_id);
@@ -144,25 +166,39 @@ Texture::~Texture()
 void Texture::bind(GLuint textureUnit)
 {
     std::println("BIND texture id: {} | texture unit: {}", m_id, textureUnit);
-    glActiveTexture(GL_TEXTURE0 + textureUnit);
-    if (m_type == textureType::cubeMap) [[unlikely]]
-        glBindTexture(GL_TEXTURE_CUBE_MAP, this->m_id);
-    else [[likely]]
-        glBindTexture(GL_TEXTURE_2D, this->m_id);
+
+    // DSA
+    glBindTextureUnit(textureUnit, m_id);
+
+    // TODO remove
+    //if (m_type == textureType::cubeMap) {
+    //    [[unlikely]]
+    //    glActiveTexture(GL_TEXTURE0 + textureUnit);
+    //    glBindTexture(GL_TEXTURE_CUBE_MAP, this->m_id);
+    //}
+    //else {
+    //    [[likely]]
+    //    glActiveTexture(GL_TEXTURE0 + textureUnit);
+    //    glBindTexture(GL_TEXTURE_2D, this->m_id);
+    //}
+
     setBound(textureUnit);
     Global::glCheckError();
 }
 
-void Texture::unbind()
-{
-    std::println("UNBIND texture id: {}", m_id);
-    if (m_type == textureType::cubeMap) [[unlikely]]
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    else [[likely]]
-        glBindTexture(GL_TEXTURE_2D, 0);
-    setBound(-1);
-    Global::glCheckError();
-}
+//void Texture::unbind()
+//{
+//    std::println("UNBIND texture id: {}", m_id);
+//
+//    // Not DSA, but not needed?
+//
+//    if (m_type == textureType::cubeMap) [[unlikely]]
+//        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+//    else [[likely]]
+//        glBindTexture(GL_TEXTURE_2D, 0);
+//    setBound(-1);
+//    Global::glCheckError();
+//}
 
 //void Texture::activeTexture() const
 //{

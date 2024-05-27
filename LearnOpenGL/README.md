@@ -31,6 +31,11 @@ TO DO
 
 - asset manager - unique ptr owns the object, returns a raw * if needed
 
+v0.1.42 27-5-2024
+-----------------
+- v4.5 -> v4.6
+- Texture: converted to DSA, and changed convertToLinearSpace logic
+
 v0.1.41 26-5-2024
 -----------------
 - Model, VertexAttribute, renderer .cpp gemaakt/bijgewerkt

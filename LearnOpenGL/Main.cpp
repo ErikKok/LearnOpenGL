@@ -33,7 +33,7 @@ int main()
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 16);
@@ -304,6 +304,7 @@ int main()
     /* 15 */
     /* 16 - 31 */// Reserved for Model::Draw
     /////////////////////////////////////////////////////////////////////////////////////
+    /* 01 GL_TEXTURE_CUBE_MAP */ cubemapTexture.bind(0);
     /* 01 */ blackTexture.bind(0);
     /* 01 */ whiteTexture.bind(1);
     /* 02 */ depthMapDirLight.bind(2);

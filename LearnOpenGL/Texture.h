@@ -35,7 +35,7 @@ public:
 
 	//void activeTexture() const;
 	void bind(GLuint);
-	void unbind();
+	//void unbind(); // Not DSA, but not needed?
 
 	const GLuint getId() const { return m_id; };
 	const int getBound() const { return m_boundTextureUnit; };

@@ -15,6 +15,10 @@ ElementBuffer::ElementBuffer(size_t size, const GLvoid* data)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLuint>(size), data, GL_STATIC_DRAW);
 	Global::glCheckError();
 	//std::println("CREATE ElementBuffer id: {}", m_id);
+
+	// DSA
+	//glCreateBuffers(1, &m_id);
+	//glNamedBufferData(m_id, static_cast<GLuint>(size), data, GL_STATIC_DRAW);
 }
 
 ElementBuffer::~ElementBuffer()
