@@ -22,13 +22,15 @@ TO DO
 
 - implement Bindless Textures
 - cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
-- move draw model to renderer class - eventually
 - try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
 - remove s_depthMapPassActive, only used for Mesh::Draw()
 - samplers and other opaque shader types can be given explicit binding points https://juandiegomontoya.github.io/modern_opengl.html#sampler%20objects
 - asset manager - unique ptr owns the object, returns a raw * if needed
 - huidige mesh class inheriten, base kan iets kleiner?
-- test DSA uniform buffer
+
+v0.2.1 28-5-2024
+-----------------
+- moved mesh::draw to Renderer
 
 v0.2.0 28-5-2024
 -----------------

@@ -22,8 +22,7 @@ public:
     Model(Model&& other) noexcept = default; 			// Move constructor	
     Model& operator=(Model&& other) noexcept = default;	// Move assignment
     
-    // TODO Takes in a separate Shader otherwise you have to make a lot of materials
-    void Draw(const Material& material, const Shader* shader) const;
+    void draw(const Material& material, const Renderer& renderer) const;
 
     // int getUniqueTexturesCount() return m_texturesLoaded.size();
 

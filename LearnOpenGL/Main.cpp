@@ -336,6 +336,7 @@ int main()
         Global::clearStencilBuffer();
         Global::processInput(window);
 
+        // Voor flashLight:
         //Global::camera.getPostion;
         //Global::camera.getFront;
         //Global::camera.getUp;
@@ -412,7 +413,7 @@ int main()
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraDirLight.getViewProjectionMatrix() * model);
 
-        ourModel.Draw(modelMaterial, renderer.getShaderDepthMapDirLight());
+        ourModel.draw(modelMaterial, renderer);
 
         /////////////////////////////////////
         ////// Floor ShadowPass dirLight ////
@@ -481,7 +482,7 @@ int main()
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraSpotLight.getViewProjectionMatrix() * model);
 
-        ourModel.Draw(modelMaterial, renderer.getShaderDepthMapSpotLight());
+        ourModel.draw(modelMaterial, renderer);
 
         /////////////////////////////////////
         ////// Floor ShadowPass spotLight ///
@@ -545,7 +546,7 @@ int main()
         model = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
         flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
-        ourModel.Draw(modelMaterial, renderer.getShaderDepthMapFlashLight());
+        ourModel.draw(modelMaterial, renderer);
 
         /////////////////////////////////////
         ////// Floor ShadowPass flashLight //
@@ -660,7 +661,7 @@ int main()
         spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraSpotLight.getViewProjectionMatrix() * model);
         flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
-        ourModel.Draw(modelMaterial, &multiLight);
+        ourModel.draw(modelMaterial, renderer);
 
         /////////////////////////////////////
         ////// Floor ////////////////////////

@@ -7,18 +7,18 @@
 #include <cassert>
 #include <print>
 
-UniformBuffer::UniformBuffer(GLuint size, GLuint bindingPoint)
-{
-	glCreateBuffers(1, &m_id);
-	glNamedBufferStorage(m_id, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
-	// Bind the WHOLE UniformBuffer to the binding point defined in the shader
-	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, m_id);
-	// Bind only a specific range
-	//glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, m_id, offset, size2);
-	
-	Global::glCheckError();
-	std::println("CREATE UniformBuffer id: {}", m_id);
-}
+//UniformBuffer::UniformBuffer(GLuint size, GLuint bindingPoint)
+//{
+//	glCreateBuffers(1, &m_id);
+//	glNamedBufferStorage(m_id, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+//	// Bind the WHOLE UniformBuffer to the binding point defined in the shader
+//	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, m_id);
+//	// Bind only a specific range
+//	//glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, m_id, offset, size2);
+//	
+//	Global::glCheckError();
+//	std::println("CREATE UniformBuffer id: {}", m_id);
+//}
 
 UniformBuffer::~UniformBuffer()
 {

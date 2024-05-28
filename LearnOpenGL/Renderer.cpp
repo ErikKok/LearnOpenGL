@@ -14,7 +14,12 @@ void Renderer::clear() const
 
 void Renderer::draw(const Mesh& mesh, const Material& material, GLsizei instances) const
 {
-	if (m_renderPassActive == renderPassType::normal) {
+	switch (m_renderPassActive)
+	{
+	case renderPassType::undefined:
+		assert(false); // should never be the case 
+		break;
+	case renderPassType::normal:
 		material.shader.useShader();
 
 		material.shader.setInt("material.diffuse1", material.diffuse1);
@@ -24,21 +29,19 @@ void Renderer::draw(const Mesh& mesh, const Material& material, GLsizei instance
 		material.shader.setFloat("material.shininess", material.shininess);
 		material.shader.setInt("material.flashLightEmissionMap", material.flashLightEmissionMap);
 		material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
-	}
-
-	if (m_renderPassActive == renderPassType::depthMapDirLight) {
+		break;
+	case renderPassType::depthMapDirLight:
 		m_shaderDepthMapDirLight->useShader();
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
-	}
-
-	if (m_renderPassActive == renderPassType::depthMapSpotLight) {
+		break;
+	case renderPassType::depthMapSpotLight:
 		m_shaderDepthMapSpotLight->useShader();
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
-	}
-
-	if (m_renderPassActive == renderPassType::depthMapFlashLight) {
+		break;
+	case renderPassType::depthMapFlashLight:
 		m_shaderDepthMapFlashLight->useShader();
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		break;
 	}
 	
 	mesh.m_vao->bindVertexArray();
@@ -116,6 +119,75 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
 
 	Global::glCheckError();
 };
+
+void Renderer::drawModel(const Mesh& mesh, const Material& material) const
+{
+	// Set sampler2D uniforms to the correct texture unit for each texture in this Mesh
+
+	unsigned int diffuseCount{ 1u };
+	unsigned int specularCount{ 1u };
+	//unsigned int normalCount = 1u; // TODO
+	//unsigned int heightCount = 1u; // TODO
+
+	for (unsigned int i{ 0u }; i < mesh.m_textures.size(); i++)
+	{
+		assert(mesh.m_textures[i]->getBound() >= 0 && "Texture is not bound to a texture unit");
+
+		// retrieve texture number (the N in <typename>N)
+		std::string count{};
+		textureType textureType{ mesh.m_textures[i]->getType() }; // textureType
+		if (textureType == textureType::diffuse)
+			count = std::to_string(diffuseCount++);
+		else if (textureType == textureType::specular)
+			count = std::to_string(specularCount++); // transfer unsigned int to string
+		else if (textureType == textureType::normal) // TODO
+			break;
+		//count = std::to_string(normalCount++); // transfer unsigned int to string
+		else if (textureType == textureType::height) // TODO
+			break;
+		//count = std::to_string(heightCount++); // transfer unsigned int to string
+
+		std::string result{ "material." + mesh.m_textures[i]->getTypeAsString() + count };
+		if (!FrameBuffer::s_depthMapPassActive)
+			material.shader.setInt(result, mesh.m_textures[i]->getBound());
+	};
+
+	// set remaining material properties
+	switch (m_renderPassActive)
+	{
+	case renderPassType::undefined:
+		assert(false); // should never be the case 
+		break;
+	case renderPassType::normal:
+		material.shader.useShader();
+
+		material.shader.setInt("material.emission", material.emission);
+		material.shader.setFloat("material.emissionStrength", material.emissionStrength);
+		material.shader.setFloat("material.shininess", material.shininess);
+		material.shader.setInt("material.flashLightEmissionMap", material.flashLightEmissionMap);
+		material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
+		break;
+	case renderPassType::depthMapDirLight:
+		m_shaderDepthMapDirLight->useShader();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		break;
+	case renderPassType::depthMapSpotLight:
+		m_shaderDepthMapSpotLight->useShader();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		break;
+	case renderPassType::depthMapFlashLight:
+		m_shaderDepthMapFlashLight->useShader();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		break;
+	}
+
+	mesh.m_vao->bindVertexArray();
+	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
+	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
+	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
+
+	Global::glCheckError();
+}
 
 //void Renderer::drawXYZ(ShaderStorageBuffer& ssbo) const {
 //

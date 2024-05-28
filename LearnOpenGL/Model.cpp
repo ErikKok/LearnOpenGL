@@ -26,16 +26,10 @@ Model::Model(std::string const& path, bool gamma)
     std::println("CREATE Model: {}", path);
     loadModel(path);
 }
-#pragma warning( suppress : 4100 )
-void Model::Draw(const Material& material, const Shader* shader) const
-{
-    //GLint returnData{};
-    //glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
-    //assert(returnData == static_cast<GLint>(material.shader.getId()) && "Wrong shader active");
-    //if (returnData != static_cast<GLint>(material.shader.getId()))
-    
-    shader->useShader();
 
+#pragma warning( suppress : 4100 )
+void Model::draw(const Material& material, const Renderer& renderer) const
+{
     // Bind all unique textures to a texture unit, so they are ready to use
     // Using TU 16 to 31 (always starting from 16, so only one model can be loaded at once -> TODO)
     for (unsigned int i{ 0u }; i < m_texturesLoaded.size(); i++)
@@ -44,15 +38,15 @@ void Model::Draw(const Material& material, const Shader* shader) const
         if (m_texturesLoaded[i]->getBound() == -1) {
             // activate proper texture unit (i) and bind texture
             m_texturesLoaded[i]->bind(i+16);
-            // save TU in texture
+            // save texture unit in texture
             m_texturesLoaded[i]->setBound(i+16);
         }
         //std::println("DRAW Texture bind #{}", i)
     }
-    
+
     for (unsigned int i{ 0u }; i < m_meshes.size(); i++)
     {
-        m_meshes[i].draw(material);
+        renderer.drawModel(m_meshes[i], material);
         //std::println("DRAW Model call #{}", i);
     }
 

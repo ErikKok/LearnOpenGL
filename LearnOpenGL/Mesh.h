@@ -2,12 +2,9 @@
 
 #include "Buffers.h"
 #include "Global.h"
-#include "Renderer.h" // for Material
-#include "Shader.h"
 #include "Texture.h"
 #include "VertexArray.h"
 
-//#include <array>
 #include <memory> // for std::unique_ptr and std::make_unique
 #include <print>
 #include <vector>
@@ -23,11 +20,8 @@ struct Vertex {
     //float m_Weights[MAX_BONE_INFLUENCE]; // weights from each bone
 };
 
-struct Material; // TODO WAAROMMMMMMM????
-
 class Mesh {
-
-    friend class Renderer; // TODO
+    friend class Renderer;
 
 public:
     Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& indices);
@@ -38,10 +32,8 @@ public:
     Mesh& operator=(Mesh&& other) noexcept = default;	// Move assignment
     ~Mesh() = default;									// Destructor
 
-    void draw(const Material& material) const;
-
 private:
-    std::vector<Vertex> m_vertices; // TODO samenvoegen met die eronder ofzo
+    std::vector<Vertex> m_vertices; // TODO samenvoegen met die eronder
     std::vector<float> m_verticesFloat;
     std::vector<unsigned int> m_indices;
     std::vector<SPtr<Texture>> m_textures;

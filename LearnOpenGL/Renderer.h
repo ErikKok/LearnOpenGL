@@ -6,7 +6,7 @@
 #include "Shader.h"
 #include "VertexArray.h"
 
-#include <memory> // for std::unique_ptr
+#include <memory> // for std::unique_ptr and std::make_unique
 
 // TODO transparency opslaan in Material, of uit texture halen in constructor van een Material class?
 struct Material {
@@ -29,8 +29,6 @@ enum class renderPassType {
 	depthMapSpotLight,
 	depthMapFlashLight,
 };
-
-class Mesh; // TODO WAAROMMMMMMM????
 
 class Renderer {
 public:
@@ -61,6 +59,7 @@ public:
 	void drawFrustum(const Mesh& mesh, const glm::mat4& viewProjectionMatrix) const;
 	// Takes in a Camera, not an OrthograpicCamera!
 	void drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const;
+	void drawModel(const Mesh& mesh, const Material& material) const;
 
 	// non-DSA
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    
