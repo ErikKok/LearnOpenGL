@@ -15,12 +15,14 @@ public:
     void bindVertexArray() const;
     void unbindVertexArray() const;
 
-    void addVertexAttributeLayout(const VertexBuffer& vbo, const VertexAttributeLayout& layout);
-    void addVertexAttributeLayout(const VertexBuffer& vbo, const ElementBuffer& ebo, const VertexAttributeLayout& layout);
+    void addVertexAttributeLayout(const VertexBuffer& vbo, const VertexAttributeLayout& layout) const;
+    void addVertexAttributeLayout(const VertexBuffer& vbo, const VertexAttributeLayout& layout, const ElementBuffer& ebo) const;
 
     const GLuint getId() const { return m_id; };
 
 private:
     GLuint m_id{};
+
+    void addVertexAttributeLayoutStep2(const VertexAttributeLayout& layout) const;
 };
 

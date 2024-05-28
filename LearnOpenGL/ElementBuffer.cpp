@@ -11,11 +11,10 @@
 ElementBuffer::ElementBuffer(size_t size, const GLvoid* data)
 	: m_count{ static_cast<GLuint>(size / sizeof(GLuint)) }
 {
-	//std::println("CREATE ElementBuffer id: {}", m_id);
-
 	glCreateBuffers(1, &m_id);
 	glNamedBufferStorage(m_id, static_cast<GLuint>(size), data, GL_DYNAMIC_STORAGE_BIT);
 	Global::glCheckError();
+	//std::println("CREATE ElementBuffer id: {}", m_id);
 }
 
 ElementBuffer::~ElementBuffer()

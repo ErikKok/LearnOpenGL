@@ -23,15 +23,15 @@ static_assert(std::size(textureTypeName) == static_cast<int>(textureType::max_te
 
 class Texture {
 public:
-	Texture(const std::string& filePath, bool convertToLinearSpace = true);	// Constructor	// Default converts to Linear Space
-	Texture(uint32_t color);								// Constructor single color		// Always converts to Linear Space
-	Texture(const std::vector<std::string>& faces);			// Constructor cubeMap			// Always converts to Linear Space
-	Texture(textureType textureType, GLsizei width, GLsizei height); // Constructor depthMap
-	Texture(const Texture& other) = delete;					// Copy constructor
-	Texture& operator=(const Texture& other) = delete;		// Copy assignment
-	Texture(Texture&& other) noexcept = delete; 			// Move constructor	
-	Texture& operator=(Texture&& other) noexcept = delete;	// Move assignment
-	~Texture();												// Destructor
+	Texture(const std::string& filePath, bool convertToLinearSpace = true);	// Constructor					// Default converts to Linear Space
+	Texture(uint32_t color);												// Constructor single color		// Always converts to Linear Space
+	Texture(const std::vector<std::string>& faces);							// Constructor cubeMap			// Always converts to Linear Space
+	Texture(textureType textureType, GLsizei width, GLsizei height);		// Constructor depthMap
+	Texture(const Texture& other) = delete;									// Copy constructor
+	Texture& operator=(const Texture& other) = delete;						// Copy assignment
+	Texture(Texture&& other) noexcept = delete; 							// Move constructor	
+	Texture& operator=(Texture&& other) noexcept = delete;					// Move assignment
+	~Texture();																// Destructor
 
 	//void activeTexture() const;
 	void bind(GLuint);

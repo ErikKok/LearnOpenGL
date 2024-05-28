@@ -6,6 +6,7 @@
 #include "Global.h"
 #include "Light.h"
 
+#include "Mesh.h"
 #include "Model.h"
 #include "Renderer.h"
 #include "Shader.h"
@@ -195,82 +196,13 @@ int main()
     ////// Quad /////////////////////////
     //std::println("CREATE Quad");/////////
 
-    VertexArray quadVAO;
-    VertexBuffer quadVBO(sizeof(Data::quad), &Data::quad);
-    VertexAttributeLayout quadLayout{};
-    quadLayout.pushVertexAttributeLayout<float>(2); // 2 coordinates, not 3!
-    quadLayout.pushVertexAttributeLayout<float>(2);
-    quadVAO.addVertexAttributeLayout(quadVBO, quadLayout);
+    Mesh quadMesh(Data::quad, Data::quadIndices);
 
     /////////////////////////////////////
     ////// Cubes ////////////////////////
     std::println("CREATE Cubes");////////
 
-    VertexArray cubeVAO; // 768 + 144 = 912 bytes
-    VertexBuffer cubeVBO(sizeof(Data::cube), &Data::cube);
-    ElementBuffer cubeEBO(sizeof(Data::cubeIndices), &Data::cubeIndices);
-    VertexAttributeLayout cubeLayout;
-    cubeLayout.pushVertexAttributeLayout<float>(3);
-    cubeLayout.pushVertexAttributeLayout<float>(2);
-    cubeLayout.pushVertexAttributeLayout<float>(3);
-    cubeVAO.addVertexAttributeLayout(cubeVBO, cubeEBO, cubeLayout);
-
-    std::vector cubeVector{
-        //   X      Y      Z       TextureX  TextureY  Normal1  Normal2  Normal3
-            // Back face                                                
-            -1.0f, -1.0f, -1.0f,   0.0f,     0.0f,     0.0f,    0.0f,    -1.0f,   // 0 Bottom-left
-             1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     0.0f,    0.0f,    -1.0f,   // 1 top-right
-             1.0f, -1.0f, -1.0f,   1.0f,     0.0f,     0.0f,    0.0f,    -1.0f,   // 2 bottom-right
-            -1.0f,  1.0f, -1.0f,   0.0f,     1.0f,     0.0f,    0.0f,    -1.0f,   // 3 top-left
-            // Front face                                                         
-            -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     0.0f,    0.0f,     1.0f,   // 4 bottom-left
-             1.0f, -1.0f,  1.0f,   1.0f,     0.0f,     0.0f,    0.0f,     1.0f,   // 5 bottom-right
-             1.0f,  1.0f,  1.0f,   1.0f,     1.0f,     0.0f,    0.0f,     1.0f,   // 6 top-right
-            -1.0f,  1.0f,  1.0f,   0.0f,     1.0f,     0.0f,    0.0f,     1.0f,   // 7 top-left
-            // Left face                                                          
-            -1.0f,  1.0f,  1.0f,   1.0f,     0.0f,    -1.0f,    0.0f,     0.0f,   // 8 top-right
-            -1.0f,  1.0f, -1.0f,   1.0f,     1.0f,    -1.0f,    0.0f,     0.0f,   // 9 top-left
-            -1.0f, -1.0f, -1.0f,   0.0f,     1.0f,    -1.0f,    0.0f,     0.0f,   // 10 bottom-left
-            -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,    -1.0f,    0.0f,     0.0f,   // 11 bottom-right
-            // Right face                                                         
-             1.0f,  1.0f,  1.0f,   1.0f,     0.0f,     1.0f,    0.0f,     0.0f,   // 12 top-left
-             1.0f, -1.0f, -1.0f,   0.0f,     1.0f,     1.0f,    0.0f,     0.0f,   // 13 bottom-right
-             1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     1.0f,    0.0f,     0.0f,   // 14 top-right   
-             1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     1.0f,    0.0f,     0.0f,   // 15 bottom-left 
-             // Bottom face                                                       
-             -1.0f, -1.0f, -1.0f,   0.0f,     1.0f,     0.0f,   -1.0f,     0.0f,   // 16 top-right
-              1.0f, -1.0f, -1.0f,   1.0f,     1.0f,     0.0f,   -1.0f,     0.0f,   // 17 top-left
-              1.0f, -1.0f,  1.0f,   1.0f,     0.0f,     0.0f,   -1.0f,     0.0f,   // 18 bottom-left
-             -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     0.0f,   -1.0f,     0.0f,   // 19 bottom-right
-             // Top face                                                           
-             -1.0f,  1.0f, -1.0f,   0.0f,     1.0f,     0.0f,    1.0f,     0.0f,   // 20 top-left
-              1.0f,  1.0f,  1.0f,   1.0f,     0.0f,     0.0f,    1.0f,     0.0f,   // 21 bottom-right
-              1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     0.0f,    1.0f,     0.0f,   // 22 top-right   
-             -1.0f,  1.0f,  1.0f,   0.0f,     0.0f,     0.0f,    1.0f,     0.0f,   // 23 bottom-left 
-    };
-
-    std::vector cubeIndicesVector{
-        // Z+ back      
-        0u, 1u, 2u,
-        1u, 0u, 3u,
-        // Z- front
-        4u, 5u, 6u,
-        6u, 7u, 4u,
-        // X+ left
-        8u, 9u, 10u,
-        10u, 11u, 8u,
-        // X- right
-        12u, 13u, 14u,
-        13u, 12u, 15u,
-        // Y- bottom
-        16u, 17u, 18u,
-        18u, 19u, 16u,
-        // Y+ top
-        20u, 21u, 22u,
-        21u, 20u, 23u,
-    };
-
-    Mesh cubeMesh(cubeVector, cubeIndicesVector);
+    Mesh cubeMesh(Data::cube, Data::cubeIndices);
 
     Material cubeMaterial{
         .shader{ multiLight },
@@ -287,14 +219,7 @@ int main()
     ////// Floor ////////////////////////
     std::println("CREATE Floor");////////
 
-    VertexArray floorVAO;
-    VertexBuffer floorVBO(sizeof(Data::floor), &Data::floor);
-    ElementBuffer floorEBO(sizeof(Data::floorIndices), &Data::floorIndices);
-    VertexAttributeLayout floorLayout{};
-    floorLayout.pushVertexAttributeLayout<float>(3);
-    floorLayout.pushVertexAttributeLayout<float>(2);
-    floorLayout.pushVertexAttributeLayout<float>(3);
-    floorVAO.addVertexAttributeLayout(floorVBO, floorEBO, floorLayout);
+    Mesh floorMesh(Data::floor, Data::floorIndices);
 
     float floorOutlineAlpha{ 0.0f };
 
@@ -478,7 +403,7 @@ int main()
         }
         dirLightMVPMatrixSSBO.updateAndBind();
 
-        renderer.draw(cubeVAO, cubeEBO, cubeMaterial, std::size(Data::cubePositions));
+        renderer.draw(cubeMesh, cubeMaterial, std::size(Data::cubePositions));
 
         /////////////////////////////////////
         ////// Model ShadowPass dirLight ////
@@ -496,7 +421,7 @@ int main()
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
         dirLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraDirLight.getViewProjectionMatrix() * model);
 
-        renderer.draw(floorVAO, floorEBO, floorMaterial);
+        renderer.draw(floorMesh, floorMaterial);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // End ShadowPass dirLight //////////////////////////////////////////////////////////
@@ -547,7 +472,7 @@ int main()
         }
         spotLightMVPMatrixSSBO.updateAndBind();
 
-        renderer.draw(cubeVAO, cubeEBO, cubeMaterial, std::size(Data::cubePositions));
+        renderer.draw(cubeMesh, cubeMaterial, std::size(Data::cubePositions));
 
         /////////////////////////////////////
         ////// Model ShadowPass spotLight ///
@@ -565,7 +490,7 @@ int main()
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
         spotLightMVPMatrixSSBO.setVectorAndUpdateAndBind(cameraSpotLight.getViewProjectionMatrix() * model);
 
-        renderer.draw(floorVAO, floorEBO, floorMaterial);
+        renderer.draw(floorMesh, floorMaterial);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // End ShadowPass spotLight /////////////////////////////////////////////////////////
@@ -611,7 +536,7 @@ int main()
         }
         flashLightMVPMatrixSSBO.updateAndBind();
 
-        renderer.draw(cubeVAO, cubeEBO, cubeMaterial, std::size(Data::cubePositions));
+        renderer.draw(cubeMesh, cubeMaterial, std::size(Data::cubePositions));
 
         /////////////////////////////////////
         ////// Model ShadowPass flashLight //
@@ -629,7 +554,7 @@ int main()
         model = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f)); // TODO deze waarde wordt met de 2e renderpass ook gebruikt, herbruiken dus
         flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
-        renderer.draw(floorVAO, floorEBO, floorMaterial);
+        renderer.draw(floorMesh, floorMaterial);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // End ShadowPass flashLight ////////////////////////////////////////////////////////
@@ -661,7 +586,7 @@ int main()
         ////// XYZ //////////////////////////
         /////////////////////////////////////
 
-        //renderer.drawXYZ(MVPMatrixSSBO);
+        //renderer.drawXYZ(MVPMatrixSSBO); // Non-DSA
 
         /////////////////////////////////////
         ////// LightCube ////////////////////
@@ -669,7 +594,7 @@ int main()
 
         MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::camera.getProjectionMatrix() * Global::getModelViewMatrix(spotlight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 
-        renderer.drawSingleColor(cubeVAO, cubeEBO, glm::vec4(spotlight.getColor(), 1.0f), 1);
+        renderer.drawSingleColor(cubeMesh, glm::vec4(spotlight.getColor(), 1.0f), 1);
 
         // pointlights - 4 vaste LightCubes
         for (int i = 0; i < std::size(pointLightPositions); i++) {
@@ -678,7 +603,7 @@ int main()
         }
         MVPMatrixSSBO.updateAndBind();
 
-        renderer.drawSingleColor(cubeVAO, cubeEBO, { 1.0f, 0.0f, 1.0f, 1.0f }, 4); // TODO deze color uniform/parameter is geen array, dus kleur is zelfde voor alle cubes
+        renderer.drawSingleColor(cubeMesh, { 1.0f, 0.0f, 1.0f, 1.0f }, 4); // TODO deze color uniform/parameter is geen array, dus kleur is zelfde voor alle cubes
 
         /////////////////////////////////////
         ////// Cubes ////////////////////////
@@ -720,9 +645,7 @@ int main()
         spotLightMVPMatrixSSBO.updateAndBind();     // TODO is al eerder berekend...
         flashLightMVPMatrixSSBO.updateAndBind();    // TODO is al eerder berekend...
 
-        //renderer.draw(cubeVAO, cubeEBO, cubeMaterial, std::size(Data::cubePositions));
-
-        renderer.drawMesh(cubeMesh, cubeMaterial, std::size(Data::cubePositions));
+        renderer.draw(cubeMesh, cubeMaterial, std::size(Data::cubePositions));
 
         /////////////////////////////////////
         ////// Model ////////////////////////
@@ -755,7 +678,7 @@ int main()
         flashLightMVPMatrixSSBO.setVectorAndUpdateAndBind(Global::cameraFlashLight.getViewProjectionMatrix() * model);
 
         glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
-        renderer.draw(floorVAO, floorEBO, floorMaterial);
+        renderer.draw(floorMesh, floorMaterial);
         glEnable(GL_CULL_FACE);
 
         glStencilMask(0x00); // disable writing to the stencil buffer
@@ -764,7 +687,7 @@ int main()
         ////// Skybox ///////////////////////
         /////////////////////////////////////
         
-        renderer.drawSkybox(cubeVAO, cubeEBO);
+        renderer.drawSkybox(cubeMesh);
 
         /////////////////////////////////////
         ////// Floor Outline ////////////////
@@ -785,7 +708,7 @@ int main()
             MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::camera.getProjectionMatrix() * modelViewMatrix);
 
             glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
-            renderer.drawSingleColor(floorVAO, floorEBO, color);
+            renderer.drawSingleColor(floorMesh, color);
             glEnable(GL_CULL_FACE);
 
             // De-init Stencil Buffer
@@ -796,15 +719,15 @@ int main()
 
         // Draw frustum - toggle with K
         if (Global::frustumVisible) {
-            renderer.drawFrustum(cubeVAO, cubeEBO, cameraDirLight.getViewProjectionMatrix());
-            renderer.drawFrustum(cubeVAO, cubeEBO, cameraSpotLight.getViewProjectionMatrix());
-            //renderer.drawFrustum(cubeVAO, cubeEBO, Global::cameraFlashLight.getViewProjectionMatrix());
+            renderer.drawFrustum(cubeMesh, cameraDirLight.getViewProjectionMatrix());
+            renderer.drawFrustum(cubeMesh, cameraSpotLight.getViewProjectionMatrix());
+            //renderer.drawFrustum(cubeMesh, Global::cameraFlashLight.getViewProjectionMatrix());
         }
 
         // Draw debug quad - toggle with Q
         if (Global::debugQuadVisible) {
             // Set texture sampler2D binding in Shader itself + set orthographic true in function for dirLight + set corresponding Camera below
-            renderer.drawDebugQuad(quadVAO, cameraDirLight);
+            renderer.drawDebugQuad(quadMesh, cameraDirLight);
         }
 
         if (!Global::paused) { // toggle with P

@@ -8,52 +8,7 @@
 
 namespace Data{
 
-    //constexpr std::array skybox1 {
-    //    // positions          
-    //    -1.0f,  1.0f, -1.0f,
-    //    -1.0f, -1.0f, -1.0f,
-    //     1.0f, -1.0f, -1.0f,
-    //     1.0f, -1.0f, -1.0f,
-    //     1.0f,  1.0f, -1.0f,
-    //    -1.0f,  1.0f, -1.0f,
-
-    //    -1.0f, -1.0f,  1.0f,
-    //    -1.0f, -1.0f, -1.0f,
-    //    -1.0f,  1.0f, -1.0f,
-    //    -1.0f,  1.0f, -1.0f,
-    //    -1.0f,  1.0f,  1.0f,
-    //    -1.0f, -1.0f,  1.0f,
-
-    //     1.0f, -1.0f, -1.0f,
-    //     1.0f, -1.0f,  1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //     1.0f,  1.0f, -1.0f,
-    //     1.0f, -1.0f, -1.0f,
-
-    //    -1.0f, -1.0f,  1.0f,
-    //    -1.0f,  1.0f,  1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //     1.0f, -1.0f,  1.0f,
-    //    -1.0f, -1.0f,  1.0f,
-
-    //    -1.0f,  1.0f, -1.0f,
-    //     1.0f,  1.0f, -1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //     1.0f,  1.0f,  1.0f,
-    //    -1.0f,  1.0f,  1.0f,
-    //    -1.0f,  1.0f, -1.0f,
-
-    //    -1.0f, -1.0f, -1.0f,
-    //    -1.0f, -1.0f,  1.0f,
-    //     1.0f, -1.0f, -1.0f,
-    //     1.0f, -1.0f, -1.0f,
-    //    -1.0f, -1.0f,  1.0f,
-    //     1.0f, -1.0f,  1.0f
-    //};
-
-    inline std::vector<std::string> skybox1Faces{
+    const std::vector<std::string> skybox1Faces{
        "Textures\\skybox1\\right.jpg",
        "Textures\\skybox1\\left.jpg",
        "Textures\\skybox1\\top.jpg",
@@ -62,49 +17,17 @@ namespace Data{
        "Textures\\skybox1\\back.jpg",
     };
 
-    constexpr std::array quad{ // NDC fullscreen quad (2 triangles)
-    //   X      Y      TextureX  TextureY
-        -1.0f,  1.0f,  0.0f,     1.0f,
-        -1.0f, -1.0f,  0.0f,     0.0f,
-         1.0f, -1.0f,  1.0f,     0.0f,
-                                 
-        -1.0f,  1.0f,  0.0f,     1.0f,
-         1.0f, -1.0f,  1.0f,     0.0f,
-         1.0f,  1.0f,  1.0f,     1.0f,
+    const std::vector quad{ // NDC fullscreen quad (2 triangles)
+    //   X      Y     Unused  TextureX  TextureY   Unused
+        -1.0f,  1.0f, 0.0f,   0.0f,     1.0f,      0.0f,     0.0f,     0.0f,
+        -1.0f, -1.0f, 0.0f,   0.0f,     0.0f,      0.0f,     0.0f,     0.0f,
+         1.0f, -1.0f, 0.0f,   1.0f,     0.0f,      0.0f,     0.0f,     0.0f,
+         1.0f,  1.0f, 0.0f,   1.0f,     1.0f,      0.0f,     0.0f,     0.0f,
     };
 
-    constexpr std::array cube{
-    //   X      Y      Z       TextureX  TextureY  Normal1  Normal2  Normal3
-        // Back face                                                
-        -1.0f, -1.0f, -1.0f,   0.0f,     0.0f,     0.0f,    0.0f,    -1.0f,   // 0 Bottom-left
-         1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     0.0f,    0.0f,    -1.0f,   // 1 top-right
-         1.0f, -1.0f, -1.0f,   1.0f,     0.0f,     0.0f,    0.0f,    -1.0f,   // 2 bottom-right
-        -1.0f,  1.0f, -1.0f,   0.0f,     1.0f,     0.0f,    0.0f,    -1.0f,   // 3 top-left
-        // Front face                                                         
-        -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     0.0f,    0.0f,     1.0f,   // 4 bottom-left
-         1.0f, -1.0f,  1.0f,   1.0f,     0.0f,     0.0f,    0.0f,     1.0f,   // 5 bottom-right
-         1.0f,  1.0f,  1.0f,   1.0f,     1.0f,     0.0f,    0.0f,     1.0f,   // 6 top-right
-        -1.0f,  1.0f,  1.0f,   0.0f,     1.0f,     0.0f,    0.0f,     1.0f,   // 7 top-left
-        // Left face                                                          
-        -1.0f,  1.0f,  1.0f,   1.0f,     0.0f,    -1.0f,    0.0f,     0.0f,   // 8 top-right
-        -1.0f,  1.0f, -1.0f,   1.0f,     1.0f,    -1.0f,    0.0f,     0.0f,   // 9 top-left
-        -1.0f, -1.0f, -1.0f,   0.0f,     1.0f,    -1.0f,    0.0f,     0.0f,   // 10 bottom-left
-        -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,    -1.0f,    0.0f,     0.0f,   // 11 bottom-right
-        // Right face                                                         
-         1.0f,  1.0f,  1.0f,   1.0f,     0.0f,     1.0f,    0.0f,     0.0f,   // 12 top-left
-         1.0f, -1.0f, -1.0f,   0.0f,     1.0f,     1.0f,    0.0f,     0.0f,   // 13 bottom-right
-         1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     1.0f,    0.0f,     0.0f,   // 14 top-right   
-         1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     1.0f,    0.0f,     0.0f,   // 15 bottom-left 
-        // Bottom face                                                       
-        -1.0f, -1.0f, -1.0f,   0.0f,     1.0f,     0.0f,   -1.0f,     0.0f,   // 16 top-right
-         1.0f, -1.0f, -1.0f,   1.0f,     1.0f,     0.0f,   -1.0f,     0.0f,   // 17 top-left
-         1.0f, -1.0f,  1.0f,   1.0f,     0.0f,     0.0f,   -1.0f,     0.0f,   // 18 bottom-left
-        -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     0.0f,   -1.0f,     0.0f,   // 19 bottom-right
-        // Top face                                                           
-        -1.0f,  1.0f, -1.0f,   0.0f,     1.0f,     0.0f,    1.0f,     0.0f,   // 20 top-left
-         1.0f,  1.0f,  1.0f,   1.0f,     0.0f,     0.0f,    1.0f,     0.0f,   // 21 bottom-right
-         1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     0.0f,    1.0f,     0.0f,   // 22 top-right   
-        -1.0f,  1.0f,  1.0f,   0.0f,     0.0f,     0.0f,    1.0f,     0.0f,   // 23 bottom-left 
+    const std::vector quadIndices{   
+        0u, 1u, 2u,
+        0u, 2u, 3u,
     };
 
     //VertexArray cubeCoordsOnlyVAO; // 288 + 144 = 432 bytes
@@ -149,7 +72,41 @@ namespace Data{
         -1.0f,  1.0f,  1.0f,    // 23 bottom-left 
     };
 
-    constexpr std::array cubeIndices{
+    const std::vector cube{
+    //   X      Y      Z       TextureX  TextureY  Normal1  Normal2  Normal3
+        // Back face                                                
+        -1.0f, -1.0f, -1.0f,   0.0f,     0.0f,     0.0f,    0.0f,    -1.0f,   // 0 Bottom-left
+         1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     0.0f,    0.0f,    -1.0f,   // 1 top-right
+         1.0f, -1.0f, -1.0f,   1.0f,     0.0f,     0.0f,    0.0f,    -1.0f,   // 2 bottom-right
+        -1.0f,  1.0f, -1.0f,   0.0f,     1.0f,     0.0f,    0.0f,    -1.0f,   // 3 top-left
+        // Front face                                                         
+        -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     0.0f,    0.0f,     1.0f,   // 4 bottom-left
+         1.0f, -1.0f,  1.0f,   1.0f,     0.0f,     0.0f,    0.0f,     1.0f,   // 5 bottom-right
+         1.0f,  1.0f,  1.0f,   1.0f,     1.0f,     0.0f,    0.0f,     1.0f,   // 6 top-right
+        -1.0f,  1.0f,  1.0f,   0.0f,     1.0f,     0.0f,    0.0f,     1.0f,   // 7 top-left
+        // Left face                                                          
+        -1.0f,  1.0f,  1.0f,   1.0f,     0.0f,    -1.0f,    0.0f,     0.0f,   // 8 top-right
+        -1.0f,  1.0f, -1.0f,   1.0f,     1.0f,    -1.0f,    0.0f,     0.0f,   // 9 top-left
+        -1.0f, -1.0f, -1.0f,   0.0f,     1.0f,    -1.0f,    0.0f,     0.0f,   // 10 bottom-left
+        -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,    -1.0f,    0.0f,     0.0f,   // 11 bottom-right
+        // Right face                                                         
+         1.0f,  1.0f,  1.0f,   1.0f,     0.0f,     1.0f,    0.0f,     0.0f,   // 12 top-left
+         1.0f, -1.0f, -1.0f,   0.0f,     1.0f,     1.0f,    0.0f,     0.0f,   // 13 bottom-right
+         1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     1.0f,    0.0f,     0.0f,   // 14 top-right   
+         1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     1.0f,    0.0f,     0.0f,   // 15 bottom-left 
+        // Bottom face                                                       
+        -1.0f, -1.0f, -1.0f,   0.0f,     1.0f,     0.0f,   -1.0f,     0.0f,   // 16 top-right
+         1.0f, -1.0f, -1.0f,   1.0f,     1.0f,     0.0f,   -1.0f,     0.0f,   // 17 top-left
+         1.0f, -1.0f,  1.0f,   1.0f,     0.0f,     0.0f,   -1.0f,     0.0f,   // 18 bottom-left
+        -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     0.0f,   -1.0f,     0.0f,   // 19 bottom-right
+        // Top face                                                           
+        -1.0f,  1.0f, -1.0f,   0.0f,     1.0f,     0.0f,    1.0f,     0.0f,   // 20 top-left
+         1.0f,  1.0f,  1.0f,   1.0f,     0.0f,     0.0f,    1.0f,     0.0f,   // 21 bottom-right
+         1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     0.0f,    1.0f,     0.0f,   // 22 top-right   
+        -1.0f,  1.0f,  1.0f,   0.0f,     0.0f,     0.0f,    1.0f,     0.0f,   // 23 bottom-left 
+    };
+
+    const std::vector cubeIndices{
         // Z+ back      
         0u, 1u, 2u,
         1u, 0u, 3u,
@@ -256,19 +213,14 @@ namespace Data{
     //constexpr std::array cube2Indices{
     //     0u, 1u, 2u,     // Z+ back
     //     3u, 4u, 5u,
-
     //     6u, 7u, 8u,     // Z- front
     //     9u, 10u, 11u,
-
     //     12u, 13u, 14u,  // X+ left
     //     15u, 16u, 17u,
-
     //     18u, 19u, 20u,  // X- right
     //     21u, 22u, 23u,
-
     //     24u, 25u, 26u,  // Y- bottom
     //     27u, 28u, 29u,
-
     //     30u, 31u, 32u,  // Y+ top
     //     33u, 34u, 35u,
     //};
@@ -289,8 +241,8 @@ namespace Data{
         glm::vec3(0.0f,  0.5f,  4.0f),
     };
 
-    constexpr std::array floor{ // Hexagon
-        // Positions            // Texture    // Normal
+    const std::vector floor{ // Hexagon
+          // Positions          // Texture    // Normal
           0.0f,   0.0f,  0.0f,  0.5f, 0.5f,   0.0f, 0.0f, -1.0f,
           0.0f,   1.0f,  0.0f,  0.5f, 1.0f,   0.0f, 0.0f, -1.0f,
           0.67f,  0.50f, 0.0f,  1.0f, 0.75f,  0.0f, 0.0f, -1.0f,
@@ -300,7 +252,7 @@ namespace Data{
          -0.67f,  0.50f, 0.0f,  0.0f, 0.75f,  0.0f, 0.0f, -1.0f,
     };
 
-    constexpr std::array floorIndices{
+    const std::vector floorIndices{
          0u, 1u, 2u,
          0u, 2u, 3u,
          0u, 3u, 4u,
@@ -331,5 +283,3 @@ namespace Data{
     //    glm::vec4(0.0, 0.0, 0.5, 0.0),
     //    glm::vec4(0.5, 0.5, 0.5, 1.0));
 }
-
-

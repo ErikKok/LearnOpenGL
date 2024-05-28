@@ -7,7 +7,7 @@
 #include "Texture.h"
 #include "VertexArray.h"
 
-#include <array>
+//#include <array>
 #include <memory> // for std::unique_ptr and std::make_unique
 #include <print>
 #include <vector>
@@ -23,11 +23,11 @@ struct Vertex {
     //float m_Weights[MAX_BONE_INFLUENCE]; // weights from each bone
 };
 
-struct Material; // WAAROMMMMMMM????
+struct Material; // TODO WAAROMMMMMMM????
 
 class Mesh {
 
-    friend class Renderer;
+    friend class Renderer; // TODO
 
 public:
     Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& indices);
@@ -38,10 +38,10 @@ public:
     Mesh& operator=(Mesh&& other) noexcept = default;	// Move assignment
     ~Mesh() = default;									// Destructor
 
-    void Draw(const Material& material) const;
+    void draw(const Material& material) const;
 
 private:
-    std::vector<Vertex> m_vertices;
+    std::vector<Vertex> m_vertices; // TODO samenvoegen met die eronder ofzo
     std::vector<float> m_verticesFloat;
     std::vector<unsigned int> m_indices;
     std::vector<SPtr<Texture>> m_textures;
@@ -50,6 +50,6 @@ private:
     std::unique_ptr<ElementBuffer> m_ebo{ nullptr };
     std::unique_ptr<VertexAttributeLayout> m_layout{ nullptr };
 
-    void setupMesh1() const;
-    void setupMesh2() const;
+    void setupMesh323() const;
+    void setupMesh32333() const;
 };

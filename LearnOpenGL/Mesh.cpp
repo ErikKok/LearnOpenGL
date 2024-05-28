@@ -13,7 +13,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include <array>
 #include <memory> // for std::unique_ptr and std::make_unique
 #include <print>
 #include <vector>
@@ -22,15 +21,15 @@ Mesh::Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& 
     :m_verticesFloat{ vertices }
     ,m_indices{ indices }
     ,m_vao{ std::make_unique<VertexArray>() }
-    ,m_vbo{ std::make_unique<VertexBuffer>(m_verticesFloat.size() * sizeof(float), &m_verticesFloat[0]) } // can not be used with vector, only array!
-    ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(unsigned int), &m_indices[0]) } // can not be used with vector, only array!
+    ,m_vbo{ std::make_unique<VertexBuffer>(m_verticesFloat.size() * sizeof(float), &m_verticesFloat[0]) } // can not use sizeof() with vector
+    ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(unsigned int), &m_indices[0]) } // can not use sizeof() with vector
     ,m_layout{ std::make_unique<VertexAttributeLayout>() }
 {
     //std::println("CREATE Mesh");
-    setupMesh1();
+    setupMesh323();
 }
 
-void Mesh::setupMesh1() const
+void Mesh::setupMesh323() const
 {
     //std::println("SETUP Mesh");
     m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
@@ -44,15 +43,15 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
     ,m_indices{ indices }
     ,m_textures{ textures }
     ,m_vao{ std::make_unique<VertexArray>() }
-    ,m_vbo{ std::make_unique<VertexBuffer>(m_vertices.size() * sizeof(Vertex), &m_vertices[0]) } // can not use sizeof() with vector
-    ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(GLuint), &m_indices[0])} // can not use sizeof() with vector
+    ,m_vbo{ std::make_unique<VertexBuffer>(m_vertices.size() * sizeof(Vertex), &m_vertices[0]) }
+    ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(GLuint), &m_indices[0])}
     ,m_layout{ std::make_unique<VertexAttributeLayout>() }
 {
     //std::println("CREATE Mesh");
-    setupMesh2();
+    setupMesh32333();
 }
 
-void Mesh::setupMesh2() const
+void Mesh::setupMesh32333() const
 {
     //std::println("SETUP Mesh");
     m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
@@ -66,7 +65,7 @@ void Mesh::setupMesh2() const
     m_vao->addVertexAttributeLayout(*m_vbo, *m_layout);
 }
 
-void Mesh::Draw(const Material& material) const
+void Mesh::draw(const Material& material) const
 {
     // Set sampler2D uniforms to the correct texture unit for each texture in this Mesh
 
@@ -106,7 +105,7 @@ void Mesh::Draw(const Material& material) const
         material.shader.setInt("material.flashLightEmissionMap", material.flashLightEmissionMap);
         material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
     }
-    // check for active shader?
+    // TODO check for active shader?
     m_vao->bindVertexArray();
     glVertexArrayVertexBuffer(m_vao->getId(), 0, m_vbo->getId(), 0, m_layout->getStride());
     glVertexArrayElementBuffer(m_vao->getId(), m_ebo->getId());

@@ -52,7 +52,7 @@ void Model::Draw(const Material& material, const Shader* shader) const
     
     for (unsigned int i{ 0u }; i < m_meshes.size(); i++)
     {
-        m_meshes[i].Draw(material);
+        m_meshes[i].draw(material);
         //std::println("DRAW Model call #{}", i);
     }
 
