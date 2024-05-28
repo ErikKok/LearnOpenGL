@@ -215,6 +215,62 @@ int main()
     cubeLayout.pushVertexAttributeLayout<float>(3);
     cubeVAO.addVertexAttributeLayout(cubeVBO, cubeEBO, cubeLayout);
 
+    std::vector cubeVector{
+        //   X      Y      Z       TextureX  TextureY  Normal1  Normal2  Normal3
+            // Back face                                                
+            -1.0f, -1.0f, -1.0f,   0.0f,     0.0f,     0.0f,    0.0f,    -1.0f,   // 0 Bottom-left
+             1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     0.0f,    0.0f,    -1.0f,   // 1 top-right
+             1.0f, -1.0f, -1.0f,   1.0f,     0.0f,     0.0f,    0.0f,    -1.0f,   // 2 bottom-right
+            -1.0f,  1.0f, -1.0f,   0.0f,     1.0f,     0.0f,    0.0f,    -1.0f,   // 3 top-left
+            // Front face                                                         
+            -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     0.0f,    0.0f,     1.0f,   // 4 bottom-left
+             1.0f, -1.0f,  1.0f,   1.0f,     0.0f,     0.0f,    0.0f,     1.0f,   // 5 bottom-right
+             1.0f,  1.0f,  1.0f,   1.0f,     1.0f,     0.0f,    0.0f,     1.0f,   // 6 top-right
+            -1.0f,  1.0f,  1.0f,   0.0f,     1.0f,     0.0f,    0.0f,     1.0f,   // 7 top-left
+            // Left face                                                          
+            -1.0f,  1.0f,  1.0f,   1.0f,     0.0f,    -1.0f,    0.0f,     0.0f,   // 8 top-right
+            -1.0f,  1.0f, -1.0f,   1.0f,     1.0f,    -1.0f,    0.0f,     0.0f,   // 9 top-left
+            -1.0f, -1.0f, -1.0f,   0.0f,     1.0f,    -1.0f,    0.0f,     0.0f,   // 10 bottom-left
+            -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,    -1.0f,    0.0f,     0.0f,   // 11 bottom-right
+            // Right face                                                         
+             1.0f,  1.0f,  1.0f,   1.0f,     0.0f,     1.0f,    0.0f,     0.0f,   // 12 top-left
+             1.0f, -1.0f, -1.0f,   0.0f,     1.0f,     1.0f,    0.0f,     0.0f,   // 13 bottom-right
+             1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     1.0f,    0.0f,     0.0f,   // 14 top-right   
+             1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     1.0f,    0.0f,     0.0f,   // 15 bottom-left 
+             // Bottom face                                                       
+             -1.0f, -1.0f, -1.0f,   0.0f,     1.0f,     0.0f,   -1.0f,     0.0f,   // 16 top-right
+              1.0f, -1.0f, -1.0f,   1.0f,     1.0f,     0.0f,   -1.0f,     0.0f,   // 17 top-left
+              1.0f, -1.0f,  1.0f,   1.0f,     0.0f,     0.0f,   -1.0f,     0.0f,   // 18 bottom-left
+             -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     0.0f,   -1.0f,     0.0f,   // 19 bottom-right
+             // Top face                                                           
+             -1.0f,  1.0f, -1.0f,   0.0f,     1.0f,     0.0f,    1.0f,     0.0f,   // 20 top-left
+              1.0f,  1.0f,  1.0f,   1.0f,     0.0f,     0.0f,    1.0f,     0.0f,   // 21 bottom-right
+              1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     0.0f,    1.0f,     0.0f,   // 22 top-right   
+             -1.0f,  1.0f,  1.0f,   0.0f,     0.0f,     0.0f,    1.0f,     0.0f,   // 23 bottom-left 
+    };
+
+    std::vector cubeIndicesVector{
+        // Z+ back      
+        0u, 1u, 2u,
+        1u, 0u, 3u,
+        // Z- front
+        4u, 5u, 6u,
+        6u, 7u, 4u,
+        // X+ left
+        8u, 9u, 10u,
+        10u, 11u, 8u,
+        // X- right
+        12u, 13u, 14u,
+        13u, 12u, 15u,
+        // Y- bottom
+        16u, 17u, 18u,
+        18u, 19u, 16u,
+        // Y+ top
+        20u, 21u, 22u,
+        21u, 20u, 23u,
+    };
+
+    Mesh cubeMesh(cubeVector, cubeIndicesVector);
 
     Material cubeMaterial{
         .shader{ multiLight },
@@ -413,7 +469,7 @@ int main()
                 model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
                 model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
             }
-            //if (i == 9) { // floor // TODO only draws this 10th (9th) cube when uncommented?
+            //if (i == 9) { // floor
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
@@ -482,7 +538,7 @@ int main()
                 model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
                 model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
             }
-            //if (i == 9) { // floor // TODO only draws this 10th (9th) cube when uncommented?
+            //if (i == 9) { // floor
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
@@ -546,7 +602,7 @@ int main()
                 model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
                 model = glm::scale(model, glm::vec3(20.0, 20.0, 1.0));
             }
-            //if (i == 9) { // floor // TODO only draws this 10th (9th) cube when uncommented?
+            //if (i == 9) { // floor
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
@@ -642,7 +698,7 @@ int main()
                 model = glm::translate(model, glm::vec3(-5.0f, 0.0f, -3.0f));
                 model = glm::scale(model, glm::vec3(20.0f, 20.0f, 1.0f));
             }
-            //if (i == 9) { // floor // TODO only draws this 10th (9th) cube when uncommented?
+            //if (i == 9) { // floor
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
@@ -664,7 +720,9 @@ int main()
         spotLightMVPMatrixSSBO.updateAndBind();     // TODO is al eerder berekend...
         flashLightMVPMatrixSSBO.updateAndBind();    // TODO is al eerder berekend...
 
-        renderer.draw(cubeVAO, cubeEBO, cubeMaterial, std::size(Data::cubePositions));
+        //renderer.draw(cubeVAO, cubeEBO, cubeMaterial, std::size(Data::cubePositions));
+
+        renderer.drawMesh(cubeMesh, cubeMaterial, std::size(Data::cubePositions));
 
         /////////////////////////////////////
         ////// Model ////////////////////////

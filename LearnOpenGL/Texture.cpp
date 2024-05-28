@@ -137,7 +137,6 @@ void Texture::bind(GLuint textureUnit)
 {
     std::println("BIND texture id: {} | texture unit: {}", m_id, textureUnit);
 
-    // DSA
     glBindTextureUnit(textureUnit, m_id);
 
     setBound(textureUnit);

@@ -13,21 +13,57 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <array>
 #include <memory> // for std::unique_ptr and std::make_unique
 #include <print>
 #include <vector>
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<SPtr<Texture>> textures)
-    :m_vertices{vertices}
-    ,m_indices{indices}
-    ,m_textures{textures}
+Mesh::Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& indices)
+    :m_verticesFloat{ vertices }
+    ,m_indices{ indices }
     ,m_vao{ std::make_unique<VertexArray>() }
-    ,m_vbo{ std::make_unique<VertexBuffer>(m_vertices.size() * sizeof(Vertex), &m_vertices[0]) }
-    ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(unsigned int), &m_indices[0]) }
+    ,m_vbo{ std::make_unique<VertexBuffer>(m_verticesFloat.size() * sizeof(float), &m_verticesFloat[0]) } // can not be used with vector, only array!
+    ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(unsigned int), &m_indices[0]) } // can not be used with vector, only array!
     ,m_layout{ std::make_unique<VertexAttributeLayout>() }
 {
     //std::println("CREATE Mesh");
-    setupMesh();
+    setupMesh1();
+}
+
+void Mesh::setupMesh1() const
+{
+    //std::println("SETUP Mesh");
+    m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
+    m_layout->pushVertexAttributeLayout<float>(2);      // 1 - tex coords
+    m_layout->pushVertexAttributeLayout<float>(3);      // 2 - normals
+    m_vao->addVertexAttributeLayout(*m_vbo, *m_layout);
+}
+
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<SPtr<Texture>>& textures)
+    :m_vertices{ vertices }
+    ,m_indices{ indices }
+    ,m_textures{ textures }
+    ,m_vao{ std::make_unique<VertexArray>() }
+    ,m_vbo{ std::make_unique<VertexBuffer>(m_vertices.size() * sizeof(Vertex), &m_vertices[0]) } // can not use sizeof() with vector
+    ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(GLuint), &m_indices[0])} // can not use sizeof() with vector
+    ,m_layout{ std::make_unique<VertexAttributeLayout>() }
+{
+    //std::println("CREATE Mesh");
+    setupMesh2();
+}
+
+void Mesh::setupMesh2() const
+{
+    //std::println("SETUP Mesh");
+    m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
+    m_layout->pushVertexAttributeLayout<float>(2);      // 1 - tex coords
+    m_layout->pushVertexAttributeLayout<float>(3);      // 2 - normals
+    m_layout->pushVertexAttributeLayout<float>(3);      // 3 - Tangent
+    m_layout->pushVertexAttributeLayout<float>(3);      // 4 - Bitangent
+    //m_layout->pushVertexAttributeLayout<int>(4);      // 5 - BoneIDs
+    //m_layout->pushVertexAttributeLayout<float>(4);    // 6 - Weights
+    //m_layout->setVertexStride(88);
+    m_vao->addVertexAttributeLayout(*m_vbo, *m_layout);
 }
 
 void Mesh::Draw(const Material& material) const
@@ -62,8 +98,6 @@ void Mesh::Draw(const Material& material) const
             material.shader.setInt(result, m_textures[i]->getBound());   
     };
 
-    m_vao->bindVertexArray();
-
     // set remaining material properties
     if (!FrameBuffer::s_depthMapPassActive) {
         material.shader.setInt("material.emission", material.emission);
@@ -72,27 +106,10 @@ void Mesh::Draw(const Material& material) const
         material.shader.setInt("material.flashLightEmissionMap", material.flashLightEmissionMap);
         material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
     }
-
+    // check for active shader?
+    m_vao->bindVertexArray();
     glVertexArrayVertexBuffer(m_vao->getId(), 0, m_vbo->getId(), 0, m_layout->getStride());
     glVertexArrayElementBuffer(m_vao->getId(), m_ebo->getId());
 
-    // dit werkte nadat ebo weer gebind wordt.
-
-    // m_ebo->getCount()
-    glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(m_vertices.size()), GL_UNSIGNED_INT, 0, 1);
-}
-
-void Mesh::setupMesh() const
-{
-    //std::println("SETUP Mesh");
-    // No need to bind anything, constructor already took care of that
-    m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
-    m_layout->pushVertexAttributeLayout<float>(2);      // 1 - tex coords
-    m_layout->pushVertexAttributeLayout<float>(3);      // 2 - normals
-    m_layout->pushVertexAttributeLayout<float>(3);      // 3 - Tangent
-    m_layout->pushVertexAttributeLayout<float>(3);      // 4 - Bitangent
-    //m_layout->pushVertexAttributeLayout<int>(4);      // 5 - BoneIDs
-    //m_layout->pushVertexAttributeLayout<float>(4);    // 6 - Weights
-    //m_layout->setVertexStride(88);
-    m_vao->addVertexAttributeLayout(*m_vbo, *m_layout);
+    glDrawElementsInstanced(GL_TRIANGLES, m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 }

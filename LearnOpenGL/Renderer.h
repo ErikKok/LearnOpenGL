@@ -2,6 +2,7 @@
 
 #include "Buffers.h"
 #include "Global.h"
+#include "Mesh.h"
 #include "Shader.h"
 #include "VertexArray.h"
 
@@ -10,8 +11,8 @@
 // TODO transparency opslaan in Material, of uit texture halen in constructor van een Material class
 struct Material {
 	Shader& shader;
-	int diffuse1{ 0 };				// sampler2D
-	int specular1{ 0 };				// sampler2D
+	int diffuse1{ 0 };				// sampler2D // samplers and other opaque shader types can be given explicit binding points
+	int specular1{ 0 };				// sampler2D // https://juandiegomontoya.github.io/modern_opengl.html
 	//int normal1;					// sampler2D
 	//int height1;					// sampler2D
 	int emission{ 0 };				// sampler2D
@@ -28,6 +29,8 @@ enum class renderPassType {
 	depthMapSpotLight,
 	depthMapFlashLight,
 };
+
+class Mesh; // WAAROMMMMMMM????
 
 class Renderer {
 public:
@@ -50,7 +53,9 @@ public:
 
 	// TODO store the vao/ebo's etc in a list/batch/whatever, order them, then batch render them
 	// void draw(RederBatch);
+
 	void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;
+	void drawMesh(const Mesh& mesh, const Material& material, GLsizei instances = 1) const;
 	void drawSingleColor(const VertexArray& vao, const ElementBuffer& ebo, const glm::vec4 color, GLsizei instances = 1) const;
 	void drawXYZ(ShaderStorageBuffer& ssbo) const;
 	// Assumes SkyBox Texture is already bound, and will never change

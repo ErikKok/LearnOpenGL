@@ -20,16 +20,23 @@ TO DO
 		- flashlight frustum is niet meer beeldvullend NA eerste gebruik zoomfunctie
 		- onderscheid SpotLight en FlashLight wel nodig?
 - refactor to use DSA
-- refactor to use create instead of gen and bind
 - implement Bindless Textures
-- implement immutable textures
 - cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
 - move draw mesh/model to renderer class - eventually
-- mesh class gebruiken, door huidige te inheriten
+
 - try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
 - remove s_depthMapPassActive, only used for Mesh::Draw()
 
 - asset manager - unique ptr owns the object, returns a raw * if needed
+- mesh class gebruiken voor de renderer, huidige te inheriten, base kan iets kleiner?
+- test DSA uniform buffer
+
+v0.1.44 27-5-2024
+-----------------
+- UBO converted to DSA
+- use create instead of gen and bind
+- converted everything to immutable
+- Renderer now accepts a Mesh
 
 v0.1.43 27-5-2024
 -----------------

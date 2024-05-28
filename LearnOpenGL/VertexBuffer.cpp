@@ -25,16 +25,16 @@ VertexBuffer::~VertexBuffer()
 	Global::glCheckError();
 }
 
-void VertexBuffer::bindVertexBuffer() const
-{
-	std::println("BIND VertexBuffer id: {}", m_id);
-	glBindBuffer(GL_ARRAY_BUFFER, m_id);
-	Global::glCheckError();
-}
-
-void VertexBuffer::unbindVertexBuffer() const
-{
-	std::println("UNBIND VertexBuffer id: {}", m_id); 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	Global::glCheckError();
-}
+//void VertexBuffer::bindVertexBuffer() const
+//{
+//	std::println("BIND VertexBuffer id: {}", m_id);
+//	glBindBuffer(GL_ARRAY_BUFFER, m_id);
+//	Global::glCheckError();
+//}
+//
+//void VertexBuffer::unbindVertexBuffer() const
+//{
+//	std::println("UNBIND VertexBuffer id: {}", m_id); 
+//	glBindBuffer(GL_ARRAY_BUFFER, 0);
+//	Global::glCheckError();
+//}

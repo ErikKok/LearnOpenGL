@@ -9,8 +9,6 @@ VertexAttribute::VertexAttribute(GLenum type, GLint count, GLboolean normalized,
 	, m_offset{ offset }
 {}
 
-//
-
 template<typename T>
 void VertexAttributeLayout::pushVertexAttributeLayout(GLint count)
 {

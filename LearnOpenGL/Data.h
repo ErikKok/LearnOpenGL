@@ -274,9 +274,9 @@ namespace Data{
     //};
 
     constexpr glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f,  -2.5f,  0.0f),
-
         glm::vec3(0.0f,  0.5f,  0.0f),
+
+        glm::vec3(0.0f,  -2.5f,  0.0f),
         glm::vec3(2.0f,  0.5f,  0.0f), //
         glm::vec3(4.0f,  0.5f,  0.0f),
 
@@ -331,3 +331,5 @@ namespace Data{
     //    glm::vec4(0.0, 0.0, 0.5, 0.0),
     //    glm::vec4(0.5, 0.5, 0.5, 1.0));
 }
+
+

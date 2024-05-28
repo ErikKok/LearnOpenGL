@@ -28,7 +28,7 @@ private:
 		: m_data{ data }
 	{}
 
-	GLenum m_target{ GL_UNIFORM_BUFFER };
+	//GLenum m_target{ GL_UNIFORM_BUFFER }; // not needed for DSA
 	GLsizeiptr m_size{ sizeof(glm::mat4) };
 	const glm::mat4 m_data{};
 };

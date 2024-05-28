@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer.h"
+#include "Mesh.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -49,7 +50,51 @@ void Renderer::draw(const VertexArray& vao, const ElementBuffer& ebo, const Mate
 	}
 
 	vao.bindVertexArray();
-	glDrawElementsInstanced(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0, instances); // ebo.getCount() untested!
+	//glVertexArrayVertexBuffer(vao.getId(), 0, vbo->getId(), 0, layout->getStride());
+	//glVertexArrayElementBuffer(vao.getId(), ebo.getId());
+	glDrawElementsInstanced(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0, instances);
+
+	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
+		//glCullFace(GL_BACK);
+	}
+
+	Global::glCheckError();
+	//std::println("RENDERER draw");
+};
+
+void Renderer::drawMesh(const Mesh& mesh, const Material& material, GLsizei instances) const
+{
+	if (m_renderPassActive == renderPassType::normal) {
+		material.shader.useShader();
+
+		material.shader.setInt("material.diffuse1", material.diffuse1);
+		material.shader.setInt("material.specular1", material.specular1);
+		material.shader.setInt("material.emission", material.emission);
+		material.shader.setFloat("material.emissionStrength", material.emissionStrength);
+		material.shader.setFloat("material.shininess", material.shininess);
+		material.shader.setInt("material.flashLightEmissionMap", material.flashLightEmissionMap);
+		material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
+	}
+
+	if (m_renderPassActive == renderPassType::depthMapDirLight) {
+		m_shaderDepthMapDirLight->useShader();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+	}
+
+	if (m_renderPassActive == renderPassType::depthMapSpotLight) {
+		m_shaderDepthMapSpotLight->useShader();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+	}
+
+	if (m_renderPassActive == renderPassType::depthMapFlashLight) {
+		m_shaderDepthMapFlashLight->useShader();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+	}
+
+	mesh.m_vao->bindVertexArray();
+	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
+	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
+	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, instances);
 
 	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
 		//glCullFace(GL_BACK);
@@ -136,7 +181,7 @@ void Renderer::drawSkybox(const VertexArray& vao, const ElementBuffer& ebo) cons
 	glCullFace(GL_FRONT); // TODO cube is viewed from the inside, however there is a simple correction, reverse the order of vertices, and it will become front-facing-outward (not inward). klopt dat? of zo laten...?
 	glDrawElementsInstanced(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0, 1);
 	glCullFace(GL_BACK);
-	glDepthFunc(GL_LESS); // set depth function back to defaultsizeof(
+	glDepthFunc(GL_LESS); // set depth function back to default
 }
 
 void Renderer::drawFrustum(const VertexArray& vao, const ElementBuffer& ebo, const glm::mat4& lightViewProjectionMatrix) const

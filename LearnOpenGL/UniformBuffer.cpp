@@ -7,13 +7,15 @@
 #include <cassert>
 #include <print>
 
-UniformBuffer::UniformBuffer(size_t size, GLuint index)
+UniformBuffer::UniformBuffer(GLuint size, GLuint bindingPoint)
 {
-	size = static_cast<GLuint>(size);
-	glGenBuffers(1, &m_id);
-	glBindBuffer(GL_UNIFORM_BUFFER, m_id);
-	glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STATIC_DRAW);
-	glBindBufferRange(GL_UNIFORM_BUFFER, index, m_id, 0, size); // always binds the whole buffer
+	glCreateBuffers(1, &m_id);
+	glNamedBufferStorage(m_id, size, nullptr, GL_DYNAMIC_STORAGE_BIT);
+	// Bind the WHOLE UniformBuffer to the binding point defined in the shader
+	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, m_id);
+	// Bind only a specific range
+	//glBindBufferRange(GL_UNIFORM_BUFFER, bindingPoint, m_id, offset, size2);
+	
 	Global::glCheckError();
 	std::println("CREATE UniformBuffer id: {}", m_id);
 }
@@ -39,26 +41,45 @@ void UniformBuffer::unbindUniformBuffer() const
 	Global::glCheckError();
 }
 
-void UniformBuffer::addUniformBufferSubData(BufferSubDataLayout& layout) const
-{	
+// OLD non-DSA
+//void UniformBuffer::addUniformBufferSubData(BufferSubDataLayout& layout) const
+//{	
+//	//std::println("ADD UniformBufferSubData id: {}", m_id);
+//
+//	assert(sizeof(layout.getBufferSubData()) != 0 && "WARNING: addUniformBufferSubData(): BufferSubDataLayout is empty!");
+//	
+//	GLint returnData;
+//	glGetIntegerv(GL_UNIFORM_BUFFER_BINDING, &returnData);
+//	if (returnData != static_cast<GLint>(this->getId())) {
+//		std::println("WARNING: addUniformBufferSubData(): wrong UniformBuffer was bound -> corrected");
+//		this->bindUniformBuffer();
+//	}
+//
+//	const auto& bufferSubData{ layout.getBufferSubData() };
+//	GLintptr totalOffset{ 0 };
+//	for (GLuint i{ 0 }; i < bufferSubData.size(); i++) {
+//		const auto& bufferSubDataElement{ bufferSubData[i] };
+//		assert(bufferSubDataElement.m_target == GL_UNIFORM_BUFFER && "Wrong buffer binding target (must be GL_UNIFORM_BUFFER)");
+//		glBufferSubData(bufferSubDataElement.m_target, totalOffset, bufferSubDataElement.m_size, &bufferSubDataElement.m_data);
+//		totalOffset += bufferSubDataElement.m_size;
+//	}
+//	Global::glCheckError();
+//}
+
+// DSA
+void UniformBuffer::addUniformBufferSubData(const BufferSubDataLayout& layout) const
+{
 	//std::println("ADD UniformBufferSubData id: {}", m_id);
 
 	assert(sizeof(layout.getBufferSubData()) != 0 && "WARNING: addUniformBufferSubData(): BufferSubDataLayout is empty!");
-	
-	GLint returnData;
-	glGetIntegerv(GL_UNIFORM_BUFFER_BINDING, &returnData);
-	if (returnData != static_cast<GLint>(this->getId())) {
-		std::println("WARNING: addUniformBufferSubData(): wrong UniformBuffer was bound -> corrected");
-		this->bindUniformBuffer();
-	}
 
 	const auto& bufferSubData{ layout.getBufferSubData() };
 	GLintptr totalOffset{ 0 };
 	for (GLuint i{ 0 }; i < bufferSubData.size(); i++) {
 		const auto& bufferSubDataElement{ bufferSubData[i] };
-		assert(bufferSubDataElement.m_target == GL_UNIFORM_BUFFER && "Wrong buffer binding target (must be GL_UNIFORM_BUFFER)");
-		glBufferSubData(bufferSubDataElement.m_target, totalOffset, bufferSubDataElement.m_size, &bufferSubDataElement.m_data);
+		glNamedBufferSubData(m_id, totalOffset, bufferSubDataElement.m_size, &bufferSubDataElement.m_data);
 		totalOffset += bufferSubDataElement.m_size;
 	}
+
 	Global::glCheckError();
 }

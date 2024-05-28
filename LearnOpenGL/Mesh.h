@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "VertexArray.h"
 
+#include <array>
 #include <memory> // for std::unique_ptr and std::make_unique
 #include <print>
 #include <vector>
@@ -22,9 +23,15 @@ struct Vertex {
     //float m_Weights[MAX_BONE_INFLUENCE]; // weights from each bone
 };
 
+struct Material; // WAAROMMMMMMM????
+
 class Mesh {
-public:                                            
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<SPtr<Texture>> textures); // Constructor
+
+    friend class Renderer;
+
+public:
+    Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& indices);
+    Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<SPtr<Texture>>& textures); // Constructor
     Mesh(const Mesh& other) = delete;		        	// Copy constructor
     Mesh& operator=(const Mesh& other) = delete;	    // Copy assignment
     Mesh(Mesh&& other) noexcept = default;				// Move constructor
@@ -35,6 +42,7 @@ public:
 
 private:
     std::vector<Vertex> m_vertices;
+    std::vector<float> m_verticesFloat;
     std::vector<unsigned int> m_indices;
     std::vector<SPtr<Texture>> m_textures;
     std::unique_ptr<VertexArray> m_vao{ nullptr };
@@ -42,5 +50,6 @@ private:
     std::unique_ptr<ElementBuffer> m_ebo{ nullptr };
     std::unique_ptr<VertexAttributeLayout> m_layout{ nullptr };
 
-    void setupMesh() const;
+    void setupMesh1() const;
+    void setupMesh2() const;
 };

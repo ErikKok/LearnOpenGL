@@ -1,9 +1,11 @@
 #pragma once
 #include "BufferSubData.h"
 
+// converted to DSA & immutable + more on 28-5-2024 - UNTESTED SINCE!
+
 class UniformBuffer {
 public:
-	UniformBuffer(size_t size, GLuint index);
+	UniformBuffer(GLuint size, GLuint index);
 	UniformBuffer(const UniformBuffer& other) = delete;					// Copy constructor
 	UniformBuffer& operator=(const UniformBuffer& other) = delete;		// Copy assignment
 	UniformBuffer(UniformBuffer&& other) noexcept = delete; 			// Move constructor	
@@ -15,7 +17,7 @@ public:
 	void bindUniformBuffer() const;
 	void unbindUniformBuffer() const;
 
-	void addUniformBufferSubData(BufferSubDataLayout& layout) const;
+	void addUniformBufferSubData(const BufferSubDataLayout& layout) const;
 
 private:
 	GLuint m_id{};

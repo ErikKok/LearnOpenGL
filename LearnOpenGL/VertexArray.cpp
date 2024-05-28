@@ -112,7 +112,7 @@ void VertexArray::addVertexAttributeLayout(const VertexBuffer& vbo, const Elemen
 	//glBindVertexBuffer(0, vbo.getId(), 0, sizeof(layout));
 
 	glVertexArrayVertexBuffer(m_id, 0, vbo.getId(), 0, layout.getStride());
-	glVertexArrayElementBuffer(m_id, ebo.getId());
+	glVertexArrayElementBuffer(m_id, ebo.getId()); // TODO ebo = nullptr als parameter, kan dit dan achter een if, zodat er maar 1 functie is?
 
 	const auto& vertexAttributes{ layout.getVertexAttributes() };
 	GLuint totalOffset{ 0 };

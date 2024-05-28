@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 
+// AKA IndexBuffer
+
 class ElementBuffer {
 public:
     ElementBuffer(size_t size, const GLvoid* data);
@@ -14,8 +16,8 @@ public:
     const GLuint getId() const { return m_id; };
     const GLuint getCount() const { return m_count; };
 
-    void bindElementBuffer() const;
-    void unbindElementBuffer() const;
+    //void bindElementBuffer() const;
+    //void unbindElementBuffer() const;
 
 private:
     GLuint m_id{};
