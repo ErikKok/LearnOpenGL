@@ -18,8 +18,6 @@ static_assert(std::size(framebufferTypeName) == static_cast<int>(framebufferType
 
 class FrameBuffer {
 public:
-	static inline bool s_depthMapPassActive{ false }; // only used for Mesh::Draw()
-
 	FrameBuffer();													// Constructor
 	FrameBuffer(Texture& texture);									// Constructor depthMap // TODO make const
 	FrameBuffer(const FrameBuffer& other) = delete;					// Copy constructor

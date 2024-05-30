@@ -85,7 +85,9 @@ Texture::Texture(const std::vector<std::string>& faces)
 
     stbi_set_flip_vertically_on_load(false);
     int textureNrChannels{};
-    glTextureStorage2D(m_id, 1, GL_SRGB8, 2048, 2048); // Converts it to linear space
+    // Set m_width & m_height before the loop for glTextureStorage2D // TODO
+    stbi_load(faces[0].c_str(), &m_width, &m_height, &textureNrChannels, 0);
+    glTextureStorage2D(m_id, 1, GL_SRGB8, m_width, m_height);
     for (int i = 0; i < faces.size(); i++)
     {
         unsigned char* textureData{ stbi_load(faces[i].c_str(), &m_width, &m_height, &textureNrChannels, 0) };

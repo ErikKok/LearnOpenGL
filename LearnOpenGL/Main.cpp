@@ -65,13 +65,14 @@ int main()
     renderer.createShaderSkybox("Shaders\\skybox.shader");
     renderer.createShaderFrustum("Shaders\\frustum.shader");
     renderer.createShaderDebugQuad("Shaders\\debugQuad.shader");
+    renderer.isRendererComplete();
+
     Shader multiLight("Shaders\\multiLight.shader");
+    Shader multiLightNormalMapping("Shaders\\multiLightNormalMapping.shader");
 
     /////////////////////////////////////
     ////// Lights ///////////////////////
     std::println("CREATE Lights");///////
-
-    multiLight.useShader();
 
     // PointLight (max amount hard coded in shader TODO)
     glm::vec3 pointLightPositions[] = { // World space
@@ -91,6 +92,7 @@ int main()
     // TODO use variable length arrays through SSBO
     // Removes the need to manually set the pointLightsCount here AND in the shader
     // See -> https://computergraphics.stackexchange.com/questions/5323/dynamic-array-in-glsl
+    multiLight.useShader();
     multiLight.setInt("pointLightsCount", 4);
 
     multiLight.setVec3("pointLights[0].color", pointLightColors[0]);  // red, distance 50
@@ -117,6 +119,34 @@ int main()
     multiLight.setFloat("pointLights[3].quadratic", 0.44f);
     multiLight.setFloat("pointLights[3].strength", 1.0f);
 
+    //
+    multiLightNormalMapping.useShader();
+    multiLightNormalMapping.setInt("pointLightsCount", 4);
+
+    multiLightNormalMapping.setVec3("pointLights[0].color", pointLightColors[0]);  // red, distance 50
+    multiLightNormalMapping.setFloat("pointLights[0].constant", 1.0f);
+    multiLightNormalMapping.setFloat("pointLights[0].linear", 0.09f);
+    multiLightNormalMapping.setFloat("pointLights[0].quadratic", 0.032f);
+    multiLightNormalMapping.setFloat("pointLights[0].strength", 1.0f);
+
+    multiLightNormalMapping.setVec3("pointLights[1].color", pointLightColors[1]);  // green, distance 50
+    multiLightNormalMapping.setFloat("pointLights[1].constant", 1.0f);
+    multiLightNormalMapping.setFloat("pointLights[1].linear", 0.09f);
+    multiLightNormalMapping.setFloat("pointLights[1].quadratic", 0.032f);
+    multiLightNormalMapping.setFloat("pointLights[1].strength", 2.0f);
+
+    multiLightNormalMapping.setVec3("pointLights[2].color", pointLightColors[2]);  // blue, distance 325
+    multiLightNormalMapping.setFloat("pointLights[2].constant", 1.0f);
+    multiLightNormalMapping.setFloat("pointLights[2].linear", 0.09f);
+    multiLightNormalMapping.setFloat("pointLights[2].quadratic", 0.032f);
+    multiLightNormalMapping.setFloat("pointLights[2].strength", 3.0f);
+
+    multiLightNormalMapping.setVec3("pointLights[3].color", pointLightColors[3]);  // white, distance 13
+    multiLightNormalMapping.setFloat("pointLights[3].constant", 1.0f);
+    multiLightNormalMapping.setFloat("pointLights[3].linear", 0.35f);
+    multiLightNormalMapping.setFloat("pointLights[3].quadratic", 0.44f);
+    multiLightNormalMapping.setFloat("pointLights[3].strength", 1.0f);
+
     /////////////////////////////////////
     ////// light / depthMap /////////////
     std::println("CREATE Light / DepthMap");
@@ -129,6 +159,7 @@ int main()
     sun.setDepthMap(2);
     sun.setAmbient(0.3f);
     sun.sendToShader(multiLight);
+    sun.sendToShader(multiLightNormalMapping);
 
     OrthographicCamera cameraDirLight(sun.getDirection(), -20.0f, 20.0f, -20.0f, 20.0f);
 
@@ -154,6 +185,7 @@ int main()
     spotlight.setInnerCutOff(36.0f);
     spotlight.setOuterCutOff(48.0f);
     spotlight.sendToShader(multiLight);
+    spotlight.sendToShader(multiLightNormalMapping);
 
     // TODO get aspectratio from depthmap texture
     Camera cameraSpotLight(1.0f, spotlight.getPosition(), spotlight.getPosition() + glm::vec3(0.0f, -spotlight.getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
@@ -181,7 +213,8 @@ int main()
     flashLight.setOuterCutOff(12.5f);
     flashLight.setEmissionStrength(0.8f);
     flashLight.setOffset(0.4f, -0.5f, -0.3f);
-    flashLight.sendToShader(multiLight);
+    flashLight.sendToShader(multiLight); 
+    flashLight.sendToShader(multiLightNormalMapping);
 
     Camera flashLightCamera(1.0f, glm::vec3(0.0f, 1.5f, 15.0f) + glm::vec3(0.4f, -0.5f, -0.3f)); // TODO get aspectratio from depthmap texture
 
@@ -208,6 +241,7 @@ int main()
         .shader{ multiLight },
         .diffuse1{ 8 },
         .specular1{ 9 },
+        .normal1{ 0 },
         .emission{ 10 },
         .emissionStrength{ 0.5f },
         .shininess{ 32.0f },
@@ -227,6 +261,7 @@ int main()
         .shader{ multiLight },
         .diffuse1{ 4 },
         .specular1{ 0 },
+        .normal1{ 0 },
         .emission{ 0 },
         .emissionStrength{ 0.0f },
         .shininess{ 8.0f },
@@ -250,9 +285,10 @@ int main()
     //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
 
     Material modelMaterial{
-        .shader{ multiLight },
+        .shader{ multiLightNormalMapping },
         .diffuse1{ 0 },
         .specular1{ 0 },
+        .normal1{ 0 },
         .emission{ 0 },
         .emissionStrength{ 0.0f },
         .shininess{ 256.0f },
@@ -268,8 +304,8 @@ int main()
     // All textures get loaded and bind here
     // Set material uniforms to the correct texture unit / values before each draw call
     std::println("AI TEXTURE ASSET MANAGER ***********************");
-    /* 01 GL_TEXTURE_CUBE_MAP */ Texture cubemapTexture(Data::skybox1Faces);
-    /* 01 */ Texture blackTexture(0x00000000);
+    /* 00 GL_TEXTURE_CUBE_MAP */ Texture cubemapTexture(Data::skybox1Faces);
+    /* 00 */ Texture blackTexture(0x00000000);
     /* 01 */ Texture whiteTexture(0xffffffff);
     /* 02 */
     /* 03 */ Texture flashLightTexture("Textures\\flashlight.jpg");
@@ -287,8 +323,8 @@ int main()
     /* 15 */
     /* 16 - 31 */// Reserved for Model::Draw
     /////////////////////////////////////////////////////////////////////////////////////
-    /* 01 GL_TEXTURE_CUBE_MAP */ cubemapTexture.bind(0);
-    /* 01 */ blackTexture.bind(0);
+    /* 00 GL_TEXTURE_CUBE_MAP */ cubemapTexture.bind(0);
+    /* 00 */ blackTexture.bind(0);
     /* 01 */ whiteTexture.bind(1);
     /* 02 */ depthMapDirLight.bind(2);
     /* 03 */ flashLightTexture.bind(3);
@@ -323,7 +359,7 @@ int main()
     Global::getInformation();
     Global::glCheckError();
     std::println("START Renderloop *******************************");
-    std::println("************************************************");
+    std::println("************************************************");    
 
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
@@ -366,6 +402,21 @@ int main()
         // Calculate Spotlight color
         spotlight.setColor(static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)));
         spotlight.updateColor(multiLight);
+
+        multiLightNormalMapping.useShader();
+        multiLightNormalMapping.setVec3("pointLights[0].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[0], 1.0)));  // red
+        multiLightNormalMapping.setVec3("pointLights[1].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[1], 1.0)));  // green
+        multiLightNormalMapping.setVec3("pointLights[2].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[2], 1.0)));  // blue
+        multiLightNormalMapping.setVec3("pointLights[3].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[3], 1.0)));  // white
+
+        // Transform Spotlight direction to View Space
+        spotlight.updateDirection(multiLightNormalMapping);
+        // Calculate Spotlight position and transform to View Space
+        spotlight.setPosition(3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())));
+        spotlight.updatePosition(multiLightNormalMapping);
+        // Calculate Spotlight color
+        spotlight.setColor(static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)));
+        spotlight.updateColor(multiLightNormalMapping);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass dirLight ////////////////////////////////////////////////////////
@@ -576,8 +627,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (!Global::flashLightOnUpdated) {
-            multiLight.useShader();
-            flashLight.toggle(multiLight);
+            flashLight.toggle(multiLight, multiLightNormalMapping);
             Global::flashLightOnUpdated = true;
         }
 
@@ -740,6 +790,5 @@ int main()
     Global::glCheckError();
     glfwTerminate();
     Global::glClearError(); // TODO glfwTerminate() produce errors
-    Global::glCheckError();
     return 0;
 }

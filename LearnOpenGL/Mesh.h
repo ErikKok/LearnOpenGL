@@ -33,7 +33,7 @@ public:
     ~Mesh() = default;									// Destructor
 
 private:
-    std::vector<Vertex> m_vertices; // TODO samenvoegen met die eronder
+    std::vector<Vertex> m_vertices; // TODO samenvoegen met die eronder Template?
     std::vector<float> m_verticesFloat;
     std::vector<unsigned int> m_indices;
     std::vector<SPtr<Texture>> m_textures;

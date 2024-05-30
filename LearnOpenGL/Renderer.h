@@ -13,8 +13,8 @@ struct Material {
 	Shader& shader;
 	int diffuse1{ 0 };						// sampler2D
 	int specular1{ 0 };						// sampler2D
-	//int normal1;							// sampler2D
-	//int height1;							// sampler2D
+	int normal1{ 0 };						// sampler2D
+	//int height1{ 0 };						// sampler2D
 	int emission{ 0 };						// sampler2D
 	float emissionStrength{ 0.0f };
 	float shininess{ 0.0f };
@@ -47,6 +47,7 @@ public:
 	void createShaderFrustum(std::string string) { m_shaderFrustum = std::make_unique<Shader>(string); };
 	void createShaderDebugQuad(std::string string) { m_shaderDebugQuad = std::make_unique<Shader>(string); };
 
+	void isRendererComplete() { assert(m_shaderDepthMapDirLight != nullptr || m_shaderDepthMapSpotLight != nullptr || m_shaderDepthMapFlashLight != nullptr || m_shaderSingleColor != nullptr || m_shaderSkybox != nullptr || m_shaderFrustum != nullptr || m_shaderDebugQuad != nullptr); };
 	void clear() const;
 
 	// TODO store the vao/ebo's/meshes etc in a list/batch/whatever, order them, then batch render them
@@ -68,7 +69,7 @@ public:
 private:
 	renderPassType m_renderPassActive{ renderPassType::undefined };
 
-	std::unique_ptr<Shader> m_shaderDepthMapDirLight{ nullptr }; //before we use either of these operators, we should check whether the std::unique_ptr actually has a resource
+	std::unique_ptr<Shader> m_shaderDepthMapDirLight{ nullptr }; 
 	std::unique_ptr<Shader> m_shaderDepthMapSpotLight{ nullptr };
 	std::unique_ptr<Shader> m_shaderDepthMapFlashLight{ nullptr };
 	std::unique_ptr<Shader> m_shaderSingleColor{ nullptr };
@@ -86,3 +87,20 @@ private:
 	//glEnable(GL_MULTISAMPLE);
 	//glEnable(GL_FRAMEBUFFER_SRGB);
 };
+
+//renderCommand
+//- clear
+//- enzo
+//
+//beginScene(lights, camera);  environment stuff
+//
+//submit(); Geometry, meshes, transforms
+//
+//- queue in RenderCommand
+//
+//endScene();
+//
+//renderCommand
+//- order meshes
+//
+//- draw everthing

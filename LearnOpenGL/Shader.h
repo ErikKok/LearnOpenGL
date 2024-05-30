@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include <string>
+#include <unordered_map>
 
 class Shader
 {
@@ -32,6 +33,8 @@ public:
 private:
     int getLocation(const std::string& name) const;
     void checkCompileErrors(GLuint shader, std::string_view type) const;
+
+    void getUniformLocation();
 
     unsigned int m_id;
 };

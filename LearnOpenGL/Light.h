@@ -95,7 +95,7 @@ public:
     void sendToShader(const Shader& shader) const override; // Transform World Space to View Space
     void updatePosition(const Shader& shader) const override;
     void updateDirection(const Shader& shader) const override;
-    void toggle(const Shader& shader);
+    void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders...
 
 protected:
     glm::vec3 m_offset{ 0.4f, -0.5f, -0.3f }; // 0.0f, 0.0f, 0.0f == shines straight from the center/camera, offset for holding flashlight in right hand

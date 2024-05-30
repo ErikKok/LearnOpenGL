@@ -141,7 +141,7 @@ void Camera::updateCameraVectors()
     // TODO
     // This is a very "lazy" way to determine the right and up vectors.It makes a bunch of assumptions, including one that you will never, ever look straight up or down.
 
-    //    Think about it : If we are computing what "Right" is by comparing "Forward" with the world's notion of "up", then what is "Right" supposed to be when "Forward" is pointing straight up or straight down?
+    //    Think about it: If we are computing what "Right" is by comparing "Forward" with the world's notion of "up", then what is "Right" supposed to be when "Forward" is pointing straight up or straight down?
 
     //    A much cleaner way to go about it is to :
 

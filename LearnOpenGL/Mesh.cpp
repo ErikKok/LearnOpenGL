@@ -14,8 +14,8 @@ Mesh::Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& 
     ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(unsigned int), &m_indices[0]) } // can not use sizeof() with vector
     ,m_layout{ std::make_unique<VertexAttributeLayout>() }
 {
-    //std::println("CREATE Mesh");
     setupMesh323();
+    //std::println("CREATE Mesh");
 }
 
 void Mesh::setupMesh323() const
@@ -36,8 +36,8 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
     ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(GLuint), &m_indices[0])}
     ,m_layout{ std::make_unique<VertexAttributeLayout>() }
 {
-    //std::println("CREATE Mesh");
     setupMesh32333();
+    //std::println("CREATE Mesh");
 }
 
 void Mesh::setupMesh32333() const

@@ -241,6 +241,41 @@ void Shader::checkCompileErrors(GLuint shader, std::string_view type) const
     std::println("SHADER compiled: {}", type);
 }
 
+// https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions?tab=readme-ov-file#ideal-way-of-retrieving-all-uniform-names
+struct uniform_info
+{
+    GLint location;
+    GLsizei count;
+};
+
+void Shader::getUniformLocation() {
+    GLint uniform_count = 0;
+    glGetProgramiv(this->getId(), GL_ACTIVE_UNIFORMS, &uniform_count);
+
+    if (uniform_count != 0)
+    {
+        GLint 	max_name_len = 0;
+        GLsizei length = 0;
+        GLsizei count = 0;
+        GLenum 	type = GL_NONE;
+        glGetProgramiv(this->getId(), GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_name_len);
+
+        auto uniform_name = std::make_unique<char[]>(max_name_len);
+
+        std::unordered_map<std::string, uniform_info> uniforms;
+
+        for (GLint i = 0; i < uniform_count; ++i)
+        {
+            glGetActiveUniform(this->getId(), i, max_name_len, &length, &count, &type, uniform_name.get());
+
+            uniform_info uniform_info_t = {}; // omgedraaid
+            uniform_info_t.location = glGetUniformLocation(this->getId(), uniform_name.get());
+            uniform_info_t.count = count;
+
+            uniforms.emplace(std::make_pair(std::string(uniform_name.get(), length), uniform_info_t));
+        }
+    }
+}
 
 /////
 

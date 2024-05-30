@@ -171,7 +171,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     // 2. specular maps
     loadMaterialTextures(material, aiTextureType_SPECULAR, textureType::specular, meshTextures);
     // 3. normal maps
-    //loadMaterialTextures(material, aiTextureType_HEIGHT, textureType::normal, meshTextures);
+    loadMaterialTextures(material, aiTextureType_HEIGHT, textureType::normal, meshTextures);
     // 4. height maps
     //loadMaterialTextures(material, aiTextureType_AMBIENT, textureType::height, meshTextures);
 

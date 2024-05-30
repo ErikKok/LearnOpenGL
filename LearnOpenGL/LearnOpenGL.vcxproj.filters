@@ -166,5 +166,8 @@
     <None Include="Shaders\frustum.shader">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="Shaders\multiLightNormalMapping.shader">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

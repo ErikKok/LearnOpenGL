@@ -6,6 +6,7 @@
 
 void DirectionalLight::sendToShader(const Shader& shader) const
 {
+    shader.useShader();
     //shader.setInt("dirLight.on", m_on);
     shader.setVec3("dirLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));
     shader.setVec3("dirLight.color", m_color);
@@ -16,6 +17,7 @@ void DirectionalLight::sendToShader(const Shader& shader) const
 
 void DirectionalLight::updateDirection(const Shader& shader) const
 {
+    shader.useShader(); 
     shader.setVec3("dirLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));
 }
 
@@ -23,6 +25,7 @@ void DirectionalLight::updateDirection(const Shader& shader) const
 
 void PointLight::sendToShader(const Shader& shader) const
 {
+    shader.useShader();
     //shader.setInt("pointLight.on", m_on);
     shader.setVec3("pointLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));
     shader.setVec3("pointLight.color", m_color);
@@ -32,6 +35,7 @@ void PointLight::sendToShader(const Shader& shader) const
 
 void PointLight::updatePosition(const Shader& shader) const
 {
+    shader.useShader(); 
     shader.setVec3("pointLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));
 }
 
@@ -39,6 +43,7 @@ void PointLight::updatePosition(const Shader& shader) const
 
 void SpotLight::sendToShader(const Shader& shader) const
 {
+    shader.useShader();
     //shader.setInt("spotLight.on", m_on);
     shader.setVec3("spotLight.color", m_color); //////// naam
     shader.setVec3("spotLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 1.0f));
@@ -55,16 +60,19 @@ void SpotLight::sendToShader(const Shader& shader) const
 
 void SpotLight::updatePosition(const Shader& shader) const
 {
+    shader.useShader(); 
     shader.setVec3("spotLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 1.0f));
 }
 
 void SpotLight::updateDirection(const Shader& shader) const
 {
+    shader.useShader(); 
     shader.setVec3("spotLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));
 }
 
 void SpotLight::updateColor(const Shader& shader) const
 {
+    shader.useShader(); 
     shader.setVec3("spotLight.color", Global::camera.getViewMatrix() * glm::vec4(m_color, 0.0f));
 }
 
@@ -72,6 +80,7 @@ void SpotLight::updateColor(const Shader& shader) const
 
 void FlashLight::sendToShader(const Shader& shader) const
 {
+    shader.useShader(); 
     shader.setInt("flashLight.on", m_on);
     shader.setVec3("flashLight.color", m_color); //////// naam
     //shader.setVec3("flashLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));
@@ -90,16 +99,21 @@ void FlashLight::sendToShader(const Shader& shader) const
 
 void FlashLight::updatePosition(const Shader& shader) const
 {
+    shader.useShader(); 
     shader.setVec3("flashLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 1.0f));
 }
 
 void FlashLight::updateDirection(const Shader& shader) const
 {
+    shader.useShader(); 
     shader.setVec3("flashLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));
 }
 
-void FlashLight::toggle(const Shader& shader)
+void FlashLight::toggle(const Shader& shader, const Shader& shader2)
 {
     m_on = !m_on;
+    shader.useShader(); 
     shader.setInt("flashLight.on", m_on);
+    shader2.useShader();
+    shader2.setInt("flashLight.on", m_on);
 }

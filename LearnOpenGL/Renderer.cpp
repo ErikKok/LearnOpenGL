@@ -14,6 +14,7 @@ void Renderer::clear() const
 
 void Renderer::draw(const Mesh& mesh, const Material& material, GLsizei instances) const
 {
+	// Activate Shader + set material properties
 	switch (m_renderPassActive)
 	{
 	case renderPassType::undefined:
@@ -24,6 +25,7 @@ void Renderer::draw(const Mesh& mesh, const Material& material, GLsizei instance
 
 		material.shader.setInt("material.diffuse1", material.diffuse1);
 		material.shader.setInt("material.specular1", material.specular1);
+		//material.shader.setInt("material.normal1", material.normal1);
 		material.shader.setInt("material.emission", material.emission);
 		material.shader.setFloat("material.emissionStrength", material.emissionStrength);
 		material.shader.setFloat("material.shininess", material.shininess);
@@ -122,37 +124,7 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
 
 void Renderer::drawModel(const Mesh& mesh, const Material& material) const
 {
-	// Set sampler2D uniforms to the correct texture unit for each texture in this Mesh
-
-	unsigned int diffuseCount{ 1u };
-	unsigned int specularCount{ 1u };
-	//unsigned int normalCount = 1u; // TODO
-	//unsigned int heightCount = 1u; // TODO
-
-	for (unsigned int i{ 0u }; i < mesh.m_textures.size(); i++)
-	{
-		assert(mesh.m_textures[i]->getBound() >= 0 && "Texture is not bound to a texture unit");
-
-		// retrieve texture number (the N in <typename>N)
-		std::string count{};
-		textureType textureType{ mesh.m_textures[i]->getType() }; // textureType
-		if (textureType == textureType::diffuse)
-			count = std::to_string(diffuseCount++);
-		else if (textureType == textureType::specular)
-			count = std::to_string(specularCount++); // transfer unsigned int to string
-		else if (textureType == textureType::normal) // TODO
-			break;
-		//count = std::to_string(normalCount++); // transfer unsigned int to string
-		else if (textureType == textureType::height) // TODO
-			break;
-		//count = std::to_string(heightCount++); // transfer unsigned int to string
-
-		std::string result{ "material." + mesh.m_textures[i]->getTypeAsString() + count };
-		if (!FrameBuffer::s_depthMapPassActive)
-			material.shader.setInt(result, mesh.m_textures[i]->getBound());
-	};
-
-	// set remaining material properties
+	// Activate Shader + set material properties
 	switch (m_renderPassActive)
 	{
 	case renderPassType::undefined:
@@ -180,6 +152,37 @@ void Renderer::drawModel(const Mesh& mesh, const Material& material) const
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
 	}
+	
+	// Set material sampler2D uniforms to the correct texture unit for each texture in this Mesh
+	unsigned int diffuseCount{ 1u };
+	unsigned int specularCount{ 1u };
+	unsigned int normalCount{ 1u }; // TODO
+	//unsigned int heightCount{ 1u }; // TODO
+
+	for (unsigned int i{ 0u }; i < mesh.m_textures.size(); i++)
+	{
+		assert(mesh.m_textures[i]->getBound() >= 0 && "Texture is not bound to a texture unit");
+
+		// retrieve texture number (the N in <typename>N)
+		std::string count{};
+		textureType textureType{ mesh.m_textures[i]->getType() }; // textureType
+		if (textureType == textureType::diffuse)
+			count = std::to_string(diffuseCount++);
+		else if (textureType == textureType::specular)
+			count = std::to_string(specularCount++); // transfer unsigned int to string
+		else if (textureType == textureType::normal) // TODO
+			count = std::to_string(normalCount++); // transfer unsigned int to string
+		//else if (textureType == textureType::height) // TODO
+			//break;
+		//count = std::to_string(heightCount++); // transfer unsigned int to string
+
+		std::string result{ "material." + mesh.m_textures[i]->getTypeAsString() + count };
+		if (m_renderPassActive == renderPassType::normal) {
+			if (mesh.m_textures[i]->getTypeAsString() == "normal")
+				break;
+			material.shader.setInt(result, mesh.m_textures[i]->getBound());
+		}
+	};
 
 	mesh.m_vao->bindVertexArray();
 	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());

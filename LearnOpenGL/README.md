@@ -13,6 +13,7 @@ TO DO
 	- Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
 	- which attenuation values/formula is best/sufficient in combination with gamma correction
 	- use sampler2DShadow free 4x AA https://stackoverflow.com/questions/22419682/glsl-sampler2dshadow-and-shadow2d-clarification
+	- transparency shadow testen 
 	- flashlight
 		- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
 		- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
@@ -23,10 +24,18 @@ TO DO
 - implement Bindless Textures
 - cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
 - try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
-- remove s_depthMapPassActive, only used for Mesh::Draw()
 - samplers and other opaque shader types can be given explicit binding points https://juandiegomontoya.github.io/modern_opengl.html#sampler%20objects
 - asset manager - unique ptr owns the object, returns a raw * if needed
 - huidige mesh class inheriten, base kan iets kleiner?
+- font rendering
+- TODO's nalopen
+
+v0.2.2 29-5-2024
+-----------------
+- removed s_depthMapPassActive
+- works with 2 saperate shaders during normal render pass
+- added useShader() to light functions
+- enabled textureType::normal in Model::processMesh, Renderer::drawModel and Material
 
 v0.2.1 28-5-2024
 -----------------

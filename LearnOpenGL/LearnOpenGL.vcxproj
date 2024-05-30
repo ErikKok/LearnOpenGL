@@ -144,6 +144,7 @@
     <None Include="Shaders\depthMapDirLight.shader" />
     <None Include="Shaders\depthMapFlashLight.shader" />
     <None Include="Shaders\depthMapSpotLight.shader" />
+    <None Include="Shaders\multiLightNormalMapping.shader" />
     <None Include="Shaders\visualizeNormals.shader" />
     <None Include="Shaders\singleColor.shader" />
     <None Include="Shaders\skybox.shader" />

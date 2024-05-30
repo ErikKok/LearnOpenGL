@@ -58,7 +58,6 @@ void FrameBuffer::startDepthMap(const Shader* shader) const
 
 	glBindFramebuffer(GL_FRAMEBUFFER, m_id);
 
-	s_depthMapPassActive = true;
 	glViewport(0, 0, m_texture->getWidth(), m_texture->getHeight());
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way // TODO to renderer
@@ -75,5 +74,4 @@ void FrameBuffer::stopDepthMap() const
 	glCullFace(GL_BACK);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	Global::glCheckError();
-	s_depthMapPassActive = false;
 }
