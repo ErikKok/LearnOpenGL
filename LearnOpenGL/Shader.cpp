@@ -126,19 +126,27 @@ Shader::Shader(const std::string& shaderPath)
 
 void Shader::useShader() const
 {
-    //std::println("USE Shader: {}", m_id); 
-    glUseProgram(m_id);
-    Global::glCheckError();
+    //std::println("USE Shader: {}", m_id);
 
-    //GLint returnData{};
-    //glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
-    //assert(returnData == static_cast<GLint>(material.shader.getId()) && "Wrong shader active");
-    //if (returnData != static_cast<GLint>(material.shader.getId()))
+    // No need to ask GPU for active Shader
+    //GLint returnData{}; //glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
+
+    if (Global::shaderCurrentlyActive != this->getId()) {
+        glUseProgram(m_id);
+        Global::shaderCurrentlyActive = m_id;
+    }
+
+    Global::glCheckError();
 }
 
 int Shader::getLocation(const std::string& name) const{
     //std::println("SHADER getLocation: {}", name);
+
+    assert(Global::shaderCurrentlyActive == this->getId() && "Wrong shader active");
+
     int location{ glGetUniformLocation(m_id, name.c_str()) };
+
+    // TODO check of Shader wel actief is
 
     if (location == -1)
         std::println("ERROR setting uniform value: \"{}\" does not correspond to active uniform, starts with gl_ or is associated with an atomic counter or a named uniform block! {}", name, location);

@@ -50,6 +50,8 @@ namespace Global {
     inline bool paused{ false };
     inline bool drawOutline{ false };
 
+    inline GLuint shaderCurrentlyActive{};
+
     inline bool debugQuadVisible{ false };
     inline bool flashLightOnUpdated{ true };
     inline bool frustumVisible{ false };

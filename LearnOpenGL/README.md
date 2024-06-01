@@ -6,7 +6,6 @@ TO DO
 	- avoid using vec3 at all in interface blocks https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
 	- Uniform location cache https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions?tab=readme-ov-file#ideal-way-of-retrieving-all-uniform-names
 	- Calling glUniform is quite expensive during run-time. Structure your programme so that glUniform is only called when the value needs to change. This might be the case every time that you draw a new object (e.g. its position might be different), but some uniforms may not change often (e.g. projection matrix).
-	- shader: in useShader een if maken of de shader al actief is?
 	- glResult als global opslaan ipv elke keer opvragen
 - Lighting
 	- implement energy conservation? see comments at Blinn-Phong
@@ -30,6 +29,12 @@ TO DO
 - huidige mesh class inheriten, base kan iets kleiner?
 - font rendering
 - TODO's nalopen
+
+v0.2.42 1-6-2024
+-----------------
+- shader: in useShader een if maken of de shader al actief is? (zie Shader::getLocation voor assert) (Global::shaderCurrentlyActive)
+- fout uit SpotLight::updateColor gehaald
+- normal mapping werkt een beetje
 
 v0.2.41 1-6-2024
 -----------------

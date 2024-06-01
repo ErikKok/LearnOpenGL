@@ -9,10 +9,11 @@ layout (location = 4) in vec3 aBitangent;
 out VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
     vec3 FragPosView;               // view space
-    vec3 NormalView;                // view space
+    //vec3 NormalView;                // view space
     vec4 dirLightShadowCoord;       // clip space   // Orthographic
     vec4 spotLightShadowCoord;      // clip space   // Perspective
     vec4 flashLightShadowCoord;     // clip space   // Perspective
+    mat3 TBN;
 } vs_out;
 
 layout(binding = 2, std430) readonly buffer NormalMatrixSSBO {
@@ -39,45 +40,29 @@ layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
     mat4 flashLightMVPMatrix[];
 };
 
+//uniform mat4 model;
+//uniform mat4 view;
+//uniform mat4 projection;
+
 void main()
 {
+    //mat4 ModelViewMatrix = view * model;
+    //mat3 MV3x3 = mat3(modelViewMatrix[gl_InstanceID]);
+    
+    vec3 aNormalView = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aNormal);
+    vec3 aTangentView = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aTangent);
+    vec3 aBitangentView = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aBitangent);
+
+    vs_out.TBN = transpose(mat3(aTangentView, aBitangentView, aNormalView)); // This matrix goes from camera/view space to tangent space
+    
     vs_out.TexCoords = aTexCoords;
-    vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
+    //vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
     vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
     vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.spotLightShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.flashLightShadowCoord = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // clip space
 }
-
-//shader geometry
-//#version 420 core
-//layout (triangles) in;
-//layout (triangle_strip, max_vertices = 3) out;
-//
-//in VS_OUT { // PASS_THROUGH_GS
-//    vec2 TexCoords;
-//    vec3 FragPosView;
-//    vec3 NormalView;
-//} gs_in[];
-//
-//out VS_OUT { // PASS_THROUGH_GS
-//    vec2 TexCoords;
-//    vec3 FragPosView;
-//    vec3 NormalView;
-//} gs_out;
-//
-//void main()
-//{
-//    for (int i = 0; i < gl_in.length(); i++) {
-//        gs_out.TexCoords = gs_in[i].TexCoords;
-//        gs_out.FragPosView = gs_in[i].FragPosView;
-//        gs_out.NormalView = gs_in[i].NormalView;
-//        gl_Position = gl_in[i].gl_Position;
-//        EmitVertex();
-//        EndPrimitive();
-//    }
-//}
 
 #shader fragment
 #version 420 core
@@ -86,16 +71,17 @@ out vec4 FragColor;
 in VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
     vec3 FragPosView;
-    vec3 NormalView;
+    //vec3 NormalView;
     vec4 dirLightShadowCoord;
     vec4 spotLightShadowCoord;
     vec4 flashLightShadowCoord;
+    mat3 TBN;
 } vs_out;
 
 struct Material {
     sampler2D diffuse1;
     sampler2D specular1;
-    //sampler2D normal1;
+    sampler2D normal1;
     //sampler2D height1;
     sampler2D emission;         // Texture used used for emission on the object itself (no emissionMap involved, just 100% coverage)
     float emissionStrength;     // Strength for emission
@@ -154,15 +140,19 @@ struct FlashLight {
 };
 uniform FlashLight flashLight;
 
-vec3 normalView = normalize(vs_out.NormalView);
-vec3 viewDirView = normalize(-vs_out.FragPosView);
+//vec3 normalView = normalize(vs_out.NormalView);
+vec3 normalView = normalize(texture(material.normal1, vs_out.TexCoords).rgb * 2.0 - 1.0); // tangent space
+
+//vec3 viewDirView = normalize(-vs_out.FragPosView);
+vec3 viewDirView = vs_out.TBN * normalize(-vs_out.FragPosView);  // tangent space
 
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
 vec3 CalcDirLight(DirLight light)
 {
-    vec3 lightDir = normalize(light.direction);
+    //vec3 lightDir = normalize(light.direction);
+    vec3 lightDir = vs_out.TBN * normalize(light.direction);
 
     // ambient
     vec3 ambient = light.ambient * textureDiffuse;
@@ -198,7 +188,8 @@ vec3 CalcDirLight(DirLight light)
 
 vec3 CalcPointLight(PointLight light)
 {
-    vec3 lightDir = normalize(light.position - vs_out.FragPosView);
+    //vec3 lightDir = normalize(light.position - vs_out.FragPosView);
+    vec3 lightDir = vs_out.TBN * normalize(light.position - vs_out.FragPosView);
 
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
@@ -223,7 +214,8 @@ vec3 CalcPointLight(PointLight light)
 
 vec3 CalcSpotLight(SpotLight light)
 {   
-    vec3 lightDir = normalize(light.position - vs_out.FragPosView);
+    //vec3 lightDir = normalize(light.position - vs_out.FragPosView);
+    vec3 lightDir = vs_out.TBN * normalize(light.position - vs_out.FragPosView);
 
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
@@ -310,7 +302,8 @@ vec3 CalcSpotLight(SpotLight light)
 
 vec3 CalcFlashLight(FlashLight light)
 {
-    vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
+    //vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
+    vec3 lightDir = vs_out.TBN * normalize(light.origin - vs_out.FragPosView);
 
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);

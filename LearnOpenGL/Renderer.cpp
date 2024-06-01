@@ -178,8 +178,8 @@ void Renderer::drawModel(const Mesh& mesh, const Material& material) const
 
 		std::string result{ "material." + mesh.m_textures[i]->getTypeAsString() + count };
 		if (m_renderPassActive == renderPassType::normal) {
-			if (mesh.m_textures[i]->getTypeAsString() == "normal")
-				break;
+			//if (mesh.m_textures[i]->getTypeAsString() == "normal") // TODO
+				//break;
 			material.shader.setInt(result, mesh.m_textures[i]->getBound());
 		}
 	};

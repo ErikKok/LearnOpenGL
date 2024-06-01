@@ -26,11 +26,11 @@ protected:
     Light() {};
 
     bool m_on{ true };
-    glm::vec3 m_position{};                             // World Space - not used for DirectionalLight
-    glm::vec3 m_direction{};                            // World Space - not used for SpotLight
-    glm::vec3 m_color{ 1.0f, 1.0f, 1.0f };              // Diffuse color
-    float m_strength{ 1.0f };                           // Overall strength
-    int m_depthMap{};                                   // sampler2D
+    glm::vec3 m_position{};                     // World Space - not used for DirectionalLight
+    glm::vec3 m_direction{};                    // World Space - not used for SpotLight
+    glm::vec3 m_color{ 1.0f, 1.0f, 1.0f };      // Diffuse color
+    float m_strength{ 1.0f };                   // Overall strength
+    int m_depthMap{};                           // sampler2D
 };
 
 // DirectionalLight //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ public:
     void setAmbient(float x) { m_ambient = x; };
 
     void sendToShader(const Shader& shader) const;
-    void updateDirection(const Shader& shader) const;
+    void updateDirectionInViewSpace(const Shader& shader) const;
 
 protected:
     float m_ambient{ 0.3f };
@@ -52,7 +52,7 @@ protected:
 class PointLight : public Light {
 public:
     void sendToShader(const Shader& shader) const;
-    void updatePosition(const Shader& shader) const;
+    void updatePositionInViewSpace(const Shader& shader) const;
 };
 
 // SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,8 +71,8 @@ public:
     void setOuterCutOff(float x) { m_outerCutOff = glm::cos(glm::radians(x)); };
 
     virtual void sendToShader(const Shader& shader) const;
-    virtual void updatePosition(const Shader& shader) const;
-    virtual void updateDirection(const Shader& shader) const;
+    virtual void updatePositionInViewSpace(const Shader& shader) const;
+    virtual void updateDirectionInViewSpace(const Shader& shader) const;
     virtual void updateColor(const Shader& shader) const;
 
 protected:
@@ -92,10 +92,10 @@ public:
     const float getEmissionStrength() const { return m_emissionStrength; };
     void setEmissionStrength(float x) { m_emissionStrength = x; };
 
-    void sendToShader(const Shader& shader) const override; // Transform World Space to View Space
-    void updatePosition(const Shader& shader) const override;
-    void updateDirection(const Shader& shader) const override;
-    void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders...
+    void sendToShader(const Shader& shader) const override; // Transform World Space to View Space // TODO geen idee wat ik bedoel...
+    //void updatePositionInViewSpace(const Shader& shader) const override;
+    //void updateDirectionInViewSpace(const Shader& shader) const override;
+    void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders... kan met array en loop
 
 protected:
     glm::vec3 m_offset{ 0.4f, -0.5f, -0.3f }; // 0.0f, 0.0f, 0.0f == shines straight from the center/camera, offset for holding flashlight in right hand

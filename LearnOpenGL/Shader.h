@@ -11,7 +11,7 @@ class Shader
 public:
     Shader(const std::string& shaderPath);
 
-    const unsigned int getId() const { return m_id; };
+    const GLuint getId() const { return m_id; };
 
     void useShader() const;
 
@@ -36,5 +36,5 @@ private:
 
     void getUniformLocation();
 
-    unsigned int m_id;
+    GLuint m_id;
 };
