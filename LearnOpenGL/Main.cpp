@@ -127,25 +127,25 @@ int main()
     multiLightNormalMapping.setFloat("pointLights[0].constant", 1.0f);
     multiLightNormalMapping.setFloat("pointLights[0].linear", 0.09f);
     multiLightNormalMapping.setFloat("pointLights[0].quadratic", 0.032f);
-    multiLightNormalMapping.setFloat("pointLights[0].strength", 10.0f);
+    multiLightNormalMapping.setFloat("pointLights[0].strength", 1.0f);
 
     multiLightNormalMapping.setVec3("pointLights[1].color", pointLightColors[1]);  // green, distance 50
     multiLightNormalMapping.setFloat("pointLights[1].constant", 1.0f);
     multiLightNormalMapping.setFloat("pointLights[1].linear", 0.09f);
     multiLightNormalMapping.setFloat("pointLights[1].quadratic", 0.032f);
-    multiLightNormalMapping.setFloat("pointLights[1].strength", 20.0f);
+    multiLightNormalMapping.setFloat("pointLights[1].strength", 2.0f);
 
     multiLightNormalMapping.setVec3("pointLights[2].color", pointLightColors[2]);  // blue, distance 325
     multiLightNormalMapping.setFloat("pointLights[2].constant", 1.0f);
     multiLightNormalMapping.setFloat("pointLights[2].linear", 0.09f);
     multiLightNormalMapping.setFloat("pointLights[2].quadratic", 0.032f);
-    multiLightNormalMapping.setFloat("pointLights[2].strength", 30.0f);
+    multiLightNormalMapping.setFloat("pointLights[2].strength", 3.0f);
 
     multiLightNormalMapping.setVec3("pointLights[3].color", pointLightColors[3]);  // white, distance 13
     multiLightNormalMapping.setFloat("pointLights[3].constant", 1.0f);
     multiLightNormalMapping.setFloat("pointLights[3].linear", 0.35f);
     multiLightNormalMapping.setFloat("pointLights[3].quadratic", 0.44f);
-    multiLightNormalMapping.setFloat("pointLights[3].strength", 10.0f);
+    multiLightNormalMapping.setFloat("pointLights[3].strength", 1.0f);
 
     /////////////////////////////////////
     ////// light / depthMap /////////////
@@ -285,7 +285,7 @@ int main()
     //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
 
     Material modelMaterial{
-        .shader{ multiLight },
+        .shader{ multiLightNormalMapping },
         .diffuse1{ 0 },
         .specular1{ 0 },
         .normal1{ 0 },
