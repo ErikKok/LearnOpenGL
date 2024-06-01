@@ -133,11 +133,11 @@ void Renderer::drawModel(const Mesh& mesh, const Material& material) const
 	case renderPassType::normal:
 		material.shader.useShader();
 
-		material.shader.setInt("material.emission", material.emission);
-		material.shader.setFloat("material.emissionStrength", material.emissionStrength);
+		//material.shader.setInt("material.emission", material.emission);
+		//material.shader.setFloat("material.emissionStrength", material.emissionStrength);
 		material.shader.setFloat("material.shininess", material.shininess);
-		material.shader.setInt("material.flashLightEmissionMap", material.flashLightEmissionMap);
-		material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
+		//material.shader.setInt("material.flashLightEmissionMap", material.flashLightEmissionMap);
+		//material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
 		break;
 	case renderPassType::depthMapDirLight:
 		m_shaderDepthMapDirLight->useShader();

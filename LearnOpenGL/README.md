@@ -13,7 +13,8 @@ TO DO
 	- Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
 	- which attenuation values/formula is best/sufficient in combination with gamma correction
 	- use sampler2DShadow free 4x AA https://stackoverflow.com/questions/22419682/glsl-sampler2dshadow-and-shadow2d-clarification
-	- transparency shadow testen 
+	- transparency shadow testen
+	- structs in 1x zetten ipv per element in sendToShader()
 	- flashlight
 		- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
 		- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
@@ -29,6 +30,10 @@ TO DO
 - huidige mesh class inheriten, base kan iets kleiner?
 - font rendering
 - TODO's nalopen
+
+v0.2.3 1-6-2024
+-----------------
+- start implementing normal mapping dirlight
 
 v0.2.2 29-5-2024
 -----------------

@@ -83,8 +83,8 @@ void FlashLight::sendToShader(const Shader& shader) const
     shader.useShader(); 
     shader.setInt("flashLight.on", m_on);
     shader.setVec3("flashLight.color", m_color); //////// naam
-    //shader.setVec3("flashLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));
-    //shader.setVec3("flashLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));
+    //shader.setVec3("flashLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));         // TODO
+    //shader.setVec3("flashLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));         // TODO
     shader.setVec3("flashLight.color", m_color);
     shader.setFloat("flashLight.strength", m_strength);
     shader.setInt("flashLight.depthMap", m_depthMap);
@@ -93,20 +93,21 @@ void FlashLight::sendToShader(const Shader& shader) const
     shader.setFloat("flashLight.constant", 1.0f);
     shader.setFloat("flashLight.linear", 0.014f);
     shader.setFloat("flashLight.quadratic", 0.07f);
-    shader.setVec3("flashLight.origin", m_offset);
+    shader.setVec3("flashLight.origin", m_offset); // TODO is gewoon position toch? en direction staat hard in de shader (cameraDirection)
     shader.setFloat("flashLight.emissionStrength", m_emissionStrength);
 }
-
-void FlashLight::updatePosition(const Shader& shader) const
+ 
+void FlashLight::updatePosition(const Shader& shader) const         // TODO
 {
     shader.useShader(); 
     shader.setVec3("flashLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 1.0f));
 }
 
-void FlashLight::updateDirection(const Shader& shader) const
+void FlashLight::updateDirection(const Shader& shader) const         // TODO
 {
-    shader.useShader(); 
-    shader.setVec3("flashLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));
+    shader.useShader();
+    glm::vec3 dir = Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f);
+    shader.setVec3("flashLight.direction", { dir.x, dir.y, -dir.z });
 }
 
 void FlashLight::toggle(const Shader& shader, const Shader& shader2)

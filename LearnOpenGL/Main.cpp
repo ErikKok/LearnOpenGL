@@ -120,32 +120,32 @@ int main()
     multiLight.setFloat("pointLights[3].strength", 1.0f);
 
     //
-    multiLightNormalMapping.useShader();
-    multiLightNormalMapping.setInt("pointLightsCount", 4);
+    //multiLightNormalMapping.useShader();
+    //multiLightNormalMapping.setInt("pointLightsCount", 4);
 
-    multiLightNormalMapping.setVec3("pointLights[0].color", pointLightColors[0]);  // red, distance 50
-    multiLightNormalMapping.setFloat("pointLights[0].constant", 1.0f);
-    multiLightNormalMapping.setFloat("pointLights[0].linear", 0.09f);
-    multiLightNormalMapping.setFloat("pointLights[0].quadratic", 0.032f);
-    multiLightNormalMapping.setFloat("pointLights[0].strength", 1.0f);
+    //multiLightNormalMapping.setVec3("pointLights[0].color", pointLightColors[0]);  // red, distance 50
+    //multiLightNormalMapping.setFloat("pointLights[0].constant", 1.0f);
+    //multiLightNormalMapping.setFloat("pointLights[0].linear", 0.09f);
+    //multiLightNormalMapping.setFloat("pointLights[0].quadratic", 0.032f);
+    //multiLightNormalMapping.setFloat("pointLights[0].strength", 10.0f);
 
-    multiLightNormalMapping.setVec3("pointLights[1].color", pointLightColors[1]);  // green, distance 50
-    multiLightNormalMapping.setFloat("pointLights[1].constant", 1.0f);
-    multiLightNormalMapping.setFloat("pointLights[1].linear", 0.09f);
-    multiLightNormalMapping.setFloat("pointLights[1].quadratic", 0.032f);
-    multiLightNormalMapping.setFloat("pointLights[1].strength", 2.0f);
+    //multiLightNormalMapping.setVec3("pointLights[1].color", pointLightColors[1]);  // green, distance 50
+    //multiLightNormalMapping.setFloat("pointLights[1].constant", 1.0f);
+    //multiLightNormalMapping.setFloat("pointLights[1].linear", 0.09f);
+    //multiLightNormalMapping.setFloat("pointLights[1].quadratic", 0.032f);
+    //multiLightNormalMapping.setFloat("pointLights[1].strength", 20.0f);
 
-    multiLightNormalMapping.setVec3("pointLights[2].color", pointLightColors[2]);  // blue, distance 325
-    multiLightNormalMapping.setFloat("pointLights[2].constant", 1.0f);
-    multiLightNormalMapping.setFloat("pointLights[2].linear", 0.09f);
-    multiLightNormalMapping.setFloat("pointLights[2].quadratic", 0.032f);
-    multiLightNormalMapping.setFloat("pointLights[2].strength", 3.0f);
+    //multiLightNormalMapping.setVec3("pointLights[2].color", pointLightColors[2]);  // blue, distance 325
+    //multiLightNormalMapping.setFloat("pointLights[2].constant", 1.0f);
+    //multiLightNormalMapping.setFloat("pointLights[2].linear", 0.09f);
+    //multiLightNormalMapping.setFloat("pointLights[2].quadratic", 0.032f);
+    //multiLightNormalMapping.setFloat("pointLights[2].strength", 30.0f);
 
-    multiLightNormalMapping.setVec3("pointLights[3].color", pointLightColors[3]);  // white, distance 13
-    multiLightNormalMapping.setFloat("pointLights[3].constant", 1.0f);
-    multiLightNormalMapping.setFloat("pointLights[3].linear", 0.35f);
-    multiLightNormalMapping.setFloat("pointLights[3].quadratic", 0.44f);
-    multiLightNormalMapping.setFloat("pointLights[3].strength", 1.0f);
+    //multiLightNormalMapping.setVec3("pointLights[3].color", pointLightColors[3]);  // white, distance 13
+    //multiLightNormalMapping.setFloat("pointLights[3].constant", 1.0f);
+    //multiLightNormalMapping.setFloat("pointLights[3].linear", 0.35f);
+    //multiLightNormalMapping.setFloat("pointLights[3].quadratic", 0.44f);
+    //multiLightNormalMapping.setFloat("pointLights[3].strength", 10.0f);
 
     /////////////////////////////////////
     ////// light / depthMap /////////////
@@ -154,8 +154,8 @@ int main()
     // DirLight
     DirectionalLight sun;
     sun.setDirection(0.7f, 0.9f, 0.8f); // TODO light position == camera position == needs to sync, or delete 1
-    sun.setColor(1.0f, 1.0f, 0.95f);
-    sun.setStrength(0.25f);
+    sun.setColor(1.0f, 0.0f, 0.095f);
+    sun.setStrength(1.25f);
     sun.setDepthMap(2);
     sun.setAmbient(0.3f);
     sun.sendToShader(multiLight);
@@ -173,22 +173,22 @@ int main()
     cameraDirLight.calculateProjectionMatrix();
 
     // SpotLight
-    SpotLight spotlight;
-    spotlight.setPosition(0.0f, -1.0f, 0.0f); // TODO light position == camera position == needs to sync, or delete 1
-    spotlight.setDirection(0.0f, -1.0f, 0.0f);
-    spotlight.setColor(1.0f, 1.0f, 1.0f);
-    spotlight.setStrength(1.2f);
-    spotlight.setDepthMap(5);
-    spotlight.setConstant(1.0f);
-    spotlight.setLinear(0.014f);
-    spotlight.setQuadratic(0.07f);
-    spotlight.setInnerCutOff(36.0f);
-    spotlight.setOuterCutOff(48.0f);
-    spotlight.sendToShader(multiLight);
-    spotlight.sendToShader(multiLightNormalMapping);
+    SpotLight spotLight;
+    spotLight.setPosition(0.0f, -1.0f, 0.0f); // TODO light position == camera position == needs to sync, or delete 1
+    spotLight.setDirection(0.0f, -1.0f, 0.0f);
+    spotLight.setColor(1.0f, 1.0f, 1.0f);
+    spotLight.setStrength(1.2f);
+    spotLight.setDepthMap(5);
+    spotLight.setConstant(1.0f);
+    spotLight.setLinear(0.014f);
+    spotLight.setQuadratic(0.07f);
+    spotLight.setInnerCutOff(36.0f);
+    spotLight.setOuterCutOff(48.0f);
+    spotLight.sendToShader(multiLight);
+    //spotLight.sendToShader(multiLightNormalMapping);
 
     // TODO get aspectratio from depthmap texture
-    Camera cameraSpotLight(1.0f, spotlight.getPosition(), spotlight.getPosition() + glm::vec3(0.0f, -spotlight.getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
+    Camera cameraSpotLight(1.0f, spotLight.getPosition(), spotLight.getPosition() + glm::vec3(0.0f, -spotLight.getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
 
     // SpotLight depthMap
     Texture depthMapSpotLight(textureType::depthMap, 1024, 1024);
@@ -214,7 +214,7 @@ int main()
     flashLight.setEmissionStrength(0.8f);
     flashLight.setOffset(0.4f, -0.5f, -0.3f);
     flashLight.sendToShader(multiLight); 
-    flashLight.sendToShader(multiLightNormalMapping);
+    //flashLight.sendToShader(multiLightNormalMapping);
 
     Camera flashLightCamera(1.0f, glm::vec3(0.0f, 1.5f, 15.0f) + glm::vec3(0.4f, -0.5f, -0.3f)); // TODO get aspectratio from depthmap texture
 
@@ -291,7 +291,7 @@ int main()
         .normal1{ 0 },
         .emission{ 0 },
         .emissionStrength{ 0.0f },
-        .shininess{ 256.0f },
+        .shininess{ 666.0f },
         .flashLightEmissionMap{ 0 },
         .flashLightEmissionTexture{ 0 },
     };
@@ -395,28 +395,36 @@ int main()
         multiLight.setVec3("pointLights[3].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[3], 1.0)));  // white
 
         // Transform Spotlight direction to View Space
-        spotlight.updateDirection(multiLight);
+        spotLight.updateDirection(multiLight);
         // Calculate Spotlight position and transform to View Space
-        spotlight.setPosition(3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())));
-        spotlight.updatePosition(multiLight);
+        spotLight.setPosition(3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())));
+        spotLight.updatePosition(multiLight);
         // Calculate Spotlight color
-        spotlight.setColor(static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)));
-        spotlight.updateColor(multiLight);
+        spotLight.setColor(static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)));
+        spotLight.updateColor(multiLight);
 
-        multiLightNormalMapping.useShader();
-        multiLightNormalMapping.setVec3("pointLights[0].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[0], 1.0)));  // red
-        multiLightNormalMapping.setVec3("pointLights[1].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[1], 1.0)));  // green
-        multiLightNormalMapping.setVec3("pointLights[2].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[2], 1.0)));  // blue
-        multiLightNormalMapping.setVec3("pointLights[3].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[3], 1.0)));  // white
+        //flashLight.updateDirection(multiLight); bestaat niet in deze shader
 
-        // Transform Spotlight direction to View Space
-        spotlight.updateDirection(multiLightNormalMapping);
-        // Calculate Spotlight position and transform to View Space
-        spotlight.setPosition(3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())));
-        spotlight.updatePosition(multiLightNormalMapping);
-        // Calculate Spotlight color
-        spotlight.setColor(static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)));
-        spotlight.updateColor(multiLightNormalMapping);
+        //multiLightNormalMapping.useShader();
+        //multiLightNormalMapping.setVec3("pointLights[0].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[0], 1.0)));  // red
+        //multiLightNormalMapping.setVec3("pointLights[1].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[1], 1.0)));  // green
+        //multiLightNormalMapping.setVec3("pointLights[2].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[2], 1.0)));  // blue
+        //multiLightNormalMapping.setVec3("pointLights[3].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[3], 1.0)));  // white
+
+        //// Transform Spotlight direction to View Space
+        //spotLight.updateDirection(multiLightNormalMapping);
+        //// Calculate Spotlight position and transform to View Space
+        //spotLight.setPosition(3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())));
+        //spotLight.updatePosition(multiLightNormalMapping);
+        //// Calculate Spotlight color
+        //spotLight.setColor(static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)));
+        //spotLight.updateColor(multiLightNormalMapping);
+
+
+        // TODO
+        //glm::vec3 dir = flashLightCamera.m_front;
+        //multiLightNormalMapping.setVec3("flashLight.direction", { dir.x, dir.y, -dir.z });
+        //flashLight.updateDirection(multiLightNormalMapping);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass dirLight ////////////////////////////////////////////////////////
@@ -493,7 +501,7 @@ int main()
         depthMapSpotLightFBO.startDepthMap(renderer.getShaderDepthMapSpotLight());
 
         // TODO sync light position with camera classes
-        glm::mat4 view = glm::lookAt(spotlight.getPosition(), spotlight.getPosition() + glm::vec3(0.0f, -spotlight.getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
+        glm::mat4 view = glm::lookAt(spotLight.getPosition(), spotLight.getPosition() + glm::vec3(0.0f, -spotLight.getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
 
         cameraSpotLight.setViewMatrix(view); // TODO
 
@@ -627,7 +635,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (!Global::flashLightOnUpdated) {
-            flashLight.toggle(multiLight, multiLightNormalMapping);
+            //flashLight.toggle(multiLight, multiLightNormalMapping);
             Global::flashLightOnUpdated = true;
         }
 
@@ -643,9 +651,9 @@ int main()
         ////// LightCube ////////////////////
         /////////////////////////////////////
 
-        MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::camera.getProjectionMatrix() * Global::getModelViewMatrix(spotlight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
+        MVPMatrixSSBO.setVectorAndUpdateAndBind(Global::camera.getProjectionMatrix() * Global::getModelViewMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
 
-        renderer.drawSingleColor(cubeMesh, glm::vec4(spotlight.getColor(), 1.0f), 1);
+        renderer.drawSingleColor(cubeMesh, glm::vec4(spotLight.getColor(), 1.0f), 1);
 
         // pointlights - 4 vaste LightCubes
         for (int i = 0; i < std::size(pointLightPositions); i++) {
