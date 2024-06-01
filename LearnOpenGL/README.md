@@ -31,6 +31,11 @@ TO DO
 - font rendering
 - TODO's nalopen
 
+v0.2.41 1-6-2024
+-----------------
+- fout opgelost (direction werd niet geüpdatet in renderloop)
+- copy van MultiLight gemaakt, unifroms gekoppeld hieraan, beide Shaders geven nu hetzelfde resultaat
+
 v0.2.4 1-6-2024
 -----------------
 - normal mapping niet gelukt
