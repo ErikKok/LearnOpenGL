@@ -285,7 +285,7 @@ int main()
     //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
 
     Material modelMaterial{
-        .shader{ multiLightNormalMapping },
+        .shader{ multiLight },
         .diffuse1{ 0 },
         .specular1{ 0 },
         .normal1{ 0 },
@@ -635,7 +635,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (!Global::flashLightOnUpdated) {
-            //flashLight.toggle(multiLight, multiLightNormalMapping);
+            flashLight.toggle(multiLight, multiLightNormalMapping);
             Global::flashLightOnUpdated = true;
         }
 

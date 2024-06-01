@@ -31,6 +31,12 @@ TO DO
 - font rendering
 - TODO's nalopen
 
+v0.2.4 1-6-2024
+-----------------
+- normal mapping niet gelukt
+- fout in belichting dirlight sinds light class, nu terug naar oude situatie met alleen multilight shader
+- let op de if in Renderer::drawModel regel #181
+
 v0.2.3 1-6-2024
 -----------------
 - start implementing normal mapping dirlight
