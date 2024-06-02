@@ -212,7 +212,7 @@ int main()
     flashLight.setInnerCutOff(8.5f);
     flashLight.setOuterCutOff(12.5f);
     flashLight.setEmissionStrength(0.8f);
-    flashLight.setOffset(0.4f, -0.5f, -0.3f);
+    flashLight.setOffset(0.0f, -0.0f, -0.0f);
     flashLight.sendToShader(multiLight); 
     flashLight.sendToShader(multiLightNormalMapping);
 

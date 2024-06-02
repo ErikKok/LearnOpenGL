@@ -30,6 +30,10 @@ TO DO
 - font rendering
 - TODO's nalopen
 
+v0.2.43 2-6-2024
+-----------------
+- flashlight werkt
+
 v0.2.42 1-6-2024
 -----------------
 - shader: in useShader een if maken of de shader al actief is? (zie Shader::getLocation voor assert) (Global::shaderCurrentlyActive)

@@ -141,10 +141,10 @@ struct FlashLight {
 uniform FlashLight flashLight;
 
 //vec3 normalView = normalize(vs_out.NormalView);
-vec3 normalView = normalize(texture(material.normal1, vs_out.TexCoords).rgb * 2.0 - 1.0); // tangent space
+vec3 normalTangent = normalize(texture(material.normal1, vs_out.TexCoords).rgb * 2.0 - 1.0); // tangent space
 
-//vec3 viewDirView = normalize(-vs_out.FragPosView);
-vec3 viewDirView = vs_out.TBN * normalize(-vs_out.FragPosView);  // tangent space
+//vec3 viewDirTangent = normalize(-vs_out.FragPosView);
+vec3 viewDirTangent = vs_out.TBN * normalize(-vs_out.FragPosView);  // tangent space
 
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
@@ -158,15 +158,15 @@ vec3 CalcDirLight(DirLight light)
     vec3 ambient = light.ambient * textureDiffuse;
 
     // diffuse
-    float diff = max(dot(normalView, lightDir), 0.0f);
+    float diff = max(dot(normalTangent, lightDir), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
-    float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
+    vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
+    float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
 
-    //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
-    //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
+    //vec3 reflectDir = reflect(-lightDir, normalTangent); // Phong
+    //float spec = pow(max(dot(viewDirTangent, reflectDir), 0.0f), material.shininess);
 
     vec3 specular = light.color * spec * textureSpecular;
 
@@ -192,18 +192,18 @@ vec3 CalcPointLight(PointLight light)
     vec3 lightDir = vs_out.TBN * normalize(light.position - vs_out.FragPosView);
 
     // diffuse
-    float diff = max(dot(normalView, lightDir), 0.0f);
+    float diff = max(dot(normalTangent, lightDir), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
-    float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
-    //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
-    //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
+    vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
+    float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
+    //vec3 reflectDir = reflect(-lightDir, normalTangent); // Phong
+    //float spec = pow(max(dot(viewDirTangent, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
     // attenuation
-    float distance = length(light.position - vs_out.FragPosView);
+    float distance = length(light.position - vs_out.FragPosView); // TODO could be done in world space (or some other space)
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     //float attenuation = 1.0f / (distance * distance);
     diffuse *= attenuation;
@@ -218,14 +218,14 @@ vec3 CalcSpotLight(SpotLight light)
     vec3 lightDir = vs_out.TBN * normalize(light.position - vs_out.FragPosView);
 
     // diffuse
-    float diff = max(dot(normalView, lightDir), 0.0f);
+    float diff = max(dot(normalTangent, lightDir), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
-    float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
-    //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
-    //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
+    vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
+    float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
+    //vec3 reflectDir = reflect(-lightDir, normalTangent); // Phong
+    //float spec = pow(max(dot(viewDirTangent, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
     // cone
@@ -235,7 +235,7 @@ vec3 CalcSpotLight(SpotLight light)
     specular *= intensity;
 
     // attenuation
-    float distance = length(light.position - vs_out.FragPosView);
+    float distance = length(light.position - vs_out.FragPosView); // TODO could be done in world space (or some other space)
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));      
     //float attenuation = 1.0f / (distance * distance);
     diffuse  *= attenuation;
@@ -248,7 +248,7 @@ vec3 CalcSpotLight(SpotLight light)
     // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
     ShadowCoord = ShadowCoord * 0.5f + 0.5f;
     // prevent shadow acne 
-    //float bias = max(0.05 * (1.0 - dot(normalView, lightDir)), 0.005); // used twice dot(normalView, lightDir) // TODO sommige schaduwen verdwijnen?
+    //float bias = max(0.05 * (1.0 - dot(normalTangent, lightDir)), 0.005); // used twice dot(normalTangent, lightDir) // TODO sommige schaduwen verdwijnen?
     //float bias = 0.00005; // fixed
 
     // 1 sample
@@ -274,46 +274,22 @@ vec3 CalcSpotLight(SpotLight light)
     return shadow * (diffuse + specular) * light.strength;
 }
 
-// Without Emission
-//vec3 CalcFlashLight(FlashLight light)
-//{   
-//    vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
-//    // diffuse
-//    float diff = max(dot(normalView, lightDir), 0.0f);
-//    vec3 diffuse = light.color * diff * textureDiffuse;
-//    // specular
-//    vec3 reflectDir = reflect(-lightDir, normalView);
-//    float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
-//    vec3 specular = light.color * spec * textureSpecular;
-//    // cone
-//    vec3 cameraDirection = vec3(0.0f, 0.0f, 1.0f); // camera.m_front with negated z-axis
-//    float theta = dot(lightDir, cameraDirection);
-//    float intensity = smoothstep(0.0, 1.0, (theta - light.outerCutOff) / light.epsilon);
-//    diffuse *= intensity;
-//    specular *= intensity;
-//    // attenuation
-//    float distance = length(light.origin - vs_out.FragPosView);
-//    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
-//    diffuse  *= attenuation;
-//    specular *= attenuation;
-//
-//    return (diffuse + specular) * light.strength;
-//}
-
 vec3 CalcFlashLight(FlashLight light)
 {
     //vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
-    vec3 lightDir = vs_out.TBN * normalize(light.origin - vs_out.FragPosView);
+    //vec3 lightDir = vs_out.TBN * normalize(light.origin - (vs_out.FragPosView * vs_out.TBN)); // dan beweegt flashlight wel goed? // artifacts
+    //vec3 lightDir = normalize(vec3(0.0f, 0.0f, 0.0f) - vs_out.FragPosView); // correct!
+    vec3 lightDir = normalize( -vs_out.FragPosView); // ook correct!
 
     // diffuse
-    float diff = max(dot(normalView, lightDir), 0.0f);
+    float diff = max(dot(normalTangent, lightDir), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
-    float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
-    //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
-    //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
+    vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
+    float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
+    //vec3 reflectDir = reflect(-lightDir, normalTangent); // Phong
+    //float spec = pow(max(dot(viewDirTangent, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
     // cone
@@ -324,7 +300,7 @@ vec3 CalcFlashLight(FlashLight light)
     specular *= intensity;
 
     // attenuation
-    float distance = length(light.origin - vs_out.FragPosView);
+    float distance = length(light.origin - vs_out.FragPosView); // TODO could be done in world space (or some other space)
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
     //float attenuation = 1.0f / distance; // linear
     diffuse *= attenuation;
