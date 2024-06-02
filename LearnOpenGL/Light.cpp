@@ -84,7 +84,7 @@ void FlashLight::sendToShader(const Shader& shader) const
     shader.setInt("flashLight.on", m_on);
     shader.setVec3("flashLight.color", m_color); //////// naam TODO?
     //shader.setVec3("flashLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));         // TODO
-    //shader.setVec3("flashLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));         // TODO
+    //shader.setVec3("flashLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));       // TODO direction staat hard in de shader (cameraDirection)
     shader.setVec3("flashLight.color", m_color);
     shader.setFloat("flashLight.strength", m_strength);
     shader.setInt("flashLight.depthMap", m_depthMap);
@@ -93,7 +93,7 @@ void FlashLight::sendToShader(const Shader& shader) const
     shader.setFloat("flashLight.constant", 1.0f);
     shader.setFloat("flashLight.linear", 0.014f);
     shader.setFloat("flashLight.quadratic", 0.07f);
-    shader.setVec3("flashLight.origin", m_offset); // TODO is gewoon position toch? en direction staat hard in de shader (cameraDirection)
+    shader.setVec3("flashLight.origin", m_origin);
     shader.setFloat("flashLight.emissionStrength", m_emissionStrength);
 }
  

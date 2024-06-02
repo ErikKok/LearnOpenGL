@@ -200,9 +200,6 @@ int main()
     // FlashLight
     FlashLight flashLight;
     flashLight.setOn(false);
-    //flashLight.setPosition(0.0f, 1.5f, 15.0f); // TODO light position == camera position == needs to sync, or delete 1
-    Global::cameraFlashLightPosition = { 0.0f, 1.5f, 15.0f }; // TODO light position == camera position == needs to sync, or delete 1
-    //flashLight.setDirection(0.0f, -1.0f, 0.0f);
     flashLight.setColor(1.0f, 1.0f, 1.0f);
     flashLight.setStrength(5.5f); // waarom zo zwak resultaat?
     flashLight.setDepthMap(6);
@@ -212,18 +209,15 @@ int main()
     flashLight.setInnerCutOff(8.5f);
     flashLight.setOuterCutOff(12.5f);
     flashLight.setEmissionStrength(0.8f);
-    flashLight.setOffset(0.0f, -0.0f, -0.0f);
     flashLight.sendToShader(multiLight); 
     flashLight.sendToShader(multiLightNormalMapping);
-
-    Camera flashLightCamera(1.0f, glm::vec3(0.0f, 1.5f, 15.0f) + glm::vec3(0.4f, -0.5f, -0.3f)); // TODO get aspectratio from depthmap texture
 
     // FlashLight depthMap
     Texture depthMapFlashLight(textureType::depthMap, 1920, 1080);
     FrameBuffer depthMapFlashLightFBO(depthMapFlashLight);
-    Global::cameraFlashLight.setFov(60.0f);
+    Global::cameraFlashLight.setFov(60.0f); // too wide, but otherwise does not work ok while zooming
     Global::cameraFlashLight.setNearPlane(0.1f);
-    Global::cameraFlashLight.setFarPlane(400.0f);
+    Global::cameraFlashLight.setFarPlane(100.0f);
 
     /////////////////////////////////////
     ////// Quad /////////////////////////
@@ -789,15 +783,15 @@ int main()
 
         // Draw frustum - toggle with K
         if (Global::frustumVisible) {
-            renderer.drawFrustum(cubeMesh, cameraDirLight.getViewProjectionMatrix());
-            renderer.drawFrustum(cubeMesh, cameraSpotLight.getViewProjectionMatrix());
-            //renderer.drawFrustum(cubeMesh, Global::cameraFlashLight.getViewProjectionMatrix());
+            //renderer.drawFrustum(cubeMesh, cameraDirLight.getViewProjectionMatrix());
+            //renderer.drawFrustum(cubeMesh, cameraSpotLight.getViewProjectionMatrix());
+            renderer.drawFrustum(cubeMesh, Global::cameraFlashLight.getViewProjectionMatrix());
         }
 
         // Draw debug quad - toggle with Q
         if (Global::debugQuadVisible) {
-            // Set texture sampler2D binding in Shader itself + set orthographic true in function for dirLight + set corresponding Camera below
-            renderer.drawDebugQuad(quadMesh, cameraDirLight);
+            // Set texture sampler2D binding in Shader itself + set orthographic in function + set corresponding Camera below
+            renderer.drawDebugQuad(quadMesh, Global::cameraFlashLight);
         }
 
         if (!Global::paused) { // toggle with P

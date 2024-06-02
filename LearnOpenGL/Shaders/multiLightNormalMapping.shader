@@ -53,7 +53,7 @@ void main()
     vec3 aTangentView = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aTangent);
     vec3 aBitangentView = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aBitangent);
 
-    vs_out.TBN = transpose(mat3(aTangentView, aBitangentView, aNormalView)); // This matrix goes from camera/view space to tangent space
+    vs_out.TBN = transpose(mat3(aTangentView, aBitangentView, aNormalView)); // This matrix goes from view space to tangent space
     
     vs_out.TexCoords = aTexCoords;
     //vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
@@ -134,7 +134,7 @@ struct FlashLight {
     float linear;       // Short distance intensity
     float quadratic;    // Long distance intensity
     float strength;     // Overall strength
-    vec3 origin;        // 0.0f, 0.0f, 0.0f == shines straight from the center/camera
+    vec3 origin;        //
     float emissionStrength;     // Overall strength
     sampler2D depthMap;
 };

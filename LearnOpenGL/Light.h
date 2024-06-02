@@ -87,8 +87,8 @@ protected:
 
 class FlashLight : public SpotLight {
 public:
-    const glm::vec3 getOffset() const { return m_offset; };
-    void setOffset(float x, float y, float z) { m_offset.x = x, m_offset.y = y, m_offset.z = z; };
+    //const glm::vec3 getOrigin() const { return m_origin; };
+    //void setOrigin(float x, float y, float z) { m_origin.x = x, m_origin.y = y, m_origin.z = z; };
     const float getEmissionStrength() const { return m_emissionStrength; };
     void setEmissionStrength(float x) { m_emissionStrength = x; };
 
@@ -98,6 +98,6 @@ public:
     void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders... kan met array en loop
 
 protected:
-    glm::vec3 m_offset{ 0.4f, -0.5f, -0.3f }; // 0.0f, 0.0f, 0.0f == shines straight from the center/camera, offset for holding flashlight in right hand
+    glm::vec3 m_origin{ 0.0f, 0.0f, 0.0f }; // 0.0f, 0.0f, 0.0f == shines straight from the center/camera, offset for holding flashlight in right hand
     float m_emissionStrength{ 1.0f }; // Overall strength
 };

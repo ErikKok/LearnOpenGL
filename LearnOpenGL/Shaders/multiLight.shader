@@ -146,7 +146,7 @@ struct FlashLight {
     float linear;       // Short distance intensity
     float quadratic;    // Long distance intensity
     float strength;     // Overall strength
-    vec3 origin;        // 0.0f, 0.0f, 0.0f == shines straight from the center/camera
+    vec3 origin;        //
     float emissionStrength;     // Overall strength
     sampler2D depthMap;
 };

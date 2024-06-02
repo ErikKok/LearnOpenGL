@@ -19,6 +19,8 @@ TO DO
 		- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
 		- flashlight positie updaten na player positie is geupdated met offset
 		- flashlight frustum is niet meer beeldvullend NA eerste gebruik zoomfunctie
+		- flashLight shines from the player camera (0,0,0), but casts shadow from this camera with flashLightShadowOffset
+		- flashlight camera movement is duplicated in processInput/mouse_callback/scroll_callback, could be linked/feed from player camera I guess
 		- onderscheid SpotLight en FlashLight wel nodig?
 
 - implement Bindless Textures
@@ -29,6 +31,10 @@ TO DO
 - huidige mesh class inheriten, base kan iets kleiner?
 - font rendering
 - TODO's nalopen
+
+v0.2.44 2-6-2024
+-----------------
+- flashlight clean-up
 
 v0.2.43 2-6-2024
 -----------------

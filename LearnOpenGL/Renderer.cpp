@@ -110,7 +110,7 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
 {
 	m_shaderDebugQuad->useShader();
 	m_shaderDebugQuad->setMat4("model", Global::getModelMatrix(glm::vec3(0.6f, 0.6f, -1.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.0f)));
-	m_shaderDebugQuad->setBool("orthographic", true); // TODO get from camera class
+	m_shaderDebugQuad->setBool("orthographic", false); // TODO get from camera class // true for dirLight only
 	m_shaderDebugQuad->setFloat("nearPlane", useCamera.getNearPlane());
 	m_shaderDebugQuad->setFloat("farPlane", useCamera.getFarPlane());
 
@@ -178,8 +178,6 @@ void Renderer::drawModel(const Mesh& mesh, const Material& material) const
 
 		std::string result{ "material." + mesh.m_textures[i]->getTypeAsString() + count };
 		if (m_renderPassActive == renderPassType::normal) {
-			//if (mesh.m_textures[i]->getTypeAsString() == "normal") // TODO
-				//break;
 			material.shader.setInt(result, mesh.m_textures[i]->getBound());
 		}
 	};

@@ -35,34 +35,42 @@ using UPtr = std::unique_ptr<T>;
 ////////////////////////
 
 namespace Global {
+    // Window
     inline int windowWidth{ 1920 };
     inline int windowHeight{ 1080 };
-    inline Camera camera((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), glm::vec3(0.0f, 1.5f, 15.0f)); // 8.0f, 1.5f, 8.0f
-
-    // in global because of toggle
-    inline glm::vec3 cameraFlashLightPosition{ 0.0f, 1.5f, 15.0f }; // init here for now
-    inline Camera cameraFlashLight(1.77f, cameraFlashLightPosition + glm::vec3(0.4f, -0.5f, -0.3f)); // TODO get aspectratio from depthmap texture
-
     inline bool windowsHasMouseFocus{ false };
 
+    // Camera
+    inline glm::vec3 cameraPosition{ 0.0f, 1.5f, 15.0f }; // TODO init here for now
+    inline glm::vec3 flashLightShadowOffset{ 0.4f, -0.5f, -0.3f }; // TODO flashLight shines from the player camera (0,0,0), but casts shadow from this camera with this offset
+    inline Camera camera((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), cameraPosition); // 8.0f, 1.5f, 8.0f
+    // in global because of toggle
+    inline Camera cameraFlashLight(1.77f, cameraPosition + flashLightShadowOffset); // TODO get aspectratio from depthmap texture
+
+    // Renderloop
     inline GLfloat deltaTime{ 0.0f };	// time between current frame and last frame
     inline GLfloat lastFrame{ 0.0f };
     inline bool paused{ false };
-    inline bool drawOutline{ false };
 
+    // Shader
     inline GLuint shaderCurrentlyActive{};
 
+    // Toggles
+    inline bool drawOutline{ false };
     inline bool debugQuadVisible{ false };
     inline bool flashLightOnUpdated{ true };
     inline bool frustumVisible{ false };
 
+    // Error
     const GLenum glCheckError_(const char* file, int line);
     #define glCheckError() glCheckError_(__FILE__, __LINE__)
     void glClearError();
 
+    // Matrices
     const glm::mat4 getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
     const glm::mat4 getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
 
+    // Init
     void initStencilBuffer();
     void clearStencilBuffer();
 
