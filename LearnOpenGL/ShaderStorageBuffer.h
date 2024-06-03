@@ -20,10 +20,11 @@ public:
 
 	void bind() const;
 	void unbind() const;
-	void update() const;
-	void setVector(const glm::mat4& vector, int i = 0);
-	void updateAndBind() const;
-	void setVectorAndUpdateAndBind(const glm::mat4& vector, int i = 0);
+	void upload() const;
+	void update(const glm::mat4& vector, int i = 0);
+	void uploadAndBind() const;
+	void updateAndUpload(const glm::mat4& vector, int i);
+	void updateAndUploadAndBind(const glm::mat4& vector, int i = 0);
 
 private:
 	GLuint m_id{};

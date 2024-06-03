@@ -13,13 +13,21 @@ struct Material {
 	Shader& shader;
 	int diffuse1{ 0 };						// sampler2D
 	int specular1{ 0 };						// sampler2D
-	int normal1{ 0 };						// sampler2D
+	int normal1{ 7 };						// sampler2D
 	//int height1{ 0 };						// sampler2D
 	int emission{ 0 };						// sampler2D
 	float emissionStrength{ 0.0f };
 	float shininess{ 0.0f };
 	int flashLightEmissionMap{ 0 };			// sampler2D
 	int flashLightEmissionTexture{ 0 };		// sampler2D
+};
+
+struct RenderObject {
+	Mesh& mesh;
+	Material& material;
+	std::vector<glm::mat4> model{}; // transforms
+	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // element/index != binding point SSBO
+	//std::vector<std::unique_ptr<ShaderStorageBuffer>> ssboDirlight; etc...
 };
 
 enum class renderPassType {
@@ -61,6 +69,8 @@ public:
 	// Takes in a Camera, not an OrthograpicCamera!
 	void drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const;
 	void drawModel(const Mesh& mesh, const Material& material) const;
+
+	void draw(const RenderObject& RO, GLsizei instances) const;
 
 	// non-DSA
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    

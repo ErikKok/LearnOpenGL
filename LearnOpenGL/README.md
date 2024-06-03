@@ -31,6 +31,12 @@ TO DO
 - huidige mesh class inheriten, base kan iets kleiner?
 - font rendering
 - TODO's nalopen
+- gebruik std::ssize vs std::size / unsigned int vs int in for loops checken
+
+v0.2.50 3-6-2024
+-----------------
+- added a check, and correction, if TexCoords are oriented the right way in Model::processMesh
+- added RenderObject, implemented for Cube
 
 v0.2.44 2-6-2024
 -----------------

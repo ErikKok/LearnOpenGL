@@ -386,7 +386,7 @@ void main()
     if (flashLight.on)
         resultFlashLight = CalcFlashLight(flashLight);       
 
-    // emission - no emissionMap involved, just 100% coverage
+    // emission - no emissionMap used, just 100% coverage
     vec3 emissionMaterial = texture(material.emission, vs_out.TexCoords).rgb * material.emissionStrength;
 
     FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + resultFlashLight + emissionMaterial, 1.0);

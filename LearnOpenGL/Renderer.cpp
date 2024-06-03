@@ -288,3 +288,62 @@ void Renderer::drawModel(const Mesh& mesh, const Material& material) const
 //	Global::glCheckError();
 //	//std::println("RENDERER draw");
 //};
+
+// TODO hoe weet renderer welke uniforms en ssbo's hij moet doen, zonder dit hard te coden?
+// vaste elementen gebruiken voor de passes? maar wat als 1 pass vaker voorkomt (spotlight)
+// die kan in een aparte vector
+void Renderer::draw(const RenderObject& RO, GLsizei instances) const
+{
+	// Activate Shader + set material properties
+	switch (m_renderPassActive)
+	{
+	case renderPassType::undefined:
+		assert(false); // should never be the case 
+		break;
+	case renderPassType::normal:
+		RO.material.shader.useShader();
+
+		// Material
+		RO.material.shader.setInt("material.diffuse1", RO.material.diffuse1);
+		RO.material.shader.setInt("material.specular1", RO.material.specular1);
+		//RO.material.shader.setInt("material.normal1", RO.material.normal1);
+		RO.material.shader.setInt("material.emission", RO.material.emission);
+		RO.material.shader.setFloat("material.emissionStrength", RO.material.emissionStrength);
+		RO.material.shader.setFloat("material.shininess", RO.material.shininess);
+		RO.material.shader.setInt("material.flashLightEmissionMap", RO.material.flashLightEmissionMap);
+		RO.material.shader.setInt("material.flashLightEmissionTexture", RO.material.flashLightEmissionTexture);
+
+		// SSBO
+		for (int i = 0; i < std::size(RO.ssbo); i++) {
+			RO.ssbo[i]->uploadAndBind();
+		}
+		break;
+	case renderPassType::depthMapDirLight:
+		m_shaderDepthMapDirLight->useShader();
+		RO.ssbo[3]->uploadAndBind();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		break;
+	case renderPassType::depthMapSpotLight:
+		m_shaderDepthMapSpotLight->useShader();
+		RO.ssbo[4]->uploadAndBind();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		break;
+	case renderPassType::depthMapFlashLight:
+		m_shaderDepthMapFlashLight->useShader();
+		RO.ssbo[5]->uploadAndBind();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		break;
+	}
+
+	RO.mesh.m_vao->bindVertexArray();
+	glVertexArrayVertexBuffer(RO.mesh.m_vao->getId(), 0, RO.mesh.m_vbo->getId(), 0, RO.mesh.m_layout->getStride());
+	glVertexArrayElementBuffer(RO.mesh.m_vao->getId(), RO.mesh.m_ebo->getId());
+	glDrawElementsInstanced(GL_TRIANGLES, RO.mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, instances);
+
+	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
+		//glCullFace(GL_BACK);
+	}
+
+	Global::glCheckError();
+	//std::println("RENDERER draw");
+};

@@ -141,9 +141,16 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             vector.y = mesh->mBitangents[i].y;
             vector.z = mesh->mBitangents[i].z;
             vertex.bitangent = vector;
+
         }
         else
             vertex.texCoords = glm::vec2(0.0f, 0.0f);
+
+        // https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/ Handedness
+        if (glm::dot(glm::cross(vertex.normal, vertex.tangent), vertex.bitangent) < 0.0f) {
+            vertex.tangent = vertex.tangent * -1.0f;
+            //std::println("Texcoords oriented in the wrong way: corrected!");
+        }
 
         vertices.push_back(vertex);
     }
@@ -171,7 +178,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     // 2. specular maps
     loadMaterialTextures(material, aiTextureType_SPECULAR, textureType::specular, meshTextures);
     // 3. normal maps
-    loadMaterialTextures(material, aiTextureType_HEIGHT, textureType::normal, meshTextures);
+    loadMaterialTextures(material, aiTextureType_HEIGHT, textureType::normal, meshTextures); // The wavefront object format (.obj) exports normal maps slightly different from Assimp's conventions as aiTextureType_NORMAL doesn't load normal maps, while aiTextureType_HEIGHT does
     // 4. height maps
     //loadMaterialTextures(material, aiTextureType_AMBIENT, textureType::height, meshTextures);
 

@@ -52,4 +52,6 @@ void Mesh::setupMesh32333() const
     //m_layout->setVertexStride(88);
     m_vao->addVertexAttributeLayout(*m_vbo, *m_layout);
     //std::println("SETUP Mesh");
+
+    //assert(glm::dot(glm::cross(m_vertices[0].normal, m_vertices[0].tangent), m_vertices[0].bitangent) >= 0.0f && "Texture coordinates are oriented in the wrong way!");
 }

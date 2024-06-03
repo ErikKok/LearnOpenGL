@@ -4,7 +4,7 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoords;
 layout (location = 2) in vec3 aNormal;
 layout (location = 3) in vec3 aTangent;
-layout (location = 4) in vec3 aBitangent;
+//layout (location = 4) in vec3 aBitangent; // TODO not needed, remove from model loading and mesh
 
 out VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
@@ -47,13 +47,13 @@ layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
 void main()
 {
     //mat4 ModelViewMatrix = view * model;
-    //mat3 MV3x3 = mat3(modelViewMatrix[gl_InstanceID]);
-    
-    vec3 aNormalView = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aNormal);
-    vec3 aTangentView = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aTangent);
-    vec3 aBitangentView = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aBitangent);
-
-    vs_out.TBN = transpose(mat3(aTangentView, aBitangentView, aNormalView)); // This matrix goes from view space to tangent space
+    //mat3 MV3x3 = mat3(modelViewMatrix[gl_InstanceID]);    
+    vec3 T = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aTangent);
+    //vec3 B = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aBitangent); // Better to calculate B?
+    vec3 N = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aNormal);
+    T = normalize(T - N * dot(N, T)); // re-orthogonalize T with respect to N (Gram-Schmidt)
+    vec3 B = cross(N, T); // then retrieve perpendicular vector B with the cross product of T and N
+    vs_out.TBN = transpose(mat3(T, B, N)); // This matrix goes from view space to tangent space
     
     vs_out.TexCoords = aTexCoords;
     //vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
@@ -140,19 +140,15 @@ struct FlashLight {
 };
 uniform FlashLight flashLight;
 
-//vec3 normalView = normalize(vs_out.NormalView);
-vec3 normalTangent = normalize(texture(material.normal1, vs_out.TexCoords).rgb * 2.0 - 1.0); // tangent space
-
-//vec3 viewDirTangent = normalize(-vs_out.FragPosView);
-vec3 viewDirTangent = vs_out.TBN * normalize(-vs_out.FragPosView);  // tangent space
+vec3 normalTangent = normalize(texture(material.normal1, vs_out.TexCoords).rgb * 2.0 - 1.0);
+vec3 viewDirTangent = vs_out.TBN * normalize(-vs_out.FragPosView);
 
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
 vec3 CalcDirLight(DirLight light)
 {
-    //vec3 lightDir = normalize(light.direction);
-    vec3 lightDir = vs_out.TBN * normalize(light.direction);
+    vec3 lightDir = vs_out.TBN * normalize(light.direction); // TODO move to vertex shader
 
     // ambient
     vec3 ambient = light.ambient * textureDiffuse;
@@ -164,10 +160,6 @@ vec3 CalcDirLight(DirLight light)
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
     float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
-
-    //vec3 reflectDir = reflect(-lightDir, normalTangent); // Phong
-    //float spec = pow(max(dot(viewDirTangent, reflectDir), 0.0f), material.shininess);
-
     vec3 specular = light.color * spec * textureSpecular;
 
     // shadow - 1.0f = no shadow, 0.0f = full shadow
@@ -188,8 +180,7 @@ vec3 CalcDirLight(DirLight light)
 
 vec3 CalcPointLight(PointLight light)
 {
-    //vec3 lightDir = normalize(light.position - vs_out.FragPosView);
-    vec3 lightDir = vs_out.TBN * normalize(light.position - vs_out.FragPosView);
+    vec3 lightDir = vs_out.TBN * normalize(light.position - vs_out.FragPosView);  // TODO move to vertex shader
 
     // diffuse
     float diff = max(dot(normalTangent, lightDir), 0.0f);
@@ -198,14 +189,11 @@ vec3 CalcPointLight(PointLight light)
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
     float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
-    //vec3 reflectDir = reflect(-lightDir, normalTangent); // Phong
-    //float spec = pow(max(dot(viewDirTangent, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
     // attenuation
-    float distance = length(light.position - vs_out.FragPosView); // TODO could be done in world space (or some other space)
+    float distance = length(light.position - vs_out.FragPosView); // TODO could be done in world space
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
-    //float attenuation = 1.0f / (distance * distance);
     diffuse *= attenuation;
     specular *= attenuation;
 
@@ -214,8 +202,7 @@ vec3 CalcPointLight(PointLight light)
 
 vec3 CalcSpotLight(SpotLight light)
 {   
-    //vec3 lightDir = normalize(light.position - vs_out.FragPosView);
-    vec3 lightDir = vs_out.TBN * normalize(light.position - vs_out.FragPosView);
+    vec3 lightDir = vs_out.TBN * normalize(light.position - vs_out.FragPosView); // TODO move to vertex shader
 
     // diffuse
     float diff = max(dot(normalTangent, lightDir), 0.0f);
@@ -224,8 +211,6 @@ vec3 CalcSpotLight(SpotLight light)
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
     float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
-    //vec3 reflectDir = reflect(-lightDir, normalTangent); // Phong
-    //float spec = pow(max(dot(viewDirTangent, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
     // cone
@@ -235,31 +220,15 @@ vec3 CalcSpotLight(SpotLight light)
     specular *= intensity;
 
     // attenuation
-    float distance = length(light.position - vs_out.FragPosView); // TODO could be done in world space (or some other space)
+    float distance = length(light.position - vs_out.FragPosView); // TODO could be done in world space
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));      
-    //float attenuation = 1.0f / (distance * distance);
     diffuse  *= attenuation;
     specular *= attenuation;
 
     // shadow - 1.0f = no shadow, 0.0f = full shadow
     float shadow = 0.0f;
-    // perform perspective divide
     vec3 ShadowCoord = vs_out.spotLightShadowCoord.xyz / vs_out.spotLightShadowCoord.w;
-    // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
     ShadowCoord = ShadowCoord * 0.5f + 0.5f;
-    // prevent shadow acne 
-    //float bias = max(0.05 * (1.0 - dot(normalTangent, lightDir)), 0.005); // used twice dot(normalTangent, lightDir) // TODO sommige schaduwen verdwijnen?
-    //float bias = 0.00005; // fixed
-
-    // 1 sample
-    //    if (texture(depthMap, ShadowCoord2.xy).x < ShadowCoord2.z) - bias ) {
-    //        visibility = 0.25f;
-    //    }
-    
-    // PCF 9 samples
-    // ShadowCoord2.xy = coordinates on shadowMap
-    // texture(shadowMap, ShadowCoord2.xy).x = closest depth from the light's point of view (or use .r instead of .x)
-    // ShadowCoord2.z = distance from light from the current camera's point of view
     vec2 texelSize = 1.0f / textureSize(light.depthMap, 0);
     for(int x = -1; x <= 1; ++x) {
         for(int y = -1; y <= 1; ++y) {
@@ -267,7 +236,6 @@ vec3 CalcSpotLight(SpotLight light)
         }    
     }
     shadow /= 9.0f;
-    // Outside the farPlane region of the light's frustum keep the shadow at 1.0f, not to cast shadows
     if(ShadowCoord.z > 1.0f)
         shadow = 1.0f;
 
@@ -276,10 +244,9 @@ vec3 CalcSpotLight(SpotLight light)
 
 vec3 CalcFlashLight(FlashLight light)
 {
-    //vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
-    //vec3 lightDir = vs_out.TBN * normalize(light.origin - (vs_out.FragPosView * vs_out.TBN)); // dan beweegt flashlight wel goed? // artifacts
-    //vec3 lightDir = normalize(vec3(0.0f, 0.0f, 0.0f) - vs_out.FragPosView); // correct!
-    vec3 lightDir = normalize( -vs_out.FragPosView); // ook correct!
+    //vec3 lightDir = vs_out.TBN * normalize(light.origin - (vs_out.FragPosView * vs_out.TBN)); // dan beweegt flashlight wel goed, maar artifacts
+    //vec3 lightDir = normalize(vec3(0.0f, 0.0f, 0.0f) - vs_out.FragPosView); // same (position == origin == 0,0,0)
+    vec3 lightDir = normalize( -vs_out.FragPosView);
 
     // diffuse
     float diff = max(dot(normalTangent, lightDir), 0.0f);
@@ -288,8 +255,6 @@ vec3 CalcFlashLight(FlashLight light)
     // specular
     vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
     float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
-    //vec3 reflectDir = reflect(-lightDir, normalTangent); // Phong
-    //float spec = pow(max(dot(viewDirTangent, reflectDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
     // cone
@@ -300,17 +265,14 @@ vec3 CalcFlashLight(FlashLight light)
     specular *= intensity;
 
     // attenuation
-    float distance = length(light.origin - vs_out.FragPosView); // TODO could be done in world space (or some other space)
+    float distance = length(light.origin - vs_out.FragPosView); // TODO could be done in world space
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-    //float attenuation = 1.0f / distance; // linear
     diffuse *= attenuation;
     specular *= attenuation;   
 
     // shadow - 1.0f = no shadow, 0.0f = full shadow
     float shadow = 0.0f;
-    // perform perspective divide
     vec3 ShadowCoord = vs_out.flashLightShadowCoord.xyz / vs_out.flashLightShadowCoord.w;
-    // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
     ShadowCoord = ShadowCoord * 0.5 + 0.5;
     vec2 texelSize = 1.0f / textureSize(light.depthMap, 0);
     for(int x = -1; x <= 1; ++x) {
@@ -319,22 +281,13 @@ vec3 CalcFlashLight(FlashLight light)
         }    
     }
     shadow /= 9.0f;    
-    // Outside the farPlane region of the light's frustum keep the shadow at 1.0f, not to cast shadows
     if(ShadowCoord.z > 1.0f) {
         shadow = 1.0f;
     }
 
-    // emission (put them in main if needed by other functions, slower)
+    // emission
     vec3 textureFlashlightEmissionMap = vec3(texture(material.flashLightEmissionMap, vs_out.TexCoords));
     vec3 textureFlashlightEmissionTexture = vec3(texture(material.flashLightEmissionTexture, vs_out.TexCoords));
-    // #1. emission: using specularMap as stamp, with if statement
-    //vec3 emission = vec3(0.0f);                         // Default no textureEmission visible
-    //if (textureSpecular.r == 0.0f) {                    // if textureSpecular == black (or whatever you choose)
-    //    emission = light.emission * textureEmission;    // show textureEmission
-    //}
-    // #2. emission: using specularMap as stamp, no if statement, a bit quicker, but less flexible (disable textureEmissionResult calculation)
-    //vec3 emission = textureSpecular.r * light.emission * textureEmissionResult;
-    // #3. emission: using specific emissionMap as stamp, a bit slower
     vec3 emission = textureFlashlightEmissionMap.r * light.emissionStrength * textureFlashlightEmissionTexture;
     emission *= shadow;
     emission *= intensity;
@@ -357,7 +310,7 @@ void main()
     if (flashLight.on)
         resultFlashLight = CalcFlashLight(flashLight);       
 
-    // emission - no emissionMap involved, just 100% coverage
+    // emission - no emissionMap used, just 100% coverage
     vec3 emissionMaterial = texture(material.emission, vs_out.TexCoords).rgb * material.emissionStrength;
 
     FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + resultFlashLight + emissionMaterial, 1.0);

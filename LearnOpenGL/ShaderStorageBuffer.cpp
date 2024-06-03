@@ -36,26 +36,32 @@ void ShaderStorageBuffer::unbind() const
 	Global::glCheckError();
 }
 
-void ShaderStorageBuffer::update() const
+void ShaderStorageBuffer::upload() const
 {
 	glNamedBufferSubData(m_id, 0, sizeof(glm::mat4) * m_vector.size(), (const void*)m_vector.data());
 	Global::glCheckError();
 }
 
-void ShaderStorageBuffer::setVector(const glm::mat4& vector, int i)
+void ShaderStorageBuffer::update(const glm::mat4& vector, int i)
 {
 	m_vector[i] = vector;
 }
 
-void ShaderStorageBuffer::updateAndBind() const
+void ShaderStorageBuffer::uploadAndBind() const
 {
-	this->update();
-	this->bind();
+	upload();
+	bind();
 }
 
-void ShaderStorageBuffer::setVectorAndUpdateAndBind(const glm::mat4& vector, int i)
+void ShaderStorageBuffer::updateAndUpload(const glm::mat4& vector, int i)
 {
-	this->setVector(vector, i);
-	this->update();
-	this->bind();
+	update(vector, i);
+	upload();
+}
+
+void ShaderStorageBuffer::updateAndUploadAndBind(const glm::mat4& vector, int i)
+{
+	update(vector, i);
+	upload();
+	bind();
 }

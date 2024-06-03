@@ -131,18 +131,17 @@ void Shader::useShader() const
     // No need to ask GPU for active Shader
     //GLint returnData{}; //glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
 
-    if (Global::shaderCurrentlyActive != this->getId()) {
+    if (Global::shaderCurrentlyActive != m_id) {
         glUseProgram(m_id);
+        Global::glCheckError();
         Global::shaderCurrentlyActive = m_id;
     }
-
-    Global::glCheckError();
 }
 
 int Shader::getLocation(const std::string& name) const{
     //std::println("SHADER getLocation: {}", name);
 
-    assert(Global::shaderCurrentlyActive == this->getId() && "Wrong shader active");
+    assert(Global::shaderCurrentlyActive == m_id && "Wrong shader active");
 
     int location{ glGetUniformLocation(m_id, name.c_str()) };
 
