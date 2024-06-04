@@ -17,6 +17,8 @@ void Renderer::clear() const
 // die kan in een aparte vector
 void Renderer::draw(const RenderObject& RO) const
 {
+	assert(RO.mesh && "No mesh defined, is this a RenderObject for a model?");
+	
 	// Activate Shader + set material properties
 	switch (m_renderPassActive)
 	{
@@ -58,10 +60,10 @@ void Renderer::draw(const RenderObject& RO) const
 		break;
 	}
 
-	RO.mesh.m_vao->bindVertexArray();
-	glVertexArrayVertexBuffer(RO.mesh.m_vao->getId(), 0, RO.mesh.m_vbo->getId(), 0, RO.mesh.m_layout->getStride());
-	glVertexArrayElementBuffer(RO.mesh.m_vao->getId(), RO.mesh.m_ebo->getId());
-	glDrawElementsInstanced(GL_TRIANGLES, RO.mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, RO.instances);
+	RO.mesh->m_vao->bindVertexArray();
+	glVertexArrayVertexBuffer(RO.mesh->m_vao->getId(), 0, RO.mesh->m_vbo->getId(), 0, RO.mesh->m_layout->getStride());
+	glVertexArrayElementBuffer(RO.mesh->m_vao->getId(), RO.mesh->m_ebo->getId());
+	glDrawElementsInstanced(GL_TRIANGLES, RO.mesh->m_ebo->getCount(), GL_UNSIGNED_INT, 0, RO.instances);
 
 	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
 		//glCullFace(GL_BACK);
@@ -183,6 +185,8 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
 
 void Renderer::drawModel(const Mesh& mesh, const Material& material) const
 {
+	// This is basically the same function as normal draw(), but the samplers are set from m_textures
+	
 	// Activate Shader + set material properties
 	switch (m_renderPassActive)
 	{
@@ -245,6 +249,104 @@ void Renderer::drawModel(const Mesh& mesh, const Material& material) const
 	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
 	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
+
+	Global::glCheckError();
+}
+
+void Renderer::drawModelNew(const RenderObject& RO, Model& model) // TODO const const?
+{
+	// This is basically the same function as normal draw(), but the samplers are set from m_textures
+	// and it ignores the meshes from the RO
+
+	// Bind all unique textures to a texture unit, so they are ready to use
+	// Using TU 16 to 31 (always starting from 16, so only one model can be loaded at once -> TODO)
+	for (unsigned int i{ 0u }; i < model.m_texturesLoaded.size(); i++)
+	{
+		assert(i <= 15 && "Model uses > 16 textures, this is not supported!");
+		if (model.m_texturesLoaded[i]->getBound() == -1) {
+			// activate proper texture unit (i) and bind texture
+			model.m_texturesLoaded[i]->bind(i + 16);
+			// save texture unit in texture
+			model.m_texturesLoaded[i]->setBound(i + 16);
+		}
+		//std::println("DRAW Texture bind #{}", i)
+	}
+
+	// Activate Shader + set material properties
+	switch (m_renderPassActive)
+	{
+	case renderPassType::undefined:
+		assert(false); // should never be the case 
+		break;
+	case renderPassType::depthMapDirLight:
+		m_shaderDepthMapDirLight->useShader();
+		RO.ssbo[0]->uploadAndBind();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		break;
+	case renderPassType::depthMapFlashLight:
+		m_shaderDepthMapFlashLight->useShader();
+		RO.ssbo[1]->uploadAndBind();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		break;
+	case renderPassType::depthMapSpotLight:
+		m_shaderDepthMapSpotLight->useShader();
+		RO.ssbo[2]->uploadAndBind();
+		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		break;
+	case renderPassType::normal:
+		RO.material.shader.useShader();
+
+		// Material, dit zijn vaste waardes, die potentieel elke keer, veranderen per draw call, dus hard coded is ok?
+		RO.material.shader.setInt("material.emission", RO.material.emission);
+		RO.material.shader.setFloat("material.emissionStrength", RO.material.emissionStrength);
+		RO.material.shader.setFloat("material.shininess", RO.material.shininess);
+		RO.material.shader.setInt("material.flashLightEmissionMap", RO.material.flashLightEmissionMap);
+		RO.material.shader.setInt("material.flashLightEmissionTexture", RO.material.flashLightEmissionTexture);
+
+		// SSBO
+		for (int i = 0; i < std::size(RO.ssbo); i++) {
+			RO.ssbo[i]->uploadAndBind();
+		}
+		break;
+	}
+
+	// Set material sampler2D uniforms to the correct texture unit for each texture in the Mesh
+	// Each Mesh *could* have different textures, and not every Mesh has every Texture, so you need to loop through all of them // TODO klopt toch? Kan efficienter toch...
+	unsigned int diffuseCount{ 1u };
+	unsigned int specularCount{ 1u };
+	unsigned int normalCount{ 1u }; // TODO
+	//unsigned int heightCount{ 1u }; // TODO
+
+	for (unsigned int i{ 0u }; i < model.m_meshes[i].m_textures.size(); i++)
+	{
+		assert(model.m_meshes[i].m_textures[i]->getBound() >= 0 && "Texture is not bound to a texture unit");
+
+		// retrieve texture number (the N in <typename>N)
+		std::string count{};
+		textureType textureType{ model.m_meshes[i].m_textures[i]->getType() };
+		if (textureType == textureType::diffuse)
+			count = std::to_string(diffuseCount++);
+		else if (textureType == textureType::specular)
+			count = std::to_string(specularCount++); // transfer unsigned int to string
+		else if (textureType == textureType::normal) // TODO
+			count = std::to_string(normalCount++); // transfer unsigned int to string
+		//else if (textureType == textureType::height) // TODO
+			//break;
+		//count = std::to_string(heightCount++); // transfer unsigned int to string
+
+		std::string result{ "material." + model.m_meshes[i].m_textures[i]->getTypeAsString() + count };
+		if (m_renderPassActive == renderPassType::normal) {
+			RO.material.shader.setInt(result, model.m_meshes[i].m_textures[i]->getBound());
+		}
+	}
+
+	for (unsigned int i{ 0u }; i < model.m_meshes.size(); i++)
+	{
+		model.m_meshes[i].m_vao->bindVertexArray();
+		glVertexArrayVertexBuffer(model.m_meshes[i].m_vao->getId(), 0, model.m_meshes[i].m_vbo->getId(), 0, model.m_meshes[i].m_layout->getStride());
+		glVertexArrayElementBuffer(model.m_meshes[i].m_vao->getId(), model.m_meshes[i].m_ebo->getId());
+		glDrawElementsInstanced(GL_TRIANGLES, model.m_meshes[i].m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
+	}
 
 	Global::glCheckError();
 }

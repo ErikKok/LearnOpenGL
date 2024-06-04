@@ -23,14 +23,3 @@
 //private:
 //	entt::registry m_registry;
 //};
-
-//struct RenderObject {
-//	mesh;
-//	material;
-//	vector<model / transforms>;
-//	mat4 dirLightMVPMatrixSSBO;
-//	vector<spotLightMVPMatrixSSBO>;
-//	vector<flashLightMVPMatrixSSBO>;
-//	renderType type; (transparant, singleColor, etc.;
-//	bool isSelected; true = de outline renderen
-//};

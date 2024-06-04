@@ -33,6 +33,12 @@ TO DO
 - TODO's nalopen
 - gebruik std::ssize vs std::size / unsigned int vs int in for loops checken
 
+v0.2.52 4-6-2024
+-----------------
+- implemented RenderObject for Model
+- moved drawModel from Model to Renderer
+- Mesh is now a Unique* in RO
+
 v0.2.51 4-6-2024
 -----------------
 - implemented RenderObject for floor

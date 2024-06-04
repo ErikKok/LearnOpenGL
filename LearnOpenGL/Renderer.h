@@ -3,11 +3,11 @@
 #include "Buffers.h"
 #include "Global.h"
 #include "Mesh.h"
+#include "Model.h"
 #include "Shader.h"
 #include "VertexArray.h"
 
 #include <glad/glad.h>
-
 
 #include <memory> // for std::unique_ptr and std::make_unique
 
@@ -26,12 +26,16 @@ struct Material {
 };
 
 struct RenderObject {
-	Mesh& mesh;
+	//Mesh& mesh;
+	std::unique_ptr<Mesh> mesh;
+	//Model* model{ nullptr }; // TODO?
 	Material& material;
 	std::vector<glm::mat4> model{}; // transforms
 	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // element/index != binding point SSBO
 	//std::vector<std::unique_ptr<ShaderStorageBuffer>> ssboDirlight; etc...
 	GLsizei instances{ 1 };
+	//	renderType type; (transparant, singleColor, isModel, etc.;
+	//	bool isSelected; true = de outline renderen
 };
 
 enum class renderPassType {
@@ -74,6 +78,8 @@ public:
 	// Takes in a Camera, not an OrthograpicCamera!
 	void drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const;
 	void drawModel(const Mesh& mesh, const Material& material) const;
+	//class Model {};
+	void drawModelNew(const RenderObject& RO, Model& model);
 
 	// non-DSA
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    

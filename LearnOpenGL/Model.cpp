@@ -27,38 +27,55 @@ Model::Model(std::string const& path, bool gamma)
     loadModel(path);
 }
 
-#pragma warning( suppress : 4100 )
-void Model::draw(const Material& material, const Renderer& renderer) const
-{
-    // Bind all unique textures to a texture unit, so they are ready to use
-    // Using TU 16 to 31 (always starting from 16, so only one model can be loaded at once -> TODO)
-    for (unsigned int i{ 0u }; i < m_texturesLoaded.size(); i++)
-    {
-        assert(i <= 15 && "Model uses > 16 textures, this is not supported!");
-        if (m_texturesLoaded[i]->getBound() == -1) {
-            // activate proper texture unit (i) and bind texture
-            m_texturesLoaded[i]->bind(i+16);
-            // save texture unit in texture
-            m_texturesLoaded[i]->setBound(i+16);
-        }
-        //std::println("DRAW Texture bind #{}", i)
-    }
-
-    for (unsigned int i{ 0u }; i < m_meshes.size(); i++)
-    {
-        renderer.drawModel(m_meshes[i], material);
-        //std::println("DRAW Model call #{}", i);
-    }
-
-    //// You could unbind after each call, so you can call this function for a second model... quick fix
-    //for (unsigned int i{ 0u }; i < m_texturesLoaded.size(); i++)
-    //{
-    //    assert(i <= 15 && "Model uses > 16 textures, this is not supported!");
-    //    if (m_texturesLoaded[i]->getBound() != -1) {
-    //        m_texturesLoaded[i]->unbindTexture();
-    //    }
-    //}
-}
+//#pragma warning( suppress : 4100 ) // TODO kan weg?
+//void Model::draw(const RenderObject& RO, const Renderer& renderer) const
+//{
+//    // Bind all unique textures to a texture unit, so they are ready to use
+//    // Using TU 16 to 31 (always starting from 16, so only one model can be loaded at once -> TODO)
+//    for (unsigned int i{ 0u }; i < m_texturesLoaded.size(); i++)
+//    {
+//        assert(i <= 15 && "Model uses > 16 textures, this is not supported!");
+//        if (m_texturesLoaded[i]->getBound() == -1) {
+//            // activate proper texture unit (i) and bind texture
+//            m_texturesLoaded[i]->bind(i+16);
+//            // save texture unit in texture
+//            m_texturesLoaded[i]->setBound(i+16);
+//        }
+//        //std::println("DRAW Texture bind #{}", i)
+//    }
+//
+//    // TODO uploadAndBind here instead of every drawModelNew loop
+//    for (int i = 0; i < std::size(RO.ssbo); i++) {
+//        RO.ssbo[i]->uploadAndBind();
+//    }
+//    RO.material.shader.useShader();
+//
+//    // Material, dit zijn vaste waardes, die potentieel elke keer, veranderen per draw call, dus hard coded is ok?
+//    RO.material.shader.setInt("material.emission", RO.material.emission);
+//    RO.material.shader.setFloat("material.emissionStrength", RO.material.emissionStrength);
+//    RO.material.shader.setFloat("material.shininess", RO.material.shininess);
+//    RO.material.shader.setInt("material.flashLightEmissionMap", RO.material.flashLightEmissionMap);
+//    RO.material.shader.setInt("material.flashLightEmissionTexture", RO.material.flashLightEmissionTexture);
+//
+//    for (unsigned int i{ 0u }; i < m_meshes.size(); i++)
+//    {
+//        //renderer.drawModel(m_meshes[i], RO.material);
+//
+//        // could give a pointer to the relevant mesh to the RO?       RO.mesh = m_meshes[i];
+//  
+//        //renderer.drawModelNew(m_meshes[i], RO);
+//        //std::println("DRAW Model call #{}", i);
+//    }
+//
+//    //// You could unbind after each call, so you can call this function for a second model... quick fix
+//    //for (unsigned int i{ 0u }; i < m_texturesLoaded.size(); i++)
+//    //{
+//    //    assert(i <= 15 && "Model uses > 16 textures, this is not supported!");
+//    //    if (m_texturesLoaded[i]->getBound() != -1) {
+//    //        m_texturesLoaded[i]->unbindTexture();
+//    //    }
+//    //}
+//}
 
 // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 void Model::loadModel(std::string const& path)
