@@ -55,6 +55,13 @@ int main()
 
     Global::initStencilBuffer();
 
+    UniformBuffer ubo(66);
+    BufferSubDataLayout ubo66(ubo.getId()); // TODO buffer krijgt automatisch een layout vanuit de constructor? nee, deze is voor eenmalig gebruik en 64 bytes...
+    ubo66.pushUniformBufferSubData(glm::mat4(0.36f)); // mat4
+    ubo66.pushUniformBufferSubData({ 0.0f, 1.0f, 1.0f, 0.25f }); // vec4
+    ubo66.createBufferAndUploadData();
+    ubo.bindUniformBuffer();
+
     Global::glCheckError();
     Global::cheap2Copy();
     Renderer renderer;
@@ -255,7 +262,7 @@ int main()
         .flashLightEmissionTexture{ 12 },
     };
 
-    RenderObject cubeRO{ &cubeMesh, cubeMaterial };
+    RenderObject cubeRO{ &cubeMesh, &cubeMaterial };
 
     cubeRO.instances = std::ssize(Data::cubePositions);
 
@@ -287,7 +294,7 @@ int main()
         .flashLightEmissionTexture{ 12 },
     };
 
-    RenderObject floorRO{ &floorMesh, floorMaterial };
+    RenderObject floorRO{ &floorMesh, &floorMaterial };
 
     // Model voor de renderloop berekenen, floor is statisch
     floorRO.model.resize(1);
@@ -328,7 +335,7 @@ int main()
         .flashLightEmissionTexture{ 0 },
     };
 
-    RenderObject modelRO{ nullptr, modelMaterial}; // TODO Feed mesh[0] from model
+    RenderObject modelRO{ nullptr, &modelMaterial}; // TODO Feed mesh[0] from model
 
     modelRO.model.resize(1);
     modelRO.model[0] = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -340,6 +347,11 @@ int main()
     modelRO.ssbo[3] = std::make_unique<ShaderStorageBuffer>(2, modelRO.instances); // NormalMatrixSSBO
     modelRO.ssbo[4] = std::make_unique<ShaderStorageBuffer>(3, modelRO.instances); // ModelViewMatrixSSBO
     modelRO.ssbo[5] = std::make_unique<ShaderStorageBuffer>(4, modelRO.instances); // MVPMatrixSSBO
+
+    RenderObject lightCubeRO{ &cubeMesh };
+    lightCubeRO.model.resize(5); // 5 lights
+    lightCubeRO.ssbo.resize(1);
+    lightCubeRO.ssbo[0] = std::make_unique<ShaderStorageBuffer>(4, lightCubeRO.instances); // MVPMatrixSSBO
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -610,6 +622,23 @@ int main()
         MVPMatrixSSBO.uploadAndBind();
 
         renderer.drawSingleColor(cubeMesh, { 1.0f, 0.0f, 1.0f, 1.0f }, 4); // TODO deze color uniform/parameter is geen array, dus kleur is zelfde voor alle cubes
+
+        //
+        
+        //// pointlights - 4 vaste LightCubes
+        //for (int i = 0; i < std::size(pointLightPositions); i++) {
+        //    assert(std::size(pointLightPositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
+        //    lightCubeRO.model[i] = Global::getModelMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // can skip this?
+        //    lightCubeRO.ssbo[0]->updateAndUpload(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i);
+        //}
+
+        //// #5, element 4, de draaiende lightcube
+        //lightCubeRO.model[4] = Global::getModelMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // can skip this?
+        //lightCubeRO.ssbo[0]->updateAndUpload(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4);
+
+        //kan een 2e ssbo voor de color maken, maar die pakt voor nu alleen mat4s ...
+
+        //renderer.drawSingleColor(lightCubeRO, color, 5); // implement
        
         // Skybox
         renderer.drawSkybox(cubeMesh);

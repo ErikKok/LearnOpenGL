@@ -7,6 +7,15 @@
 #include <cassert>
 #include <print>
 
+UniformBuffer::UniformBuffer(int bindingPoint)
+	: m_bindingPoint{ bindingPoint }
+{
+	glCreateBuffers(1, &m_id);
+
+	Global::glCheckError();
+	std::println("CREATE UniformBuffer id: {}", m_id);
+}
+
 //UniformBuffer::UniformBuffer(GLuint size, GLuint bindingPoint)
 //{
 //	glCreateBuffers(1, &m_id);
@@ -30,14 +39,16 @@ UniformBuffer::~UniformBuffer()
 void UniformBuffer::bindUniformBuffer() const
 {
 	std::println("BIND UniformBuffer id: {}", m_id);
-	glBindBuffer(GL_UNIFORM_BUFFER, m_id);
+	//glBindBuffer(GL_UNIFORM_BUFFER, m_id);
+	glBindBufferBase(GL_UNIFORM_BUFFER, m_bindingPoint, m_id);
 	Global::glCheckError();
 }
 
 void UniformBuffer::unbindUniformBuffer() const
 {
 	std::println("UNBIND UniformBuffer id: {}", m_id);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	//glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBindBufferBase(GL_UNIFORM_BUFFER, m_bindingPoint, 0);
 	Global::glCheckError();
 }
 
@@ -67,19 +78,19 @@ void UniformBuffer::unbindUniformBuffer() const
 //}
 
 // DSA
-void UniformBuffer::addUniformBufferSubData(const BufferSubDataLayout& layout) const
-{
-	//std::println("ADD UniformBufferSubData id: {}", m_id);
-
-	assert(sizeof(layout.getBufferSubData()) != 0 && "WARNING: addUniformBufferSubData(): BufferSubDataLayout is empty!");
-
-	const auto& bufferSubData{ layout.getBufferSubData() };
-	GLintptr totalOffset{ 0 };
-	for (GLuint i{ 0 }; i < bufferSubData.size(); i++) {
-		const auto& bufferSubDataElement{ bufferSubData[i] };
-		glNamedBufferSubData(m_id, totalOffset, bufferSubDataElement.m_size, &bufferSubDataElement.m_data);
-		totalOffset += bufferSubDataElement.m_size;
-	}
-
-	Global::glCheckError();
-}
+//void UniformBuffer::addUniformBufferSubData(const BufferSubDataLayout& layout) const
+//{
+//	//std::println("ADD UniformBufferSubData id: {}", m_id);
+//
+//	assert(sizeof(layout.getBufferSubData()) != 0 && "WARNING: addUniformBufferSubData(): BufferSubDataLayout is empty!");
+//
+//	const auto& bufferSubData{ layout.getBufferSubData() };
+//	GLintptr totalOffset{ 0 };
+//	for (GLuint i{ 0 }; i < bufferSubData.size(); i++) {
+//		const auto& bufferSubDataElement{ bufferSubData[i] };
+//		glNamedBufferSubData(m_id, totalOffset, bufferSubDataElement.m_size, &bufferSubDataElement.m_data);
+//		totalOffset += bufferSubDataElement.m_size;
+//	}
+//
+//	Global::glCheckError();
+//}

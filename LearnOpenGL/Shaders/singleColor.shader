@@ -14,10 +14,17 @@ void main()
 }
 
 #shader fragment
-#version 330 core
+#version 420 core
 out vec4 FragColor;
 
-uniform vec4 color; // TODO array van maken?
+//uniform vec4 color; // TODO array van maken?
+//uniform vec4 color[gl_InstanceID];
+
+layout (std140, binding = 66) uniform ubo666
+{
+    mat4 color2;
+    vec4 color;
+};
 
 void main()
 {

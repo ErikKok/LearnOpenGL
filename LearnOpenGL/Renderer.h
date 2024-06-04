@@ -27,12 +27,13 @@ struct Material {
 
 struct RenderObject {
 	Mesh* mesh;
-	Material& material;
+	Material* material; // TODO make unique_ptr van maken?
 	std::vector<glm::mat4> model{}; // transforms
 	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // Each RenderObject contains it's own unique SSBOs (on the heap), this way you can upload them just once per renderpass (raw pointers (on the stack) are max 1% faster)
 	GLsizei instances{ 1 };
 	//	renderType type; (transparant, singleColor, isModel, etc.;
 	//	bool isSelected; true = de outline renderen
+	// bool castShadow;
 };
 
 enum class renderPassType {

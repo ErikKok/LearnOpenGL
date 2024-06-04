@@ -41,17 +41,17 @@ void Renderer::draw(const RenderObject& RO) const
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
 	case renderPassType::normal:
-		RO.material.shader.useShader();
+		RO.material->shader.useShader();
 
 		// Material, dit zijn vaste waardes, die potentieel elke keer, veranderen per draw call, dus hard coded is ok?
-		RO.material.shader.setInt("material.diffuse1", RO.material.diffuse1);
-		RO.material.shader.setInt("material.specular1", RO.material.specular1);
-		//RO.material.shader.setInt("material.normal1", RO.material.normal1);
-		RO.material.shader.setInt("material.emission", RO.material.emission);
-		RO.material.shader.setFloat("material.emissionStrength", RO.material.emissionStrength);
-		RO.material.shader.setFloat("material.shininess", RO.material.shininess);
-		RO.material.shader.setInt("material.flashLightEmissionMap", RO.material.flashLightEmissionMap);
-		RO.material.shader.setInt("material.flashLightEmissionTexture", RO.material.flashLightEmissionTexture);
+		RO.material->shader.setInt("material.diffuse1", RO.material->diffuse1);
+		RO.material->shader.setInt("material.specular1", RO.material->specular1);
+		//RO.material.shader.setInt("material.normal1", RO.material->normal1);
+		RO.material->shader.setInt("material.emission", RO.material->emission);
+		RO.material->shader.setFloat("material.emissionStrength", RO.material->emissionStrength);
+		RO.material->shader.setFloat("material.shininess", RO.material->shininess);
+		RO.material->shader.setInt("material.flashLightEmissionMap", RO.material->flashLightEmissionMap);
+		RO.material->shader.setInt("material.flashLightEmissionTexture", RO.material->flashLightEmissionTexture);
 
 		// SSBO
 		for (int i = 0; i < std::size(RO.ssbo); i++) {
@@ -102,14 +102,14 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
 	case renderPassType::normal:
-		RO.material.shader.useShader();
+		RO.material->shader.useShader();
 
 		// Material, dit zijn vaste waardes, die potentieel elke keer, veranderen per draw call, dus hard coded is ok?
-		RO.material.shader.setInt("material.emission", RO.material.emission);
-		RO.material.shader.setFloat("material.emissionStrength", RO.material.emissionStrength);
-		RO.material.shader.setFloat("material.shininess", RO.material.shininess);
-		RO.material.shader.setInt("material.flashLightEmissionMap", RO.material.flashLightEmissionMap);
-		RO.material.shader.setInt("material.flashLightEmissionTexture", RO.material.flashLightEmissionTexture);
+		RO.material->shader.setInt("material.emission", RO.material->emission);
+		RO.material->shader.setFloat("material.emissionStrength", RO.material->emissionStrength);
+		RO.material->shader.setFloat("material.shininess", RO.material->shininess);
+		RO.material->shader.setInt("material.flashLightEmissionMap", RO.material->flashLightEmissionMap);
+		RO.material->shader.setInt("material.flashLightEmissionTexture", RO.material->flashLightEmissionTexture);
 
 		// SSBO
 		for (int i = 0; i < std::size(RO.ssbo); i++) {
@@ -156,7 +156,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 
 		std::string result{ "material." + model.m_meshes[i].m_textures[i]->getTypeAsString() + count };
 		if (m_renderPassActive == renderPassType::normal) {
-			RO.material.shader.setInt(result, model.m_meshes[i].m_textures[i]->getBound());
+			RO.material->shader.setInt(result, model.m_meshes[i].m_textures[i]->getBound());
 		}
 	}
 
@@ -226,11 +226,11 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 //	Global::glCheckError();
 //	//std::println("RENDERER draw");
 //};
-
+#pragma warning( suppress : 4100 )
 void Renderer::drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances) const
 {
 	m_shaderSingleColor->useShader();
-	m_shaderSingleColor->setVec4("color", color);
+	//m_shaderSingleColor->setVec4("color", color);
 	mesh.m_vao->bindVertexArray();
 	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
 	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());

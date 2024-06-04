@@ -34,6 +34,13 @@ TO DO
 - gebruik std::ssize vs std::size / unsigned int vs int in for loops checken
 - gebruik Global::glCheckError(); inperken
 
+v0.2.54 4-6-2024
+-----------------
+- BufferSubData rewritten, can now upload and create its own buffer
+- accepts vec4 and mat4
+- UniformBuffer constructor does not reserve data, only creates a buffer
+- added bindingpoint to UniformBuffer
+
 v0.2.53 4-6-2024
 -----------------
 - clean-up
