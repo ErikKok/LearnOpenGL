@@ -6,6 +6,9 @@
 #include "Shader.h"
 #include "VertexArray.h"
 
+#include <glad/glad.h>
+
+
 #include <memory> // for std::unique_ptr and std::make_unique
 
 // TODO transparency opslaan in Material, of uit texture halen in constructor van een Material class?
@@ -28,6 +31,7 @@ struct RenderObject {
 	std::vector<glm::mat4> model{}; // transforms
 	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // element/index != binding point SSBO
 	//std::vector<std::unique_ptr<ShaderStorageBuffer>> ssboDirlight; etc...
+	GLsizei instances{ 1 };
 };
 
 enum class renderPassType {
@@ -60,6 +64,7 @@ public:
 
 	// TODO store the vao/ebo's/meshes etc in a list/batch/whatever, order them, then batch render them
 	// void draw(RederBatch);
+	void draw(const RenderObject& RO) const;
 	void draw(const Mesh& mesh, const Material& material, GLsizei instances = 1) const;												
 	void drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances = 1) const;
 
@@ -69,8 +74,6 @@ public:
 	// Takes in a Camera, not an OrthograpicCamera!
 	void drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const;
 	void drawModel(const Mesh& mesh, const Material& material) const;
-
-	void draw(const RenderObject& RO, GLsizei instances) const;
 
 	// non-DSA
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    
