@@ -26,13 +26,10 @@ struct Material {
 };
 
 struct RenderObject {
-	//Mesh& mesh;
-	std::unique_ptr<Mesh> mesh;
-	//Model* model{ nullptr }; // TODO?
+	Mesh* mesh;
 	Material& material;
 	std::vector<glm::mat4> model{}; // transforms
-	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // element/index != binding point SSBO
-	//std::vector<std::unique_ptr<ShaderStorageBuffer>> ssboDirlight; etc...
+	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // Each RenderObject contains it's own unique SSBOs (on the heap), this way you can upload them just once per renderpass (raw pointers (on the stack) are max 1% faster)
 	GLsizei instances{ 1 };
 	//	renderType type; (transparant, singleColor, isModel, etc.;
 	//	bool isSelected; true = de outline renderen
@@ -69,7 +66,8 @@ public:
 	// TODO store the vao/ebo's/meshes etc in a list/batch/whatever, order them, then batch render them
 	// void draw(RederBatch);
 	void draw(const RenderObject& RO) const;
-	void draw(const Mesh& mesh, const Material& material, GLsizei instances = 1) const;												
+	void drawModel(const RenderObject& RO, Model& model);
+	//void draw(const Mesh& mesh, const Material& material, GLsizei instances = 1) const;												
 	void drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances = 1) const;
 
 	// Assumes SkyBox Texture is already bound, and will never be changed
@@ -77,9 +75,6 @@ public:
 	void drawFrustum(const Mesh& mesh, const glm::mat4& viewProjectionMatrix) const;
 	// Takes in a Camera, not an OrthograpicCamera!
 	void drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const;
-	void drawModel(const Mesh& mesh, const Material& material) const;
-	//class Model {};
-	void drawModelNew(const RenderObject& RO, Model& model);
 
 	// non-DSA
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    

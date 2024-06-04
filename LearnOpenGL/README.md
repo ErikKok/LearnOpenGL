@@ -32,6 +32,12 @@ TO DO
 - font rendering
 - TODO's nalopen
 - gebruik std::ssize vs std::size / unsigned int vs int in for loops checken
+- gebruik Global::glCheckError(); inperken
+
+v0.2.53 4-6-2024
+-----------------
+- clean-up
+- Model is now friend class of Renderer
 
 v0.2.52 4-6-2024
 -----------------
