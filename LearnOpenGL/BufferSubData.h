@@ -26,7 +26,7 @@ private:
 		, m_size{ static_cast<GLsizeiptr>(size) }
 	{}
 
-	const std::any m_data{};
+	std::any m_data{};
 	GLsizeiptr m_size{};
 };
 
@@ -85,6 +85,8 @@ public:
 	{
 		//std::println("CREATE/UPLOAD BufferSubData id: {}", m_id);
 
+		// TODO calculate totalSize kan ook eenmalig gebeuren na addBufferSubData ipv elke upload? nee, maakt niet uit, dit is toch eenmalig allemaal
+
 		// Determine size of buffer to be created (the size is fixed for the rest of buffers life span)
 		GLsizeiptr totalSize{ 0 }; // Specifies the size in bytes of the buffer object's new data store.
 		for (int i{ 0 }; i < std::ssize(m_bufferSubData); i++) {
@@ -105,6 +107,8 @@ public:
 
 		Global::glCheckError();
 	}
+
+	// eventueel functie die een gedeelte van de buffer kan verversen
 
 private:
 	GLuint m_bufferId; // id of associated buffer

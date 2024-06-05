@@ -1,6 +1,5 @@
 TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
-- 1 GL_SHADER_STORAGE_BUFFER met meerdere objecten/vectors erin mogelijk?
 - time class maken
 - Optimization
 	- avoid using vec3 at all in interface blocks https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
@@ -33,6 +32,10 @@ TO DO
 - TODO's nalopen
 - gebruik std::ssize vs std::size / unsigned int vs int in for loops checken
 - gebruik Global::glCheckError(); inperken
+
+v0.2.56 5-6-2024
+-----------------
+- test RO lightcube, werkt nu wel met vec4 niet met een vector van vec4
 
 v0.2.55 5-6-2024
 -----------------

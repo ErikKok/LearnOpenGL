@@ -60,3 +60,5 @@ private:
 // you can use an assert:
 // assert(std::size(Data::cubePositions) <= ssboArrayCount && "Loop will create more instances then ssbo can hold");
 // to guard you against this
+
+// https://computergraphics.stackexchange.com/questions/5323/dynamic-array-in-glsl

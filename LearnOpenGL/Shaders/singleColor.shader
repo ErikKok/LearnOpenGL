@@ -12,6 +12,7 @@ layout(binding = 20, std430) readonly buffer colorssbo {
     vec4 color[];
 };
 
+
 out vec4 colorOut;
 
 void main()
@@ -27,6 +28,8 @@ out vec4 FragColor;
 //uniform vec4 color;
 
 in vec4 colorOut;
+
+
 
 void main()
 {

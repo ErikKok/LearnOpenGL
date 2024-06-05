@@ -346,20 +346,35 @@ int main()
     lightCubeRO.model.resize(5); // 5 lights
     lightCubeRO.ssbo.resize(2);
     lightCubeRO.ssbo[0] = std::make_unique<ShaderStorageBuffer>(4, lightCubeRO.instances); // MVPMatrixSSBO
-    lightCubeRO.ssbo[1] = std::make_unique<ShaderStorageBuffer>(20); // MVPMatrixSSBO
+    lightCubeRO.ssbo[1] = std::make_unique<ShaderStorageBuffer>(20); // color
 
-    std::vector<glm::vec4> pointLightColors2 = {
-    glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), // ?
-    glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), // red
+    const std::vector<glm::vec4> pointLightColors2 = {
+    glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), // magenta
+    glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), // white
     glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), // green
     glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), // blue
-    glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), // white
+    glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), // red
     };
 
+    //glm::vec4 abc = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+
     //ShaderStorageBuffer singleColorssbo(20);
+    //BufferSubDataLayout singleColorssboLayout(20, abc);
+ 
+    //singleColorssbo.bind();
+
+    // DIT WERKT
+    //BufferSubDataLayout singleColorssboLayout(lightCubeRO.ssbo[1]->getId(), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
+    //singleColorssboLayout.addBufferSubData(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // aparte vectors sturen lukt, maar een array/vector niet...
+    //singleColorssboLayout.addBufferSubData(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    //singleColorssboLayout.addBufferSubData(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    //singleColorssboLayout.addBufferSubData(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    //singleColorssboLayout.createBufferAndUploadData();
+
+    // EN DIT? NEE, zelfde waardes worden gezet, maar waarom kan een vector niet worden uitgelezen, terwijl dat met de andere buffers wel lukt? heeft std::any ermee te maken?
     BufferSubDataLayout singleColorssboLayout(lightCubeRO.ssbo[1]->getId(), pointLightColors2);
-    //singleColorssboLayout.addBufferSubData(pointLightColors);
     singleColorssboLayout.createBufferAndUploadData();
+
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -498,6 +513,8 @@ int main()
         // Calculate SSBO's, and upload them to their buffers
         for (int i = 0; i < std::ssize(cubeRO.model); i++) {
             modelViewMatrix = Global::camera.getViewMatrix() * cubeRO.model[i];
+
+            // TODO hij update 1 element vd vector, en upload dan de gehele vector, en dat doet ie i keer....
 
             cubeRO.ssbo[0]->updateAndUpload(cameraDirLight.getViewProjectionMatrix() * cubeRO.model[i], i);
             cubeRO.ssbo[1]->updateAndUpload(Global::cameraFlashLight.getViewProjectionMatrix() * cubeRO.model[i], i);
@@ -682,7 +699,7 @@ int main()
             MVPMatrixSSBO.updateAndUploadAndBind(Global::camera.getProjectionMatrix() * modelViewMatrix);
 
             glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
-            renderer.drawSingleColor(floorMesh, color);
+            //renderer.drawSingleColor(floorMesh, color);
             glEnable(GL_CULL_FACE);
 
             // De-init Stencil Buffer

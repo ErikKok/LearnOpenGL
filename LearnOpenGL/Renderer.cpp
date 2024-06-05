@@ -249,7 +249,7 @@ void Renderer::drawSingleColor(const RenderObject& RO, const glm::vec4 color) co
 void Renderer::drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances) const
 {
 	m_shaderSingleColor->useShader();
-	//m_shaderSingleColor->setVec4("color", color);
+	m_shaderSingleColor->setVec4("color", color);
 	mesh.m_vao->bindVertexArray();
 	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
 	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
