@@ -11,7 +11,6 @@ UniformBuffer::UniformBuffer(int bindingPoint)
 	: m_bindingPoint{ bindingPoint }
 {
 	glCreateBuffers(1, &m_id);
-
 	Global::glCheckError();
 	std::println("CREATE UniformBuffer id: {}", m_id);
 }

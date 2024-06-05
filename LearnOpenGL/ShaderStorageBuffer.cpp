@@ -5,6 +5,14 @@
 
 #include <print>
 
+ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint)
+	: m_bindingPoint{ bindingPoint }
+{
+	glCreateBuffers(1, &m_id);
+	Global::glCheckError();
+	std::println("CREATE ShaderStorageBuffer id: {}", m_id);
+}
+
 ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint, int arrayCount)
 	: m_arrayCount{ arrayCount }
 	, m_bindingPoint{ bindingPoint }

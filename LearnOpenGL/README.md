@@ -34,6 +34,10 @@ TO DO
 - gebruik std::ssize vs std::size / unsigned int vs int in for loops checken
 - gebruik Global::glCheckError(); inperken
 
+v0.2.55 5-6-2024
+-----------------
+- test RO lightcube 
+
 v0.2.54 4-6-2024
 -----------------
 - BufferSubData rewritten, can now upload and create its own buffer

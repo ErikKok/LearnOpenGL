@@ -9,6 +9,7 @@
 
 class ShaderStorageBuffer {
 public:
+	ShaderStorageBuffer(int bindingPoint);											// Constructor
 	ShaderStorageBuffer(int bindingPoint, int arrayCount);							// Constructor
 	ShaderStorageBuffer(const ShaderStorageBuffer& other) = delete;					// Copy constructor
 	ShaderStorageBuffer& operator=(const ShaderStorageBuffer& other) = delete;		// Copy assignment
@@ -16,7 +17,7 @@ public:
 	ShaderStorageBuffer& operator=(ShaderStorageBuffer&& other) noexcept = delete;	// Move assignment
 	~ShaderStorageBuffer();															// Destructor
 
-	const unsigned int getId() const { return m_id; };
+	const GLuint getId() const { return m_id; }; // was unsigned int 5-6-24
 
 	void bind() const;
 	void unbind() const;
@@ -59,7 +60,3 @@ private:
 // you can use an assert:
 // assert(std::size(Data::cubePositions) <= ssboArrayCount && "Loop will create more instances then ssbo can hold");
 // to guard you against this
-
-// TODO what if you want to change the buffer size?
-// Do you need to delete ssbo and re-init?
-// I guess...

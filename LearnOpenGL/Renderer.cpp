@@ -227,6 +227,25 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 //	//std::println("RENDERER draw");
 //};
 #pragma warning( suppress : 4100 )
+void Renderer::drawSingleColor(const RenderObject& RO, const glm::vec4 color) const
+{
+	m_shaderSingleColor->useShader();
+	//m_shaderSingleColor->setVec4("color", color);
+
+	// SSBO
+	for (int i = 0; i < std::size(RO.ssbo); i++) {
+		RO.ssbo[i]->bind();
+	}
+
+	RO.mesh->m_vao->bindVertexArray();
+	glVertexArrayVertexBuffer(RO.mesh->m_vao->getId(), 0, RO.mesh->m_vbo->getId(), 0, RO.mesh->m_layout->getStride());
+	glVertexArrayElementBuffer(RO.mesh->m_vao->getId(), RO.mesh->m_ebo->getId());
+	glDrawElementsInstanced(GL_TRIANGLES, RO.mesh->m_ebo->getCount(), GL_UNSIGNED_INT, 0, RO.instances);
+
+	Global::glCheckError();
+};
+
+#pragma warning( suppress : 4100 )
 void Renderer::drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances) const
 {
 	m_shaderSingleColor->useShader();

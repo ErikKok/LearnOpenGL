@@ -68,6 +68,8 @@ public:
 	// void draw(RederBatch);
 	void draw(const RenderObject& RO) const;
 	void drawModel(const RenderObject& RO, Model& model);
+	void drawSingleColor(const RenderObject& RO, const glm::vec4 color) const;
+
 	//void draw(const Mesh& mesh, const Material& material, GLsizei instances = 1) const;												
 	void drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances = 1) const;
 

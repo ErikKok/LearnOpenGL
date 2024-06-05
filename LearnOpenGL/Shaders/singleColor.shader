@@ -8,25 +8,27 @@ layout(binding = 4, std430) readonly buffer ssboMVPMatrix {
     mat4 MVPMatrix[];
 };
 
+layout(binding = 20, std430) readonly buffer colorssbo {
+    vec4 color[];
+};
+
+out vec4 colorOut;
+
 void main()
 {
+    colorOut = color[gl_InstanceID];
     gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
 }
 
 #shader fragment
-#version 420 core
+#version 450 core
 out vec4 FragColor;
 
-//uniform vec4 color; // TODO array van maken?
-//uniform vec4 color[gl_InstanceID];
+//uniform vec4 color;
 
-layout (std140, binding = 66) uniform ubo666
-{
-    mat4 color2;
-    vec4 color;
-};
+in vec4 colorOut;
 
 void main()
 {
-    FragColor = color;
+    FragColor = colorOut;
 }
