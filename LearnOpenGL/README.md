@@ -32,6 +32,12 @@ TO DO
 - TODO's nalopen
 - gebruik std::ssize vs std::size / unsigned int vs int in for loops checken
 - gebruik Global::glCheckError(); inperken
+- BufferSubData.cpp maken
+
+v0.2.57 6-6-2024
+-----------------
+- RO lightcube werkt
+- rewritten BufferSubData
 
 v0.2.56 5-6-2024
 -----------------

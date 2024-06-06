@@ -82,11 +82,12 @@ int main()
         glm::vec3(15.0f,  1.2f,  -3.0f),
     };
 
-    glm::vec3 pointLightColors[] = {
-    glm::vec3(1.0f, 1.0f, 1.0f), // red
-    glm::vec3(0.0f, 1.0f, 0.0f), // green
-    glm::vec3(0.0f, 0.0f, 1.0f), // blue
-    glm::vec3(1.0f, 0.0f, 0.0f), // white
+    const std::vector<glm::vec4> pointLightColors = {
+    glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), // magenta
+    glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), // white
+    glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), // green
+    glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), // blue
+    glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), // red
     };
 
     // TODO use variable length arrays through SSBO
@@ -341,6 +342,8 @@ int main()
     modelRO.ssbo[4] = std::make_unique<ShaderStorageBuffer>(3, modelRO.instances); // ModelViewMatrixSSBO
     modelRO.ssbo[5] = std::make_unique<ShaderStorageBuffer>(4, modelRO.instances); // MVPMatrixSSBO
 
+    // Lightcubes
+
     RenderObject lightCubeRO{ &cubeMesh };
     lightCubeRO.instances = 5;
     lightCubeRO.model.resize(5); // 5 lights
@@ -348,33 +351,8 @@ int main()
     lightCubeRO.ssbo[0] = std::make_unique<ShaderStorageBuffer>(4, lightCubeRO.instances); // MVPMatrixSSBO
     lightCubeRO.ssbo[1] = std::make_unique<ShaderStorageBuffer>(20); // color
 
-    const std::vector<glm::vec4> pointLightColors2 = {
-    glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), // magenta
-    glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), // white
-    glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), // green
-    glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), // blue
-    glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), // red
-    };
-
-    //glm::vec4 abc = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
-
-    //ShaderStorageBuffer singleColorssbo(20);
-    //BufferSubDataLayout singleColorssboLayout(20, abc);
- 
-    //singleColorssbo.bind();
-
-    // DIT WERKT
-    //BufferSubDataLayout singleColorssboLayout(lightCubeRO.ssbo[1]->getId(), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f));
-    //singleColorssboLayout.addBufferSubData(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)); // aparte vectors sturen lukt, maar een array/vector niet...
-    //singleColorssboLayout.addBufferSubData(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-    //singleColorssboLayout.addBufferSubData(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-    //singleColorssboLayout.addBufferSubData(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    //singleColorssboLayout.createBufferAndUploadData();
-
-    // EN DIT? NEE, zelfde waardes worden gezet, maar waarom kan een vector niet worden uitgelezen, terwijl dat met de andere buffers wel lukt? heeft std::any ermee te maken?
-    BufferSubDataLayout singleColorssboLayout(lightCubeRO.ssbo[1]->getId(), pointLightColors2);
+    BufferSubDataLayout singleColorssboLayout(lightCubeRO.ssbo[1]->getId(), pointLightColors);
     singleColorssboLayout.createBufferAndUploadData();
-
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -513,38 +491,53 @@ int main()
         // Calculate SSBO's, and upload them to their buffers
         for (int i = 0; i < std::ssize(cubeRO.model); i++) {
             modelViewMatrix = Global::camera.getViewMatrix() * cubeRO.model[i];
-
-            // TODO hij update 1 element vd vector, en upload dan de gehele vector, en dat doet ie i keer....
-
-            cubeRO.ssbo[0]->updateAndUpload(cameraDirLight.getViewProjectionMatrix() * cubeRO.model[i], i);
-            cubeRO.ssbo[1]->updateAndUpload(Global::cameraFlashLight.getViewProjectionMatrix() * cubeRO.model[i], i);
-            cubeRO.ssbo[2]->updateAndUpload(cameraSpotLight.getViewProjectionMatrix() * cubeRO.model[i], i);
-            cubeRO.ssbo[3]->updateAndUpload(glm::transpose(glm::inverse(modelViewMatrix)), i);
-            cubeRO.ssbo[4]->updateAndUpload(modelViewMatrix, i);
-            cubeRO.ssbo[5]->updateAndUpload(Global::camera.getProjectionMatrix() * modelViewMatrix, i);
+            cubeRO.ssbo[0]->update(cameraDirLight.getViewProjectionMatrix() * cubeRO.model[i], i);
+            cubeRO.ssbo[1]->update(Global::cameraFlashLight.getViewProjectionMatrix() * cubeRO.model[i], i);
+            cubeRO.ssbo[2]->update(cameraSpotLight.getViewProjectionMatrix() * cubeRO.model[i], i);
+            cubeRO.ssbo[3]->update(glm::transpose(glm::inverse(modelViewMatrix)), i);
+            cubeRO.ssbo[4]->update(modelViewMatrix, i);
+            cubeRO.ssbo[5]->update(Global::camera.getProjectionMatrix() * modelViewMatrix, i);
         }
+        cubeRO.ssbo[0]->upload();
+        cubeRO.ssbo[1]->upload();
+        cubeRO.ssbo[2]->upload();
+        cubeRO.ssbo[3]->upload();
+        cubeRO.ssbo[4]->upload();
+        cubeRO.ssbo[5]->upload();
 
         // Floor
         for (int i = 0; i < std::ssize(floorRO.model); i++) {
             modelViewMatrix = Global::camera.getViewMatrix() * floorRO.model[i];
-            floorRO.ssbo[0]->updateAndUpload(cameraDirLight.getViewProjectionMatrix() * floorRO.model[i], i);
-            floorRO.ssbo[1]->updateAndUpload(Global::cameraFlashLight.getViewProjectionMatrix() * floorRO.model[i], i);
-            floorRO.ssbo[2]->updateAndUpload(cameraSpotLight.getViewProjectionMatrix() * floorRO.model[i], i);
-            floorRO.ssbo[3]->updateAndUpload(glm::transpose(glm::inverse(modelViewMatrix)), i);
-            floorRO.ssbo[4]->updateAndUpload(modelViewMatrix, i);
-            floorRO.ssbo[5]->updateAndUpload(Global::camera.getProjectionMatrix() * modelViewMatrix, i);
+            floorRO.ssbo[0]->update(cameraDirLight.getViewProjectionMatrix() * floorRO.model[i], i);
+            floorRO.ssbo[1]->update(Global::cameraFlashLight.getViewProjectionMatrix() * floorRO.model[i], i);
+            floorRO.ssbo[2]->update(cameraSpotLight.getViewProjectionMatrix() * floorRO.model[i], i);
+            floorRO.ssbo[3]->update(glm::transpose(glm::inverse(modelViewMatrix)), i);
+            floorRO.ssbo[4]->update(modelViewMatrix, i);
+            floorRO.ssbo[5]->update(Global::camera.getProjectionMatrix() * modelViewMatrix, i);
         }
+        floorRO.ssbo[0]->upload();
+        floorRO.ssbo[1]->upload();
+        floorRO.ssbo[2]->upload();
+        floorRO.ssbo[3]->upload();
+        floorRO.ssbo[4]->upload();
+        floorRO.ssbo[5]->upload();
 
         // Model
         for (int i = 0; i < std::ssize(modelRO.model); i++) {
             modelViewMatrix = Global::camera.getViewMatrix() * modelRO.model[i];
-            modelRO.ssbo[0]->updateAndUpload(cameraDirLight.getViewProjectionMatrix() * modelRO.model[i], i);
-            modelRO.ssbo[1]->updateAndUpload(Global::cameraFlashLight.getViewProjectionMatrix() * modelRO.model[i], i);
-            modelRO.ssbo[2]->updateAndUpload(cameraSpotLight.getViewProjectionMatrix() * modelRO.model[i], i);
-            modelRO.ssbo[3]->updateAndUpload(glm::transpose(glm::inverse(modelViewMatrix)), i);
-            modelRO.ssbo[4]->updateAndUpload(modelViewMatrix, i);
-            modelRO.ssbo[5]->updateAndUpload(Global::camera.getProjectionMatrix() * modelViewMatrix, i);
+            modelRO.ssbo[0]->update(cameraDirLight.getViewProjectionMatrix() * modelRO.model[i], i);
+            modelRO.ssbo[1]->update(Global::cameraFlashLight.getViewProjectionMatrix() * modelRO.model[i], i);
+            modelRO.ssbo[2]->update(cameraSpotLight.getViewProjectionMatrix() * modelRO.model[i], i);
+            modelRO.ssbo[3]->update(glm::transpose(glm::inverse(modelViewMatrix)), i);
+            modelRO.ssbo[4]->update(modelViewMatrix, i);
+            modelRO.ssbo[5]->update(Global::camera.getProjectionMatrix() * modelViewMatrix, i);
         }
+        modelRO.ssbo[0]->upload();
+        modelRO.ssbo[1]->upload();
+        modelRO.ssbo[2]->upload();
+        modelRO.ssbo[3]->upload();
+        modelRO.ssbo[4]->upload();
+        modelRO.ssbo[5]->upload();
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass dirLight ////////////////////////////////////////////////////////
@@ -633,51 +626,22 @@ int main()
 
         ////// LightCube ////////////////////
         /////////////////////////////////////
-
-        //MVPMatrixSSBO.updateAndUploadAndBind(Global::camera.getProjectionMatrix() * Global::getModelViewMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)));
-
-        //renderer.drawSingleColor(cubeMesh, glm::vec4(spotLight.getColor(), 1.0f), 1);
-
-        //// pointlights - 4 vaste LightCubes
-        //for (int i = 0; i < std::size(pointLightPositions); i++) {
-        //    assert(std::size(pointLightPositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
-        //    MVPMatrixSSBO.update(Global::camera.getProjectionMatrix() * Global::getModelViewMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)), i);
-        //}
-        //MVPMatrixSSBO.uploadAndBind();
-
-        //renderer.drawSingleColor(cubeMesh, { 1.0f, 0.0f, 1.0f, 1.0f }, 4); // TODO deze color uniform/parameter is geen array, dus kleur is zelfde voor alle cubes
-
-        //
         
         // pointlights - 4 vaste LightCubes
         for (int i = 0; i < std::size(pointLightPositions); i++) {
             assert(std::size(pointLightPositions) <= ArrayCountSSBO && "Loop will create more instances then ssbo can hold");
-            lightCubeRO.model[i] = Global::getModelMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // can skip this?
-            lightCubeRO.ssbo[0]->updateAndUpload(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i);
+            lightCubeRO.model[i] = Global::getModelMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+            lightCubeRO.ssbo[0]->update(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i);
         }
 
         // #5, element 4, de draaiende lightcube
-        lightCubeRO.model[4] = Global::getModelMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // can skip this?
-        lightCubeRO.ssbo[0]->updateAndUpload(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4);
+        lightCubeRO.model[4] = Global::getModelMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+        lightCubeRO.ssbo[0]->update(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4);
+        singleColorssboLayout.replaceElementAndUploadData(glm::vec4(spotLight.getColor(), 1.0f), 64); // TODO dangerous
 
-        renderer.drawSingleColor(lightCubeRO, { 1.0f, 0.0f, 1.0f, 1.0f });
+        lightCubeRO.ssbo[0]->upload();
+        renderer.drawSingleColor(lightCubeRO);
 
-
-        //kan een 2e ssbo voor de color maken, maar die pakt voor nu alleen mat4s ...
-
-
-
-        //lightCubeRO.ssbo[1]->updateAndUpload(pointLightColors);
-
-        //UniformBuffer ubo(66);
-        //BufferSubDataLayout ubo66(ubo.getId(), glm::mat4(0.36f)); // TODO buffer krijgt automatisch een layout vanuit de constructor? nee, deze is voor eenmalig gebruik en 64 bytes...
-        ////ubo66.addBufferSubData(glm::mat4(0.36f)); // mat4
-        //ubo66.addBufferSubData(glm::vec4(0.0f, 1.0f, 1.0f, 0.25f)); // vec4
-        //ubo66.createBufferAndUploadData();
-        //ubo.bindUniformBuffer();
-
-       
-       
         // Skybox
         renderer.drawSkybox(cubeMesh);
 

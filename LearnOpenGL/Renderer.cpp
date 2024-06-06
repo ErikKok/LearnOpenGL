@@ -226,11 +226,10 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 //	Global::glCheckError();
 //	//std::println("RENDERER draw");
 //};
-#pragma warning( suppress : 4100 )
-void Renderer::drawSingleColor(const RenderObject& RO, const glm::vec4 color) const
+
+void Renderer::drawSingleColor(const RenderObject& RO) const
 {
 	m_shaderSingleColor->useShader();
-	//m_shaderSingleColor->setVec4("color", color);
 
 	// SSBO
 	for (int i = 0; i < std::size(RO.ssbo); i++) {

@@ -8,6 +8,8 @@
 #include <any>
 #include <vector>
 
+// TODO een functie die een gedeelte van de buffer kan verversen?
+
 // Let op verschil std430 en std140
 
 // https://www.khronos.org/opengl/wiki/Interface_Block_(GLSL)#Memory_layout
@@ -17,7 +19,6 @@
 class BufferSubData
 {
 	friend class BufferSubDataLayout;
-	friend class UniformBuffer; // TODO nodig?
 
 private:
 	template<typename T>
@@ -26,7 +27,7 @@ private:
 		, m_size{ static_cast<GLsizeiptr>(size) }
 	{}
 
-	std::any m_data{};
+	std::any m_data;
 	GLsizeiptr m_size{};
 };
 
@@ -59,58 +60,94 @@ public:
 
 	void addBufferSubData(const glm::vec4& data)
 	{	
-		m_bufferSubData.push_back(BufferSubData(data, sizeof(data)));
+		m_bufferSubData.emplace_back(BufferSubData(data, sizeof(data)));
 		Global::glCheckError();
 	}
 
 	void addBufferSubData(const glm::mat4& data)
 	{
-		m_bufferSubData.push_back(BufferSubData(data, sizeof(data)));
+		m_bufferSubData.emplace_back(BufferSubData(data, sizeof(data)));
 		Global::glCheckError();
 	}
 	
 	void addBufferSubData(const std::vector<glm::vec4>& data) // TODO test
 	{
-		m_bufferSubData.push_back(BufferSubData(data, sizeof(glm::vec4) * data.size()));
+		//m_bufferSubData.push_back(BufferSubData(data, sizeof(glm::vec4) * data.size()));
+		for (auto i{ 0 }; i < std::ssize(data); i++) {
+			m_bufferSubData.emplace_back(BufferSubData(data[i], sizeof(data[i])));
+		}
+
 		Global::glCheckError();
 	}
 
 	void addBufferSubData(const std::vector<glm::mat4>& data) // TODO test
 	{
-		m_bufferSubData.push_back(BufferSubData(data, sizeof(glm::mat4) * data.size()));
+		//m_bufferSubData.push_back(BufferSubData(data, sizeof(glm::mat4) * data.size()));
+		for (auto i{ 0 }; i < std::ssize(data); i++) {
+			m_bufferSubData.emplace_back(BufferSubData(data[i], sizeof(data[i])));
+		}
 		Global::glCheckError();
 	}
 
-	void createBufferAndUploadData() const
+	void createBufferAndUploadData()
 	{
-		//std::println("CREATE/UPLOAD BufferSubData id: {}", m_id);
+		assert(sizeof(m_bufferSubData) != 0 && "WARNING: uploadBufferSubData(): BufferSubDataLayout is empty!");
 
 		// TODO calculate totalSize kan ook eenmalig gebeuren na addBufferSubData ipv elke upload? nee, maakt niet uit, dit is toch eenmalig allemaal
 
 		// Determine size of buffer to be created (the size is fixed for the rest of buffers life span)
-		GLsizeiptr totalSize{ 0 }; // Specifies the size in bytes of the buffer object's new data store.
-		for (int i{ 0 }; i < std::ssize(m_bufferSubData); i++) {
+		GLsizeiptr totalSize{ 0 }; // Specifies the size in bytes of the buffer object's new data store
+		for (auto i{ 0 }; i < std::ssize(m_bufferSubData); i++) {
 			totalSize += m_bufferSubData[i].m_size;
 		}
 		glNamedBufferStorage(m_bufferId, totalSize, nullptr, GL_DYNAMIC_STORAGE_BIT);
 
 		// Upload data
-		assert(sizeof(m_bufferSubData) != 0 && "WARNING: uploadBufferSubData(): BufferSubDataLayout is empty!");
-
-		const auto& bufferSubData{ m_bufferSubData };
 		GLintptr totalOffset{ 0 };
-		for (GLuint i{ 0 }; i < bufferSubData.size(); i++) {
-			const auto& bufferSubDataElement{ bufferSubData[i] };
-			glNamedBufferSubData(m_bufferId, totalOffset, bufferSubDataElement.m_size, &bufferSubDataElement.m_data);
-			totalOffset += bufferSubDataElement.m_size;
+		for (auto i{ 0 }; i < std::ssize(m_bufferSubData); i++) {
+			glNamedBufferSubData(m_bufferId, totalOffset, m_bufferSubData[i].m_size, &m_bufferSubData[i].m_data);
+			totalOffset += m_bufferSubData[i].m_size;
 		}
+
+		Global::glCheckError();
+		//std::println("CREATE/UPLOAD BufferSubData id: {}", m_id);
+	}
+
+	void replaceElementAndUploadData(const glm::vec4& data, GLintptr offset) const
+	{
+		// no checks whatsoever
+		// if buffer contains different types...hold on.
+
+		// Upload data
+		glNamedBufferSubData(m_bufferId, offset, sizeof(data), &data);
 
 		Global::glCheckError();
 	}
 
-	// eventueel functie die een gedeelte van de buffer kan verversen
-
 private:
 	GLuint m_bufferId; // id of associated buffer
 	std::vector<BufferSubData> m_bufferSubData;
+	//GLsizeiptr m_totalSize;
 };
+
+// I tried to not use std::any
+
+// std::any en dan een pointer vragen werkt niet
+// std::any_cast<glm::vec4>(&m_bufferSubData[0].m_dataVector)); // moet het type vantevoren weten...
+
+//template<typename T>
+//BufferSubData(const std::vector<T>& data, size_t size)
+//	: m_dataVector{ data }
+//	, m_size{ static_cast<GLsizeiptr>(size) }
+//{}
+
+//std::vector<std::any> m_dataVector; // Je krijgt een vector in vector, probleem dat je .data() niet kunt gebruiken blijft
+
+//GLintptr totalOffset{ 0 };
+//for (auto i{ 0 }; i < std::ssize(m_bufferSubData); i++) {
+//	if (m_bufferSubData[i].m_data.has_value())
+//	glNamedBufferSubData(m_bufferId, totalOffset, m_bufferSubData[i].m_size, &m_bufferSubData[i].m_data);
+//	else 
+//		glNamedBufferSubData(m_bufferId, totalOffset, m_bufferSubData[i].m_size, m_bufferSubData[i].m_dataVector.data());
+//	totalOffset += m_bufferSubData[i].m_size;
+//}
