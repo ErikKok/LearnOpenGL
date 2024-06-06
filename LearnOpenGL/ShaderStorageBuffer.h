@@ -32,6 +32,7 @@ private:
 	int m_bindingPoint{};
 	int m_arrayCount{};
 	std::vector<glm::mat4> m_vector{}; // TODO other types
+	//BufferDataStore m_dataStore; // TODO
 };
 
 // USAGE (without this class)

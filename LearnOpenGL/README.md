@@ -32,7 +32,13 @@ TO DO
 - TODO's nalopen
 - gebruik std::ssize vs std::size / unsigned int vs int in for loops checken
 - gebruik Global::glCheckError(); inperken
-- BufferSubData.cpp maken
+- BufferDataStore.cpp maken
+- ShaderStorageBuffer moet een BufferDataStore als data member krijgen, friend class, kan je de data store vd / in de buffer zelf bewerken, veiliger 
+
+v0.2.58 6-6-2024
+-----------------
+- ditched BufferSubData Class altogether
+- renamed BufferSubDataLayout Class to BufferDataStore
 
 v0.2.57 6-6-2024
 -----------------

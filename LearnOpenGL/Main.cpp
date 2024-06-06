@@ -351,8 +351,8 @@ int main()
     lightCubeRO.ssbo[0] = std::make_unique<ShaderStorageBuffer>(4, lightCubeRO.instances); // MVPMatrixSSBO
     lightCubeRO.ssbo[1] = std::make_unique<ShaderStorageBuffer>(20); // color
 
-    BufferSubDataLayout singleColorssboLayout(lightCubeRO.ssbo[1]->getId(), pointLightColors);
-    singleColorssboLayout.createBufferAndUploadData();
+    BufferDataStore singleColorssboLayout(lightCubeRO.ssbo[1]->getId(), pointLightColors);
+    singleColorssboLayout.createAndInitializeImmutableDataStore();
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -637,7 +637,7 @@ int main()
         // #5, element 4, de draaiende lightcube
         lightCubeRO.model[4] = Global::getModelMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
         lightCubeRO.ssbo[0]->update(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4);
-        singleColorssboLayout.replaceElementAndUploadData(glm::vec4(spotLight.getColor(), 1.0f), 64); // TODO dangerous
+        singleColorssboLayout.updateSubset(glm::vec4(spotLight.getColor(), 1.0f), 4); // TODO dangerous
 
         lightCubeRO.ssbo[0]->upload();
         renderer.drawSingleColor(lightCubeRO);

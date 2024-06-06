@@ -12,26 +12,21 @@ layout(binding = 20, std430) readonly buffer colorssbo {
     vec4 color[];
 };
 
-
-out vec4 colorOut;
+out vec4 colorInstanced;
 
 void main()
 {
-    colorOut = color[gl_InstanceID];
+    colorInstanced = color[gl_InstanceID];
     gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
 }
 
 #shader fragment
-#version 450 core
+#version 330 core
 out vec4 FragColor;
 
-//uniform vec4 color;
-
-in vec4 colorOut;
-
-
+in vec4 colorInstanced;
 
 void main()
 {
-    FragColor = colorOut;
+    FragColor = colorInstanced;
 }

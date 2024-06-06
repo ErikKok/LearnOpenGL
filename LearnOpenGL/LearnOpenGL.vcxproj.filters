@@ -81,6 +81,9 @@
     <ClCompile Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="BufferDataStore.cpp">
+      <Filter>Source Files\Buffers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -110,7 +113,7 @@
     <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BufferSubData.h">
+    <ClInclude Include="BufferDataStore.h">
       <Filter>Header Files\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="ElementBuffer.h">

@@ -1,11 +1,5 @@
 #pragma once
 #include "UniformBuffer.h"
-#include "Global.h"
-
-#include <glad/glad.h>
-
-#include <cassert>
-#include <print>
 
 UniformBuffer::UniformBuffer(int bindingPoint)
 	: m_bindingPoint{ bindingPoint }
