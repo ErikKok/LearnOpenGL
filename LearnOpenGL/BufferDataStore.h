@@ -46,14 +46,14 @@ public:
 	void addBufferSubData(const glm::mat4& data)
 	{
 		assert(m_elementSize == 0 || m_elementSize == sizeof(data) && "Data has different size then existing data");
-		m_elementSize = sizeof(data[0]);
+		m_elementSize = sizeof(data);
 		m_data.emplace_back(data);
 		Global::glCheckError();
 	}
 	
 	void addBufferSubData(const std::vector<glm::vec4>& data) // TODO test
 	{
-		assert(m_elementSize == 0 || m_elementSize == sizeof(data) && "Data has different size then existing data");
+		assert(m_elementSize == 0 || m_elementSize == sizeof(data[0]) && "Data has different size then existing data");
 		m_elementSize = sizeof(data[0]);
 		for (auto i{ 0 }; i < std::ssize(data); i++) {
 			m_data.emplace_back(data[i]);
@@ -64,8 +64,18 @@ public:
 
 	void addBufferSubData(const std::vector<glm::mat4>& data) // TODO test
 	{
-		assert(m_elementSize == 0 || m_elementSize == sizeof(data) && "Data has different size then existing data");
-		m_elementSize = sizeof(data);
+		assert(m_elementSize == 0 || m_elementSize == sizeof(data[0]) && "Data has different size then existing data");
+		m_elementSize = sizeof(data[0]);
+		for (auto i{ 0 }; i < std::ssize(data); i++) {
+			m_data.emplace_back(data[i]);
+		}
+		Global::glCheckError();
+	}
+
+	void addBufferSubData(const std::vector<testSSBO> data) // TODO test
+	{
+		assert(m_elementSize == 0 || m_elementSize == sizeof(data[0]) && "Data has different size then existing data");
+		m_elementSize = sizeof(data[0]);
 		for (auto i{ 0 }; i < std::ssize(data); i++) {
 			m_data.emplace_back(data[i]);
 		}
@@ -89,7 +99,7 @@ public:
 		//std::println("CREATE/UPLOAD BufferSubData id: {}", m_id);
 	}
 
-	void updateSubset(const auto& data, GLintptr elementIndex) const
+	void updateSubset(const auto& data, GLintptr elementIndex = 0) const
 	{
 		// TODO is this safe enough?
 

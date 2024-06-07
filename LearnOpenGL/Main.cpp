@@ -82,6 +82,14 @@ int main()
         glm::vec3(15.0f,  1.2f,  -3.0f),
     };
 
+    const std::vector<testSSBO> pointLightColors2 = {
+        {1, 1.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)},
+        { 2, 10.0f, {1.0f, 1.0f, 1.0f, 1.0f} }, // alternatieve notatie
+        {0, 0.5f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)},
+        {8, 1.8f, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)},
+        {42, 0.0123456f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)},
+    };
+
     const std::vector<glm::vec4> pointLightColors = {
     glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), // magenta
     glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), // white
@@ -258,10 +266,13 @@ int main()
 
     RenderObject cubeRO{ &cubeMesh, &cubeMaterial };
 
+    // set instances 
     cubeRO.instances = std::ssize(Data::cubePositions);
+    // each instance must have it's own model, TODO check?
+    cubeRO.model.resize(cubeRO.instances);
 
-    cubeRO.ssbo.resize(6); // amount of SSBOs to hold // TODO magic number
-    cubeRO.ssbo[0] = std::make_unique<ShaderStorageBuffer>(5, cubeRO.instances); // dirLightMVPMatrixSSBO
+    cubeRO.ssbo.resize(6); // amount of SSBOs to hold // TODO can this be automated?
+    cubeRO.ssbo[0] = std::make_unique<ShaderStorageBuffer>(5, cubeRO.instances); // dirLightMVPMatrixSSBO       // TODO volgorde klopt niet
     cubeRO.ssbo[1] = std::make_unique<ShaderStorageBuffer>(7, cubeRO.instances); // flashLightMVPMatrixSSBO
     cubeRO.ssbo[2] = std::make_unique<ShaderStorageBuffer>(6, cubeRO.instances); // spotLightMVPMatrixSSBO
     cubeRO.ssbo[3] = std::make_unique<ShaderStorageBuffer>(2, cubeRO.instances); // NormalMatrixSSBO
@@ -290,17 +301,21 @@ int main()
 
     RenderObject floorRO{ &floorMesh, &floorMaterial };
 
-    // Model voor de renderloop berekenen, floor is statisch
+    // Model voor de renderloop berekenen, floor is statisch -> niet helemaal, de outline heeft eigen model, maar die is op basis van onderstaand model
     floorRO.model.resize(1);
-    floorRO.model[0] = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 2.0f));
+    floorRO.model[0] = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
 
-    floorRO.ssbo.resize(6); // amount of SSBO's to hold
+    floorRO.ssbo.resize(7); // amount of SSBO's to hold
     floorRO.ssbo[0] = std::make_unique<ShaderStorageBuffer>(5, floorRO.instances); // dirLightMVPMatrixSSBO
     floorRO.ssbo[1] = std::make_unique<ShaderStorageBuffer>(7, floorRO.instances); // flashLightMVPMatrixSSBO
     floorRO.ssbo[2] = std::make_unique<ShaderStorageBuffer>(6, floorRO.instances); // spotLightMVPMatrixSSBO
     floorRO.ssbo[3] = std::make_unique<ShaderStorageBuffer>(2, floorRO.instances); // NormalMatrixSSBO
     floorRO.ssbo[4] = std::make_unique<ShaderStorageBuffer>(3, floorRO.instances); // ModelViewMatrixSSBO
     floorRO.ssbo[5] = std::make_unique<ShaderStorageBuffer>(4, floorRO.instances); // MVPMatrixSSBO
+    floorRO.ssbo[6] = std::make_unique<ShaderStorageBuffer>(20); // singleColor
+
+    BufferDataStore singleColorssboLayoutFloor(floorRO.ssbo[6]->getId(), glm::vec4(1.0f, 0.28f, 0.26f, 1.0f));
+    singleColorssboLayoutFloor.createAndInitializeImmutableDataStore();
 
     ////////////////////////////////////
     ////// Models //////////////////////
@@ -349,10 +364,10 @@ int main()
     lightCubeRO.model.resize(5); // 5 lights
     lightCubeRO.ssbo.resize(2);
     lightCubeRO.ssbo[0] = std::make_unique<ShaderStorageBuffer>(4, lightCubeRO.instances); // MVPMatrixSSBO
-    lightCubeRO.ssbo[1] = std::make_unique<ShaderStorageBuffer>(20); // color
+    lightCubeRO.ssbo[1] = std::make_unique<ShaderStorageBuffer>(20); // singleColor
 
-    BufferDataStore singleColorssboLayout(lightCubeRO.ssbo[1]->getId(), pointLightColors);
-    singleColorssboLayout.createAndInitializeImmutableDataStore();
+    BufferDataStore singleColorssboLayoutLightCubes(lightCubeRO.ssbo[1]->getId(), pointLightColors);
+    singleColorssboLayoutLightCubes.createAndInitializeImmutableDataStore();
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -468,8 +483,6 @@ int main()
         for (int i = 0; i < std::ssize(Data::cubePositions); i++)
         {
             assert(std::size(Data::cubePositions) <= cubeRO.instances && "Loop will create more instances then ssbo can hold");
-
-            cubeRO.model.resize(std::size(Data::cubePositions));
 
             cubeRO.model[i] = glm::translate(glm::mat4(1.0f), Data::cubePositions[i]);
             if (i == 2 || i == 5 || i == 8) {
@@ -637,7 +650,7 @@ int main()
         // #5, element 4, de draaiende lightcube
         lightCubeRO.model[4] = Global::getModelMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
         lightCubeRO.ssbo[0]->update(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4);
-        singleColorssboLayout.updateSubset(glm::vec4(spotLight.getColor(), 1.0f), 4); // TODO dangerous
+        singleColorssboLayoutLightCubes.updateSubset(glm::vec4(spotLight.getColor(), 1.0f), 4);
 
         lightCubeRO.ssbo[0]->upload();
         renderer.drawSingleColor(lightCubeRO);
@@ -659,11 +672,12 @@ int main()
 
             glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
 
-            modelViewMatrix = Global::getModelViewMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0, 0.0, 0.0), glm::vec3(26.0, 26.0, 2.0));
-            MVPMatrixSSBO.updateAndUploadAndBind(Global::camera.getProjectionMatrix() * modelViewMatrix);
-
             glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
-            //renderer.drawSingleColor(floorMesh, color);
+            //floorRO.model[0] = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(26.0f, 26.0f, 2.0f));
+            floorRO.ssbo[5]->update(Global::camera.getViewProjectionMatrix() * glm::scale(floorRO.model[0], glm::vec3(1.05f, 1.05f, 0.0f))); // scale model by 5% for outline
+            floorRO.ssbo[5]->upload();
+            singleColorssboLayoutFloor.updateSubset(color);
+            renderer.drawSingleColor(floorRO);
             glEnable(GL_CULL_FACE);
 
             // De-init Stencil Buffer

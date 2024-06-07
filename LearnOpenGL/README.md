@@ -35,6 +35,13 @@ TO DO
 - BufferDataStore.cpp maken
 - ShaderStorageBuffer moet een BufferDataStore als data member krijgen, friend class, kan je de data store vd / in de buffer zelf bewerken, veiliger 
 
+v0.2.59 7-6-2024
+-----------------
+- moved bind calls VBO/EBO to mesh constructor
+- drawSingleColor now uses RenderObject
+- FloorOutline through RO
+- moved ebo/vbo binding from renderer to mesh constructor/setupMesh()
+
 v0.2.58 6-6-2024
 -----------------
 - ditched BufferSubData Class altogether

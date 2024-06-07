@@ -31,8 +31,8 @@ struct RenderObject {
 	std::vector<glm::mat4> model{}; // transforms
 	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // Each RenderObject contains it's own unique SSBOs (on the heap), this way you can upload them just once per renderpass (raw pointers (on the stack) are max 1% faster)
 	GLsizei instances{ 1 };
-	//	renderType type; (transparant, singleColor, isModel, etc.;
-	//	bool isSelected; true = de outline renderen
+	// renderType type; (transparant, singleColor, isModel, etc.;
+	// bool isSelected; true = de outline renderen
 	// bool castShadow;
 };
 
@@ -64,24 +64,20 @@ public:
 	void isRendererComplete() { assert(m_shaderDepthMapDirLight != nullptr || m_shaderDepthMapSpotLight != nullptr || m_shaderDepthMapFlashLight != nullptr || m_shaderSingleColor != nullptr || m_shaderSkybox != nullptr || m_shaderFrustum != nullptr || m_shaderDebugQuad != nullptr); };
 	void clear() const;
 
-	// TODO store the vao/ebo's/meshes etc in a list/batch/whatever, order them, then batch render them
-	// void draw(RederBatch);
+	// TODO store the vao/ebo's/meshes/RO's etc in a list/batch/whatever, order them, then batch render them
+	// void draw(RenderBatch);
 	void draw(const RenderObject& RO) const;
 	void drawModel(const RenderObject& RO, Model& model);
 	void drawSingleColor(const RenderObject& RO) const;
-
-	//void draw(const Mesh& mesh, const Material& material, GLsizei instances = 1) const;												
-	void drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances = 1) const;
-
-	// Assumes SkyBox Texture is already bound, and will never be changed
-	void drawSkybox(const Mesh& mesh) const;
+	void drawSkybox(const Mesh& mesh) const; // Assumes SkyBox Texture is already bound, and will never be changed
 	void drawFrustum(const Mesh& mesh, const glm::mat4& viewProjectionMatrix) const;
-	// Takes in a Camera, not an OrthograpicCamera!
-	void drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const;
+	void drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const; // Takes in a Camera, not an OrthograpicCamera!
 
-	// non-DSA
+	// OLD
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    
 	//void drawXYZ(ShaderStorageBuffer& ssbo) const;
+	//void draw(const Mesh& mesh, const Material& material, GLsizei instances = 1) const;												
+	//void drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances = 1) const;
 
 private:
 	renderPassType m_renderPassActive{ renderPassType::undefined };

@@ -6,6 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <vector>
+
 void Renderer::clear() const
 {
 	//glClearColor(1.0f, 0.0f, 1.0f, 1.0f); // magenta
@@ -17,8 +19,11 @@ void Renderer::clear() const
 // die kan in een aparte vector
 void Renderer::draw(const RenderObject& RO) const
 {
+	// TODO onderstaand blok een algemene functie van maken?
 	assert(RO.mesh && "No mesh defined, is this a RenderObject for a Model?");
-	
+	assert(RO.instances == std::ssize(RO.model) && "Amount of instances and models is not equal!");
+	// TODO more checks needed?
+
 	// Activate Shader + set material properties
 	switch (m_renderPassActive)
 	{
@@ -60,9 +65,10 @@ void Renderer::draw(const RenderObject& RO) const
 		break;
 	}
 
+	// TODO onderstaand blok een algemene functie van maken?
 	RO.mesh->m_vao->bindVertexArray();
-	glVertexArrayVertexBuffer(RO.mesh->m_vao->getId(), 0, RO.mesh->m_vbo->getId(), 0, RO.mesh->m_layout->getStride());
-	glVertexArrayElementBuffer(RO.mesh->m_vao->getId(), RO.mesh->m_ebo->getId());
+	//glVertexArrayVertexBuffer(RO.mesh->m_vao->getId(), 0, RO.mesh->m_vbo->getId(), 0, RO.mesh->m_layout->getStride());
+	//glVertexArrayElementBuffer(RO.mesh->m_vao->getId(), RO.mesh->m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, RO.mesh->m_ebo->getCount(), GL_UNSIGNED_INT, 0, RO.instances);
 
 	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
@@ -163,8 +169,8 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 	for (unsigned int i{ 0u }; i < model.m_meshes.size(); i++)
 	{
 		model.m_meshes[i].m_vao->bindVertexArray();
-		glVertexArrayVertexBuffer(model.m_meshes[i].m_vao->getId(), 0, model.m_meshes[i].m_vbo->getId(), 0, model.m_meshes[i].m_layout->getStride());
-		glVertexArrayElementBuffer(model.m_meshes[i].m_vao->getId(), model.m_meshes[i].m_ebo->getId());
+		//glVertexArrayVertexBuffer(model.m_meshes[i].m_vao->getId(), 0, model.m_meshes[i].m_vbo->getId(), 0, model.m_meshes[i].m_layout->getStride());
+		//glVertexArrayElementBuffer(model.m_meshes[i].m_vao->getId(), model.m_meshes[i].m_ebo->getId());
 		glDrawElementsInstanced(GL_TRIANGLES, model.m_meshes[i].m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 	}
 
@@ -180,79 +186,20 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 	Global::glCheckError();
 }
 
-//void Renderer::draw(const Mesh& mesh, const Material& material, GLsizei instances) const
-//{
-//	// Activate Shader + set material properties
-//	switch (m_renderPassActive)
-//	{
-//	case renderPassType::undefined:
-//		assert(false); // should never be the case 
-//		break;
-//	case renderPassType::normal:
-//		material.shader.useShader();
-//
-//		material.shader.setInt("material.diffuse1", material.diffuse1);
-//		material.shader.setInt("material.specular1", material.specular1);
-//		//material.shader.setInt("material.normal1", material.normal1);
-//		material.shader.setInt("material.emission", material.emission);
-//		material.shader.setFloat("material.emissionStrength", material.emissionStrength);
-//		material.shader.setFloat("material.shininess", material.shininess);
-//		material.shader.setInt("material.flashLightEmissionMap", material.flashLightEmissionMap);
-//		material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
-//		break;
-//	case renderPassType::depthMapDirLight:
-//		m_shaderDepthMapDirLight->useShader();
-//		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
-//		break;
-//	case renderPassType::depthMapSpotLight:
-//		m_shaderDepthMapSpotLight->useShader();
-//		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
-//		break;
-//	case renderPassType::depthMapFlashLight:
-//		m_shaderDepthMapFlashLight->useShader();
-//		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
-//		break;
-//	}
-//	
-//	mesh.m_vao->bindVertexArray();
-//	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
-//	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
-//	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, instances);
-//
-//	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
-//		//glCullFace(GL_BACK);
-//	}
-//
-//	Global::glCheckError();
-//	//std::println("RENDERER draw");
-//};
-
 void Renderer::drawSingleColor(const RenderObject& RO) const
 {
 	m_shaderSingleColor->useShader();
 
 	// SSBO
-	for (int i = 0; i < std::size(RO.ssbo); i++) {
-		RO.ssbo[i]->bind();
+	for (int i = 0; i < std::size(RO.ssbo); i++) {	
+		if (RO.ssbo[i]->getBindingPoint() == 4 || RO.ssbo[i]->getBindingPoint() == 20) // 4 = MVPMatrix, 20 = color
+			RO.ssbo[i]->bind();
 	}
 
 	RO.mesh->m_vao->bindVertexArray();
-	glVertexArrayVertexBuffer(RO.mesh->m_vao->getId(), 0, RO.mesh->m_vbo->getId(), 0, RO.mesh->m_layout->getStride());
-	glVertexArrayElementBuffer(RO.mesh->m_vao->getId(), RO.mesh->m_ebo->getId());
+	//glVertexArrayVertexBuffer(RO.mesh->m_vao->getId(), 0, RO.mesh->m_vbo->getId(), 0, RO.mesh->m_layout->getStride());
+	//glVertexArrayElementBuffer(RO.mesh->m_vao->getId(), RO.mesh->m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, RO.mesh->m_ebo->getCount(), GL_UNSIGNED_INT, 0, RO.instances);
-
-	Global::glCheckError();
-};
-
-#pragma warning( suppress : 4100 )
-void Renderer::drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances) const
-{
-	m_shaderSingleColor->useShader();
-	m_shaderSingleColor->setVec4("color", color);
-	mesh.m_vao->bindVertexArray();
-	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
-	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
-	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, instances);
 
 	Global::glCheckError();
 };
@@ -263,8 +210,8 @@ void Renderer::drawSkybox(const Mesh& mesh) const {
 	m_shaderSkybox->setMat4("viewProjectionMatrixTranslationRemoved", Global::camera.getProjectionMatrix() * glm::mat4(glm::mat3(Global::camera.getViewMatrix()))); // remove translation from the view matrix (cast to mat3 and back to mat4)
 	mesh.m_vao->bindVertexArray();
 	glCullFace(GL_FRONT); // TODO cube is viewed from the inside, however there is a simple correction, reverse the order of vertices, and it will become front-facing-outward (not inward). klopt dat? of zo laten...?
-	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
-	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
+	//glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
+	//glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 	glCullFace(GL_BACK);
 	glDepthFunc(GL_LESS); // set depth function back to default
@@ -280,8 +227,8 @@ void Renderer::drawFrustum(const Mesh& mesh, const glm::mat4& lightViewProjectio
 
 	glDisable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
-	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
+	//glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
+	//glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -301,8 +248,8 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
 	m_shaderDebugQuad->setFloat("farPlane", useCamera.getFarPlane());
 
 	mesh.m_vao->bindVertexArray();
-	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
-	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
+	//glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
+	//glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 
 	Global::glCheckError();
@@ -398,6 +345,66 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
 //
 //	vao.bindVertexArray();
 //	glDrawElementsInstanced(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0, instances);
+//
+//	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
+//		//glCullFace(GL_BACK);
+//	}
+//
+//	Global::glCheckError();
+//	//std::println("RENDERER draw");
+//};
+
+//#pragma warning( suppress : 4100 )
+//void Renderer::drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances) const
+//{
+//	m_shaderSingleColor->useShader();
+//	m_shaderSingleColor->setVec4("color", color);
+//	mesh.m_vao->bindVertexArray();
+//	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
+//	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
+//	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, instances);
+//
+//	Global::glCheckError();
+//};
+
+//void Renderer::draw(const Mesh& mesh, const Material& material, GLsizei instances) const
+//{
+//	// Activate Shader + set material properties
+//	switch (m_renderPassActive)
+//	{
+//	case renderPassType::undefined:
+//		assert(false); // should never be the case 
+//		break;
+//	case renderPassType::normal:
+//		material.shader.useShader();
+//
+//		material.shader.setInt("material.diffuse1", material.diffuse1);
+//		material.shader.setInt("material.specular1", material.specular1);
+//		//material.shader.setInt("material.normal1", material.normal1);
+//		material.shader.setInt("material.emission", material.emission);
+//		material.shader.setFloat("material.emissionStrength", material.emissionStrength);
+//		material.shader.setFloat("material.shininess", material.shininess);
+//		material.shader.setInt("material.flashLightEmissionMap", material.flashLightEmissionMap);
+//		material.shader.setInt("material.flashLightEmissionTexture", material.flashLightEmissionTexture);
+//		break;
+//	case renderPassType::depthMapDirLight:
+//		m_shaderDepthMapDirLight->useShader();
+//		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+//		break;
+//	case renderPassType::depthMapSpotLight:
+//		m_shaderDepthMapSpotLight->useShader();
+//		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+//		break;
+//	case renderPassType::depthMapFlashLight:
+//		m_shaderDepthMapFlashLight->useShader();
+//		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+//		break;
+//	}
+//	
+//	mesh.m_vao->bindVertexArray();
+//	glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
+//	glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
+//	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, instances);
 //
 //	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
 //		//glCullFace(GL_BACK);

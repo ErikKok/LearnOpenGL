@@ -33,6 +33,14 @@ using UPtr = std::unique_ptr<T>;
 
 ////////////////////////
 
+struct testSSBO {
+    int x;
+    float y;
+    glm::vec4 color;
+    int xxx;
+    int yyy;
+};
+
 namespace Global {
     // Window
     inline int windowWidth{ 1920 };

@@ -7,6 +7,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+//There can only be one array of variable size per SSBO and it has to be the bottommost variable in the block definition.
+
 class ShaderStorageBuffer {
 public:
 	ShaderStorageBuffer(int bindingPoint);											// Constructor
@@ -18,6 +20,7 @@ public:
 	~ShaderStorageBuffer();															// Destructor
 
 	const GLuint getId() const { return m_id; }; // was unsigned int 5-6-24
+	const int getBindingPoint() const { return m_bindingPoint; };
 
 	void bind() const;
 	void unbind() const;

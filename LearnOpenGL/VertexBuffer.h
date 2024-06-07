@@ -13,8 +13,8 @@ public:
 
     const GLuint getId() const { return m_id; };
 
-    //void bindVertexBuffer() const;
-    //void unbindVertexBuffer() const;
+    void bindVertexBuffer() const;
+    void unbindVertexBuffer() const;
 
 private:
     GLuint m_id{};
