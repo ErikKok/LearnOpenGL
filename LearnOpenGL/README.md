@@ -34,6 +34,14 @@ TO DO
 - gebruik Global::glCheckError(); inperken
 - BufferDataStore.cpp maken
 - ShaderStorageBuffer moet een BufferDataStore als data member krijgen, friend class, kan je de data store vd / in de buffer zelf bewerken, veiliger 
+- std::variant ipv any
+
+v0.2.60 8-6-2024
+-----------------
+- cleaned up the loop in addVertexAttributeLayoutStep2
+- made verexAttribute friend of vertexarray, ditched some getters
+- ditched addVertexAttributeLayout() 2x
+- moved VertexAttribute to VertexArray
 
 v0.2.59 7-6-2024
 -----------------

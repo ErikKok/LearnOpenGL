@@ -1,11 +1,6 @@
 #pragma once
+
 #include "VertexArray.h"
-
-#include "Global.h"
-
-#include <print>
-
-#include <glad/glad.h>
 
 VertexArray::VertexArray()
 {
@@ -28,42 +23,75 @@ void VertexArray::bindVertexArray() const
 	//std::println("BIND VertexArray id: {}", m_id);
 }
 
-void VertexArray::unbindVertexArray() const
+void VertexArray::finalizeVertexAttributeLayout(const VertexBuffer& vbo, const VertexAttributeLayout& layout) const
 {
-	std::println("UNBIND VertexArray id: {}", m_id);
-	glBindVertexArray(0);
-	Global::glCheckError();
-}
-
-void VertexArray::addVertexAttributeLayout(const VertexBuffer& vbo, const VertexAttributeLayout& layout) const
-{
-	glVertexArrayVertexBuffer(m_id, 0, vbo.getId(), 0, layout.getStride());
-
-	this->addVertexAttributeLayoutStep2(layout);
-}
-
-void VertexArray::addVertexAttributeLayout(const VertexBuffer& vbo, const VertexAttributeLayout& layout, const ElementBuffer& ebo) const
-{
-	glVertexArrayVertexBuffer(m_id, 0, vbo.getId(), 0, layout.getStride());
-	glVertexArrayElementBuffer(m_id, ebo.getId());
-
-	this->addVertexAttributeLayoutStep2(layout);
-}
-
-void VertexArray::addVertexAttributeLayoutStep2(const VertexAttributeLayout& layout) const
-{
-	assert(sizeof(layout.getVertexAttributes()) != 0 && "ERROR: addVertexAttributeLayout(): VertexAttributeLayout is empty!");
+	assert(sizeof(layout.m_vertexAttributes) != 0 && "ERROR: addVertexAttributeLayout(): VertexAttributeLayout is empty!");
 	
-	const auto& vertexAttributes{ layout.getVertexAttributes() };
+	// Bind vbo to vao, as layout is now final
+	glVertexArrayVertexBuffer(m_id, 0, vbo.getId(), 0, layout.m_stride);
+
 	GLuint totalOffset{ 0 };
-	for (GLuint i{ 0 }; i < vertexAttributes.size(); i++) {
-		const auto& vertexAttribute{ vertexAttributes[i] };
+	for (GLuint i{ 0 }; i < layout.m_vertexAttributes.size(); i++) {
 		glEnableVertexArrayAttrib(m_id, i);
-		glVertexArrayAttribFormat(m_id, i, vertexAttribute.m_count, vertexAttribute.m_type, vertexAttribute.m_normalized, totalOffset);
+		glVertexArrayAttribFormat(m_id, i, layout.m_vertexAttributes[i].m_count, layout.m_vertexAttributes[i].m_type, layout.m_vertexAttributes[i].m_normalized, totalOffset);
 		glVertexArrayAttribBinding(m_id, i, 0);
-		totalOffset += vertexAttribute.m_offset;
+		totalOffset += layout.m_vertexAttributes[i].m_offset;
 	}
 
 	Global::glCheckError();
 	//std::println("ADD VertexAttributeLayoutStep2 id: {}", m_id);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+VertexAttribute::VertexAttribute(GLenum type, GLint count, GLboolean normalized, GLuint offset)
+	: m_type{ type }
+	, m_count{ count }
+	, m_normalized{ normalized }
+	, m_offset{ offset }
+{}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+void VertexAttributeLayout::pushVertexAttributeLayout(GLint count)
+{
+	static_assert(false); // should never be called directly, all types are covered in the overloads below
+}
+
+template<>
+void VertexAttributeLayout::pushVertexAttributeLayout<float>(GLint count)
+{
+	m_vertexAttributes.push_back({ GL_FLOAT, count, GL_FALSE, static_cast<GLuint>(count * sizeof(GLfloat)) });
+	m_stride += count * sizeof(GLfloat);
+}
+
+template<>
+void VertexAttributeLayout::pushVertexAttributeLayout<int>(GLint count)
+{
+	m_vertexAttributes.push_back({ GL_INT, count, GL_FALSE, static_cast<GLuint>(count * sizeof(GLint)) });
+	m_stride += count * sizeof(GLint);
+}
+
+template<>
+void VertexAttributeLayout::pushVertexAttributeLayout<unsigned int>(GLint count)
+{
+	m_vertexAttributes.push_back({ GL_UNSIGNED_INT, count, GL_FALSE, static_cast<GLuint>(count * sizeof(GLuint)) });
+	m_stride += count * sizeof(GLuint);
+}
+
+template<>
+void VertexAttributeLayout::pushVertexAttributeLayout<unsigned char>(GLint count)
+{
+	m_vertexAttributes.push_back({ GL_UNSIGNED_BYTE, count, GL_TRUE, static_cast<GLuint>(count * sizeof(GLuint)) });
+	m_stride += count * sizeof(GLuint);
+}
+
+inline void VertexAttributeLayout::setVertexAttributeOffset(int vertexAttributeIndex, int offsetNew)
+{
+	assert(vertexAttributeIndex - 1u >= 0 && "You can not change vertexAttributeIndex #0");
+	assert(static_cast<int>(m_vertexAttributes[vertexAttributeIndex].m_offset) + offsetNew >= 0 && "You cannot change offset to a negative value");
+
+	m_vertexAttributes[(vertexAttributeIndex - 1u)].m_offset += offsetNew;
+	m_stride += offsetNew;
 }

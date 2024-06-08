@@ -19,7 +19,7 @@ void Renderer::clear() const
 // die kan in een aparte vector
 void Renderer::draw(const RenderObject& RO) const
 {
-	// TODO onderstaand blok een algemene functie van maken?
+	// TODO onderstaande checks een algemene functie van maken?
 	assert(RO.mesh && "No mesh defined, is this a RenderObject for a Model?");
 	assert(RO.instances == std::ssize(RO.model) && "Amount of instances and models is not equal!");
 	// TODO more checks needed?
@@ -65,10 +65,7 @@ void Renderer::draw(const RenderObject& RO) const
 		break;
 	}
 
-	// TODO onderstaand blok een algemene functie van maken?
 	RO.mesh->m_vao->bindVertexArray();
-	//glVertexArrayVertexBuffer(RO.mesh->m_vao->getId(), 0, RO.mesh->m_vbo->getId(), 0, RO.mesh->m_layout->getStride());
-	//glVertexArrayElementBuffer(RO.mesh->m_vao->getId(), RO.mesh->m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, RO.mesh->m_ebo->getCount(), GL_UNSIGNED_INT, 0, RO.instances);
 
 	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
@@ -169,8 +166,6 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 	for (unsigned int i{ 0u }; i < model.m_meshes.size(); i++)
 	{
 		model.m_meshes[i].m_vao->bindVertexArray();
-		//glVertexArrayVertexBuffer(model.m_meshes[i].m_vao->getId(), 0, model.m_meshes[i].m_vbo->getId(), 0, model.m_meshes[i].m_layout->getStride());
-		//glVertexArrayElementBuffer(model.m_meshes[i].m_vao->getId(), model.m_meshes[i].m_ebo->getId());
 		glDrawElementsInstanced(GL_TRIANGLES, model.m_meshes[i].m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 	}
 
@@ -197,8 +192,6 @@ void Renderer::drawSingleColor(const RenderObject& RO) const
 	}
 
 	RO.mesh->m_vao->bindVertexArray();
-	//glVertexArrayVertexBuffer(RO.mesh->m_vao->getId(), 0, RO.mesh->m_vbo->getId(), 0, RO.mesh->m_layout->getStride());
-	//glVertexArrayElementBuffer(RO.mesh->m_vao->getId(), RO.mesh->m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, RO.mesh->m_ebo->getCount(), GL_UNSIGNED_INT, 0, RO.instances);
 
 	Global::glCheckError();
@@ -210,8 +203,6 @@ void Renderer::drawSkybox(const Mesh& mesh) const {
 	m_shaderSkybox->setMat4("viewProjectionMatrixTranslationRemoved", Global::camera.getProjectionMatrix() * glm::mat4(glm::mat3(Global::camera.getViewMatrix()))); // remove translation from the view matrix (cast to mat3 and back to mat4)
 	mesh.m_vao->bindVertexArray();
 	glCullFace(GL_FRONT); // TODO cube is viewed from the inside, however there is a simple correction, reverse the order of vertices, and it will become front-facing-outward (not inward). klopt dat? of zo laten...?
-	//glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
-	//glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 	glCullFace(GL_BACK);
 	glDepthFunc(GL_LESS); // set depth function back to default
@@ -227,8 +218,6 @@ void Renderer::drawFrustum(const Mesh& mesh, const glm::mat4& lightViewProjectio
 
 	glDisable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
-	//glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -248,8 +237,6 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
 	m_shaderDebugQuad->setFloat("farPlane", useCamera.getFarPlane());
 
 	mesh.m_vao->bindVertexArray();
-	//glVertexArrayVertexBuffer(mesh.m_vao->getId(), 0, mesh.m_vbo->getId(), 0, mesh.m_layout->getStride());
-	//glVertexArrayElementBuffer(mesh.m_vao->getId(), mesh.m_ebo->getId());
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 
 	Global::glCheckError();

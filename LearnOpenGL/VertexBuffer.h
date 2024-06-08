@@ -13,8 +13,8 @@ public:
 
     const GLuint getId() const { return m_id; };
 
-    void bindVertexBuffer() const;
-    void unbindVertexBuffer() const;
+    //void bindVertexBuffer() const;
+    //void unbindVertexBuffer() const;
 
 private:
     GLuint m_id{};
@@ -28,11 +28,3 @@ private:
 // 
 // With a data array with multiple elements:
 // VertexBuffer name(std::array.size() * sizeof(Type), &std::array[0])}
-//
-// //
-// 
-// .size() returns the number of elements in the vector.
-//
-// sizeof gives you the number of bytes used by the object definition (based on the declaration of the vector class)
-//
-// .size() * sizeof(type) = total size in bytes

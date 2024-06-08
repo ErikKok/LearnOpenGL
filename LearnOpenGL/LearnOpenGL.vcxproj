@@ -115,7 +115,6 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="VertexArray.cpp" />
-    <ClCompile Include="VertexAttribute.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -136,7 +135,6 @@
     <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />
-    <ClInclude Include="VertexAttribute.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

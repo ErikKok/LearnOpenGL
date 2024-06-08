@@ -1,4 +1,11 @@
+// .size() returns the number of elements in the vector.
 //
+// sizeof gives you the number of bytes used by the object definition (based on the declaration of the vector class)
+//
+// .size() * sizeof(type) = total size in bytes
+// 
+// //
+// 
 //constexpr std::array cubeIndices{
 //     bl, tr, br,        // Z+ back
 //     tr, bl, tl,

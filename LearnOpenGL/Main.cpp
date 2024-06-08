@@ -12,7 +12,6 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexArray.h"
-#include "VertexAttribute.h"
 
 // External header warning level: 0
 #include <glad/glad.h>
@@ -265,6 +264,13 @@ int main()
     };
 
     RenderObject cubeRO{ &cubeMesh, &cubeMaterial };
+
+ /*   make RO class
+        add material/mesh/ssbo
+        ???*/
+
+
+
 
     // set instances 
     cubeRO.instances = std::ssize(Data::cubePositions);
