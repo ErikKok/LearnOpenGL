@@ -34,7 +34,11 @@ TO DO
 - gebruik Global::glCheckError(); inperken
 - BufferDataStore.cpp maken
 - ShaderStorageBuffer moet een BufferDataStore als data member krijgen, friend class, kan je de data store vd / in de buffer zelf bewerken, veiliger 
-- std::variant ipv any
+
+v0.2.61 9-6-2024
+-----------------
+- replaced std::any with std::variant
+- first try to integrate BufferDataStore into ShaderStorageBuffer, everything compiles now
 
 v0.2.60 8-6-2024
 -----------------

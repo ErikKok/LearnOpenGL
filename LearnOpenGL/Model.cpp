@@ -53,8 +53,8 @@ void Model::processNode(aiNode* node, const aiScene* scene)
     {
         // the node object only contains indices to index the actual objects in the scene. 
         // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-        aiMesh* mesh{ scene->mMeshes[node->mMeshes[i]] };
-        m_meshes.push_back(processMesh(mesh, scene));
+        //aiMesh* mesh{ scene->mMeshes[node->mMeshes[i]] };
+        m_meshes.emplace_back(processMesh(scene->mMeshes[node->mMeshes[i]], scene));
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for (unsigned int i{ 0u }; i < node->mNumChildren; i++)
@@ -129,7 +129,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         assert(face.mNumIndices == 3);
         // retrieve all indices of the face and store them in the indices vector
         for (unsigned int j{ 0u }; j < face.mNumIndices; j++)
-            indices.push_back(face.mIndices[j]);
+            indices.emplace_back(face.mIndices[j]);
     }
 
     // process materials
@@ -167,7 +167,7 @@ void Model::loadMaterialTextures(aiMaterial* material, aiTextureType aiTextureTy
         {
             if (std::strcmp(m_texturesLoaded[j]->getfileName().data(), textureFilename.C_Str()) == 0) { // equal
                 // Create a shared_ptr from the original shared_ptr Texture and store it for each mesh to use
-                meshTextures.push_back(m_texturesLoaded[j]);
+                meshTextures.emplace_back(m_texturesLoaded[j]);
                 alreadyLoaded = true;
                 break;
             }

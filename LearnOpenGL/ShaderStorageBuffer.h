@@ -1,16 +1,19 @@
 #pragma once
 
-#include <vector>
+#include "Buffers.h" // for BufferDataStore
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <vector>
+
 //There can only be one array of variable size per SSBO and it has to be the bottommost variable in the block definition.
 
 class ShaderStorageBuffer {
 public:
+	ShaderStorageBuffer(int bindingPoint, const auto& data);
 	ShaderStorageBuffer(int bindingPoint);											// Constructor
 	ShaderStorageBuffer(int bindingPoint, int arrayCount);							// Constructor
 	ShaderStorageBuffer(const ShaderStorageBuffer& other) = delete;					// Copy constructor
@@ -30,12 +33,28 @@ public:
 	void updateAndUpload(const glm::mat4& vector, int i);
 	void updateAndUploadAndBind(const glm::mat4& vector, int i = 0);
 
+	// of kunnen deze functies met een getDatastore en dan .functie vd datastore zelf worden gedaan?
+
+	//ShaderStorageBuffer xxx(5);
+	//xxx.m_dataStore.updateSubset();
+
+	//jazeker, moet ze wel public zijn natuurlijk
+
+	template<typename T>
+	void addBufferSubData(const T& data);
+	template<typename T>
+	void addBufferSubData(const std::vector<T>& data);
+	void createAndInitializeImmutableDataStore();
+	void updateSubset(const auto& data, GLintptr elementIndex = 0) const;
+	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0) const;
+	void uploadFully(const auto& data) const;
+
 private:
 	GLuint m_id{};
 	int m_bindingPoint{};
 	int m_arrayCount{};
 	std::vector<glm::mat4> m_vector{}; // TODO other types
-	//BufferDataStore m_dataStore; // TODO
+	BufferDataStore m_dataStore; // TODO
 };
 
 // USAGE (without this class)

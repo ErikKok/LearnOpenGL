@@ -25,7 +25,7 @@ public:
     void bindVertexArray() const;
     //void unbindVertexArray() const;
 
-    void finalizeVertexAttributeLayout(const VertexBuffer& vbo, const VertexAttributeLayout& layout) const;
+    void finalizeVertexAttributeLayout(const VertexBuffer* vbo, const VertexAttributeLayout* layout) const;
 
 private:
     GLuint m_id{};
@@ -35,8 +35,8 @@ private:
 
 class VertexAttribute
 {
-	friend class VertexAttributeLayout;
 	friend class VertexArray;
+	friend class VertexAttributeLayout;
 
 private:
 	VertexAttribute(GLenum type, GLint count, GLboolean normalized, GLuint offset);
@@ -70,9 +70,9 @@ public:
 
 	inline void setVertexAttributeOffset(int vertexAttributeIndex, int offsetNew);
 
-	inline const unsigned int getStride() const { return m_stride; }
+	//inline const unsigned int getStride() const { return m_stride; }
 	// Sets a custom Stride (the same for all the vertex attributes in the array)
-	inline void setVertexStride(GLsizei strideNew) { m_stride = strideNew; }
+	//inline void setVertexStride(GLsizei strideNew) { m_stride = strideNew; }
 	// Specifies a custom offset of the vertexAttribute
 	// Usage example 1:	if there is x bytes unused between attribute y and attribute y+1
 	//					use index y+1, offsetNew x

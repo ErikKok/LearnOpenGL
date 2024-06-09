@@ -656,7 +656,7 @@ int main()
         // #5, element 4, de draaiende lightcube
         lightCubeRO.model[4] = Global::getModelMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
         lightCubeRO.ssbo[0]->update(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4);
-        singleColorssboLayoutLightCubes.updateSubset(glm::vec4(spotLight.getColor(), 1.0f), 4);
+        singleColorssboLayoutLightCubes.updateAndUploadSubset(glm::vec4(spotLight.getColor(), 1.0f), 4);
 
         lightCubeRO.ssbo[0]->upload();
         renderer.drawSingleColor(lightCubeRO);
@@ -682,7 +682,7 @@ int main()
             //floorRO.model[0] = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(26.0f, 26.0f, 2.0f));
             floorRO.ssbo[5]->update(Global::camera.getViewProjectionMatrix() * glm::scale(floorRO.model[0], glm::vec3(1.05f, 1.05f, 0.0f))); // scale model by 5% for outline
             floorRO.ssbo[5]->upload();
-            singleColorssboLayoutFloor.updateSubset(color);
+            singleColorssboLayoutFloor.updateAndUploadSubset(color);
             renderer.drawSingleColor(floorRO);
             glEnable(GL_CULL_FACE);
 

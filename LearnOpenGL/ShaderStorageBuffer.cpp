@@ -5,6 +5,17 @@
 
 #include <print>
 
+ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint, const auto& data)
+	: m_bindingPoint{ bindingPoint }
+{
+	glCreateBuffers(1, &m_id);
+	
+	m_dataStore.setBufferId(m_id);
+	m_dataStore.addBufferSubData(data);
+
+	std::println("CREATE ShaderStorageBuffer id: {}", m_id);
+}
+
 ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint)
 	: m_bindingPoint{ bindingPoint }
 {
@@ -72,4 +83,38 @@ void ShaderStorageBuffer::updateAndUploadAndBind(const glm::mat4& vector, int i)
 	update(vector, i);
 	upload();
 	bind();
+}
+
+/////
+
+template<typename T>
+void ShaderStorageBuffer::addBufferSubData(const T& data)
+{
+	m_dataStore.addBufferSubData(data);
+}
+
+template<typename T>
+void ShaderStorageBuffer::addBufferSubData(const std::vector<T>& data)
+{
+	m_dataStore.addBufferSubData(data);
+}
+
+void ShaderStorageBuffer::createAndInitializeImmutableDataStore()
+{
+	m_dataStore.createAndInitializeImmutableDataStore();
+}
+
+void ShaderStorageBuffer::updateSubset(const auto& data, GLintptr elementIndex) const
+{
+	m_dataStore.updateSubset(data, elementIndex);
+}
+
+void ShaderStorageBuffer::updateAndUploadSubset(const auto& data, GLintptr elementIndex) const
+{
+	m_dataStore.updateAndUploadSubset(data, elementIndex);
+}
+
+void ShaderStorageBuffer::uploadFully(const auto& data) const
+{
+	m_dataStore.uploadFully(data);
 }

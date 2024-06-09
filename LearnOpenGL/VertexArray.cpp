@@ -23,19 +23,19 @@ void VertexArray::bindVertexArray() const
 	//std::println("BIND VertexArray id: {}", m_id);
 }
 
-void VertexArray::finalizeVertexAttributeLayout(const VertexBuffer& vbo, const VertexAttributeLayout& layout) const
+void VertexArray::finalizeVertexAttributeLayout(const VertexBuffer* vbo, const VertexAttributeLayout* layout) const
 {
-	assert(sizeof(layout.m_vertexAttributes) != 0 && "ERROR: addVertexAttributeLayout(): VertexAttributeLayout is empty!");
+	assert(sizeof(layout->m_vertexAttributes) != 0 && "ERROR: addVertexAttributeLayout(): VertexAttributeLayout is empty!");
 	
 	// Bind vbo to vao, as layout is now final
-	glVertexArrayVertexBuffer(m_id, 0, vbo.getId(), 0, layout.m_stride);
+	glVertexArrayVertexBuffer(m_id, 0, vbo->getId(), 0, layout->m_stride);
 
 	GLuint totalOffset{ 0 };
-	for (GLuint i{ 0 }; i < layout.m_vertexAttributes.size(); i++) {
+	for (GLuint i{ 0 }; i < layout->m_vertexAttributes.size(); i++) {
 		glEnableVertexArrayAttrib(m_id, i);
-		glVertexArrayAttribFormat(m_id, i, layout.m_vertexAttributes[i].m_count, layout.m_vertexAttributes[i].m_type, layout.m_vertexAttributes[i].m_normalized, totalOffset);
+		glVertexArrayAttribFormat(m_id, i, layout->m_vertexAttributes[i].m_count, layout->m_vertexAttributes[i].m_type, layout->m_vertexAttributes[i].m_normalized, totalOffset);
 		glVertexArrayAttribBinding(m_id, i, 0);
-		totalOffset += layout.m_vertexAttributes[i].m_offset;
+		totalOffset += layout->m_vertexAttributes[i].m_offset;
 	}
 
 	Global::glCheckError();

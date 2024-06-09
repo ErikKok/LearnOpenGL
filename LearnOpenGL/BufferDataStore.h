@@ -1,97 +1,63 @@
 #pragma once
 
+#include "Buffers.h"
 #include "Global.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include <any>
+#include <variant>
 #include <vector>
 
 // std430 packing layout
 // only to be used with shader storage blocks, not uniform blocks
 // https://www.khronos.org/opengl/wiki/Interface_Block_(GLSL)#Memory_layout
+// https://ktstephano.github.io/rendering/opengl/ssbos
 
 class BufferDataStore {
+	friend class ShaderStorageBuffer;
+
 public:
-	BufferDataStore(const GLuint bufferId, const auto& data)
-		: m_bufferId{ bufferId }
+	BufferDataStore() = default;
+#pragma warning( suppress : 4100 )
+	BufferDataStore(const GLuint ssboId, const auto& data)
+		: m_ssboId{ ssboId }
 	{
 		addBufferSubData(data);
 	};
 
-	// Disabled this function to control what types are accepted.
-    // https://ktstephano.github.io/rendering/opengl/ssbos
-	//template<typename T>
-	//void pushUniformBufferSubData(const T& data)
-	//{
-	//	m_bufferSubData.push_back(data);
-	//	Global::glCheckError();
-	//}
+	void setBufferId(GLuint ssboId) { m_ssboId = ssboId; };
 
-	#pragma warning( suppress : 4100 )
-	void addBufferSubData(const auto& data)
-	{
-		assert(false && "Data type not supported!");
-	}
+// functions are to be used through bufferobject
 
-	void addBufferSubData(const glm::vec4& data)
-	{	
-		assert(m_elementSize == 0 || m_elementSize == sizeof(data) && "Data has different size then existing data");
-		m_elementSize = sizeof(data);
-		m_data.emplace_back(data);
-		Global::glCheckError();
-	}
-
-	void addBufferSubData(const glm::mat4& data)
+	template<typename T>
+	void addBufferSubData(const T& data)
 	{
 		assert(m_elementSize == 0 || m_elementSize == sizeof(data) && "Data has different size then existing data");
 		m_elementSize = sizeof(data);
 		m_data.emplace_back(data);
-		Global::glCheckError();
 	}
-	
-	void addBufferSubData(const std::vector<glm::vec4>& data) // TODO test
+
+	template<typename T>
+	void addBufferSubData(const std::vector<T>& data)
 	{
 		assert(m_elementSize == 0 || m_elementSize == sizeof(data[0]) && "Data has different size then existing data");
 		m_elementSize = sizeof(data[0]);
 		for (auto i{ 0 }; i < std::ssize(data); i++) {
 			m_data.emplace_back(data[i]);
 		}
-
-		Global::glCheckError();
-	}
-
-	void addBufferSubData(const std::vector<glm::mat4>& data) // TODO test
-	{
-		assert(m_elementSize == 0 || m_elementSize == sizeof(data[0]) && "Data has different size then existing data");
-		m_elementSize = sizeof(data[0]);
-		for (auto i{ 0 }; i < std::ssize(data); i++) {
-			m_data.emplace_back(data[i]);
-		}
-		Global::glCheckError();
-	}
-
-	void addBufferSubData(const std::vector<testSSBO> data) // TODO test
-	{
-		assert(m_elementSize == 0 || m_elementSize == sizeof(data[0]) && "Data has different size then existing data");
-		m_elementSize = sizeof(data[0]);
-		for (auto i{ 0 }; i < std::ssize(data); i++) {
-			m_data.emplace_back(data[i]);
-		}
-		Global::glCheckError();
 	}
 
 	void createAndInitializeImmutableDataStore()
 	{
 		assert(sizeof(m_data) != 0 && "WARNING: uploadBufferSubData(): BufferSubDataLayout is empty!");
 
-		glNamedBufferStorage(m_bufferId, m_elementSize * static_cast<GLsizeiptr>(m_data.size()), nullptr, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(m_ssboId, m_elementSize * static_cast<GLsizeiptr>(m_data.size()), nullptr, GL_DYNAMIC_STORAGE_BIT);
 
 		// Upload data
 		GLintptr offset{ 0 };
 		for (auto i{ 0 }; i < std::ssize(m_data); i++) {
-			glNamedBufferSubData(m_bufferId, offset, m_elementSize, &m_data[i]);
+			glNamedBufferSubData(m_ssboId, offset, m_elementSize, &m_data[i]);
 			offset += m_elementSize;
 		}
 
@@ -99,21 +65,40 @@ public:
 		//std::println("CREATE/UPLOAD BufferSubData id: {}", m_id);
 	}
 
-	void updateSubset(const auto& data, GLintptr elementIndex = 0) const
+	// Size of the buffer is fixed for the rest of it's life span from here on
+	//////////////////////////////////////////////////////////////////////////
+
+	void updateSubset(const auto& data, GLintptr elementIndex = 0)
 	{
 		// TODO is this safe enough?
 
-		assert(m_elementSize == sizeof(data) && "Data has different size then existing data"); // not a complete check; different types could have the same size
+		assert(m_elementSize == sizeof(data) && "Data has different size then existing data"); // TODO not a complete check; different types could have the same size
 		assert(elementIndex <= static_cast<GLintptr>(m_data.size()) - 1 && "ElementIndex out of range");
 
-		glNamedBufferSubData(m_bufferId, elementIndex * m_elementSize, m_elementSize, &data);
+		m_data[elementIndex] = data;
+	}
+
+	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0)
+	{
+		updateSubset(data, elementIndex);
+
+		glNamedBufferSubData(m_ssboId, elementIndex * m_elementSize, m_elementSize, &data);
+
+		Global::glCheckError();
+	}
+
+	// DO I need this? -> void updateFully(const auto& data) const
+
+	void uploadFully(const auto& data) const
+	{
+		glNamedBufferStorage(m_ssboId, m_elementSize * static_cast<GLsizeiptr>(m_data.size()), nullptr, GL_DYNAMIC_STORAGE_BIT);
 
 		Global::glCheckError();
 	}
 
 private:
-	GLuint m_bufferId; // id of associated buffer
-	std::vector<std::any> m_data;
+	GLuint m_ssboId; // id of associated ssbo (only ssbo because of std430 packing layout)
+	std::vector<std::variant<glm::vec4, glm::mat4>> m_data;
 	GLsizeiptr m_elementSize{ 0 };
 };
 

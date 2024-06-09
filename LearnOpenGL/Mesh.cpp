@@ -20,7 +20,7 @@ void Mesh::setupMesh323() const // TODO rename setupVBO323
     m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
     m_layout->pushVertexAttributeLayout<float>(2);      // 1 - tex coords
     m_layout->pushVertexAttributeLayout<float>(3);      // 2 - normals
-    m_vao->finalizeVertexAttributeLayout(*m_vbo, *m_layout);
+    m_vao->finalizeVertexAttributeLayout(m_vbo.get(), m_layout.get());
 
     // Bind ebo to vao
     glVertexArrayElementBuffer(m_vao->getId(), m_ebo->getId());
@@ -52,7 +52,7 @@ void Mesh::setupMesh32333() const
     //m_layout->pushVertexAttributeLayout<int>(4);      // 5 - BoneIDs
     //m_layout->pushVertexAttributeLayout<float>(4);    // 6 - Weights
     //m_layout->setVertexStride(88);
-    m_vao->finalizeVertexAttributeLayout(*m_vbo, *m_layout);
+    m_vao->finalizeVertexAttributeLayout(m_vbo.get(), m_layout.get());
 
     // Bind ebo to vao
     glVertexArrayElementBuffer(m_vao->getId(), m_ebo->getId());
