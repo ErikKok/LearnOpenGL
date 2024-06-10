@@ -17,71 +17,62 @@
 class BufferDataStore {
 	friend class ShaderStorageBuffer;
 
-public:
-	BufferDataStore() = default;
+// Everything is to be used through bufferobject
+private:
+	//BufferDataStore() = default;
 
-	BufferDataStore(const GLuint ssboId, const auto& data)
-		: m_ssboId{ ssboId }
+	BufferDataStore(int elementCount, GLsizeiptr elementSize)
+		: m_elementSize{ elementSize }
 	{
-		addBufferSubData(data);
+		m_data.resize(elementCount);
 	};
 
 	void setBufferId(GLuint ssboId) { m_ssboId = ssboId; };
 
-// functions are to be used through bufferobject
+	void createImmutableDataStore() const
+	{
+		assert(m_ssboId != 0 && "m_ssboId not set");
+		glNamedBufferStorage(m_ssboId, m_data.size() * m_elementSize, m_data.data(), GL_DYNAMIC_STORAGE_BIT);
+		Global::glCheckError();
+		// Size of the buffer is fixed for the rest of it's life span from here on
+	};
 
+	// Fill or replace the complete buffer (just one 'element')
 	template<typename T>
 	void addBufferSubData(const T& data)
 	{
+		assert(sizeof(m_data) != 0 && "WARNING: data is empty!");
 		assert(m_elementSize == 0 || m_elementSize == sizeof(data) && "Data has different size then existing data");
 		m_elementSize = sizeof(data);
-		m_data.emplace_back(data);
+		m_data = data;
 	}
 
+	// Fill or replace the complete buffer from a vector
 	template<typename T>
 	void addBufferSubData(const std::vector<T>& data)
 	{
+		assert(sizeof(m_data) != 0 && "WARNING: data is empty!");
 		assert(m_elementSize == 0 || m_elementSize == sizeof(data[0]) && "Data has different size then existing data");
-		
-		//m_data.reserve(std::ssize(data)); reserve ipv resize ok?
+		assert(m_data.size() == data.size() && "Data has different elementcount then existing data");
 
 		m_elementSize = sizeof(data[0]);
 		for (auto i{ 0 }; i < std::ssize(data); i++) {
-			m_data.emplace_back(data[i]);
+			m_data[i] = data[i];
 		}
 	}
 
-	void createAndInitializeImmutableDataStore()
-	{
-		assert(sizeof(m_data) != 0 && "WARNING: uploadBufferSubData(): BufferSubDataLayout is empty!");
-		assert(m_ssboId != 0 && "m_ssboId not set");
-
-		glNamedBufferStorage(m_ssboId, m_elementSize * static_cast<GLsizeiptr>(m_data.size()), nullptr, GL_DYNAMIC_STORAGE_BIT);
-
-		// Upload data
-		GLintptr offset{ 0 };
-		for (auto i{ 0 }; i < std::ssize(m_data); i++) {
-			glNamedBufferSubData(m_ssboId, offset, m_elementSize, &m_data[i]);
-			offset += m_elementSize;
-		}
-
-		Global::glCheckError();
-		//std::println("CREATE/UPLOAD BufferSubData id: {}", m_id);
-	}
-
-	// Size of the buffer is fixed for the rest of it's life span from here on
-	//////////////////////////////////////////////////////////////////////////
-
+	// Replace just 1 element of the buffer
 	void updateSubset(const auto& data, GLintptr elementIndex = 0)
 	{
 		// TODO is this safe enough?
-
+		assert(sizeof(m_data) != 0 && "WARNING: data is empty!");
 		assert(m_elementSize == sizeof(data) && "Data has different size then existing data"); // TODO not a complete check; different types could have the same size
 		assert(elementIndex <= static_cast<GLintptr>(m_data.size()) - 1 && "ElementIndex out of range");
 
 		m_data[elementIndex] = data;
 	}
 
+	// Replace just 1 element of the buffer + upload just that element
 	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0)
 	{
 		updateSubset(data, elementIndex);
@@ -91,11 +82,14 @@ public:
 		Global::glCheckError();
 	}
 
-	// DO I need this? -> void updateFully(const auto& data) const
-
-	void uploadFully(const auto& data) const
+	// Uuploads the complete buffer from cpu to gpu
+	void uploadFully() const // also creates the buffer
 	{
-		glNamedBufferStorage(m_ssboId, m_elementSize * static_cast<GLsizeiptr>(m_data.size()), nullptr, GL_DYNAMIC_STORAGE_BIT);
+		GLintptr offset{ 0 };
+		for (auto i{ 0 }; i < std::ssize(m_data); i++) {
+			glNamedBufferSubData(m_ssboId, offset, m_elementSize, &m_data[i]);
+			offset += m_elementSize;
+		}
 
 		Global::glCheckError();
 	}

@@ -13,9 +13,9 @@
 
 class ShaderStorageBuffer {
 public:
-	ShaderStorageBuffer(int bindingPoint, bool initialize, const auto& data);
-	ShaderStorageBuffer(int bindingPoint);											// Constructor
-	ShaderStorageBuffer(int bindingPoint, int arrayCount);							// Constructor
+	ShaderStorageBuffer(int bindingPoint, int data, GLsizeiptr elementSize);
+	//ShaderStorageBuffer(int bindingPoint);											// Constructor
+	//ShaderStorageBuffer(int bindingPoint, int arrayCount);							// Constructor
 	ShaderStorageBuffer(const ShaderStorageBuffer& other) = delete;					// Copy constructor
 	ShaderStorageBuffer& operator=(const ShaderStorageBuffer& other) = delete;		// Copy assignment
 	ShaderStorageBuffer(ShaderStorageBuffer&& other) noexcept = delete; 			// Move constructor	
@@ -35,17 +35,17 @@ public:
 
 	// Pass-through functions BufferDataStore
 	void addBufferSubData(const auto& data) { m_dataStore.addBufferSubData(data); };
-	void createAndInitializeImmutableDataStore() { m_dataStore.createAndInitializeImmutableDataStore(); };
+	//void createAndInitializeImmutableDataStore() { m_dataStore.createAndInitializeImmutableDataStore(); };
 	void updateSubset(const auto& data, GLintptr elementIndex = 0) { m_dataStore.updateSubset(data, elementIndex); };
 	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0) { m_dataStore.updateAndUploadSubset(data, elementIndex); };
-	void uploadFully(const auto& data) const { m_dataStore.uploadFully(data); };
+	void uploadFully() const { m_dataStore.uploadFully(); };
 
 private:
 	GLuint m_id{};
 	int m_bindingPoint{};
 	int m_arrayCount{};
 	std::vector<glm::mat4> m_vector{}; // TODO kan weg
-	BufferDataStore m_dataStore{}; // TODO
+	BufferDataStore m_dataStore; // TODO
 };
 
 // USAGE (without this class)

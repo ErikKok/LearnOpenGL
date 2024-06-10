@@ -5,43 +5,40 @@
 
 #include <print>
 
-//ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint, bool initialize, const auto& data)
+ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint, int elementCount, GLsizeiptr elementSize)
+	: m_bindingPoint{ bindingPoint }
+	, m_dataStore{ elementCount, elementSize }
+{
+	glCreateBuffers(1, &m_id);
+	m_dataStore.setBufferId(m_id);
+	m_dataStore.createImmutableDataStore();
+
+	std::println("CREATE ShaderStorageBuffer id: {}", m_id);
+}
+
+//ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint)
 //	: m_bindingPoint{ bindingPoint }
 //{
+//
 //	glCreateBuffers(1, &m_id);
-//	
 //	m_dataStore.setBufferId(m_id);
-//	m_dataStore.addBufferSubData(data);
-//
-//	if (initialize)
-//		m_dataStore.createAndInitializeImmutableDataStore();
-//
+//	Global::glCheckError();
 //	std::println("CREATE ShaderStorageBuffer id: {}", m_id);
 //}
 
-ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint)
-	: m_bindingPoint{ bindingPoint }
-{
-
-	glCreateBuffers(1, &m_id);
-	m_dataStore.setBufferId(m_id);
-	Global::glCheckError();
-	std::println("CREATE ShaderStorageBuffer id: {}", m_id);
-}
-
-ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint, int arrayCount)
-	: m_arrayCount{ arrayCount }
-	, m_bindingPoint{ bindingPoint }
-{
-
-	m_vector.resize(m_arrayCount); //////////////////// !!
-	
-	glCreateBuffers(1, &m_id);
-	m_dataStore.setBufferId(m_id);
-	glNamedBufferStorage(m_id, sizeof(glm::mat4) * m_vector.size(), (const void*)m_vector.data(), GL_DYNAMIC_STORAGE_BIT);
-	Global::glCheckError();
-	std::println("CREATE ShaderStorageBuffer id: {}", m_id);
-}
+//ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint, int arrayCount)
+//	: m_arrayCount{ arrayCount }
+//	, m_bindingPoint{ bindingPoint }
+//{
+//
+//	m_vector.resize(m_arrayCount); //////////////////// !!
+//	
+//	glCreateBuffers(1, &m_id);
+//	m_dataStore.setBufferId(m_id);
+//	glNamedBufferStorage(m_id, sizeof(glm::mat4) * m_vector.size(), (const void*)m_vector.data(), GL_DYNAMIC_STORAGE_BIT);
+//	Global::glCheckError();
+//	std::println("CREATE ShaderStorageBuffer id: {}", m_id);
+//}
 
 ShaderStorageBuffer::~ShaderStorageBuffer()
 {
