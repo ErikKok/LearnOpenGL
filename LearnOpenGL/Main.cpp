@@ -311,17 +311,19 @@ int main()
     floorRO.model.resize(1);
     floorRO.model[0] = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
 
-    floorRO.ssbo.resize(7); // amount of SSBO's to hold
+    floorRO.ssbo.resize(6); // amount of SSBO's to hold
     floorRO.ssbo[0] = std::make_unique<ShaderStorageBuffer>(5, floorRO.instances); // dirLightMVPMatrixSSBO
     floorRO.ssbo[1] = std::make_unique<ShaderStorageBuffer>(7, floorRO.instances); // flashLightMVPMatrixSSBO
     floorRO.ssbo[2] = std::make_unique<ShaderStorageBuffer>(6, floorRO.instances); // spotLightMVPMatrixSSBO
     floorRO.ssbo[3] = std::make_unique<ShaderStorageBuffer>(2, floorRO.instances); // NormalMatrixSSBO
     floorRO.ssbo[4] = std::make_unique<ShaderStorageBuffer>(3, floorRO.instances); // ModelViewMatrixSSBO
     floorRO.ssbo[5] = std::make_unique<ShaderStorageBuffer>(4, floorRO.instances); // MVPMatrixSSBO
-    floorRO.ssbo[6] = std::make_unique<ShaderStorageBuffer>(20); // singleColor
+    //floorRO.ssbo[6] = std::make_unique<ShaderStorageBuffer>(20, glm::vec4(1.0f, 0.28f, 0.26f, 1.0f)); // singleColor
 
-    BufferDataStore singleColorssboLayoutFloor(floorRO.ssbo[6]->getId(), glm::vec4(1.0f, 0.28f, 0.26f, 1.0f));
-    singleColorssboLayoutFloor.createAndInitializeImmutableDataStore();
+    // de hele buffer is nog niet aangemaakt etc.
+
+    //BufferDataStore singleColorssboLayoutFloor(floorRO.ssbo[6]->getId(), glm::vec4(1.0f, 0.28f, 0.26f, 1.0f));
+    //floorRO.ssbo[6]->createAndInitializeImmutableDataStore();
 
     ////////////////////////////////////
     ////// Models //////////////////////
@@ -372,8 +374,14 @@ int main()
     lightCubeRO.ssbo[0] = std::make_unique<ShaderStorageBuffer>(4, lightCubeRO.instances); // MVPMatrixSSBO
     lightCubeRO.ssbo[1] = std::make_unique<ShaderStorageBuffer>(20); // singleColor
 
-    BufferDataStore singleColorssboLayoutLightCubes(lightCubeRO.ssbo[1]->getId(), pointLightColors);
-    singleColorssboLayoutLightCubes.createAndInitializeImmutableDataStore();
+    std::println("type {}", typeid(pointLightColors).name());
+
+    // gaat nog niet via ShaderStorageBuffer.cpp
+    lightCubeRO.ssbo[1]->addBufferSubData(pointLightColors);
+    lightCubeRO.ssbo[1]->createAndInitializeImmutableDataStore();
+
+    //BufferDataStore singleColorssboLayoutLightCubes(lightCubeRO.ssbo[1]->getId(), pointLightColors);
+    //singleColorssboLayoutLightCubes.createAndInitializeImmutableDataStore();
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -656,7 +664,9 @@ int main()
         // #5, element 4, de draaiende lightcube
         lightCubeRO.model[4] = Global::getModelMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
         lightCubeRO.ssbo[0]->update(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4);
-        singleColorssboLayoutLightCubes.updateAndUploadSubset(glm::vec4(spotLight.getColor(), 1.0f), 4);
+
+        // gaat nog niet via ShaderStorageBuffer.cpp // , static_cast<GLintptr>(4)
+        lightCubeRO.ssbo[1]->updateAndUploadSubset(glm::vec4(spotLight.getColor(), 1.0f), 4);
 
         lightCubeRO.ssbo[0]->upload();
         renderer.drawSingleColor(lightCubeRO);
@@ -682,7 +692,7 @@ int main()
             //floorRO.model[0] = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(26.0f, 26.0f, 2.0f));
             floorRO.ssbo[5]->update(Global::camera.getViewProjectionMatrix() * glm::scale(floorRO.model[0], glm::vec3(1.05f, 1.05f, 0.0f))); // scale model by 5% for outline
             floorRO.ssbo[5]->upload();
-            singleColorssboLayoutFloor.updateAndUploadSubset(color);
+            //floorRO.ssbo[6]->updateAndUploadSubset(color);
             renderer.drawSingleColor(floorRO);
             glEnable(GL_CULL_FACE);
 

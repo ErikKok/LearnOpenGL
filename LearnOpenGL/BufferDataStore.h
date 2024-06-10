@@ -19,7 +19,7 @@ class BufferDataStore {
 
 public:
 	BufferDataStore() = default;
-#pragma warning( suppress : 4100 )
+
 	BufferDataStore(const GLuint ssboId, const auto& data)
 		: m_ssboId{ ssboId }
 	{
@@ -42,6 +42,9 @@ public:
 	void addBufferSubData(const std::vector<T>& data)
 	{
 		assert(m_elementSize == 0 || m_elementSize == sizeof(data[0]) && "Data has different size then existing data");
+		
+		//m_data.reserve(std::ssize(data)); reserve ipv resize ok?
+
 		m_elementSize = sizeof(data[0]);
 		for (auto i{ 0 }; i < std::ssize(data); i++) {
 			m_data.emplace_back(data[i]);
@@ -51,6 +54,7 @@ public:
 	void createAndInitializeImmutableDataStore()
 	{
 		assert(sizeof(m_data) != 0 && "WARNING: uploadBufferSubData(): BufferSubDataLayout is empty!");
+		assert(m_ssboId != 0 && "m_ssboId not set");
 
 		glNamedBufferStorage(m_ssboId, m_elementSize * static_cast<GLsizeiptr>(m_data.size()), nullptr, GL_DYNAMIC_STORAGE_BIT);
 
@@ -97,8 +101,8 @@ public:
 	}
 
 private:
-	GLuint m_ssboId; // id of associated ssbo (only ssbo because of std430 packing layout)
-	std::vector<std::variant<glm::vec4, glm::mat4>> m_data;
+	GLuint m_ssboId{ 0 }; // id of associated ssbo (only ssbo because of std430 packing layout)
+	std::vector<std::variant<glm::vec4, glm::mat4>> m_data{};
 	GLsizeiptr m_elementSize{ 0 };
 };
 

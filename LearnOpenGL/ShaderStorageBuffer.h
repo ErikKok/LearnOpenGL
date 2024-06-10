@@ -13,7 +13,7 @@
 
 class ShaderStorageBuffer {
 public:
-	ShaderStorageBuffer(int bindingPoint, const auto& data);
+	ShaderStorageBuffer(int bindingPoint, bool initialize, const auto& data);
 	ShaderStorageBuffer(int bindingPoint);											// Constructor
 	ShaderStorageBuffer(int bindingPoint, int arrayCount);							// Constructor
 	ShaderStorageBuffer(const ShaderStorageBuffer& other) = delete;					// Copy constructor
@@ -33,28 +33,19 @@ public:
 	void updateAndUpload(const glm::mat4& vector, int i);
 	void updateAndUploadAndBind(const glm::mat4& vector, int i = 0);
 
-	// of kunnen deze functies met een getDatastore en dan .functie vd datastore zelf worden gedaan?
-
-	//ShaderStorageBuffer xxx(5);
-	//xxx.m_dataStore.updateSubset();
-
-	//jazeker, moet ze wel public zijn natuurlijk
-
-	template<typename T>
-	void addBufferSubData(const T& data);
-	template<typename T>
-	void addBufferSubData(const std::vector<T>& data);
-	void createAndInitializeImmutableDataStore();
-	void updateSubset(const auto& data, GLintptr elementIndex = 0) const;
-	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0) const;
-	void uploadFully(const auto& data) const;
+	// Pass-through functions BufferDataStore
+	void addBufferSubData(const auto& data) { m_dataStore.addBufferSubData(data); };
+	void createAndInitializeImmutableDataStore() { m_dataStore.createAndInitializeImmutableDataStore(); };
+	void updateSubset(const auto& data, GLintptr elementIndex = 0) { m_dataStore.updateSubset(data, elementIndex); };
+	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0) { m_dataStore.updateAndUploadSubset(data, elementIndex); };
+	void uploadFully(const auto& data) const { m_dataStore.uploadFully(data); };
 
 private:
 	GLuint m_id{};
 	int m_bindingPoint{};
 	int m_arrayCount{};
-	std::vector<glm::mat4> m_vector{}; // TODO other types
-	BufferDataStore m_dataStore; // TODO
+	std::vector<glm::mat4> m_vector{}; // TODO kan weg
+	BufferDataStore m_dataStore{}; // TODO
 };
 
 // USAGE (without this class)

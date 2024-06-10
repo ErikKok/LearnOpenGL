@@ -35,6 +35,10 @@ TO DO
 - BufferDataStore.cpp maken
 - ShaderStorageBuffer moet een BufferDataStore als data member krijgen, friend class, kan je de data store vd / in de buffer zelf bewerken, veiliger 
 
+v0.2.62 10-6-2024
+-----------------
+- BufferDataStore via ShaderStorageBuffer werkt nu zo lijkt het
+
 v0.2.61 9-6-2024
 -----------------
 - replaced std::any with std::variant
