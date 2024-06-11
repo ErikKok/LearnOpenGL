@@ -7,6 +7,8 @@
 
 #include <glad/glad.h>
 
+// aka depthMap class
+
 enum class framebufferType {
 	undefined,
 	depthMap,

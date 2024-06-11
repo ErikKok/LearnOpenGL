@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Buffers.h" // for BufferDataStore
+#include "BufferDataStore.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -11,41 +11,51 @@
 
 //There can only be one array of variable size per SSBO and it has to be the bottommost variable in the block definition.
 
+enum ssboTypes { // is dit wel nodig?
+	dirLightMVPMatrixSSBO = 0,
+	flashLightMVPMatrixSSBO = 1,
+	spotLightMVPMatrixSSBO = 2,
+	normalMatrixSSBO = 3,
+	modelViewMatrixSSBO = 4,
+	MVPMatrixSSBO = 5,
+};
+
+enum ssboBindingPoints {
+	normalMatrixBP = 2,
+	modelViewMatrixBP = 3,
+	MVPMatrixBP = 4,
+	dirLightMVPMatrixBP = 5,
+	spotLightMVPMatrixBP = 6,
+	flashLightMVPMatrixBP = 7,
+	singleColorBP = 20,
+};
+
 class ShaderStorageBuffer {
 public:
-	ShaderStorageBuffer(int bindingPoint, int data, GLsizeiptr elementSize);
-	//ShaderStorageBuffer(int bindingPoint);											// Constructor
-	//ShaderStorageBuffer(int bindingPoint, int arrayCount);							// Constructor
+	ShaderStorageBuffer(int bindingPoint, int elementCount, GLsizeiptr elementSize);
 	ShaderStorageBuffer(const ShaderStorageBuffer& other) = delete;					// Copy constructor
 	ShaderStorageBuffer& operator=(const ShaderStorageBuffer& other) = delete;		// Copy assignment
 	ShaderStorageBuffer(ShaderStorageBuffer&& other) noexcept = delete; 			// Move constructor	
 	ShaderStorageBuffer& operator=(ShaderStorageBuffer&& other) noexcept = delete;	// Move assignment
 	~ShaderStorageBuffer();															// Destructor
 
-	const GLuint getId() const { return m_id; }; // was unsigned int 5-6-24
+	const GLuint getId() const { return m_id; };
 	const int getBindingPoint() const { return m_bindingPoint; };
 
 	void bind() const;
-	void unbind() const;
-	void upload() const;
-	void update(const glm::mat4& vector, int i = 0);
-	void uploadAndBind() const;
-	void updateAndUpload(const glm::mat4& vector, int i);
-	void updateAndUploadAndBind(const glm::mat4& vector, int i = 0);
+	//void unbind() const;
 
 	// Pass-through functions BufferDataStore
-	void addBufferSubData(const auto& data) { m_dataStore.addBufferSubData(data); };
+	void addBufferSubData(const auto& data) { m_BufferDataStore.addBufferSubData(data); };
 	//void createAndInitializeImmutableDataStore() { m_dataStore.createAndInitializeImmutableDataStore(); };
-	void updateSubset(const auto& data, GLintptr elementIndex = 0) { m_dataStore.updateSubset(data, elementIndex); };
-	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0) { m_dataStore.updateAndUploadSubset(data, elementIndex); };
-	void uploadFully() const { m_dataStore.uploadFully(); };
+	void updateSubset(const auto& data, GLintptr elementIndex = 0) { m_BufferDataStore.updateSubset(data, elementIndex); };
+	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0) { m_BufferDataStore.updateAndUploadSubset(data, elementIndex); };
+	void uploadFully()  { m_BufferDataStore.uploadFully(); }; // niet meer const vanwege m_hasBeenUploaded
 
 private:
 	GLuint m_id{};
 	int m_bindingPoint{};
-	int m_arrayCount{};
-	std::vector<glm::mat4> m_vector{}; // TODO kan weg
-	BufferDataStore m_dataStore; // TODO
+	BufferDataStore m_BufferDataStore;
 };
 
 // USAGE (without this class)

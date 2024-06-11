@@ -25,16 +25,33 @@ struct Material {
 	int flashLightEmissionTexture{ 0 };		// sampler2D
 };
 
-struct RenderObject {
-	Mesh* mesh; // TODO should it own it's mesh?
-	Material* material; // TODO make unique_ptr van maken? // TODO should it own it's mesh?
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class RenderObject {
+public:
+	RenderObject(Mesh* mesh = nullptr, Material* material = nullptr, int instances = 1)
+		: mesh{ mesh }
+		, material{ material }
+		, instances{ instances }
+	{
+		model.resize(instances);
+	}
+
+	void addSSBO(int bindingPoint, GLsizeiptr elementSize) {
+		ssbo.emplace_back(std::make_unique<ShaderStorageBuffer>(bindingPoint, instances, elementSize));
+	}
+
+	Mesh* mesh{ nullptr }; // TODO should it own it's mesh?
+	Material* material{ nullptr }; // TODO make unique_ptr van maken? // TODO should it own it's material?
 	std::vector<glm::mat4> model{}; // transforms
 	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // Each RenderObject owns it's unique SSBOs (on the heap), this way you can upload them just once per renderpass (raw pointers (on the stack) are max 1% faster)
-	GLsizei instances{ 1 };
+	int instances{ 1 };
 	// renderType type; (transparant, singleColor, isModel, etc.;
 	// bool isSelected; true = de outline renderen
 	// bool castShadow;
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum class renderPassType {
 	undefined,
@@ -43,6 +60,8 @@ enum class renderPassType {
 	depthMapSpotLight,
 	depthMapFlashLight,
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Renderer {
 public:

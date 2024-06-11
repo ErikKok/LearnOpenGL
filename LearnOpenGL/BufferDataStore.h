@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Buffers.h"
 #include "Global.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include <algorithm> // for std::all_of
+#include <typeinfo>
 #include <variant>
 #include <vector>
 
@@ -19,28 +20,25 @@ class BufferDataStore {
 
 // Everything is to be used through bufferobject
 private:
-	//BufferDataStore() = default;
+	BufferDataStore() = delete;
 
-	BufferDataStore(int elementCount, GLsizeiptr elementSize)
-		: m_elementSize{ elementSize }
-	{
-		m_data.resize(elementCount);
-	};
-
+	BufferDataStore(int elementCount, GLsizeiptr elementSize);
 	void setBufferId(GLuint ssboId) { m_ssboId = ssboId; };
+	void createImmutableDataStore() const;
+	// Uploads the complete buffer from cpu to gpu
+	void uploadFully() ;
 
-	void createImmutableDataStore() const
-	{
-		assert(m_ssboId != 0 && "m_ssboId not set");
-		glNamedBufferStorage(m_ssboId, m_data.size() * m_elementSize, m_data.data(), GL_DYNAMIC_STORAGE_BIT);
-		Global::glCheckError();
-		// Size of the buffer is fixed for the rest of it's life span from here on
-	};
+	// Function Templates fully defined in this header file, see https://www.learncpp.com/cpp-tutorial/function-template-instantiation/
 
 	// Fill or replace the complete buffer (just one 'element')
 	template<typename T>
 	void addBufferSubData(const T& data)
 	{
+		if (m_hasBeenUpdated) {
+			assert(
+				std::holds_alternative<glm::vec4>(m_data) & (typeid(data).hash_code() == typeid(glm::vec4).hash_code()) ||
+				std::holds_alternative<glm::mat4>(m_data) & (typeid(data).hash_code() == typeid(glm::mat4).hash_code()));
+		}
 		assert(sizeof(m_data) != 0 && "WARNING: data is empty!");
 		assert(m_elementSize == 0 || m_elementSize == sizeof(data) && "Data has different size then existing data");
 		m_elementSize = sizeof(data);
@@ -51,6 +49,11 @@ private:
 	template<typename T>
 	void addBufferSubData(const std::vector<T>& data)
 	{
+		if (m_hasBeenUpdated) {
+			assert(
+				std::holds_alternative<glm::vec4>(m_data[0]) & (typeid(data[0]).hash_code() == typeid(glm::vec4).hash_code()) ||
+				std::holds_alternative<glm::mat4>(m_data[0]) & (typeid(data[0]).hash_code() == typeid(glm::mat4).hash_code()));
+		}
 		assert(sizeof(m_data) != 0 && "WARNING: data is empty!");
 		assert(m_elementSize == 0 || m_elementSize == sizeof(data[0]) && "Data has different size then existing data");
 		assert(m_data.size() == data.size() && "Data has different elementcount then existing data");
@@ -62,40 +65,34 @@ private:
 	}
 
 	// Replace just 1 element of the buffer
-	void updateSubset(const auto& data, GLintptr elementIndex = 0)
+	void updateSubset(const auto& data, GLintptr elementIndex)
 	{
-		// TODO is this safe enough?
+		if (m_hasBeenUpdated) {
+			assert(
+				std::holds_alternative<glm::vec4>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(glm::vec4).hash_code()) ||
+				std::holds_alternative<glm::mat4>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(glm::mat4).hash_code()) );
+		}
 		assert(sizeof(m_data) != 0 && "WARNING: data is empty!");
-		assert(m_elementSize == sizeof(data) && "Data has different size then existing data"); // TODO not a complete check; different types could have the same size
+		assert(m_elementSize == sizeof(data) && "Data has different size then existing data"); // TODO not a complete check; different types could have the same size // no longer necessary I guess?
 		assert(elementIndex <= static_cast<GLintptr>(m_data.size()) - 1 && "ElementIndex out of range");
 
 		m_data[elementIndex] = data;
 	}
 
 	// Replace just 1 element of the buffer + upload just that element
-	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0)
+	void updateAndUploadSubset(const auto& data, GLintptr elementIndex)
 	{
 		updateSubset(data, elementIndex);
 
 		glNamedBufferSubData(m_ssboId, elementIndex * m_elementSize, m_elementSize, &data);
 
 		Global::glCheckError();
-	}
-
-	// Uuploads the complete buffer from cpu to gpu
-	void uploadFully() const // also creates the buffer
-	{
-		GLintptr offset{ 0 };
-		for (auto i{ 0 }; i < std::ssize(m_data); i++) {
-			glNamedBufferSubData(m_ssboId, offset, m_elementSize, &m_data[i]);
-			offset += m_elementSize;
-		}
-
-		Global::glCheckError();
+		m_hasBeenUpdated = true;
 	}
 
 private:
 	GLuint m_ssboId{ 0 }; // id of associated ssbo (only ssbo because of std430 packing layout)
+	bool m_hasBeenUpdated{ false }; // if false m_data contains no real data (has only been resized by constructor)
 	std::vector<std::variant<glm::vec4, glm::mat4>> m_data{};
 	GLsizeiptr m_elementSize{ 0 };
 };

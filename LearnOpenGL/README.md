@@ -6,6 +6,8 @@ TO DO
 	- Uniform location cache https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions?tab=readme-ov-file#ideal-way-of-retrieving-all-uniform-names
 	- Calling glUniform is quite expensive during run-time. Structure your programme so that glUniform is only called when the value needs to change. This might be the case every time that you draw a new object (e.g. its position might be different), but some uniforms may not change often (e.g. projection matrix).
 	- glResult als global opslaan ipv elke keer opvragen
+	- combine buffer and bufferDataStore class, with ubo and ssbo as inheritance
+	- for now don't use ubo, only ssbo
 - Lighting
 	- implement energy conservation? see comments at Blinn-Phong
 	- Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
@@ -21,7 +23,7 @@ TO DO
 		- flashLight shines from the player camera (0,0,0), but casts shadow from this camera with flashLightShadowOffset
 		- flashlight camera movement is duplicated in processInput/mouse_callback/scroll_callback, could be linked/feed from player camera I guess
 		- onderscheid SpotLight en FlashLight wel nodig?
-
+- use a constant array in the shader, e.g. for fullscreen quads
 - implement Bindless Textures
 - cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
 - try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
@@ -32,9 +34,16 @@ TO DO
 - TODO's nalopen
 - gebruik std::ssize vs std::size / unsigned int vs int in for loops checken
 - gebruik Global::glCheckError(); inperken
-- BufferDataStore.cpp maken
+
 - ShaderStorageBuffer moet een BufferDataStore als data member krijgen, friend class, kan je de data store vd / in de buffer zelf bewerken, veiliger 
 
+v0.2.64 1-6-2024
+-----------------
+- added enum ssboTypes & enum ssboBindingPoints
+- Made a class of RenderObject
+- added BufferDataStore.cpp
+- added type check for BufferDataStore
+ 
 v0.2.63 10-6-2024
 -----------------
 - nu wel werkend...
