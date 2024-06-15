@@ -414,10 +414,10 @@ int main()
         sun.updateDirectionInViewSpace(multiLight);
 
         multiLight.useShader();
-        multiLight.setVec3("pointLights[0].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[0], 1.0)));  // red
-        multiLight.setVec3("pointLights[1].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[1], 1.0)));  // green
-        multiLight.setVec3("pointLights[2].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[2], 1.0)));  // blue
-        multiLight.setVec3("pointLights[3].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[3], 1.0)));  // white
+        multiLight.setVec3("pointLightPosition[0]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[0], 1.0)));  // red
+        multiLight.setVec3("pointLightPosition[1]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[1], 1.0)));  // green
+        multiLight.setVec3("pointLightPosition[2]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[2], 1.0)));  // blue
+        multiLight.setVec3("pointLightPosition[3]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[3], 1.0)));  // white
 
         // Transform Spotlight direction to current current View Space
         spotLight.updateDirectionInViewSpace(multiLight);
@@ -434,10 +434,10 @@ int main()
         sun.updateDirectionInViewSpace(multiLightNormalMapping);
 
         multiLightNormalMapping.useShader();
-        multiLightNormalMapping.setVec3("pointLights[0].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[0], 1.0)));  // red
-        multiLightNormalMapping.setVec3("pointLights[1].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[1], 1.0)));  // green
-        multiLightNormalMapping.setVec3("pointLights[2].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[2], 1.0)));  // blue
-        multiLightNormalMapping.setVec3("pointLights[3].position", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[3], 1.0)));  // white
+        multiLightNormalMapping.setVec3("pointLightPosition[0]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[0], 1.0)));  // red
+        multiLightNormalMapping.setVec3("pointLightPosition[1]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[1], 1.0)));  // green
+        multiLightNormalMapping.setVec3("pointLightPosition[2]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[2], 1.0)));  // blue
+        multiLightNormalMapping.setVec3("pointLightPosition[3]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[3], 1.0)));  // white
 
         // Transform Spotlight direction to current View Space
         spotLight.updateDirectionInViewSpace(multiLightNormalMapping);

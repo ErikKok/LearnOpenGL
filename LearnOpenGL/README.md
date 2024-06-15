@@ -40,6 +40,11 @@ TO DO
 
 14-6-2024 normalmapping on for cube/floor/backpack: 272fps, off 230fps. before optimization
 
+v0.2.66 15-6-2024
+-----------------
+- moved TBN calculations to the vertex shader for all lights
+- lost 5-8fps...
+
 v0.2.65 15-6-2024
 -----------------
 - for loops nagelopen

@@ -27,7 +27,7 @@ void PointLight::sendToShader(const Shader& shader) const
 {
     shader.useShader();
     //shader.setInt("pointLight.on", m_on);
-    shader.setVec3("pointLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));
+    shader.setVec3("pointLightPosition", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));
     shader.setVec3("pointLight.color", m_color);
     shader.setFloat("pointLight.strength", m_strength);
     shader.setInt("pointLight.depthMap", m_depthMap);
@@ -36,7 +36,7 @@ void PointLight::sendToShader(const Shader& shader) const
 void PointLight::updatePositionInViewSpace(const Shader& shader) const
 {
     shader.useShader(); 
-    shader.setVec3("pointLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));
+    shader.setVec3("pointLightPosition", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));
 }
 
 // SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ void SpotLight::sendToShader(const Shader& shader) const
     shader.useShader();
     //shader.setInt("spotLight.on", m_on);
     shader.setVec3("spotLight.color", m_color); //////// naam
-    shader.setVec3("spotLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 1.0f));
+    shader.setVec3("spotLightPosition", Global::camera.getViewMatrix() * glm::vec4(m_position, 1.0f));
     shader.setVec3("spotLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));
     shader.setVec3("spotLight.color", m_color);
     shader.setFloat("spotLight.strength", m_strength);
@@ -61,7 +61,7 @@ void SpotLight::sendToShader(const Shader& shader) const
 void SpotLight::updatePositionInViewSpace(const Shader& shader) const
 {
     shader.useShader(); 
-    shader.setVec3("spotLight.position", Global::camera.getViewMatrix() * glm::vec4(m_position, 1.0f));
+    shader.setVec3("spotLightPosition", Global::camera.getViewMatrix() * glm::vec4(m_position, 1.0f));
 }
 
 void SpotLight::updateDirectionInViewSpace(const Shader& shader) const
