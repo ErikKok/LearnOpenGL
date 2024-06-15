@@ -8,16 +8,13 @@ layout (location = 3) in vec3 aTangent;
 
 out VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
-    //vec3 FragPosView;
     vec3 FragPosTangent;
-    //vec3 NormalView;
     vec4 dirLightShadowCoord;       // clip space   // Orthographic
-    vec3 dirLightDirectionTangent;  // Normalized
+    vec3 dirLightDirectionTangent;
     vec4 spotLightShadowCoord;      // clip space   // Perspective
-    vec3 spotLightPositionTangent;  // NOT normalized
+    vec3 spotLightPositionTangent;
     vec4 flashLightShadowCoord;     // clip space   // Perspective
     vec3 cameraDirectionTangent;
-    //mat3 TBN;
 } vs_out;
 
 layout(binding = 2, std430) readonly buffer NormalMatrixSSBO {
@@ -56,20 +53,18 @@ void main()
 {
     //mat4 ModelViewMatrix = view * model;
     //mat3 MV3x3 = mat3(modelViewMatrix[gl_InstanceID]);    
-    vec3 T = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aTangent);
+    vec3 T = mat3(NormalMatrix[gl_InstanceID]) * normalize(aTangent);
     //vec3 B = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aBitangent); // Better to calculate B?
-    vec3 N = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aNormal);
+    vec3 N = mat3(NormalMatrix[gl_InstanceID]) * normalize(aNormal);
     T = normalize(T - N * dot(N, T)); // re-orthogonalize T with respect to N (Gram-Schmidt)
     vec3 B = cross(N, T); // then retrieve perpendicular vector B with the cross product of T and N
     mat3 TBN = transpose(mat3(T, B, N)); // This matrix goes from view space to tangent space
     
     vs_out.TexCoords = aTexCoords;
-    //vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
-    //vec3 FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
     vs_out.FragPosTangent = TBN * vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
     vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.dirLightDirectionTangent = TBN * dirLightDirection;
-    for(int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
         vs_out2.pointLightPositionTangent[i] = TBN * pointLightPosition[i];
     vs_out.spotLightShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.spotLightPositionTangent = TBN * spotLightPosition;
@@ -84,16 +79,13 @@ out vec4 FragColor;
 
 in VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
-    //vec3 FragPosView;
     vec3 FragPosTangent;      
-    //vec3 NormalView;
     vec4 dirLightShadowCoord;
     vec3 dirLightDirectionTangent;
     vec4 spotLightShadowCoord;
     vec3 spotLightPositionTangent;
     vec4 flashLightShadowCoord;
     vec3 cameraDirectionTangent;
-    //mat3 TBN;
 } vs_out;
 
 in VS_OUT2 { // PASS_THROUGH_GS
@@ -114,7 +106,6 @@ struct Material {
 uniform Material material;
 
 struct DirLight {
-    //vec3 direction;     // View Space // normalized
     vec3 color;         // Light color
     float ambient;      // Ambient strength
     float strength;     // Overall strength
@@ -123,7 +114,6 @@ struct DirLight {
 uniform DirLight dirLight;
 
 struct PointLight {
-    //vec3 position;      // View Space
     vec3 color;         // Light color
     float constant;     // Usually kept at 1.0f
     float linear;       // Short distance intensity
@@ -134,7 +124,6 @@ uniform int pointLightsCount;       // For the loop
 uniform PointLight pointLights[4];  // Hard limit pointlights count (max 166?)
 
 struct SpotLight {
-    //vec3 position;      // View Space
     vec3 direction;     // View Space
     float outerCutOff;  // Outer cone
     float epsilon;      // Gradually fade the light between inner and outer cone
@@ -156,24 +145,19 @@ struct FlashLight {
     float linear;       // Short distance intensity
     float quadratic;    // Long distance intensity
     float strength;     // Overall strength
-    vec3 origin;        //
+    vec3 origin;        // Needs to be converted to Tangent space if not 0,0,0!
     float emissionStrength;     // Overall strength
     sampler2D depthMap;
 };
 uniform FlashLight flashLight;
 
 vec3 normalTangent = normalize(texture(material.normal1, vs_out.TexCoords).rgb * 2.0 - 1.0);
-vec3 viewDirTangent = normalize(-vs_out.FragPosTangent);
 
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
 vec3 CalcDirLight(DirLight light)
 {
-    //dirLight.direction = vs_out.dirLightDirectionTangent;
-    //vec3 lightDir = vs_out.TBN * normalize(light.direction); // TODO move to vertex shader
-    //vec3 lightDir = vs_out.dirLightDirectionTangent; // TODO move to vertex shader
-
     // ambient
     vec3 ambient = light.ambient * textureDiffuse;
 
@@ -182,7 +166,7 @@ vec3 CalcDirLight(DirLight light)
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(vs_out.dirLightDirectionTangent + viewDirTangent); // Blinn-Phong
+    vec3 halfwayDir = normalize(vs_out.dirLightDirectionTangent - vs_out.FragPosTangent); // Blinn-Phong
 
     float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
@@ -212,7 +196,7 @@ vec3 CalcPointLight(PointLight light, int i)
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
+    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosTangent); // Blinn-Phong
     float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
@@ -227,14 +211,14 @@ vec3 CalcPointLight(PointLight light, int i)
 
 vec3 CalcSpotLight(SpotLight light)
 {   
-    vec3 lightDir = normalize(vs_out.spotLightPositionTangent - vs_out.FragPosTangent); // TODO move to vertex shader
+    vec3 lightDir = normalize(vs_out.spotLightPositionTangent - vs_out.FragPosTangent);
 
     // diffuse
     float diff = max(dot(normalTangent, lightDir), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
+    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosTangent); // Blinn-Phong
     float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
@@ -269,22 +253,19 @@ vec3 CalcSpotLight(SpotLight light)
 
 vec3 CalcFlashLight(FlashLight light)
 {
-    //vec3 lightDir = vs_out.TBN * normalize(light.origin - (vs_out.FragPosView * vs_out.TBN)); // dan beweegt flashlight wel goed, maar artifacts
-    //vec3 lightDir = normalize(vec3(0.0f, 0.0f, 0.0f) - vs_out.FragPosView); // same (position == origin == 0,0,0)
-    vec3 lightDir = normalize( -vs_out.FragPosTangent); // == viewDir want origin == 0,0,0
+    vec3 lightDir = normalize(light.origin - vs_out.FragPosTangent);
 
     // diffuse
     float diff = max(dot(normalTangent, lightDir), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
+    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosTangent); // Blinn-Phong
     float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
     // cone
-    //vec3 cameraDirection = normalize(vs_out.TBN * vec3(0.0f, 0.0f, 1.0f)); // camera.m_front with negated z-axis
-    float theta = dot(lightDir, normalize(vs_out.cameraDirectionTangent)); // if I normalize cameraDirectionTangent in Vertex Shader I get different result?
+    float theta = dot(lightDir, normalize(vs_out.cameraDirectionTangent));
     float intensity = smoothstep(0.0f, 1.0f, (theta - light.outerCutOff) / light.epsilon);
     diffuse *= intensity;
     specular *= intensity;

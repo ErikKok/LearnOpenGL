@@ -6,12 +6,12 @@ layout (location = 2) in vec3 aNormal;
 
 out VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
-    vec3 FragPosView;               // view space
-    vec3 NormalView;                // view space
+    vec3 FragPosView;
+    vec3 NormalView;
     vec4 dirLightShadowCoord;       // clip space   // Orthographic
-    vec3 dirLightDirectionView;     // Normalized
+    vec3 dirLightDirectionView;
     vec4 spotLightShadowCoord;      // clip space   // Perspective
-    vec3 spotLightPositionView;     // NOT normalized
+    vec3 spotLightPositionView;
     vec4 flashLightShadowCoord;     // clip space   // Perspective
 } vs_out;
 
@@ -54,7 +54,7 @@ void main()
     vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
     vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.dirLightDirectionView = dirLightDirection;
-    for(int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
         vs_out2.pointLightPositionView[i] = pointLightPosition[i];
     vs_out.spotLightShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.spotLightPositionView = spotLightPosition;
@@ -113,7 +113,6 @@ in VS_OUT2 { // PASS_THROUGH_GS
 struct Material {
     sampler2D diffuse1;
     sampler2D specular1;
-    //sampler2D normal1;
     //sampler2D height1;
     sampler2D emission;         // Texture used used for emission on the object itself (no emissionMap involved, just 100% coverage)
     float emissionStrength;     // Strength for emission
@@ -124,7 +123,6 @@ struct Material {
 uniform Material material;
 
 struct DirLight {
-    //vec3 direction;     // View Space // normalized
     vec3 color;         // Light color
     float ambient;      // Ambient strength
     float strength;     // Overall strength
@@ -133,7 +131,6 @@ struct DirLight {
 uniform DirLight dirLight;
 
 struct PointLight {
-    //vec3 position;      // View Space
     vec3 color;         // Light color
     float constant;     // Usually kept at 1.0f
     float linear;       // Short distance intensity
@@ -144,7 +141,6 @@ uniform int pointLightsCount;       // For the loop
 uniform PointLight pointLights[4];  // Hard limit pointlights count (max 166?)
 
 struct SpotLight {
-    //vec3 position;      // View Space
     vec3 direction;     // View Space
     float outerCutOff;  // Outer cone
     float epsilon;      // Gradually fade the light between inner and outer cone
@@ -173,7 +169,6 @@ struct FlashLight {
 uniform FlashLight flashLight;
 
 vec3 normalView = normalize(vs_out.NormalView);
-vec3 viewDirView = normalize(-vs_out.FragPosView);
 
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
@@ -190,7 +185,7 @@ vec3 CalcDirLight(DirLight light)
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(vs_out.dirLightDirectionView + viewDirView); // Blinn-Phong
+    vec3 halfwayDir = normalize(vs_out.dirLightDirectionView - vs_out.FragPosView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
 
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
@@ -223,7 +218,7 @@ vec3 CalcPointLight(PointLight light, int i)
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
+    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
@@ -248,7 +243,7 @@ vec3 CalcSpotLight(SpotLight light)
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
+    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
@@ -335,7 +330,7 @@ vec3 CalcFlashLight(FlashLight light)
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
+    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);

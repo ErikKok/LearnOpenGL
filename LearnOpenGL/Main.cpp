@@ -73,20 +73,25 @@ int main()
     ////// Lights ///////////////////////
     std::println("CREATE Lights");///////
 
-    // PointLight (max amount hard coded in shader TODO)
+
+    //PointLight pointLight1;
+    //pointLight1.setPosition(0.7f, 11.2f, 2.0f); // TODO light position == camera position == needs to sync, or delete 1
+    //pointLight1.setColor(1.0f, 1.0f, 1.0f);
+    //pointLight1.setStrength(1.0f);
+    ////pointLight1.setDepthMap(5);
+    //pointLight1.setConstant(1.0f);
+    //pointLight1.setLinear(0.032f);
+    //pointLight1.setQuadratic(0.09f);
+    //pointLight1.sendToShader(multiLight);
+    //pointLight1.sendToShader(multiLightNormalMapping);
+
+
+    // PointLight (max amount hard coded in shader 2x TODO)
     glm::vec3 pointLightPositions[] = { // World space
-        glm::vec3(0.7f, 11.2f,   2.0f),
-        glm::vec3(4.0f,  2.0f, -12.0f),
+        glm::vec3(0.7f,  11.2f,   2.0f),
+        glm::vec3(4.0f,   2.0f, -12.0f),
         glm::vec3(-4.0f,  2.0f,  12.0f),
         glm::vec3(15.0f,  1.2f,  -3.0f),
-    };
-
-    const std::vector<testSSBO> pointLightColors2 = {
-        {1, 1.0f, glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)},
-        { 2, 10.0f, {1.0f, 1.0f, 1.0f, 1.0f} }, // alternatieve notatie
-        {0, 0.5f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)},
-        {8, 1.8f, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)},
-        {42, 0.0123456f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)},
     };
 
     const std::vector<glm::vec4> pointLightColors = {
@@ -101,55 +106,49 @@ int main()
     // Removes the need to manually set the pointLightsCount here AND in the shader
     // See -> https://computergraphics.stackexchange.com/questions/5323/dynamic-array-in-glsl
     multiLight.useShader();
-    multiLight.setInt("pointLightsCount", 4);
+    multiLight.setInt("pointLightsCount", std::ssize(pointLightPositions));
 
-    multiLight.setVec3("pointLights[0].color", pointLightColors[0]);  // red, distance 50
-    multiLight.setFloat("pointLights[0].constant", 1.0f);
+    for (auto i = 0; i < std::ssize(pointLightPositions); i++) {
+        multiLight.setVec3("pointLights[" + std::to_string(i) + "].color", pointLightColors[i]);
+        multiLight.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
+    }
+
     multiLight.setFloat("pointLights[0].linear", 0.09f);
     multiLight.setFloat("pointLights[0].quadratic", 0.032f);
     multiLight.setFloat("pointLights[0].strength", 1.0f);
 
-    multiLight.setVec3("pointLights[1].color", pointLightColors[1]);  // green, distance 50
-    multiLight.setFloat("pointLights[1].constant", 1.0f);
     multiLight.setFloat("pointLights[1].linear", 0.09f);
     multiLight.setFloat("pointLights[1].quadratic", 0.032f);
     multiLight.setFloat("pointLights[1].strength", 2.0f);
 
-    multiLight.setVec3("pointLights[2].color", pointLightColors[2]);  // blue, distance 325
-    multiLight.setFloat("pointLights[2].constant", 1.0f);
     multiLight.setFloat("pointLights[2].linear", 0.09f);
     multiLight.setFloat("pointLights[2].quadratic", 0.032f);
     multiLight.setFloat("pointLights[2].strength", 3.0f);
 
-    multiLight.setVec3("pointLights[3].color", pointLightColors[3]);  // white, distance 13
-    multiLight.setFloat("pointLights[3].constant", 1.0f);
     multiLight.setFloat("pointLights[3].linear", 0.35f);
     multiLight.setFloat("pointLights[3].quadratic", 0.44f);
     multiLight.setFloat("pointLights[3].strength", 1.0f);
  
     multiLightNormalMapping.useShader();
-    multiLightNormalMapping.setInt("pointLightsCount", 4);
+    multiLightNormalMapping.setInt("pointLightsCount", std::ssize(pointLightPositions));
 
-    multiLightNormalMapping.setVec3("pointLights[0].color", pointLightColors[0]);  // red, distance 50
-    multiLightNormalMapping.setFloat("pointLights[0].constant", 1.0f);
+    for (auto i = 0; i < std::ssize(pointLightPositions); i++) {
+        multiLightNormalMapping.setVec3("pointLights[" + std::to_string(i) + "].color", pointLightColors[i]);
+        multiLightNormalMapping.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
+    }
+
     multiLightNormalMapping.setFloat("pointLights[0].linear", 0.09f);
     multiLightNormalMapping.setFloat("pointLights[0].quadratic", 0.032f);
     multiLightNormalMapping.setFloat("pointLights[0].strength", 1.0f);
 
-    multiLightNormalMapping.setVec3("pointLights[1].color", pointLightColors[1]);  // green, distance 50
-    multiLightNormalMapping.setFloat("pointLights[1].constant", 1.0f);
     multiLightNormalMapping.setFloat("pointLights[1].linear", 0.09f);
     multiLightNormalMapping.setFloat("pointLights[1].quadratic", 0.032f);
     multiLightNormalMapping.setFloat("pointLights[1].strength", 2.0f);
 
-    multiLightNormalMapping.setVec3("pointLights[2].color", pointLightColors[2]);  // blue, distance 325
-    multiLightNormalMapping.setFloat("pointLights[2].constant", 1.0f);
     multiLightNormalMapping.setFloat("pointLights[2].linear", 0.09f);
     multiLightNormalMapping.setFloat("pointLights[2].quadratic", 0.032f);
     multiLightNormalMapping.setFloat("pointLights[2].strength", 3.0f);
 
-    multiLightNormalMapping.setVec3("pointLights[3].color", pointLightColors[3]);  // white, distance 13
-    multiLightNormalMapping.setFloat("pointLights[3].constant", 1.0f);
     multiLightNormalMapping.setFloat("pointLights[3].linear", 0.35f);
     multiLightNormalMapping.setFloat("pointLights[3].quadratic", 0.44f);
     multiLightNormalMapping.setFloat("pointLights[3].strength", 1.0f);
@@ -414,10 +413,9 @@ int main()
         sun.updateDirectionInViewSpace(multiLight);
 
         multiLight.useShader();
-        multiLight.setVec3("pointLightPosition[0]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[0], 1.0)));  // red
-        multiLight.setVec3("pointLightPosition[1]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[1], 1.0)));  // green
-        multiLight.setVec3("pointLightPosition[2]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[2], 1.0)));  // blue
-        multiLight.setVec3("pointLightPosition[3]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[3], 1.0)));  // white
+        for (auto i = 0; i < std::ssize(pointLightPositions); i++) {
+            multiLight.setVec3(("pointLightPosition[" + std::to_string(i) + "]"), glm::vec3(Global::camera.getViewMatrix()* glm::vec4(pointLightPositions[i], 1.0)));
+        }
 
         // Transform Spotlight direction to current current View Space
         spotLight.updateDirectionInViewSpace(multiLight);
@@ -434,10 +432,9 @@ int main()
         sun.updateDirectionInViewSpace(multiLightNormalMapping);
 
         multiLightNormalMapping.useShader();
-        multiLightNormalMapping.setVec3("pointLightPosition[0]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[0], 1.0)));  // red
-        multiLightNormalMapping.setVec3("pointLightPosition[1]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[1], 1.0)));  // green
-        multiLightNormalMapping.setVec3("pointLightPosition[2]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[2], 1.0)));  // blue
-        multiLightNormalMapping.setVec3("pointLightPosition[3]", glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[3], 1.0)));  // white
+        for (auto i = 0; i < std::ssize(pointLightPositions); i++) {
+            multiLightNormalMapping.setVec3(("pointLightPosition[" + std::to_string(i) + "]"), glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[i], 1.0))); 
+        }
 
         // Transform Spotlight direction to current View Space
         spotLight.updateDirectionInViewSpace(multiLightNormalMapping);

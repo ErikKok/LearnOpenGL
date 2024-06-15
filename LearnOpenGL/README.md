@@ -40,10 +40,16 @@ TO DO
 
 14-6-2024 normalmapping on for cube/floor/backpack: 272fps, off 230fps. before optimization
 
+v0.2.67 15-6-2024
+-----------------
+- clean up both multiLight shaders
+- optimized shader (mainly multiLightNormalMapping)
+- changed inheritance spotlight/pointlight and added some loops for pointlight
+
 v0.2.66 15-6-2024
 -----------------
 - moved TBN calculations to the vertex shader for all lights
-- lost 5-8fps...
+- lost 5-8fps... (but introduced for loop in vertex, 2nd in/out interface block, etc.)
 
 v0.2.65 15-6-2024
 -----------------

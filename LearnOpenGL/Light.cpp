@@ -31,6 +31,9 @@ void PointLight::sendToShader(const Shader& shader) const
     shader.setVec3("pointLight.color", m_color);
     shader.setFloat("pointLight.strength", m_strength);
     shader.setInt("pointLight.depthMap", m_depthMap);
+    shader.setFloat("pointLight.constant", 1.0f);
+    shader.setFloat("pointLight.linear", 0.014f);
+    shader.setFloat("pointLight.quadratic", 0.07f);
 }
 
 void PointLight::updatePositionInViewSpace(const Shader& shader) const

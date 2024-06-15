@@ -27,7 +27,7 @@ protected:
 
     bool m_on{ true };
     glm::vec3 m_position{};                     // World Space - not used for DirectionalLight
-    glm::vec3 m_direction{};                    // World Space - not used for SpotLight
+    glm::vec3 m_direction{};                    // World Space - not used for PointLight
     glm::vec3 m_color{ 1.0f, 1.0f, 1.0f };      // Diffuse color
     float m_strength{ 1.0f };                   // Overall strength
     int m_depthMap{};                           // sampler2D
@@ -53,18 +53,23 @@ class PointLight : public Light {
 public:
     void sendToShader(const Shader& shader) const;
     void updatePositionInViewSpace(const Shader& shader) const;
-};
-
-// SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class SpotLight : public Light {
-public:
     const float getConstant() const { return m_constant; };
     void setConstant(float x) { m_constant = x; };
     const float getLinear() const { return m_linear; };
     void setLinear(float x) { m_linear = x; };
     const float getQuadratic() const { return m_quadratic; };
     void setQuadratic(float x) { m_quadratic = x; };
+
+protected:
+    float m_constant{ 1.0f };         // Usually kept at 1.0f
+    float m_linear{ 0.09f };          // Short distance intensity
+    float m_quadratic{ 0.032f };      // Long distance intensity
+};
+
+// SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SpotLight : public PointLight {
+public:
     //const float getInnerCutOff() const { return m_innerCutOff; }; // need to convert radians back to degrees
     void setInnerCutOff(float x) { m_innerCutOff = glm::cos(glm::radians(x)); };
     //const float getOuterCutOff() const { return m_outerCutOff; }; // need to convert radians back to degrees
@@ -76,9 +81,6 @@ public:
     virtual void updateColor(const Shader& shader) const;
 
 protected:
-    float m_constant{ 1.0f };         // Usually kept at 1.0f
-    float m_linear{ 0.09f };          // Short distance intensity
-    float m_quadratic{ 0.032f };      // Long distance intensity
     float m_innerCutOff{};            // Inner cone
     float m_outerCutOff{};            // Outer cone
 };
