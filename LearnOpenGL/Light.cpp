@@ -8,7 +8,7 @@ void DirectionalLight::sendToShader(const Shader& shader) const
 {
     shader.useShader();
     //shader.setInt("dirLight.on", m_on);
-    shader.setVec3("dirLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));
+    shader.setVec3("dirLightDirection", glm::normalize(Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f)));
     shader.setVec3("dirLight.color", m_color);
     shader.setFloat("dirLight.strength", m_strength);
     shader.setFloat("dirLight.ambient", m_ambient);
@@ -18,7 +18,7 @@ void DirectionalLight::sendToShader(const Shader& shader) const
 void DirectionalLight::updateDirectionInViewSpace(const Shader& shader) const
 {
     shader.useShader(); 
-    shader.setVec3("dirLight.direction", Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f));
+    shader.setVec3("dirLightDirection", glm::normalize(Global::camera.getViewMatrix() * glm::vec4(m_direction, 0.0f)));
 }
 
 // PointLight ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

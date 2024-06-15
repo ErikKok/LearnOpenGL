@@ -9,7 +9,7 @@
 
 class UniformBuffer {
 public:
-	UniformBuffer(int bindingPoint);
+	UniformBuffer(GLuint bindingPoint);
 	//UniformBuffer(GLuint size, GLuint index); // converted to DSA & immutable + more on 28-5-2024 - UNTESTED SINCE!
 	UniformBuffer(const UniformBuffer& other) = delete;					// Copy constructor
 	UniformBuffer& operator=(const UniformBuffer& other) = delete;		// Copy assignment
@@ -26,5 +26,5 @@ public:
 
 private:
 	GLuint m_id{};
-	int m_bindingPoint{};
+	GLuint m_bindingPoint{};
 };

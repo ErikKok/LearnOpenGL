@@ -33,7 +33,7 @@ void Model::loadModel(std::string const& path)
     Assimp::Importer importer{};
     const aiScene* scene{ importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace) };
     // check for errors
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) { // if is Not Zero
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::println("ERROR::ASSIMP:: {}", importer.GetErrorString());
         return;
     }
@@ -163,7 +163,7 @@ void Model::loadMaterialTextures(aiMaterial* material, aiTextureType aiTextureTy
 
         // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
         alreadyLoaded = false;
-        for (unsigned int j{ 0u }; j < m_texturesLoaded.size(); j++) // skipped when no textures loaded
+        for (auto j{ 0 }; j < std::ssize(m_texturesLoaded); j++) // skipped when no textures loaded
         {
             if (std::strcmp(m_texturesLoaded[j]->getfileName().data(), textureFilename.C_Str()) == 0) { // equal
                 // Create a shared_ptr from the original shared_ptr Texture and store it for each mesh to use
@@ -187,5 +187,21 @@ void Model::loadMaterialTextures(aiMaterial* material, aiTextureType aiTextureTy
             meshTextures.push_back(m_texturesLoaded.back());
         }
     }
+
+
+    // TEST 15-6-2024
+    //assert(m_texturesLoaded.size() >= 1 && "Model contains no textures!");
+    
+    //// Set default textures
+    //if(m_texturesLoaded.size() == 0) {
+    //    // diffuse
+    //    auto texture2{ std::make_shared<Texture>("Textures\\dev_orange.png", true)};
+    //    texture2->setType(textureType::diffuse);
+    //    texture2->setfileName("dev_orange.png");
+    //        
+    //    m_texturesLoaded.push_back(texture2);
+    //    meshTextures.push_back(m_texturesLoaded.back());
+    //}
+
     return;
 }

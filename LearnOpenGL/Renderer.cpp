@@ -60,7 +60,7 @@ void Renderer::draw(const RenderObject& RO) const
 		// Material, dit zijn vaste waardes, die potentieel elke keer, veranderen per draw call, dus hard coded is ok?
 		RO.material->shader.setInt("material.diffuse1", RO.material->diffuse1);
 		RO.material->shader.setInt("material.specular1", RO.material->specular1);
-		//RO.material.shader.setInt("material.normal1", RO.material->normal1);
+		//RO.material->shader.setInt("material.normal1", RO.material->normal1);
 		RO.material->shader.setInt("material.emission", RO.material->emission);
 		RO.material->shader.setFloat("material.emissionStrength", RO.material->emissionStrength);
 		RO.material->shader.setFloat("material.shininess", RO.material->shininess);
@@ -68,7 +68,7 @@ void Renderer::draw(const RenderObject& RO) const
 		RO.material->shader.setInt("material.flashLightEmissionTexture", RO.material->flashLightEmissionTexture);
 
 		// SSBO
-		for (int i = 0; i < std::size(RO.ssbo); i++) {
+		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 			RO.ssbo[i]->bind();
 		}
 		break;
@@ -90,7 +90,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 	// This is basically the same function as normal draw(), but the samplers are set from model.m_textures instead of Material
 	// and it ignores the meshes from the RO
 
-	assert(!RO.mesh && "Mesh defined, is this a RenderObject for a Mesh?");
+	assert(!RO.mesh && "RenderObject contains a Mesh, is this a RenderObject for a Mesh instead of a Model?");
 
 	// Activate Shader + set material properties
 	switch (m_renderPassActive)
@@ -133,7 +133,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		RO.material->shader.setInt("material.flashLightEmissionTexture", RO.material->flashLightEmissionTexture);
 
 		// SSBO
-		for (int i = 0; i < std::size(RO.ssbo); i++) {
+		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 			RO.ssbo[i]->bind();
 		}
 		break;
@@ -143,14 +143,12 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 	// Using TU 16 to 31 (always starting from 16, so only one model can be loaded at once -> TODO)
 	for (unsigned int i{ 0u }; i < model.m_texturesLoaded.size(); i++)
 	{
+		assert(model.m_texturesLoaded.size() >= 1 && "Model contains no textures!");
 		assert(i <= 15 && "Model uses > 16 textures, this is not supported!");
 		if (model.m_texturesLoaded[i]->getBound() == -1) {
 			// activate proper texture unit (i) and bind texture
 			model.m_texturesLoaded[i]->bind(i + 16);
-			// save texture unit in texture
-			model.m_texturesLoaded[i]->setBound(i + 16);
 		}
-		//std::println("DRAW Texture bind #{}", i)
 	}
 
 	// Set material sampler2D uniforms to the correct texture unit for each texture in the Mesh
@@ -159,7 +157,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 	unsigned int normalCount{ 1u }; // TODO
 	//unsigned int heightCount{ 1u }; // TODO
 
-	for (unsigned int i{ 0u }; i < model.m_meshes[i].m_textures.size(); i++)
+	for (auto i{ 0 }; i < std::ssize(model.m_meshes[i].m_textures); i++)
 	{
 		assert(model.m_meshes[i].m_textures[i]->getBound() >= 0 && "Texture is not bound to a texture unit");
 
@@ -181,14 +179,14 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		}
 	}
 
-	for (unsigned int i{ 0u }; i < model.m_meshes.size(); i++)
+	for (auto i{ 0 }; i < std::ssize(model.m_meshes); i++)
 	{
 		model.m_meshes[i].m_vao->bindVertexArray();
 		glDrawElementsInstanced(GL_TRIANGLES, model.m_meshes[i].m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 	}
 
 	//// You could unbind after each call, so you can call this function for a second model... quick fix
-	//for (unsigned int i{ 0u }; i < m_texturesLoaded.size(); i++)
+	//for (auto i{ 0 }; i < std::ssize(m_texturesLoaded); i++)
 	//{
 	//    assert(i <= 15 && "Model uses > 16 textures, this is not supported!");
 	//    if (m_texturesLoaded[i]->getBound() != -1) {
@@ -204,7 +202,7 @@ void Renderer::drawSingleColor(const RenderObject& RO) const
 	m_shaderSingleColor->useShader();
 
 	// SSBO
-	for (int i = 0; i < std::size(RO.ssbo); i++) {	
+	for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		if (RO.ssbo[i]->getBindingPoint() == singleColorBP || RO.ssbo[i]->getBindingPoint() == MVPMatrixBP)
 			RO.ssbo[i]->bind();
 	}

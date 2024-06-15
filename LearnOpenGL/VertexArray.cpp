@@ -31,10 +31,10 @@ void VertexArray::finalizeVertexAttributeLayout(const VertexBuffer* vbo, const V
 	glVertexArrayVertexBuffer(m_id, 0, vbo->getId(), 0, layout->m_stride);
 
 	GLuint totalOffset{ 0 };
-	for (GLuint i{ 0 }; i < layout->m_vertexAttributes.size(); i++) {
-		glEnableVertexArrayAttrib(m_id, i);
-		glVertexArrayAttribFormat(m_id, i, layout->m_vertexAttributes[i].m_count, layout->m_vertexAttributes[i].m_type, layout->m_vertexAttributes[i].m_normalized, totalOffset);
-		glVertexArrayAttribBinding(m_id, i, 0);
+	for (auto i{ 0 }; i < std::ssize(layout->m_vertexAttributes); i++) {
+		glEnableVertexArrayAttrib(m_id, static_cast<GLuint>(i));
+		glVertexArrayAttribFormat(m_id, static_cast<GLuint>(i), layout->m_vertexAttributes[i].m_count, layout->m_vertexAttributes[i].m_type, layout->m_vertexAttributes[i].m_normalized, totalOffset);
+		glVertexArrayAttribBinding(m_id, static_cast<GLuint>(i), 0);
 		totalOffset += layout->m_vertexAttributes[i].m_offset;
 	}
 

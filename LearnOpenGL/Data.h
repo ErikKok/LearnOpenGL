@@ -74,32 +74,32 @@ namespace Data{
 
     const std::vector cube{
     //   X      Y      Z       TextureX  TextureY  Normal1  Normal2  Normal3
-        // Back face                                                
+        // Back face                                                          
         -1.0f, -1.0f, -1.0f,   0.0f,     0.0f,     0.0f,    0.0f,    -1.0f,   // 0 Bottom-left
          1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     0.0f,    0.0f,    -1.0f,   // 1 top-right
          1.0f, -1.0f, -1.0f,   1.0f,     0.0f,     0.0f,    0.0f,    -1.0f,   // 2 bottom-right
         -1.0f,  1.0f, -1.0f,   0.0f,     1.0f,     0.0f,    0.0f,    -1.0f,   // 3 top-left
-        // Front face                                                         
+        // Front face                                                          
         -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     0.0f,    0.0f,     1.0f,   // 4 bottom-left
          1.0f, -1.0f,  1.0f,   1.0f,     0.0f,     0.0f,    0.0f,     1.0f,   // 5 bottom-right
          1.0f,  1.0f,  1.0f,   1.0f,     1.0f,     0.0f,    0.0f,     1.0f,   // 6 top-right
         -1.0f,  1.0f,  1.0f,   0.0f,     1.0f,     0.0f,    0.0f,     1.0f,   // 7 top-left
-        // Left face                                                          
+        // Left face                                                           
         -1.0f,  1.0f,  1.0f,   1.0f,     0.0f,    -1.0f,    0.0f,     0.0f,   // 8 top-right
         -1.0f,  1.0f, -1.0f,   1.0f,     1.0f,    -1.0f,    0.0f,     0.0f,   // 9 top-left
         -1.0f, -1.0f, -1.0f,   0.0f,     1.0f,    -1.0f,    0.0f,     0.0f,   // 10 bottom-left
         -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,    -1.0f,    0.0f,     0.0f,   // 11 bottom-right
-        // Right face                                                         
+        // Right face                                                          
          1.0f,  1.0f,  1.0f,   1.0f,     0.0f,     1.0f,    0.0f,     0.0f,   // 12 top-left
          1.0f, -1.0f, -1.0f,   0.0f,     1.0f,     1.0f,    0.0f,     0.0f,   // 13 bottom-right
          1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     1.0f,    0.0f,     0.0f,   // 14 top-right   
          1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     1.0f,    0.0f,     0.0f,   // 15 bottom-left 
-        // Bottom face                                                       
+        // Bottom face                                                        
         -1.0f, -1.0f, -1.0f,   0.0f,     1.0f,     0.0f,   -1.0f,     0.0f,   // 16 top-right
          1.0f, -1.0f, -1.0f,   1.0f,     1.0f,     0.0f,   -1.0f,     0.0f,   // 17 top-left
          1.0f, -1.0f,  1.0f,   1.0f,     0.0f,     0.0f,   -1.0f,     0.0f,   // 18 bottom-left
         -1.0f, -1.0f,  1.0f,   0.0f,     0.0f,     0.0f,   -1.0f,     0.0f,   // 19 bottom-right
-        // Top face                                                           
+        // Top face                                                            
         -1.0f,  1.0f, -1.0f,   0.0f,     1.0f,     0.0f,    1.0f,     0.0f,   // 20 top-left
          1.0f,  1.0f,  1.0f,   1.0f,     0.0f,     0.0f,    1.0f,     0.0f,   // 21 bottom-right
          1.0f,  1.0f, -1.0f,   1.0f,     1.0f,     0.0f,    1.0f,     0.0f,   // 22 top-right   
@@ -242,7 +242,7 @@ namespace Data{
     };
 
     const std::vector floor{ // Hexagon
-          // Positions          // Texture    // Normal
+          // Positions          // Texture    // Normal         
           0.0f,   0.0f,  0.0f,  0.5f, 0.5f,   0.0f, 0.0f, -1.0f,
           0.0f,   1.0f,  0.0f,  0.5f, 1.0f,   0.0f, 0.0f, -1.0f,
           0.67f,  0.50f, 0.0f,  1.0f, 0.75f,  0.0f, 0.0f, -1.0f,

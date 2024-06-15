@@ -161,6 +161,7 @@ int main()
     // DirLight
     DirectionalLight sun;
     sun.setDirection(0.7f, 0.9f, 0.8f); // TODO light position == camera position == needs to sync, or delete 1
+    //multiLightNormalMapping.setVec3("dirLightDirection", { 0.7f, 0.9f, 0.8f });
     sun.setColor(1.0f, 1.0f, 0.95f);
     sun.setStrength(0.25f);
     sun.setDepthMap(2);
@@ -299,6 +300,7 @@ int main()
     float loadTime{ static_cast<float>(glfwGetTime()) };
 
     //Shader ourModelShader("Shaders\\multiLight.shader");
+    //Model backpackModel("Models/Hexagon/hexagon.obj"); // crash
     Model backpackModel("Models/Backpack/backpack.obj");
     //Model ourModel("Models/Nanosuit/nanosuit.obj");
     //Model ourModel("Models/Cyborg/cyborg.obj");
@@ -319,7 +321,7 @@ int main()
         .flashLightEmissionTexture{ 0 },
     };
 
-    RenderObject modelRO{ nullptr, &modelMaterial}; // TODO Feed mesh[0] from model
+    RenderObject modelRO{ nullptr, &modelMaterial};
 
     modelRO.model[0] = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -338,14 +340,14 @@ int main()
     lightCubeRO.addSSBO(singleColorBP, sizeof(glm::vec4));
 
     // TODO, onderstaand vervangen door een constructor die bindingpoint + data inneemt + upload
-    lightCubeRO.ssbo[1]->addBufferSubData(pointLightColors); // in de loop wordt dit geupload
+    lightCubeRO.ssbo[1]->updateFully(pointLightColors); // in de loop wordt dit geupload
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
     std::println("Load time model: {} seconds", static_cast<float>(glfwGetTime()) - loadTime);
 
     /////////////////////////////////////////////////////////////////////////////////////
-    // All textures get loaded and bind here
+    // All textures get loaded and bound here
     // Set material uniforms to the correct texture unit / values before each draw call
     std::println("AI TEXTURE ASSET MANAGER ***********************");
     /* 00 GL_TEXTURE_CUBE_MAP */ Texture cubemapTexture(Data::skybox1Faces);
@@ -356,7 +358,7 @@ int main()
     /* 04 */ Texture floorTexture("Textures\\floor.jpg");
     /* 05 */
     /* 06 */
-    /* 07 */ Texture normalUpTexture(0x807fffff);
+    /* 07 */ Texture normalUpTexture("Textures\\normal_up.jpg", false); //0x807fffff); // TODO single color?
     /* 08 */ Texture cubeDiffuse("Textures\\container2.png");
     /* 09 */ Texture cubeSpecular("Textures\\container2_specular.png");
     /* 10 */ Texture cubeEmission("Textures\\emission.png");
@@ -451,7 +453,7 @@ int main()
         /////////////////////////////////////////////////////////////////////////////////////
 
         // Cube
-        for (int i = 0; i < std::ssize(Data::cubePositions); i++)
+        for (auto i = 0; i < std::ssize(Data::cubePositions); i++)
         {
             assert(std::size(Data::cubePositions) <= cubeRO.instances && "Loop will create more instances then ssbo can hold");
 
@@ -473,7 +475,7 @@ int main()
         }
 
         // Calculate SSBO's, and upload them to their buffers
-        for (int i = 0; i < std::ssize(cubeRO.model); i++) {
+        for (auto i = 0; i < std::ssize(cubeRO.model); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.model[i];
             cubeRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * cubeRO.model[i], i);
             cubeRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(Global::cameraFlashLight.getViewProjectionMatrix() * cubeRO.model[i], i);
@@ -482,12 +484,12 @@ int main()
             cubeRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i);
             cubeRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i);
         }
-        for (int i = 0; i < std::ssize(cubeRO.ssbo); i++) {
+        for (auto i = 0; i < std::ssize(cubeRO.ssbo); i++) {
             cubeRO.ssbo[i]->uploadFully();
         }
 
         // Floor
-        for (int i = 0; i < std::ssize(floorRO.model); i++) {
+        for (auto i = 0; i < std::ssize(floorRO.model); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.model[i];
             floorRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * floorRO.model[i], i);
             floorRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(Global::cameraFlashLight.getViewProjectionMatrix() * floorRO.model[i], i);
@@ -496,12 +498,12 @@ int main()
             floorRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i);
             floorRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i);
         }
-        for (int i = 0; i < std::ssize(floorRO.ssbo); i++) {
+        for (auto i = 0; i < std::ssize(floorRO.ssbo); i++) {
             floorRO.ssbo[i]->uploadFully();
         }
 
         // Model
-        for (int i = 0; i < std::ssize(modelRO.model); i++) {
+        for (auto i = 0; i < std::ssize(modelRO.model); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.model[i];
             modelRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * modelRO.model[i], i);
             modelRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(Global::cameraFlashLight.getViewProjectionMatrix() * modelRO.model[i], i);
@@ -510,7 +512,7 @@ int main()
             modelRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i);
             modelRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i);
         }
-        for (int i = 0; i < std::ssize(modelRO.ssbo); i++) {
+        for (auto i = 0; i < std::ssize(modelRO.ssbo); i++) {
             modelRO.ssbo[i]->uploadFully();
         }
 
@@ -603,7 +605,7 @@ int main()
         /////////////////////////////////////
         
         // pointlights - 4 vaste LightCubes
-        for (int i = 0; i < std::size(pointLightPositions); i++) {
+        for (auto i = 0; i < std::ssize(pointLightPositions); i++) {
             assert(std::size(pointLightPositions) <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
             lightCubeRO.model[i] = Global::getModelMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
             lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i);

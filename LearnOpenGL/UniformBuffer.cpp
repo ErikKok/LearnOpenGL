@@ -1,7 +1,7 @@
 #pragma once
 #include "UniformBuffer.h"
 
-UniformBuffer::UniformBuffer(int bindingPoint)
+UniformBuffer::UniformBuffer(GLuint bindingPoint)
 	: m_bindingPoint{ bindingPoint }
 {
 	glCreateBuffers(1, &m_id);

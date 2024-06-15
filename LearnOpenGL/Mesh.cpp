@@ -10,11 +10,24 @@ Mesh::Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& 
     ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(unsigned int), &m_indices[0]) } // can not use sizeof() with vector
     ,m_layout{ std::make_unique<VertexAttributeLayout>() }
 {
-    setupMesh323();
+    setupVBO323();
     //std::println("CREATE Mesh");
 }
 
-void Mesh::setupMesh323() const // TODO rename setupVBO323
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<SPtr<Texture>>& textures)
+    :m_vertices{ vertices }
+    ,m_indices{ indices }
+    ,m_textures{ textures }
+    ,m_vao{ std::make_unique<VertexArray>() }
+    ,m_vbo{ std::make_unique<VertexBuffer>(m_vertices.size() * sizeof(Vertex), &m_vertices[0]) }
+    ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(GLuint), &m_indices[0])}
+    ,m_layout{ std::make_unique<VertexAttributeLayout>() }
+{
+    setupVBO32333();
+    //std::println("CREATE Mesh");
+}
+
+void Mesh::setupVBO323() const
 {
     // Specify layout of vbo and bind it to vao
     m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
@@ -28,20 +41,22 @@ void Mesh::setupMesh323() const // TODO rename setupVBO323
     //std::println("SETUP Mesh");
 }
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<SPtr<Texture>>& textures)
-    :m_vertices{ vertices }
-    ,m_indices{ indices }
-    ,m_textures{ textures }
-    ,m_vao{ std::make_unique<VertexArray>() }
-    ,m_vbo{ std::make_unique<VertexBuffer>(m_vertices.size() * sizeof(Vertex), &m_vertices[0]) }
-    ,m_ebo{ std::make_unique<ElementBuffer>(m_indices.size() * sizeof(GLuint), &m_indices[0])}
-    ,m_layout{ std::make_unique<VertexAttributeLayout>() }
+void Mesh::setupVBO3233() const
 {
-    setupMesh32333();
-    //std::println("CREATE Mesh");
+    // Specify layout of vbo and bind it to vao
+    m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions
+    m_layout->pushVertexAttributeLayout<float>(2);      // 1 - tex coords
+    m_layout->pushVertexAttributeLayout<float>(3);      // 2 - normals
+    m_layout->pushVertexAttributeLayout<float>(3);      // 3 - Tangent
+    m_vao->finalizeVertexAttributeLayout(m_vbo.get(), m_layout.get());
+
+    // Bind ebo to vao
+    glVertexArrayElementBuffer(m_vao->getId(), m_ebo->getId());
+
+    //std::println("SETUP Mesh");
 }
 
-void Mesh::setupMesh32333() const
+void Mesh::setupVBO32333() const
 {
     // Specify layout of vbo and bind it to vao
     m_layout->pushVertexAttributeLayout<float>(3);      // 0 - positions

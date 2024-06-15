@@ -32,12 +32,20 @@ TO DO
 - huidige mesh class inheriten, base kan iets kleiner?
 - font rendering
 - TODO's nalopen
-- gebruik std::ssize vs std::size / unsigned int vs int in for loops checken
+- for loops checken: auto icm std::ssize heeft de voorkeur
 - gebruik Global::glCheckError(); inperken
-
 - ShaderStorageBuffer moet een BufferDataStore als data member krijgen, friend class, kan je de data store vd / in de buffer zelf bewerken, veiliger 
+- TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used.
+- obj van cube en hexagon fixen
 
-v0.2.64 1-6-2024
+14-6-2024 normalmapping on for cube/floor/backpack: 272fps, off 230fps. before optimization
+
+v0.2.65 15-6-2024
+-----------------
+- for loops nagelopen
+- normalize DirLightDirection op cpu, moved uniform to vertex shader
+
+v0.2.64 11-6-2024
 -----------------
 - added enum ssboTypes & enum ssboBindingPoints
 - Made a class of RenderObject

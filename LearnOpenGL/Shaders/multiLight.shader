@@ -9,6 +9,7 @@ out VS_OUT { // PASS_THROUGH_GS
     vec3 FragPosView;               // view space
     vec3 NormalView;                // view space
     vec4 dirLightShadowCoord;       // clip space   // Orthographic
+    vec3 dirLightDirectionView;  // view space // Normalized
     vec4 spotLightShadowCoord;      // clip space   // Perspective
     vec4 flashLightShadowCoord;     // clip space   // Perspective
 } vs_out;
@@ -37,12 +38,15 @@ layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
     mat4 flashLightMVPMatrix[];
 };
 
+uniform vec3 dirLightDirection; // View Space // normalized
+
 void main()
 {
     vs_out.TexCoords = aTexCoords;
     vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
     vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
     vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
+    vs_out.dirLightDirectionView = dirLightDirection;
     vs_out.spotLightShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.flashLightShadowCoord = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // clip space
@@ -86,6 +90,7 @@ in VS_OUT { // PASS_THROUGH_GS
     vec3 FragPosView;
     vec3 NormalView;
     vec4 dirLightShadowCoord;
+    vec3 dirLightDirectionView;
     vec4 spotLightShadowCoord;
     vec4 flashLightShadowCoord;
 } vs_out;
@@ -104,7 +109,7 @@ struct Material {
 uniform Material material;
 
 struct DirLight {
-    vec3 direction;     // View Space
+    //vec3 direction;     // View Space // normalized
     vec3 color;         // Light color
     float ambient;      // Ambient strength
     float strength;     // Overall strength
@@ -160,17 +165,17 @@ vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
 vec3 CalcDirLight(DirLight light)
 {
-    vec3 lightDir = normalize(light.direction);
+    //vec3 lightDir = light.direction;
 
     // ambient
     vec3 ambient = light.ambient * textureDiffuse;
 
     // diffuse
-    float diff = max(dot(normalView, lightDir), 0.0f);
+    float diff = max(dot(normalView, vs_out.dirLightDirectionView), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirView); // Blinn-Phong
+    vec3 halfwayDir = normalize(vs_out.dirLightDirectionView + viewDirView); // Blinn-Phong
     float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
 
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong

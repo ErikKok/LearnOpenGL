@@ -4,7 +4,7 @@
 
 #include <print>
 
-ShaderStorageBuffer::ShaderStorageBuffer(int bindingPoint, int elementCount, GLsizeiptr elementSize)
+ShaderStorageBuffer::ShaderStorageBuffer(GLuint bindingPoint, int elementCount, GLsizeiptr elementSize)
 	: m_bindingPoint{ bindingPoint }
 	, m_BufferDataStore{ elementCount, elementSize }
 {

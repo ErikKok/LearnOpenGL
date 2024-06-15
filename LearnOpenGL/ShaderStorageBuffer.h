@@ -32,7 +32,7 @@ enum ssboBindingPoints {
 
 class ShaderStorageBuffer {
 public:
-	ShaderStorageBuffer(int bindingPoint, int elementCount, GLsizeiptr elementSize);
+	ShaderStorageBuffer(GLuint bindingPoint, int elementCount, GLsizeiptr elementSize);
 	ShaderStorageBuffer(const ShaderStorageBuffer& other) = delete;					// Copy constructor
 	ShaderStorageBuffer& operator=(const ShaderStorageBuffer& other) = delete;		// Copy assignment
 	ShaderStorageBuffer(ShaderStorageBuffer&& other) noexcept = delete; 			// Move constructor	
@@ -46,15 +46,15 @@ public:
 	//void unbind() const;
 
 	// Pass-through functions BufferDataStore
-	void addBufferSubData(const auto& data) { m_BufferDataStore.addBufferSubData(data); };
+	void updateFully(const auto& data) { m_BufferDataStore.updateFully(data); };
 	//void createAndInitializeImmutableDataStore() { m_dataStore.createAndInitializeImmutableDataStore(); };
 	void updateSubset(const auto& data, GLintptr elementIndex = 0) { m_BufferDataStore.updateSubset(data, elementIndex); };
 	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0) { m_BufferDataStore.updateAndUploadSubset(data, elementIndex); };
-	void uploadFully()  { m_BufferDataStore.uploadFully(); }; // niet meer const vanwege m_hasBeenUploaded
+	void uploadFully() { m_BufferDataStore.uploadFully(); };
 
 private:
 	GLuint m_id{};
-	int m_bindingPoint{};
+	GLuint m_bindingPoint{};
 	BufferDataStore m_BufferDataStore;
 };
 

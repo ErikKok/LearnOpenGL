@@ -42,6 +42,7 @@ private:
     std::unique_ptr<ElementBuffer> m_ebo{ nullptr };
     std::unique_ptr<VertexAttributeLayout> m_layout{ nullptr };
 
-    void setupMesh323() const;
-    void setupMesh32333() const;
+    void setupVBO323() const;
+    void setupVBO3233() const; // + Tangent
+    void setupVBO32333() const; // + BiTangent
 };

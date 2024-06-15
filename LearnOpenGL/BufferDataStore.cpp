@@ -13,10 +13,9 @@ void BufferDataStore::createImmutableDataStore() const
 	assert(m_ssboId != 0 && "m_ssboId not set");
 	glNamedBufferStorage(m_ssboId, m_data.size() * m_elementSize, m_data.data(), GL_DYNAMIC_STORAGE_BIT);
 	Global::glCheckError();
-	// Size of the buffer is fixed for the rest of it's life span from here on
 };
 
-void BufferDataStore::uploadFully()  // also creates the buffer
+void BufferDataStore::uploadFully()
 {
 	GLintptr offset{ 0 };
 	for (auto i{ 0 }; i < std::ssize(m_data); i++) {
@@ -25,5 +24,5 @@ void BufferDataStore::uploadFully()  // also creates the buffer
 	}
 
 	Global::glCheckError();
-	m_hasBeenUpdated = true; // TODO niet meer const vanwege m_hasBeenUploaded
+	m_hasValidData = true;
 }

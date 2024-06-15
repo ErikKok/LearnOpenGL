@@ -8,9 +8,11 @@ layout (location = 3) in vec3 aTangent;
 
 out VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
-    vec3 FragPosView;               // view space
-    //vec3 NormalView;                // view space
+    vec3 FragPosView;
+    //vec3 FragPosTangent;
+    //vec3 NormalView;
     vec4 dirLightShadowCoord;       // clip space   // Orthographic
+    vec3 dirLightDirectionTangent;  // Normalized
     vec4 spotLightShadowCoord;      // clip space   // Perspective
     vec4 flashLightShadowCoord;     // clip space   // Perspective
     mat3 TBN;
@@ -40,9 +42,7 @@ layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
     mat4 flashLightMVPMatrix[];
 };
 
-//uniform mat4 model;
-//uniform mat4 view;
-//uniform mat4 projection;
+uniform vec3 dirLightDirection; // View Space // normalized
 
 void main()
 {
@@ -58,7 +58,9 @@ void main()
     vs_out.TexCoords = aTexCoords;
     //vs_out.NormalView = mat3(NormalMatrix[gl_InstanceID]) * aNormal;
     vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
+    //vs_out.FragPosTangent = vs_out.TBN * vs_out.FragPosView;
     vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
+    vs_out.dirLightDirectionTangent = vs_out.TBN * dirLightDirection;
     vs_out.spotLightShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.flashLightShadowCoord = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // clip space
@@ -71,8 +73,10 @@ out vec4 FragColor;
 in VS_OUT { // PASS_THROUGH_GS
     vec2 TexCoords;
     vec3 FragPosView;
+    //vec3 FragPosTangent;      
     //vec3 NormalView;
     vec4 dirLightShadowCoord;
+    vec3 dirLightDirectionTangent;
     vec4 spotLightShadowCoord;
     vec4 flashLightShadowCoord;
     mat3 TBN;
@@ -92,7 +96,7 @@ struct Material {
 uniform Material material;
 
 struct DirLight {
-    vec3 direction;     // View Space
+    //vec3 direction;     // View Space // normalized
     vec3 color;         // Light color
     float ambient;      // Ambient strength
     float strength;     // Overall strength
@@ -148,17 +152,20 @@ vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
 vec3 CalcDirLight(DirLight light)
 {
-    vec3 lightDir = vs_out.TBN * normalize(light.direction); // TODO move to vertex shader
+    //dirLight.direction = vs_out.dirLightDirectionTangent;
+    //vec3 lightDir = vs_out.TBN * normalize(light.direction); // TODO move to vertex shader
+    //vec3 lightDir = vs_out.dirLightDirectionTangent; // TODO move to vertex shader
 
     // ambient
     vec3 ambient = light.ambient * textureDiffuse;
 
     // diffuse
-    float diff = max(dot(normalTangent, lightDir), 0.0f);
+    float diff = max(dot(normalTangent, vs_out.dirLightDirectionTangent), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // specular
-    vec3 halfwayDir = normalize(lightDir + viewDirTangent); // Blinn-Phong
+    vec3 halfwayDir = normalize(vs_out.dirLightDirectionTangent + viewDirTangent); // Blinn-Phong
+
     float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
