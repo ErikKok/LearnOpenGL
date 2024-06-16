@@ -26,20 +26,20 @@ void DirectionalLight::updateDirectionInViewSpace(const Shader& shader) const
 void PointLight::sendToShader(const Shader& shader) const
 {
     shader.useShader();
-    //shader.setInt("pointLight.on", m_on);
-    shader.setVec3("pointLightPosition", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));
-    shader.setVec3("pointLight.color", m_color);
-    shader.setFloat("pointLight.strength", m_strength);
-    shader.setInt("pointLight.depthMap", m_depthMap);
-    shader.setFloat("pointLight.constant", 1.0f);
-    shader.setFloat("pointLight.linear", 0.014f);
-    shader.setFloat("pointLight.quadratic", 0.07f);
+    //shader.setInt("pointLights[" + std::to_string(m_id) + "].on", m_on);
+    shader.setVec3("pointLightPosition[" + std::to_string(m_id) + "]", Global::camera.getViewMatrix() * glm::vec4(m_position, 1.0f));
+    shader.setVec3("pointLights[" + std::to_string(m_id) + "].color", m_color);
+    shader.setFloat("pointLights[" + std::to_string(m_id) + "].strength", m_strength);
+    //shader.setInt("pointLights[" + std::to_string(m_id) + "].depthMap", m_depthMap);
+    shader.setFloat("pointLights[" + std::to_string(m_id) + "].constant", 1.0f);
+    shader.setFloat("pointLights[" + std::to_string(m_id) + "].linear", 0.014f);
+    shader.setFloat("pointLights[" + std::to_string(m_id) + "].quadratic", 0.07f);
 }
 
 void PointLight::updatePositionInViewSpace(const Shader& shader) const
 {
-    shader.useShader(); 
-    shader.setVec3("pointLightPosition", Global::camera.getViewMatrix() * glm::vec4(m_position, 0.0f));
+    shader.useShader();
+    shader.setVec3("pointLightPosition[" + std::to_string(m_id) + "]", Global::camera.getViewMatrix() * glm::vec4(m_position, 1.0f));
 }
 
 // SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

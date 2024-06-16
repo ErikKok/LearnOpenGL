@@ -73,85 +73,53 @@ int main()
     ////// Lights ///////////////////////
     std::println("CREATE Lights");///////
 
+    PointLight::pointLights.emplace_back(PointLight());
+    PointLight::pointLights[0].setPosition({ 0.7f, 11.2f, 2.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    PointLight::pointLights[0].setColor({ 1.0f, 0.0f, 1.0f });
+    PointLight::pointLights[0].setStrength(1.0f);
+    //pointLight1.setDepthMap(5);
+    PointLight::pointLights[0].setConstant(1.0f);
+    PointLight::pointLights[0].setLinear(0.032f);
+    PointLight::pointLights[0].setQuadratic(0.09f);
+    PointLight::pointLights[0].sendToShader(multiLight);
+    PointLight::pointLights[0].sendToShader(multiLightNormalMapping);
 
-    //PointLight pointLight1;
-    //pointLight1.setPosition(0.7f, 11.2f, 2.0f); // TODO light position == camera position == needs to sync, or delete 1
-    //pointLight1.setColor(1.0f, 1.0f, 1.0f);
-    //pointLight1.setStrength(1.0f);
-    ////pointLight1.setDepthMap(5);
-    //pointLight1.setConstant(1.0f);
-    //pointLight1.setLinear(0.032f);
-    //pointLight1.setQuadratic(0.09f);
-    //pointLight1.sendToShader(multiLight);
-    //pointLight1.sendToShader(multiLightNormalMapping);
+    PointLight::pointLights.emplace_back(PointLight());
+    PointLight::pointLights[1].setPosition({ 4.0f,  2.0f, -12.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    PointLight::pointLights[1].setColor({ 1.0f, 1.0f, 1.0f });
+    PointLight::pointLights[1].sendToShader(multiLight);
+    PointLight::pointLights[1].sendToShader(multiLightNormalMapping);
 
+    PointLight::pointLights.emplace_back(PointLight());
+    PointLight::pointLights[2].setPosition({ -4.0f,  2.0f,  12.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    PointLight::pointLights[2].setColor({ 0.0f, 1.0f, 0.0f });
+    PointLight::pointLights[2].sendToShader(multiLight);
+    PointLight::pointLights[2].sendToShader(multiLightNormalMapping);
+
+    PointLight::pointLights.emplace_back(PointLight());
+    PointLight::pointLights[3].setPosition({ 15.0f,  1.2f,  -3.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    PointLight::pointLights[3].setColor({ 0.0f, 0.0f, 1.0f });
+    PointLight::pointLights[3].setLinear(0.035f);
+    PointLight::pointLights[3].setQuadratic(0.44f);
+    PointLight::pointLights[3].sendToShader(multiLight);
+    PointLight::pointLights[3].sendToShader(multiLightNormalMapping);
 
     // PointLight (max amount hard coded in shader 2x TODO)
-    glm::vec3 pointLightPositions[] = { // World space
-        glm::vec3(0.7f,  11.2f,   2.0f),
-        glm::vec3(4.0f,   2.0f, -12.0f),
-        glm::vec3(-4.0f,  2.0f,  12.0f),
-        glm::vec3(15.0f,  1.2f,  -3.0f),
-    };
-
-    const std::vector<glm::vec4> pointLightColors = {
-    glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), // magenta
-    glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), // white
-    glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), // green
-    glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), // blue
-    glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), // red
-    };
+    //glm::vec3 pointLightPositions[] = { // World space
+    //    glm::vec3( 0.7f, 11.2f,   2.0f),
+    //    glm::vec3( 4.0f,  2.0f, -12.0f),
+    //    glm::vec3(-4.0f,  2.0f,  12.0f),
+    //    glm::vec3(15.0f,  1.2f,  -3.0f),
+    //};
 
     // TODO use variable length arrays through SSBO
     // Removes the need to manually set the pointLightsCount here AND in the shader
     // See -> https://computergraphics.stackexchange.com/questions/5323/dynamic-array-in-glsl
     multiLight.useShader();
-    multiLight.setInt("pointLightsCount", std::ssize(pointLightPositions));
+    multiLight.setInt("pointLightsCount", getPointLightCount());
 
-    for (auto i = 0; i < std::ssize(pointLightPositions); i++) {
-        multiLight.setVec3("pointLights[" + std::to_string(i) + "].color", pointLightColors[i]);
-        multiLight.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
-    }
-
-    multiLight.setFloat("pointLights[0].linear", 0.09f);
-    multiLight.setFloat("pointLights[0].quadratic", 0.032f);
-    multiLight.setFloat("pointLights[0].strength", 1.0f);
-
-    multiLight.setFloat("pointLights[1].linear", 0.09f);
-    multiLight.setFloat("pointLights[1].quadratic", 0.032f);
-    multiLight.setFloat("pointLights[1].strength", 2.0f);
-
-    multiLight.setFloat("pointLights[2].linear", 0.09f);
-    multiLight.setFloat("pointLights[2].quadratic", 0.032f);
-    multiLight.setFloat("pointLights[2].strength", 3.0f);
-
-    multiLight.setFloat("pointLights[3].linear", 0.35f);
-    multiLight.setFloat("pointLights[3].quadratic", 0.44f);
-    multiLight.setFloat("pointLights[3].strength", 1.0f);
- 
     multiLightNormalMapping.useShader();
-    multiLightNormalMapping.setInt("pointLightsCount", std::ssize(pointLightPositions));
-
-    for (auto i = 0; i < std::ssize(pointLightPositions); i++) {
-        multiLightNormalMapping.setVec3("pointLights[" + std::to_string(i) + "].color", pointLightColors[i]);
-        multiLightNormalMapping.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
-    }
-
-    multiLightNormalMapping.setFloat("pointLights[0].linear", 0.09f);
-    multiLightNormalMapping.setFloat("pointLights[0].quadratic", 0.032f);
-    multiLightNormalMapping.setFloat("pointLights[0].strength", 1.0f);
-
-    multiLightNormalMapping.setFloat("pointLights[1].linear", 0.09f);
-    multiLightNormalMapping.setFloat("pointLights[1].quadratic", 0.032f);
-    multiLightNormalMapping.setFloat("pointLights[1].strength", 2.0f);
-
-    multiLightNormalMapping.setFloat("pointLights[2].linear", 0.09f);
-    multiLightNormalMapping.setFloat("pointLights[2].quadratic", 0.032f);
-    multiLightNormalMapping.setFloat("pointLights[2].strength", 3.0f);
-
-    multiLightNormalMapping.setFloat("pointLights[3].linear", 0.35f);
-    multiLightNormalMapping.setFloat("pointLights[3].quadratic", 0.44f);
-    multiLightNormalMapping.setFloat("pointLights[3].strength", 1.0f);
+    multiLightNormalMapping.setInt("pointLightsCount", getPointLightCount());
 
     /////////////////////////////////////
     ////// light / depthMap /////////////
@@ -159,9 +127,9 @@ int main()
 
     // DirLight
     DirectionalLight sun;
-    sun.setDirection(0.7f, 0.9f, 0.8f); // TODO light position == camera position == needs to sync, or delete 1
+    sun.setDirection({ 0.7f, 0.9f, 0.8f }); // TODO light position == camera position == needs to sync, or delete 1
     //multiLightNormalMapping.setVec3("dirLightDirection", { 0.7f, 0.9f, 0.8f });
-    sun.setColor(1.0f, 1.0f, 0.95f);
+    sun.setColor({ 1.0f, 1.0f, 0.95f });
     sun.setStrength(0.25f);
     sun.setDepthMap(2);
     sun.setAmbient(0.3f);
@@ -181,9 +149,9 @@ int main()
 
     // SpotLight
     SpotLight spotLight;
-    spotLight.setPosition(0.0f, -1.0f, 0.0f); // TODO light position == camera position == needs to sync, or delete 1
-    spotLight.setDirection(0.0f, -1.0f, 0.0f);
-    spotLight.setColor(1.0f, 1.0f, 1.0f);
+    spotLight.setPosition({ 0.0f, -1.0f, 0.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    spotLight.setDirection({ 0.0f, -1.0f, 0.0f });
+    spotLight.setColor({ 1.0f, 1.0f, 1.0f });
     spotLight.setStrength(1.2f);
     spotLight.setDepthMap(5);
     spotLight.setConstant(1.0f);
@@ -207,7 +175,7 @@ int main()
     // FlashLight
     FlashLight flashLight;
     flashLight.setOn(false);
-    flashLight.setColor(1.0f, 1.0f, 1.0f);
+    flashLight.setColor({ 1.0f, 1.0f, 1.0f });
     flashLight.setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
     flashLight.setDepthMap(6);
     flashLight.setConstant(1.0f);
@@ -338,8 +306,17 @@ int main()
     lightCubeRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
     lightCubeRO.addSSBO(singleColorBP, sizeof(glm::vec4));
 
+    // TODO deze kleur/info moet eigenlijk uit de Light zelf worden gehaald
+    const std::vector<glm::vec4> lightCubeColors = {
+    glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), // magenta
+    glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), // white
+    glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), // green
+    glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), // blue
+    glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), // red
+    };
+
     // TODO, onderstaand vervangen door een constructor die bindingpoint + data inneemt + upload
-    lightCubeRO.ssbo[1]->updateFully(pointLightColors); // in de loop wordt dit geupload
+    lightCubeRO.ssbo[1]->updateFully(lightCubeColors); // in de loop wordt dit geupload
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -412,18 +389,22 @@ int main()
         // Transform dirLight direction to current View Space
         sun.updateDirectionInViewSpace(multiLight);
 
-        multiLight.useShader();
-        for (auto i = 0; i < std::ssize(pointLightPositions); i++) {
-            multiLight.setVec3(("pointLightPosition[" + std::to_string(i) + "]"), glm::vec3(Global::camera.getViewMatrix()* glm::vec4(pointLightPositions[i], 1.0)));
+        //multiLight.useShader();
+        //for (auto i = 0; i < getPointLightCount(); i++) {
+  
+        //}
+
+        for ( auto& pointLight : PointLight::pointLights) {
+            pointLight.updatePositionInViewSpace(multiLight);
         }
 
         // Transform Spotlight direction to current current View Space
         spotLight.updateDirectionInViewSpace(multiLight);
         // Calculate Spotlight position and transform to current View Space
-        spotLight.setPosition(3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())));
+        spotLight.setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) });
         spotLight.updatePositionInViewSpace(multiLight);
         // Calculate Spotlight color
-        spotLight.setColor(static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)));
+        spotLight.setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
         spotLight.updateColor(multiLight);
 
         /////
@@ -431,18 +412,21 @@ int main()
         // Transform dirLight direction to current View Space
         sun.updateDirectionInViewSpace(multiLightNormalMapping);
 
-        multiLightNormalMapping.useShader();
-        for (auto i = 0; i < std::ssize(pointLightPositions); i++) {
-            multiLightNormalMapping.setVec3(("pointLightPosition[" + std::to_string(i) + "]"), glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLightPositions[i], 1.0))); 
+        //multiLightNormalMapping.useShader();
+        //for (auto i = 0; i < getPointLightCount(); i++) {
+        //    multiLightNormalMapping.setVec3(("pointLightPosition[" + std::to_string(i) + "]"), glm::vec3(Global::camera.getViewMatrix() * glm::vec4(pointLight0.getPosition(), 1.0f)));
+        //}
+        for (auto& pointLight : PointLight::pointLights) {
+            pointLight.updatePositionInViewSpace(multiLightNormalMapping);
         }
 
         // Transform Spotlight direction to current View Space
         spotLight.updateDirectionInViewSpace(multiLightNormalMapping);
         // Calculate Spotlight position and transform to current View Space
-        spotLight.setPosition(3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())));
+        spotLight.setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) });
         spotLight.updatePositionInViewSpace(multiLightNormalMapping);
         // Calculate Spotlight color
-        spotLight.setColor(static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)));
+        spotLight.setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
         spotLight.updateColor(multiLightNormalMapping);
 
         /////////////////////////////////////////////////////////////////////////////////////
@@ -600,11 +584,15 @@ int main()
 
         ////// LightCube ////////////////////
         /////////////////////////////////////
-        
+        //int x = getPointLightCount();
+
         // pointlights - 4 vaste LightCubes
-        for (auto i = 0; i < std::ssize(pointLightPositions); i++) {
-            assert(std::size(pointLightPositions) <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
-            lightCubeRO.model[i] = Global::getModelMatrix(glm::vec3(pointLightPositions[i]), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+        for (auto i = 0; i < getPointLightCount(); i++) {
+            //assert(getPointLightCount() <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
+
+            //////////////////////////// pointLight0.getPosition()
+
+            lightCubeRO.model[i] = Global::getModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
             lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i);
         }
 

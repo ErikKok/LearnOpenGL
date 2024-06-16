@@ -12,11 +12,11 @@ public:
     const bool getOn() const { return m_on; };
     void setOn(bool x) { m_on = x; };
     const glm::vec3 getPosition() const { return m_position; };
-    void setPosition(float x, float y, float z) { m_position.x = x, m_position.y = y, m_position.z = z; };
+    void setPosition(glm::vec3 x) { m_position = x; };
     const glm::vec3 getDirection() const { return m_direction; };
-    void setDirection(float x, float y, float z) { m_direction.x = x, m_direction.y = y, m_direction.z = z; };
+    void setDirection(glm::vec3 x) { m_direction = x; };
     const glm::vec3 getColor() const { return m_color; };
-    void setColor(float x, float y, float z) { m_color.x = x, m_color.y = y, m_color.z = z; };
+    void setColor(glm::vec3 x) { m_color = x; };
     const float getStrength() const { return m_strength; };
     void setStrength(float x) { m_strength = x; };
     const int getDepthMap() const { return m_depthMap; };
@@ -51,6 +51,17 @@ protected:
 
 class PointLight : public Light {
 public:
+    PointLight()
+        : m_id{ m_count++ }
+    {}
+
+    #pragma warning( suppress : 4100 ) // TODO ugly way for derived class to use this constructor which does not increase m_id
+    PointLight(bool increase_m_id)
+    {}
+
+    static inline int m_count{ 0 };
+    static inline std::vector<PointLight> pointLights;
+
     void sendToShader(const Shader& shader) const;
     void updatePositionInViewSpace(const Shader& shader) const;
     const float getConstant() const { return m_constant; };
@@ -61,15 +72,31 @@ public:
     void setQuadratic(float x) { m_quadratic = x; };
 
 protected:
+    int m_id{};
     float m_constant{ 1.0f };         // Usually kept at 1.0f
     float m_linear{ 0.09f };          // Short distance intensity
     float m_quadratic{ 0.032f };      // Long distance intensity
 };
 
+inline const int getPointLightCount() { return static_cast<int>(std::ssize(PointLight::pointLights)); };
+//inline const int getPointLightCount() { return PointLight::m_count; };
+
 // SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class SpotLight : public PointLight {
 public:
+    SpotLight()
+        : PointLight(false)
+        , m_id{ m_count++ }
+    {}
+
+    #pragma warning( suppress : 4100 ) // TODO ugly way for derived class to use this constructor which does not increase m_id
+    SpotLight(bool increase_m_id)
+        : PointLight(false)
+    {}
+
+    static inline int m_count{ 0 };
+
     //const float getInnerCutOff() const { return m_innerCutOff; }; // need to convert radians back to degrees
     void setInnerCutOff(float x) { m_innerCutOff = glm::cos(glm::radians(x)); };
     //const float getOuterCutOff() const { return m_outerCutOff; }; // need to convert radians back to degrees
@@ -81,14 +108,21 @@ public:
     virtual void updateColor(const Shader& shader) const;
 
 protected:
+    int m_id{};
     float m_innerCutOff{};            // Inner cone
     float m_outerCutOff{};            // Outer cone
 };
+
+//inline const int getSpotLightCount() { return SpotLight::m_count; };
 
 // FlashLight ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class FlashLight : public SpotLight {
 public:
+    FlashLight()
+        : SpotLight(false)
+    {}
+
     //const glm::vec3 getOrigin() const { return m_origin; };
     //void setOrigin(float x, float y, float z) { m_origin.x = x, m_origin.y = y, m_origin.z = z; };
     const float getEmissionStrength() const { return m_emissionStrength; };

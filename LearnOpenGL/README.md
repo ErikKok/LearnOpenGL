@@ -23,6 +23,9 @@ TO DO
 		- flashLight shines from the player camera (0,0,0), but casts shadow from this camera with flashLightShadowOffset
 		- flashlight camera movement is duplicated in processInput/mouse_callback/scroll_callback, could be linked/feed from player camera I guess
 		- onderscheid SpotLight en FlashLight wel nodig?
+		- origin is stiekem gewoon position toch?
+		- en vs_out.cameraDirectionTangent is stiekem gewoon direction toch?
+		- zo ja, enige verschil is dan nog emission? nuttig?
 - use a constant array in the shader, e.g. for fullscreen quads
 - implement Bindless Textures
 - cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
@@ -38,7 +41,15 @@ TO DO
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used.
 - obj van cube en hexagon fixen
 
+.length() GLSL
+ w=1 for a position, and w=0 for a direction.
+
 14-6-2024 normalmapping on for cube/floor/backpack: 272fps, off 230fps. before optimization
+
+v0.2.68 16-6-2024
+-----------------
+- added std::vector<PointLight> pointLights with m_id
+- changed some logic for pointLights, using for loops
 
 v0.2.67 15-6-2024
 -----------------

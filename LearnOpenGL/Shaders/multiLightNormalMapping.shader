@@ -1,5 +1,7 @@
 #shader vertex
 #version 450 core
+#pragma debug(on)
+
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoords;
 layout (location = 2) in vec3 aNormal;
@@ -64,7 +66,7 @@ void main()
     vs_out.FragPosTangent = TBN * vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
     vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.dirLightDirectionTangent = TBN * dirLightDirection;
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < vs_out2.pointLightPositionTangent.length(); i++)
         vs_out2.pointLightPositionTangent[i] = TBN * pointLightPosition[i];
     vs_out.spotLightShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.spotLightPositionTangent = TBN * spotLightPosition;
@@ -75,6 +77,8 @@ void main()
 
 #shader fragment
 #version 420 core
+#pragma debug(on)
+
 out vec4 FragColor;
 
 in VS_OUT { // PASS_THROUGH_GS
