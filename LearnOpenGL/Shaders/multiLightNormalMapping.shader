@@ -19,28 +19,37 @@ out VS_OUT { // PASS_THROUGH_GS
     vec3 cameraDirectionTangent;
 } vs_out;
 
-layout(binding = 2, std430) readonly buffer NormalMatrixSSBO {
-    mat4 NormalMatrix[];
-};
+//layout(binding = 2, std430) readonly buffer NormalMatrixSSBO {
+//    mat4 normalMatrix[];
+//};
+//
+//layout(binding = 3, std430) readonly buffer ModelViewMatrixSSBO {
+//    mat4 modelViewMatrix[];
+//};
+//
+//layout(binding = 4, std430) readonly buffer MVPMatrixSSBO {
+//    mat4 MVPMatrix[];
+//};
+//
+//layout(binding = 5, std430) readonly buffer dirLightMVPMatrixSSBO {
+//    mat4 dirLightMVPMatrix[];
+//};
+//
+//layout(binding = 6, std430) readonly buffer spotLightMVPMatrixSSBO {
+//    mat4 spotLightMVPMatrix[];
+//};
+//
+//layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
+//    mat4 flashLightMVPMatrix[];
+//};
 
-layout(binding = 3, std430) readonly buffer ModelViewMatrixSSBO {
-    mat4 modelViewMatrix[];
-};
-
-layout(binding = 4, std430) readonly buffer MVPMatrixSSBO {
-    mat4 MVPMatrix[];
-};
-
-layout(binding = 5, std430) readonly buffer dirLightMVPMatrixSSBO {
-    mat4 dirLightMVPMatrix[];
-};
-
-layout(binding = 6, std430) readonly buffer spotLightMVPMatrixSSBO {
-    mat4 spotLightMVPMatrix[];
-};
-
-layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
-    mat4 flashLightMVPMatrix[];
+layout(binding = 24, std430) readonly buffer uberSSBO {
+    mat4 dirLightMVPMatrix[10];
+    mat4 flashLightMVPMatrix[10];
+    mat4 spotLightMVPMatrix[10];
+    mat4 normalMatrix[10];
+    mat4 modelViewMatrix[10];
+    mat4 MVPMatrix[10];
 };
 
 uniform vec3 dirLightDirection;     // View Space // normalized
@@ -55,9 +64,9 @@ void main()
 {
     //mat4 ModelViewMatrix = view * model;
     //mat3 MV3x3 = mat3(modelViewMatrix[gl_InstanceID]);    
-    vec3 T = mat3(NormalMatrix[gl_InstanceID]) * normalize(aTangent);
+    vec3 T = mat3(normalMatrix[gl_InstanceID]) * normalize(aTangent);
     //vec3 B = mat3(modelViewMatrix[gl_InstanceID]) * normalize(aBitangent); // Better to calculate B?
-    vec3 N = mat3(NormalMatrix[gl_InstanceID]) * normalize(aNormal);
+    vec3 N = mat3(normalMatrix[gl_InstanceID]) * normalize(aNormal);
     T = normalize(T - N * dot(N, T)); // re-orthogonalize T with respect to N (Gram-Schmidt)
     vec3 B = cross(N, T); // then retrieve perpendicular vector B with the cross product of T and N
     mat3 TBN = transpose(mat3(T, B, N)); // This matrix goes from view space to tangent space
@@ -124,8 +133,7 @@ struct PointLight {
     float quadratic;    // Long distance intensity
     float strength;     // Overall strength
 };
-uniform int pointLightsCount;       // For the loop
-uniform PointLight pointLights[4];  // Hard limit pointlights count (max 166?)
+uniform PointLight pointLights[4]; // TODO Hard limit pointlights count (max 166?)
 
 struct SpotLight {
     vec3 direction;     // View Space
@@ -311,7 +319,7 @@ void main()
     vec3 resultDirLight = CalcDirLight(dirLight);
 
     vec3 resultPointLight;
-    for(int i = 0; i < pointLightsCount; i++)
+    for(int i = 0; i < pointLights.length(); i++)
         resultPointLight += CalcPointLight(pointLights[i], i);
 
     vec3 resultSpotLight = CalcSpotLight(spotLight);

@@ -32,7 +32,7 @@ public:
 	RenderObject(Mesh* mesh = nullptr, Material* material = nullptr, int instances = 1)
 		: mesh{ mesh }
 		, material{ material }
-		, instances{ instances }
+		, instances{ instances } // used to resize model array and BufferDataStore m_data in ShaderStorageBuffer
 	{
 		model.resize(instances);
 	}

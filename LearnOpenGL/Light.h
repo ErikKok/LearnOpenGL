@@ -78,8 +78,8 @@ protected:
     float m_quadratic{ 0.032f };      // Long distance intensity
 };
 
-inline const int getPointLightCount() { return static_cast<int>(std::ssize(PointLight::pointLights)); };
-//inline const int getPointLightCount() { return PointLight::m_count; };
+//inline const int getPointLightCount() { return static_cast<int>(std::ssize(PointLight::pointLights)); };
+inline const int getPointLightCount() { return PointLight::m_count; };
 
 // SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -8,6 +8,15 @@ layout(binding = 4, std430) readonly buffer ssboMVPMatrix {
     mat4 MVPMatrix[];
 };
 
+//layout(binding = 24, std430) readonly buffer uberSSBO {
+//    mat4 dirLightMVPMatrix[10];
+//    mat4 flashLightMVPMatrix[10];
+//    mat4 spotLightMVPMatrix[10];
+//    mat4 normalMatrix[10];
+//    mat4 modelViewMatrix[10];
+//    mat4 MVPMatrix[10];
+//};
+
 layout(binding = 20, std430) readonly buffer colorssbo {
     vec4 color[];
 };

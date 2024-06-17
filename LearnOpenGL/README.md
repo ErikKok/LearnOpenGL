@@ -15,6 +15,8 @@ TO DO
 	- use sampler2DShadow free 4x AA https://stackoverflow.com/questions/22419682/glsl-sampler2dshadow-and-shadow2d-clarification
 	- transparency shadow testen
 	- structs in 1x zetten ipv per element in sendToShader()
+	- TODO Hard limit pointlights count. Of via SSBO met een variabel aantal. Of via UBO met een vast max aantal, en dan het daadwerkelijke gebruikte aantal ook doorgeven voor de loop in de Shader
+	- m_id is used as an index for the setters, and will break if a light is removed from the vector, or the order changes, replace with ECS
 	- flashlight
 		- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
 		- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
@@ -38,13 +40,27 @@ TO DO
 - for loops checken: auto icm std::ssize heeft de voorkeur
 - gebruik Global::glCheckError(); inperken
 - ShaderStorageBuffer moet een BufferDataStore als data member krijgen, friend class, kan je de data store vd / in de buffer zelf bewerken, veiliger 
-- TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used.
+- TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
 - obj van cube en hexagon fixen
 
-.length() GLSL
- w=1 for a position, and w=0 for a direction.
-
-14-6-2024 normalmapping on for cube/floor/backpack: 272fps, off 230fps. before optimization
+v0.2.69 17-6-2024
+-----------------
+- uberSSBO implemented
+- clean-up
+- old method with 6 ssbo's commented, so you can compare
+- be aware you need to fill the uberSSBO struct fully per element. not struct after struct, but element after element. just push one struct into the ssbo, not fill 1 struct, push, fill next, push, stuff won't be aligned...
+- pros:
+	- need a custom struct to begin with
+	- need to add uberSSBO to std::vector<std::variant and all asserts
+	- no need to use different bindings for different renderPassType passes, just bind the uberSSBO once
+	- just need to define one SSBO (saves 5 lines of code)
+- cons
+	- minor speed increase from 250 to 260fps (from 6 to 1 ssbo's)
+	- the arrays within the ssbo in the shader AND in the struct itself needs a fixed size
+	- need to fix RO which currently resizes the DataBufferStore with the amount of instances, with uberSSBO you just have 1 huge element/struct (temp workaround does not give any significant speed advantage)
+	- if a RenderObject just needs 1 of the mat4's in the uberSSBO it is a bit wastefull (lightCube)
+- neutral
+	- same amount of lines of code to fill the data, one for each mat4, which contains roughly the same code
 
 v0.2.68 16-6-2024
 -----------------
@@ -66,6 +82,8 @@ v0.2.65 15-6-2024
 -----------------
 - for loops nagelopen
 - normalize DirLightDirection op cpu, moved uniform to vertex shader
+
+14-6-2024 normalmapping off for cube/floor/backpack: 272fps, on 230fps. before optimization
 
 v0.2.64 11-6-2024
 -----------------

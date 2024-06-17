@@ -106,7 +106,7 @@ Texture::Texture(const std::vector<std::string>& faces)
 
 // Creates a depthMap:
 Texture::Texture(textureType textureType, GLsizei width, GLsizei height)
-    : m_type{ textureType::depthMap }
+    : m_type{ textureType }
     , m_width{ width }
     , m_height{ height }
 {

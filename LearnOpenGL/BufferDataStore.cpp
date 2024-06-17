@@ -5,7 +5,7 @@
 BufferDataStore::BufferDataStore(int elementCount, GLsizeiptr elementSize)
 	: m_elementSize{ elementSize }
 {
-	m_data.resize(elementCount);
+	m_data.resize(elementCount); // == RenderObject.instances
 };
 
 void BufferDataStore::createImmutableDataStore() const
