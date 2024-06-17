@@ -50,12 +50,12 @@ v0.2.69 17-6-2024
 - old method with 6 ssbo's commented, so you can compare
 - be aware you need to fill the uberSSBO struct fully per element. not struct after struct, but element after element. just push one struct into the ssbo, not fill 1 struct, push, fill next, push, stuff won't be aligned...
 - pros:
-	- need a custom struct to begin with
-	- need to add uberSSBO to std::vector<std::variant and all asserts
 	- no need to use different bindings for different renderPassType passes, just bind the uberSSBO once
 	- just need to define one SSBO (saves 5 lines of code)
-- cons
 	- minor speed increase from 250 to 260fps (from 6 to 1 ssbo's)
+- cons
+ 	- need a custom struct to begin with
+	- need to add uberSSBO to std::vector<std::variant and all asserts
 	- the arrays within the ssbo in the shader AND in the struct itself needs a fixed size
 	- need to fix RO which currently resizes the DataBufferStore with the amount of instances, with uberSSBO you just have 1 huge element/struct (temp workaround does not give any significant speed advantage)
 	- if a RenderObject just needs 1 of the mat4's in the uberSSBO it is a bit wastefull (lightCube)
