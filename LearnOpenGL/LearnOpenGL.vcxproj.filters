@@ -136,9 +136,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="README.md">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="Shaders\multiLight.shader">
       <Filter>Shader Files</Filter>
     </None>
@@ -169,5 +166,6 @@
     <None Include="Shaders\multiLightNormalMapping.shader">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="README.md" />
   </ItemGroup>
 </Project>
