@@ -19,7 +19,7 @@ out vec4 FragColor;
   
 in vec2 TexCoords;
 
-layout (binding=5) uniform sampler2D someTexture;
+layout (binding=6) uniform sampler2D someTexture;
 
 uniform bool orthographic;
 uniform float nearPlane;

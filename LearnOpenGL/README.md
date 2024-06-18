@@ -39,9 +39,18 @@ TO DO
 - TODO's nalopen
 - for loops checken: auto icm std::ssize heeft de voorkeur
 - gebruik Global::glCheckError(); inperken
-- ShaderStorageBuffer moet een BufferDataStore als data member krijgen, friend class, kan je de data store vd / in de buffer zelf bewerken, veiliger 
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
 - obj van cube en hexagon fixen
+
+v0.2.70 18-6-2024
+-----------------
+- added BufferDataStore.uploadUntilSubset()
+- removed updateAndUploadSubset()
+- added ability to upload within the update functions
+- see section // Calculate dynamic models/transforms and SSBO's for 3 types of usage 
+- removed all but 1 default parameters, they will cause confusion because of implicit conversion between int and bool
+- fixed m_count in Light Class
+- disabled most useShader()s in Renderer, not needed with uberSSBO (no speed increase)
 
 v0.2.69 17-6-2024
 -----------------

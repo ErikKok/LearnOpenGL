@@ -46,10 +46,9 @@ public:
 	//void unbind() const;
 
 	// Pass-through functions BufferDataStore
-	void updateFully(const auto& data) { m_BufferDataStore.updateFully(data); };
-	//void createAndInitializeImmutableDataStore() { m_dataStore.createAndInitializeImmutableDataStore(); };
-	void updateSubset(const auto& data, GLintptr elementIndex = 0) { m_BufferDataStore.updateSubset(data, elementIndex); };
-	void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0) { m_BufferDataStore.updateAndUploadSubset(data, elementIndex); };
+	void updateSubset(const auto& data, GLintptr elementIndex, bool upload) { m_BufferDataStore.updateSubset(data, elementIndex, upload); };
+	void updateFully(const auto& data, bool upload) { m_BufferDataStore.updateFully(data, upload); };
+	void uploadUntilSubset(int untilElementIndex = 1) { m_BufferDataStore.uploadUntilSubset(untilElementIndex); };
 	void uploadFully() { m_BufferDataStore.uploadFully(); };
 
 private:

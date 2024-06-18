@@ -34,7 +34,7 @@ void Renderer::draw(const RenderObject& RO) const
 		assert(false); // should never be the case 
 		break;
 	case renderPassType::depthMapDirLight:
-		m_shaderDepthMapDirLight->useShader();
+		//m_shaderDepthMapDirLight->useShader();
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		//	if (RO.ssbo[i]->getBindingPoint() == dirLightMVPMatrixBP)
 		//		RO.ssbo[i]->bind();
@@ -43,7 +43,7 @@ void Renderer::draw(const RenderObject& RO) const
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
 	case renderPassType::depthMapFlashLight:
-		m_shaderDepthMapFlashLight->useShader();
+		//m_shaderDepthMapFlashLight->useShader();
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		//	if (RO.ssbo[i]->getBindingPoint() == flashLightMVPMatrixBP)
 		//		RO.ssbo[i]->bind();
@@ -52,7 +52,7 @@ void Renderer::draw(const RenderObject& RO) const
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
 	case renderPassType::depthMapSpotLight:
-		m_shaderDepthMapSpotLight->useShader();
+		//m_shaderDepthMapSpotLight->useShader();
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		//	if (RO.ssbo[i]->getBindingPoint() == spotLightMVPMatrixBP)
 		//		RO.ssbo[i]->bind();
@@ -108,7 +108,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		assert(false); // should never be the case 
 		break;
 	case renderPassType::depthMapDirLight:
-		m_shaderDepthMapDirLight->useShader();
+		//m_shaderDepthMapDirLight->useShader();
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		//	if (RO.ssbo[i]->getBindingPoint() == dirLightMVPMatrixBP)
 		//		RO.ssbo[i]->bind();
@@ -117,7 +117,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
 	case renderPassType::depthMapFlashLight:
-		m_shaderDepthMapFlashLight->useShader();
+		//m_shaderDepthMapFlashLight->useShader();
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		//	if (RO.ssbo[i]->getBindingPoint() == flashLightMVPMatrixBP)
 		//		RO.ssbo[i]->bind();
@@ -126,7 +126,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
 	case renderPassType::depthMapSpotLight:
-		m_shaderDepthMapSpotLight->useShader();
+		//m_shaderDepthMapSpotLight->useShader();
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		//	if (RO.ssbo[i]->getBindingPoint() == spotLightMVPMatrixBP)
 		//		RO.ssbo[i]->bind();

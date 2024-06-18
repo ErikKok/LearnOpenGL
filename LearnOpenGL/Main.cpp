@@ -306,8 +306,7 @@ int main()
     glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), // red
     };
 
-    // TODO, onderstaand vervangen door een constructor die bindingpoint + data inneemt + upload
-    lightCubeRO.ssbo[1]->updateFully(lightCubeColors); // in de loop wordt dit geupload
+    lightCubeRO.ssbo[1]->updateFully(lightCubeColors, false); // false, want in de loop wordt dit geupload, nadat element 4 is gewijzigd
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -380,7 +379,7 @@ int main()
         // Transform dirLight direction to current View Space
         sun.updateDirectionInViewSpace(multiLight);
         // Transform pointLights positions to current View Space
-        for ( auto& pointLight : PointLight::pointLights) 
+        for (auto& pointLight : PointLight::pointLights)
             pointLight.updatePositionInViewSpace(multiLight);
         // Transform Spotlight direction to current current View Space
         spotLight.updateDirectionInViewSpace(multiLight);
@@ -458,9 +457,9 @@ int main()
             temp.modelViewMatrix[i] = Global::modelViewMatrixTemp;
             temp.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
         }
-        cubeRO.ssbo[0]->updateSubset(temp);
+        cubeRO.ssbo[0]->updateSubset(temp, 0, true);
         //cubeRO.ssbo[0]->updateFully(temp);
-        cubeRO.ssbo[0]->uploadFully();
+        //cubeRO.ssbo[0]->uploadFully();
         //temp = {}; // clears the temp, but ended up not needed
 
         // Floor
@@ -476,7 +475,7 @@ int main()
         //for (auto i = 0; i < std::ssize(floorRO.ssbo); i++) {
         //    floorRO.ssbo[i]->uploadFully();
         //}
-        
+
         for (auto i = 0; i < std::ssize(floorRO.model); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.model[i];
             temp.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * floorRO.model[i];
@@ -488,7 +487,7 @@ int main()
 
             //floorRO.ssbo[0]->updateSubset(temp, i);
         }
-        floorRO.ssbo[0]->updateSubset(temp);
+        floorRO.ssbo[0]->updateSubset(temp, 0, false);
         //floorRO.ssbo[0]->updateFully(temp);
         floorRO.ssbo[0]->uploadFully();
         //temp = {};
@@ -518,9 +517,9 @@ int main()
 
             //modelRO.ssbo[0]->updateSubset(temp, i);
         }
-        modelRO.ssbo[0]->updateSubset(temp);
+        modelRO.ssbo[0]->updateSubset(temp, 0, false);
         //modelRO.ssbo[0]->updateFully(temp);
-        modelRO.ssbo[0]->uploadFully();
+        modelRO.ssbo[0]->uploadUntilSubset();
         //temp = {};
 
         /////////////////////////////////////////////////////////////////////////////////////
@@ -544,18 +543,20 @@ int main()
         // Start ShadowPass flashLight //////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        loadTime = static_cast<float>(glfwGetTime());
+        if (flashLight.getOn()) {
+            loadTime = static_cast<float>(glfwGetTime());
 
-        renderer.setRenderPassActive(renderPassType::depthMapFlashLight);
+            renderer.setRenderPassActive(renderPassType::depthMapFlashLight);
 
-        depthMapFlashLightFBO.startDepthMap(renderer.getShaderDepthMapFlashLight());
+            depthMapFlashLightFBO.startDepthMap(renderer.getShaderDepthMapFlashLight());
 
-        renderer.draw(cubeRO);
-        renderer.draw(floorRO);
-        renderer.drawModel(modelRO, backpackModel);
+            renderer.draw(cubeRO);
+            renderer.draw(floorRO);
+            renderer.drawModel(modelRO, backpackModel);
 
-        depthMapFlashLightFBO.stopDepthMap();
-        //std::println("End ShadowPass spotLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
+            depthMapFlashLightFBO.stopDepthMap();
+            //std::println("End ShadowPass spotLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass spotLight ///////////////////////////////////////////////////////
@@ -611,20 +612,19 @@ int main()
         ////// LightCube ////////////////////
         /////////////////////////////////////
 
-
         // pointlights - 4 vaste LightCubes
-        for (auto i = 0; i < getPointLightCount(); i++) { // TODO count is 5, should be 4
+        for (auto i = 0; i < getPointLightCount(); i++) {
             assert(getPointLightCount() <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
             lightCubeRO.model[i] = Global::getModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-            lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i);
+            lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i, false);
         }
 
         // #5, element 4, de draaiende lightcube
         lightCubeRO.model[4] = Global::getModelMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-        lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4);
+        lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4, false);
         lightCubeRO.ssbo[0]->uploadFully();
 
-        lightCubeRO.ssbo[1]->updateSubset(glm::vec4(spotLight.getColor(), 1.0f), 4);
+        lightCubeRO.ssbo[1]->updateSubset(glm::vec4(spotLight.getColor(), 1.0f), 4, false);
         lightCubeRO.ssbo[1]->uploadFully();
 
         renderer.drawSingleColor(lightCubeRO);
@@ -672,8 +672,8 @@ int main()
         if (Global::debugQuadVisible) {
             // Set texture sampler2D binding in Shader itself + set orthographic in function + set corresponding Camera below
             //renderer.drawDebugQuad(quadMesh, cameraDirLight); //  binding 2
-            renderer.drawDebugQuad(quadMesh, cameraSpotLight); //  binding 5
-            //renderer.drawDebugQuad(quadMesh, Global::cameraFlashLight); // binding 6
+            //renderer.drawDebugQuad(quadMesh, cameraSpotLight); //  binding 5
+            renderer.drawDebugQuad(quadMesh, Global::cameraFlashLight); // binding 6
         }
 
         if (!Global::paused) { // toggle with P

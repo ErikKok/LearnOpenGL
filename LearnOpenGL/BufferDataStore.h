@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+#include <concepts>
 #include <typeinfo>
 #include <variant>
 #include <vector>
@@ -34,13 +35,34 @@ private:
 
 	void setBufferId(GLuint ssboId) { m_ssboId = ssboId; };
 	void createImmutableDataStore() const; // Size of the buffer is fixed for the rest of BufferDataStore's life span from here on
-	void uploadFully(); // Uploads the complete buffer to GPU
 
 	// Function Templates fully defined in this header file, see https://www.learncpp.com/cpp-tutorial/function-template-instantiation/
 
+	// Replace just 1 element of the local buffer
+	void updateSubset(const auto& data, GLintptr elementIndex, bool upload)
+	{
+		if (m_hasValidData) {
+			assert(
+				std::holds_alternative<glm::vec4>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(glm::vec4).hash_code()) ||
+				std::holds_alternative<glm::mat4>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(glm::mat4).hash_code()) ||
+				std::holds_alternative<uberSSBO>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(uberSSBO).hash_code()));
+		}
+		assert(sizeof(m_data) != 0 && "WARNING: m_data is not resized!");
+		assert(elementIndex <= static_cast<GLintptr>(m_data.size()) - 1 && "ElementIndex out of range");
+
+		m_data[elementIndex] = data;
+
+		if (upload) {
+			glNamedBufferSubData(m_ssboId, elementIndex * m_elementSize, m_elementSize, &data);
+
+			Global::glCheckError();
+			m_hasValidData = true;
+		}
+	}
+
 	// Fill or replace the complete local buffer (from a single object)
 	template<typename T>
-	void updateFully(const T& data)
+	void updateFully(const T& data, bool upload)
 	{
 		if (m_hasValidData) {
 			assert(
@@ -51,11 +73,14 @@ private:
 		assert(sizeof(m_data) != 0 && "WARNING: m_data is not resized!");
 		m_elementSize = sizeof(data);
 		m_data[0] = data;
+
+		if (upload)
+			uploadFully();
 	}
 
 	// Fill or replace the complete local buffer from a vector
 	template<typename T>
-	void updateFully(const std::vector<T>& data)
+	void updateFully(const std::vector<T>& data, bool upload)
 	{
 		if (m_hasValidData) {
 			assert(
@@ -70,29 +95,34 @@ private:
 		for (auto i{ 0 }; i < std::ssize(data); i++) {
 			m_data[i] = data[i];
 		}
+
+		if (upload)
+			uploadFully();
 	}
 
-	// Replace just 1 element of the local buffer
-	void updateSubset(const auto& data, GLintptr elementIndex)
-	{
-		if (m_hasValidData) {
-			assert(
-				std::holds_alternative<glm::vec4>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(glm::vec4).hash_code()) ||
-				std::holds_alternative<glm::mat4>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(glm::mat4).hash_code()) ||
-				std::holds_alternative<uberSSBO>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(uberSSBO).hash_code()) );
+	// Uploads all elements of the buffer until the specified ElementIndex to the GPU (untilElement itself is not included in the upload)
+	// Defaults to upload element 0
+	// If you want to upload a specific Subset, maybe use updateSubset() with upload = true?
+	void uploadUntilSubset(int untilElementIndex = 1) {
+		assert((untilElementIndex - 1) <= static_cast<GLintptr>(m_data.size()) - 1 && "ElementIndex out of range");
+		
+		GLintptr offset{ 0 };
+		for (auto i{ 0 }; i < untilElementIndex; i++) {
+			glNamedBufferSubData(m_ssboId, offset, m_elementSize, &m_data[i]);
+			offset += m_elementSize;
 		}
-		assert(sizeof(m_data) != 0 && "WARNING: m_data is not resized!");
-		assert(elementIndex <= static_cast<GLintptr>(m_data.size()) - 1 && "ElementIndex out of range");
 
-		m_data[elementIndex] = data;
+		Global::glCheckError();
+		m_hasValidData = true;
 	}
 
-	// Replace just 1 element of the buffer + upload to GPU
-	void updateAndUploadSubset(const auto& data, GLintptr elementIndex)
+	void uploadFully()
 	{
-		updateSubset(data, elementIndex);
-
-		glNamedBufferSubData(m_ssboId, elementIndex * m_elementSize, m_elementSize, &data);
+		GLintptr offset{ 0 };
+		for (auto i{ 0 }; i < std::ssize(m_data); i++) {
+			glNamedBufferSubData(m_ssboId, offset, m_elementSize, &m_data[i]);
+			offset += m_elementSize;
+		}
 
 		Global::glCheckError();
 		m_hasValidData = true;
@@ -126,3 +156,17 @@ private:
 //		glNamedBufferSubData(m_bufferId, totalOffset, m_bufferSubData[i].m_size, m_bufferSubData[i].m_dataVector.data());
 //	totalOffset += m_bufferSubData[i].m_size;
 //}
+
+
+	//// Replace just 1 element of the buffer + upload to GPU
+	//void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0)
+	//{
+	//	updateSubset(data, elementIndex);
+
+	//	glNamedBufferSubData(m_ssboId, elementIndex * m_elementSize, m_elementSize, &data);
+
+	//	Global::glCheckError();
+	//	m_hasValidData = true;
+	//}
+    // In ShaderStorageBuffer.h:
+	//void updateAndUploadSubset(const auto& data, GLintptr elementIndex = 0) { m_BufferDataStore.updateAndUploadSubset(data, elementIndex); };

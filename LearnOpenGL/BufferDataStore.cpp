@@ -14,15 +14,3 @@ void BufferDataStore::createImmutableDataStore() const
 	glNamedBufferStorage(m_ssboId, m_data.size() * m_elementSize, m_data.data(), GL_DYNAMIC_STORAGE_BIT);
 	Global::glCheckError();
 };
-
-void BufferDataStore::uploadFully()
-{
-	GLintptr offset{ 0 };
-	for (auto i{ 0 }; i < std::ssize(m_data); i++) {
-		glNamedBufferSubData(m_ssboId, offset, m_elementSize, &m_data[i]);
-		offset += m_elementSize;
-	}
-
-	Global::glCheckError();
-	m_hasValidData = true;
-}

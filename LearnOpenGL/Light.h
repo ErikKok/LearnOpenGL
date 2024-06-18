@@ -52,14 +52,14 @@ protected:
 class PointLight : public Light {
 public:
     PointLight()
-        : m_id{ m_count++ }
+        : m_id{ m_countPointLight++ }
     {}
 
     #pragma warning( suppress : 4100 ) // TODO ugly way for derived class to use this constructor which does not increase m_id
     PointLight(bool increase_m_id)
     {}
 
-    static inline int m_count{ 0 };
+    static inline int m_countPointLight{ 0 };
     static inline std::vector<PointLight> pointLights;
 
     void sendToShader(const Shader& shader) const;
@@ -72,14 +72,14 @@ public:
     void setQuadratic(float x) { m_quadratic = x; };
 
 protected:
-    int m_id{};
-    float m_constant{ 1.0f };         // Usually kept at 1.0f
-    float m_linear{ 0.09f };          // Short distance intensity
-    float m_quadratic{ 0.032f };      // Long distance intensity
+    int m_id{};                     // zero based
+    float m_constant{ 1.0f };       // Usually kept at 1.0f
+    float m_linear{ 0.09f };        // Short distance intensity
+    float m_quadratic{ 0.032f };    // Long distance intensity
 };
 
 //inline const int getPointLightCount() { return static_cast<int>(std::ssize(PointLight::pointLights)); };
-inline const int getPointLightCount() { return PointLight::m_count; };
+inline const int getPointLightCount() { return PointLight::m_countPointLight; };
 
 // SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -87,7 +87,7 @@ class SpotLight : public PointLight {
 public:
     SpotLight()
         : PointLight(false)
-        , m_id{ m_count++ }
+        , m_id{ m_countSpotLight++ }
     {}
 
     #pragma warning( suppress : 4100 ) // TODO ugly way for derived class to use this constructor which does not increase m_id
@@ -95,7 +95,7 @@ public:
         : PointLight(false)
     {}
 
-    static inline int m_count{ 0 };
+    static inline int m_countSpotLight{ 0 };
 
     //const float getInnerCutOff() const { return m_innerCutOff; }; // need to convert radians back to degrees
     void setInnerCutOff(float x) { m_innerCutOff = glm::cos(glm::radians(x)); };
@@ -108,9 +108,9 @@ public:
     virtual void updateColor(const Shader& shader) const;
 
 protected:
-    int m_id{};
-    float m_innerCutOff{};            // Inner cone
-    float m_outerCutOff{};            // Outer cone
+    int m_id{};                     // zero based
+    float m_innerCutOff{};          // Inner cone
+    float m_outerCutOff{};          // Outer cone
 };
 
 //inline const int getSpotLightCount() { return SpotLight::m_count; };
