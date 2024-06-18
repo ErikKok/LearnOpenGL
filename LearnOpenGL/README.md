@@ -58,7 +58,7 @@ TO DO
 - for loops checken: auto icm std::ssize heeft de voorkeur
 - gebruik Global::glCheckError(); inperken
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
-- obj van cube en hexagon fixen
+- obj van cube en hexagon fixen.
 
 v0.2.71 18-6-2024
 -----------------
