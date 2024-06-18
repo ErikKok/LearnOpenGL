@@ -96,6 +96,7 @@ public:
     {}
 
     static inline int m_countSpotLight{ 0 };
+    static inline std::vector<SpotLight> spotLights;
 
     //const float getInnerCutOff() const { return m_innerCutOff; }; // need to convert radians back to degrees
     void setInnerCutOff(float x) { m_innerCutOff = glm::cos(glm::radians(x)); };
@@ -106,34 +107,37 @@ public:
     virtual void updatePositionInViewSpace(const Shader& shader) const;
     virtual void updateDirectionInViewSpace(const Shader& shader) const;
     virtual void updateColor(const Shader& shader) const;
-
-protected:
-    int m_id{};                     // zero based
-    float m_innerCutOff{};          // Inner cone
-    float m_outerCutOff{};          // Outer cone
-};
-
-//inline const int getSpotLightCount() { return SpotLight::m_count; };
-
-// FlashLight ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class FlashLight : public SpotLight {
-public:
-    FlashLight()
-        : SpotLight(false)
-    {}
-
-    //const glm::vec3 getOrigin() const { return m_origin; };
-    //void setOrigin(float x, float y, float z) { m_origin.x = x, m_origin.y = y, m_origin.z = z; };
-    const float getEmissionStrength() const { return m_emissionStrength; };
     void setEmissionStrength(float x) { m_emissionStrength = x; };
-
-    void sendToShader(const Shader& shader) const override; // Transform World Space to View Space // TODO geen idee wat ik bedoel...
-    //void updatePositionInViewSpace(const Shader& shader) const override;
-    //void updateDirectionInViewSpace(const Shader& shader) const override;
     void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders... kan met array en loop
 
 protected:
-    glm::vec3 m_origin{ 0.0f, 0.0f, 0.0f }; // 0.0f, 0.0f, 0.0f == shines straight from the center/camera, offset for holding flashlight in right hand
-    float m_emissionStrength{ 1.0f }; // Overall strength
+    int m_id{};                         // zero based
+    float m_innerCutOff{};              // Inner cone
+    float m_outerCutOff{};              // Outer cone
+    float m_emissionStrength{ 0.0f };   // Overall strength
 };
+
+inline const int getSpotLightCount() { return SpotLight::m_countSpotLight; };
+
+// FlashLight ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//class FlashLight : public SpotLight {
+//public:
+//    FlashLight()
+//        : SpotLight(false)
+//    {}
+//
+//    //const glm::vec3 getOrigin() const { return m_origin; };
+//    //void setOrigin(float x, float y, float z) { m_origin.x = x, m_origin.y = y, m_origin.z = z; };
+//    //const float getEmissionStrength() const { return m_emissionStrength; };
+//    //void setEmissionStrength(float x) { m_emissionStrength = x; };
+//
+//    void sendToShader(const Shader& shader) const override; // Transform World Space to View Space // TODO geen idee wat ik bedoel...
+//    //void updatePositionInViewSpace(const Shader& shader) const override;
+//    //void updateDirectionInViewSpace(const Shader& shader) const override;
+//    void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders... kan met array en loop
+//
+//protected:
+//    //glm::vec3 m_origin{ 0.0f, 0.0f, 0.0f }; // 0.0f, 0.0f, 0.0f == shines straight from the center/camera, offset for holding flashlight in right hand
+//    float m_emissionStrength{ 1.0f }; // Overall strength
+//};

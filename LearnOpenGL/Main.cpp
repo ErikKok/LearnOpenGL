@@ -130,23 +130,40 @@ int main()
     cameraDirLight.setViewMatrix(glm::lookAt(sun.getDirection(), sun.getDirection() - sun.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))); // TODO
     cameraDirLight.calculateProjectionMatrix();
 
-    // SpotLight
-    SpotLight spotLight;
-    spotLight.setPosition({ 0.0f, -1.0f, 0.0f }); // TODO light position == camera position == needs to sync, or delete 1
-    spotLight.setDirection({ 0.0f, -1.0f, 0.0f });
-    spotLight.setColor({ 1.0f, 1.0f, 1.0f });
-    spotLight.setStrength(1.2f);
-    spotLight.setDepthMap(5);
-    spotLight.setConstant(1.0f);
-    spotLight.setLinear(0.014f);
-    spotLight.setQuadratic(0.07f);
-    spotLight.setInnerCutOff(36.0f);
-    spotLight.setOuterCutOff(48.0f);
-    spotLight.sendToShader(multiLight);
-    spotLight.sendToShader(multiLightNormalMapping);
+    // FlashLight
+    SpotLight::spotLights.emplace_back(SpotLight()); // [0] == flashlight
+    SpotLight::spotLights[0].setPosition({ 0.0f, 1.5f, 15.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    SpotLight::spotLights[0].setDirection({ 0.0f, 0.0f, -1.0f });
+    SpotLight::spotLights[0].setColor({ 1.0f, 1.0f, 1.0f });
+    SpotLight::spotLights[0].setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
+    SpotLight::spotLights[0].setDepthMap(6);
+    SpotLight::spotLights[0].setConstant(1.0f);
+    SpotLight::spotLights[0].setLinear(0.045f);
+    SpotLight::spotLights[0].setQuadratic(0.0075f);
+    SpotLight::spotLights[0].setInnerCutOff(8.5f);
+    SpotLight::spotLights[0].setOuterCutOff(12.5f);
+    SpotLight::spotLights[0].setEmissionStrength(1.0f);
+    SpotLight::spotLights[0].sendToShader(multiLight);
+    SpotLight::spotLights[0].sendToShader(multiLightNormalMapping);
+
+    // SpotLight 1
+    SpotLight::spotLights.emplace_back(SpotLight()); // [1]
+    SpotLight::spotLights[1].setPosition({0.0f, -1.0f, 0.0f}); // TODO light position == camera position == needs to sync, or delete 1
+    SpotLight::spotLights[1].setDirection({ 0.0f, -1.0f, 0.0f });
+    SpotLight::spotLights[1].setColor({ 1.0f, 1.0f, 1.0f });
+    SpotLight::spotLights[1].setStrength(1.2f);
+    SpotLight::spotLights[1].setDepthMap(5);
+    SpotLight::spotLights[1].setConstant(1.0f);
+    SpotLight::spotLights[1].setLinear(0.014f);
+    SpotLight::spotLights[1].setQuadratic(0.07f);
+    SpotLight::spotLights[1].setInnerCutOff(36.0f);
+    SpotLight::spotLights[1].setOuterCutOff(48.0f);
+    SpotLight::spotLights[1].setEmissionStrength(0.0f);
+    SpotLight::spotLights[1].sendToShader(multiLight);
+    SpotLight::spotLights[1].sendToShader(multiLightNormalMapping);
 
     // TODO get aspectratio from depthmap texture
-    Camera cameraSpotLight(1.0f, spotLight.getPosition(), spotLight.getPosition() + glm::vec3(0.0f, -spotLight.getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
+    Camera cameraSpotLight(1.0f, SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
 
     // SpotLight depthMap
     Texture depthMapSpotLight(textureType::depthMap, 1024, 1024);
@@ -156,19 +173,20 @@ int main()
     cameraSpotLight.setFarPlane(10.0f);
 
     // FlashLight
-    FlashLight flashLight;
-    flashLight.setOn(false);
-    flashLight.setColor({ 1.0f, 1.0f, 1.0f });
-    flashLight.setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
-    flashLight.setDepthMap(6);
-    flashLight.setConstant(1.0f);
-    flashLight.setLinear(0.045f);
-    flashLight.setQuadratic(0.0075f);
-    flashLight.setInnerCutOff(8.5f);
-    flashLight.setOuterCutOff(12.5f);
-    flashLight.setEmissionStrength(0.8f);
-    flashLight.sendToShader(multiLight); 
-    flashLight.sendToShader(multiLightNormalMapping);
+    //FlashLight flashLight;
+    //flashLight.setOn(false);
+    //flashLight.setPosition({ 0.0f, 0.0f, 0.0f });
+    //flashLight.setColor({ 1.0f, 1.0f, 1.0f });
+    //flashLight.setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
+    //flashLight.setDepthMap(6);
+    //flashLight.setConstant(1.0f);
+    //flashLight.setLinear(0.045f);
+    //flashLight.setQuadratic(0.0075f);
+    //flashLight.setInnerCutOff(8.5f);
+    //flashLight.setOuterCutOff(12.5f);
+    //flashLight.setEmissionStrength(0.8f);
+    //flashLight.sendToShader(multiLight); 
+    //flashLight.sendToShader(multiLightNormalMapping);
 
     // FlashLight depthMap
     Texture depthMapFlashLight(textureType::depthMap, 1920, 1080);
@@ -382,13 +400,13 @@ int main()
         for (auto& pointLight : PointLight::pointLights)
             pointLight.updatePositionInViewSpace(multiLight);
         // Transform Spotlight direction to current current View Space
-        spotLight.updateDirectionInViewSpace(multiLight);
+        SpotLight::spotLights[1].updateDirectionInViewSpace(multiLight);
         // Calculate Spotlight position and transform to current View Space
-        spotLight.setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) });
-        spotLight.updatePositionInViewSpace(multiLight);
+        SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) });
+        SpotLight::spotLights[1].updatePositionInViewSpace(multiLight);
         // Calculate Spotlight color
-        spotLight.setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
-        spotLight.updateColor(multiLight);
+        SpotLight::spotLights[1].setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
+        SpotLight::spotLights[1].updateColor(multiLight);
 
         /////
 
@@ -398,13 +416,13 @@ int main()
         for (auto& pointLight : PointLight::pointLights)
             pointLight.updatePositionInViewSpace(multiLightNormalMapping);
         // Transform Spotlight direction to current View Space
-        spotLight.updateDirectionInViewSpace(multiLightNormalMapping);
+        SpotLight::spotLights[1].updateDirectionInViewSpace(multiLightNormalMapping);
         // Calculate Spotlight position and transform to current View Space
-        spotLight.setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) });
-        spotLight.updatePositionInViewSpace(multiLightNormalMapping);
+        SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) });
+        SpotLight::spotLights[1].updatePositionInViewSpace(multiLightNormalMapping);
         // Calculate Spotlight color
-        spotLight.setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
-        spotLight.updateColor(multiLightNormalMapping);
+        SpotLight::spotLights[1].setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
+        SpotLight::spotLights[1].updateColor(multiLightNormalMapping);
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Calculate dynamic models/transforms and SSBO's ///////////////////////////////////
@@ -543,7 +561,7 @@ int main()
         // Start ShadowPass flashLight //////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        if (flashLight.getOn()) {
+        if (SpotLight::spotLights[0].getOn()) {
             loadTime = static_cast<float>(glfwGetTime());
 
             renderer.setRenderPassActive(renderPassType::depthMapFlashLight);
@@ -569,7 +587,7 @@ int main()
         depthMapSpotLightFBO.startDepthMap(renderer.getShaderDepthMapSpotLight());
 
         // TODO sync light position with camera classes
-        glm::mat4 view = glm::lookAt(spotLight.getPosition(), spotLight.getPosition() + glm::vec3(0.0f, -spotLight.getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
+        glm::mat4 view = glm::lookAt(SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
 
         cameraSpotLight.setViewMatrix(view); // TODO
 
@@ -592,7 +610,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (!Global::flashLightOnUpdated) {
-            flashLight.toggle(multiLight, multiLightNormalMapping);
+            SpotLight::spotLights[0].toggle(multiLight, multiLightNormalMapping);
             Global::flashLightOnUpdated = true;
         }
 
@@ -620,11 +638,11 @@ int main()
         }
 
         // #5, element 4, de draaiende lightcube
-        lightCubeRO.model[4] = Global::getModelMatrix(spotLight.getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+        lightCubeRO.model[4] = Global::getModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
         lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4, false);
         lightCubeRO.ssbo[0]->uploadFully();
 
-        lightCubeRO.ssbo[1]->updateSubset(glm::vec4(spotLight.getColor(), 1.0f), 4, false);
+        lightCubeRO.ssbo[1]->updateSubset(glm::vec4(SpotLight::spotLights[1].getColor(), 1.0f), 4, false);
         lightCubeRO.ssbo[1]->uploadFully();
 
         renderer.drawSingleColor(lightCubeRO);
@@ -664,8 +682,8 @@ int main()
         // Draw frustum - toggle with K
         if (Global::frustumVisible) {
             //renderer.drawFrustum(cubeMesh, cameraDirLight.getViewProjectionMatrix());
-            renderer.drawFrustum(cubeMesh, cameraSpotLight.getViewProjectionMatrix());
-            //renderer.drawFrustum(cubeMesh, Global::cameraFlashLight.getViewProjectionMatrix());
+            //renderer.drawFrustum(cubeMesh, cameraSpotLight.getViewProjectionMatrix());
+            renderer.drawFrustum(cubeMesh, Global::cameraFlashLight.getViewProjectionMatrix());
         }
 
         // Draw debug quad - toggle with Q
