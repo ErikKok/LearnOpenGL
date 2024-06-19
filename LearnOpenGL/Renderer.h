@@ -14,15 +14,15 @@
 // TODO transparency opslaan in Material, of uit texture halen in constructor van een Material class?
 struct Material {
 	Shader& shader;
-	int diffuse1{ 0 };						// sampler2D
-	int specular1{ 0 };						// sampler2D
-	int normal1{ 7 };						// sampler2D
-	//int height1{ 0 };						// sampler2D
-	int emission{ 0 };						// sampler2D
-	float emissionStrength{ 0.0f };
+	int diffuse1{ 0 };					// sampler2D
+	int specular1{ 0 };					// sampler2D
+	int normal1{ 7 };					// sampler2D
+	//int height1{ 0 };					// sampler2D
 	float shininess{ 0.0f };
-	int flashLightEmissionMap{ 0 };			// sampler2D
-	int flashLightEmissionTexture{ 0 };		// sampler2D
+	int emission{ 0 };					// sampler2D
+	float emissionStrength{ 0.0f };
+	int lightEmissionMap{ 0 };			// sampler2D
+	int lightEmissionTexture{ 0 };		// sampler2D
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

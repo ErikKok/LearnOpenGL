@@ -77,7 +77,6 @@ int main()
     PointLight::pointLights[0].setPosition({ 0.7f, 11.2f, 2.0f }); // TODO light position == camera position == needs to sync, or delete 1
     PointLight::pointLights[0].setColor({ 1.0f, 0.0f, 1.0f });
     PointLight::pointLights[0].setStrength(1.0f);
-    //pointLight1.setDepthMap(5);
     PointLight::pointLights[0].setConstant(1.0f);
     PointLight::pointLights[0].setLinear(0.032f);
     PointLight::pointLights[0].setQuadratic(0.09f);
@@ -111,7 +110,6 @@ int main()
     // DirLight
     DirectionalLight sun;
     sun.setDirection({ 0.7f, 0.9f, 0.8f }); // TODO light position == camera position == needs to sync, or delete 1
-    //multiLightNormalMapping.setVec3("dirLightDirection", { 0.7f, 0.9f, 0.8f });
     sun.setColor({ 1.0f, 1.0f, 0.95f });
     sun.setStrength(0.25f);
     sun.setDepthMap(2);
@@ -130,9 +128,10 @@ int main()
     cameraDirLight.setViewMatrix(glm::lookAt(sun.getDirection(), sun.getDirection() - sun.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))); // TODO
     cameraDirLight.calculateProjectionMatrix();
 
-    // FlashLight
-    SpotLight::spotLights.emplace_back(SpotLight()); // [0] == flashlight
-    SpotLight::spotLights[0].setPosition({ 0.0f, 1.5f, 15.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    // FlashLight - [0] == flashlight
+    SpotLight::spotLights.emplace_back(SpotLight());
+    SpotLight::spotLights[0].setOn(false);
+    SpotLight::spotLights[0].setPosition(Global::camera.getPosition()); // TODO light position == camera position == needs to sync, or delete 1
     SpotLight::spotLights[0].setDirection({ 0.0f, 0.0f, -1.0f });
     SpotLight::spotLights[0].setColor({ 1.0f, 1.0f, 1.0f });
     SpotLight::spotLights[0].setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
@@ -146,9 +145,16 @@ int main()
     SpotLight::spotLights[0].sendToShader(multiLight);
     SpotLight::spotLights[0].sendToShader(multiLightNormalMapping);
 
+    // FlashLight depthMap // TODO rename
+    Texture depthMapFlashLight(textureType::depthMap, 1920, 1080);
+    FrameBuffer depthMapFlashLightFBO(depthMapFlashLight);
+    Global::cameraFlashLight.setFov(60.0f); // too wide, but otherwise does not work ok while zooming
+    Global::cameraFlashLight.setNearPlane(0.1f);
+    Global::cameraFlashLight.setFarPlane(100.0f);
+
     // SpotLight 1
-    SpotLight::spotLights.emplace_back(SpotLight()); // [1]
-    SpotLight::spotLights[1].setPosition({0.0f, -1.0f, 0.0f}); // TODO light position == camera position == needs to sync, or delete 1
+    SpotLight::spotLights.emplace_back(SpotLight());
+    SpotLight::spotLights[1].setPosition({0.0f, 0.0f, 0.0f}); // TODO light position == camera position == needs to sync, or delete 1
     SpotLight::spotLights[1].setDirection({ 0.0f, -1.0f, 0.0f });
     SpotLight::spotLights[1].setColor({ 1.0f, 1.0f, 1.0f });
     SpotLight::spotLights[1].setStrength(1.2f);
@@ -172,29 +178,6 @@ int main()
     cameraSpotLight.setNearPlane(0.1f);
     cameraSpotLight.setFarPlane(10.0f);
 
-    // FlashLight
-    //FlashLight flashLight;
-    //flashLight.setOn(false);
-    //flashLight.setPosition({ 0.0f, 0.0f, 0.0f });
-    //flashLight.setColor({ 1.0f, 1.0f, 1.0f });
-    //flashLight.setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
-    //flashLight.setDepthMap(6);
-    //flashLight.setConstant(1.0f);
-    //flashLight.setLinear(0.045f);
-    //flashLight.setQuadratic(0.0075f);
-    //flashLight.setInnerCutOff(8.5f);
-    //flashLight.setOuterCutOff(12.5f);
-    //flashLight.setEmissionStrength(0.8f);
-    //flashLight.sendToShader(multiLight); 
-    //flashLight.sendToShader(multiLightNormalMapping);
-
-    // FlashLight depthMap
-    Texture depthMapFlashLight(textureType::depthMap, 1920, 1080);
-    FrameBuffer depthMapFlashLightFBO(depthMapFlashLight);
-    Global::cameraFlashLight.setFov(60.0f); // too wide, but otherwise does not work ok while zooming
-    Global::cameraFlashLight.setNearPlane(0.1f);
-    Global::cameraFlashLight.setFarPlane(100.0f);
-
     /////////////////////////////////////
     ////// Quad /////////////////////////
     std::println("CREATE Quad");///////
@@ -212,11 +195,11 @@ int main()
         .diffuse1{ 8 },
         .specular1{ 9 },
         .normal1{ 7 },
+        .shininess{ 32.0f },
         .emission{ 10 },
         .emissionStrength{ 0.5f },
-        .shininess{ 32.0f },
-        .flashLightEmissionMap{ 11 },
-        .flashLightEmissionTexture{ 12 },
+        .lightEmissionMap{ 11 },
+        .lightEmissionTexture{ 12 },
     };
 
     RenderObject cubeRO{ &cubeMesh, &cubeMaterial, std::ssize(Data::cubePositions) };
@@ -245,11 +228,11 @@ int main()
         .diffuse1{ 4 },
         .specular1{ 0 },
         .normal1{ 7 },
+        .shininess{ 8.0f },
         .emission{ 0 },
         .emissionStrength{ 0.0f },
-        .shininess{ 8.0f },
-        .flashLightEmissionMap{ 0 },
-        .flashLightEmissionTexture{ 12 },
+        .lightEmissionMap{ 0 },
+        .lightEmissionTexture{ 12 },
     };
 
     RenderObject floorRO{ &floorMesh, &floorMaterial };
@@ -288,11 +271,11 @@ int main()
         .diffuse1{ 0 },
         .specular1{ 0 },
         .normal1{ 7 },
+        .shininess{ 666.0f },
         .emission{ 0 },
         .emissionStrength{ 0.0f },
-        .shininess{ 666.0f },
-        .flashLightEmissionMap{ 0 },
-        .flashLightEmissionTexture{ 0 },
+        .lightEmissionMap{ 0 },
+        .lightEmissionTexture{ 0 },
     };
 
     RenderObject modelRO{ nullptr, &modelMaterial};
@@ -543,7 +526,7 @@ int main()
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass dirLight ////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
-
+            
         loadTime = static_cast<float>(glfwGetTime());
 
         renderer.setRenderPassActive(renderPassType::depthMapDirLight);
@@ -556,7 +539,7 @@ int main()
 
         depthMapDirLightFBO.stopDepthMap();
         //std::println("End ShadowPass dirLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
-
+            
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass flashLight //////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////

@@ -1,21 +1,3 @@
-Simple 3D Engine / Renderer
-
-Build while learning OpenGL
-
-Features:
-- Fully DSA (Direct State Access)
-- (Almost) everything is abstracting into Classes
-- Every draw call is through glDrawElementsInstanced()
-- ASSIMP model loader
-- Normal Mapping
-- Shadow Depth Map for:
-  -   directional light
-  -   spot light
-  -   flash light 
-- Shader Storage Buffer
-- Materials
-- RenderObjects
-
 TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
 - time class maken
@@ -35,6 +17,9 @@ TO DO
 	- structs in 1x zetten ipv per element in sendToShader()
 	- TODO Hard limit pointlights count. Of via SSBO met een variabel aantal. Of via UBO met een vast max aantal, en dan het daadwerkelijke gebruikte aantal ook doorgeven voor de loop in de Shader
 	- m_id is used as an index for the setters, and will break if a light is removed from the vector, or the order changes, replace with ECS
+	- Shadows:
+		- https://www.reddit.com/r/opengl/comments/iy4jnp/comment/g6ihvom/
+		- https://gamedev.stackexchange.com/questions/139545/how-do-modern-game-engines-handle-many-shadow-casting-lights
 	- flashlight
 		- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
 		- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
@@ -58,7 +43,13 @@ TO DO
 - for loops checken: auto icm std::ssize heeft de voorkeur
 - gebruik Global::glCheckError(); inperken
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
-- obj van cube en hexagon fixen.
+- obj van cube en hexagon fixen
+
+v0.2.72 19-6-2024
+-----------------
+- quick fix shadows spotLight implemented
+- clean up flashLight stuff
+- clean up Shaders
 
 v0.2.71 18-6-2024
 -----------------

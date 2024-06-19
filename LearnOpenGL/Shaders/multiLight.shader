@@ -4,15 +4,17 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aTexCoords;
 layout (location = 2) in vec3 aNormal;
 
-out VS_OUT { // PASS_THROUGH_GS
+out VS_OUT {
     vec2 TexCoords;
     vec3 FragPosView;
     vec3 NormalView;
-    vec4 dirLightShadowCoord;       // clip space   // Orthographic
+    vec4 dirLightShadowCoord;           // clip space   // Orthographic
     vec3 dirLightDirectionView;
-    vec4 spotLightShadowCoord;      // clip space   // Perspective
-    //vec3 spotLightPositionView;
-    vec4 flashLightShadowCoord;     // clip space   // Perspective
+    vec4 spotLight0ShadowCoord;         // clip space   // Perspective
+    vec4 spotLight1ShadowCoord;         // clip space   // Perspective
+    vec3 pointLightPositionView[4];
+    vec3 spotLightPositionView[2];
+    vec3 spotLightDirectionView[2];
 } vs_out;
 
 //layout(binding = 2, std430) readonly buffer NormalMatrixSSBO {
@@ -48,35 +50,30 @@ layout(binding = 24, std430) readonly buffer uberSSBO {
     mat4 MVPMatrix[10];
 };
 
-uniform vec3 dirLightDirection;     // View Space // normalized
-uniform vec3 pointLightPosition[4]; // View Space // NOT normalized
-uniform vec3 spotLightPosition[2];  // View Space // NOT normalized
+uniform vec3 dirLightDirection;      // View Space // normalized
+uniform vec3 pointLightPosition[4];  // View Space // NOT normalized
+uniform vec3 spotLightPosition[2];   // View Space // NOT normalized
 uniform vec3 spotLightDirection[2];  // View Space // NOT normalized
-
-out VS_OUT2 { // PASS_THROUGH_GS
-    vec3 pointLightPositionView[4];
-} vs_out2;
-
-out VS_OUT3 { // PASS_THROUGH_GS
-    vec3 spotLightPositionView[2];
-    vec3 spotLightDirectionView[2];
-} vs_out3;
 
 void main()
 {
     vs_out.TexCoords = aTexCoords;
     vs_out.NormalView = mat3(normalMatrix[gl_InstanceID]) * aNormal;
     vs_out.FragPosView = vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
+    // dirLight
     vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.dirLightDirectionView = dirLightDirection;
-    for (int i = 0; i < vs_out2.pointLightPositionView.length(); i++)
-        vs_out2.pointLightPositionView[i] = pointLightPosition[i];
-    vs_out.spotLightShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // dit moet ook een array worden!
-    for (int i = 0; i < vs_out3.spotLightDirectionView.length(); i++) {
-        vs_out3.spotLightDirectionView[i] = spotLightDirection[i];
-        vs_out3.spotLightPositionView[i] = spotLightPosition[i];
+    // pointLight
+    for (int i = 0; i < vs_out.pointLightPositionView.length(); i++)
+        vs_out.pointLightPositionView[i] = pointLightPosition[i];
+    // spotLight
+    vs_out.spotLight0ShadowCoord = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // dit moet ook een array worden!
+    vs_out.spotLight1ShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // dit moet ook een array worden!
+    for (int i = 0; i < vs_out.spotLightDirectionView.length(); i++) {
+        vs_out.spotLightDirectionView[i] = spotLightDirection[i];
+        vs_out.spotLightPositionView[i] = spotLightPosition[i];
     }
-    vs_out.flashLightShadowCoord = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // dit moet ook een array worden!
+
     gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // clip space
 }
 
@@ -113,84 +110,64 @@ void main()
 #version 420 core
 out vec4 FragColor;
 
-in VS_OUT { // PASS_THROUGH_GS
+in VS_OUT {
     vec2 TexCoords;
     vec3 FragPosView;
     vec3 NormalView;
     vec4 dirLightShadowCoord;
     vec3 dirLightDirectionView;
-    vec4 spotLightShadowCoord;
-    //vec3 spotLightPositionView;
-    vec4 flashLightShadowCoord;
-} vs_out;
-
-in VS_OUT2 { // PASS_THROUGH_GS
+    vec4 spotLight0ShadowCoord;
+    vec4 spotLight1ShadowCoord;
     vec3 pointLightPositionView[4];
-} vs_out2;
-
-in VS_OUT3 { // PASS_THROUGH_GS
     vec3 spotLightPositionView[2];
     vec3 spotLightDirectionView[2];
-} vs_out3;
+} vs_out;
 
 struct Material {
     sampler2D diffuse1;
     sampler2D specular1;
     //sampler2D height1;
-    sampler2D emission;         // Texture used used for emission on the object itself (no emissionMap involved, just 100% coverage)
-    float emissionStrength;     // Strength for emission
-    float shininess;            // Impacts the scattering/radius of the specular highlight
-    sampler2D flashLightEmissionMap;    // EmissionMap used for flashLight emission
-    sampler2D flashLightEmissionTexture; // Texture used for flashLight emission
+    float shininess;                // Impacts the scattering/radius of the specular highlight
+    sampler2D emission;             // Texture used used for emission on the object itself (no emissionMap involved, just 100% coverage)
+    float emissionStrength;         // Strength for emission
+    sampler2D lightEmissionMap;     // EmissionMap used for spotLight emission
+    sampler2D lightEmissionTexture; // Texture used for spotLight emission
 };   
 uniform Material material;
 
 struct DirLight {
-    vec3 color;         // Light color
-    float ambient;      // Ambient strength
-    float strength;     // Overall strength
+    bool on;
+    vec3 color;                     // Light color
+    float strength;                 // Overall strength
     sampler2D depthMap;
+    float ambient;                  // Ambient strength
 };
 uniform DirLight dirLight;
 
 struct PointLight {
-    vec3 color;         // Light color
-    float constant;     // Usually kept at 1.0f
-    float linear;       // Short distance intensity
-    float quadratic;    // Long distance intensity
-    float strength;     // Overall strength
+    bool on;
+    vec3 color;                     // Light color
+    float strength;                 // Overall strength
+    //sampler2D depthMap;
+    float constant;                 // Usually kept at 1.0f
+    float linear;                   // Short distance intensity
+    float quadratic;                // Long distance intensity
 };
-uniform PointLight pointLights[4]; // TODO Hard limit pointlights count (max 166?)
+uniform PointLight pointLights[4];  // TODO Hard limit pointlights count (max 166?)
 
 struct SpotLight {
     bool on;
-    //vec3 direction;     // View Space
-    float outerCutOff;  // Outer cone
-    float epsilon;      // Gradually fade the light between inner and outer cone
-    vec3 color;         // Light color
-    float constant;     // Usually kept at 1.0f
-    float linear;       // Short distance intensity
-    float quadratic;    // Long distance intensity
-    float strength;     // Overall strength
-    float emissionStrength;     // Overall strength
+    vec3 color;                     // Light color
+    float strength;                 // Overall strength
     sampler2D depthMap;
+    float constant;                 // Usually kept at 1.0f
+    float linear;                   // Short distance intensity
+    float quadratic;                // Long distance intensity
+    float outerCutOff;              // Outer cone
+    float emissionStrength;         // Overall strength
+    float epsilon;                  // Gradually fade the light between inner and outer cone
 };
 uniform SpotLight spotLights[2];
-
-//struct FlashLight {
-//    bool on;            // Flashlight on or off
-//    float outerCutOff;  // Outer cone
-//    float epsilon;      // Gradually fade the light between inner and outer cone
-//    vec3 color;         // Light color
-//    float constant;     // Usually kept at 1.0f
-//    float linear;       // Short distance intensity
-//    float quadratic;    // Long distance intensity
-//    float strength;     // Overall strength
-//    //vec3 origin;        //
-//    float emissionStrength;     // Overall strength
-//    sampler2D depthMap;
-//};
-//uniform FlashLight flashLight;
 
 vec3 normalView = normalize(vs_out.NormalView);
 
@@ -199,8 +176,6 @@ vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
 vec3 CalcDirLight(DirLight light)
 {
-    //vec3 lightDir = light.direction;
-
     // ambient
     vec3 ambient = light.ambient * textureDiffuse;
 
@@ -235,7 +210,7 @@ vec3 CalcDirLight(DirLight light)
 
 vec3 CalcPointLight(PointLight light, int i)
 {
-    vec3 lightDir = normalize(vs_out2.pointLightPositionView[i] - vs_out.FragPosView);
+    vec3 lightDir = normalize(vs_out.pointLightPositionView[i] - vs_out.FragPosView);
 
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
@@ -249,7 +224,7 @@ vec3 CalcPointLight(PointLight light, int i)
     vec3 specular = light.color * spec * textureSpecular;
 
     // attenuation
-    float distance = length(vs_out2.pointLightPositionView[i] - vs_out.FragPosView);
+    float distance = length(vs_out.pointLightPositionView[i] - vs_out.FragPosView);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     //float attenuation = 1.0f / (distance * distance);
     diffuse *= attenuation;
@@ -260,7 +235,7 @@ vec3 CalcPointLight(PointLight light, int i)
 
 vec3 CalcSpotLight(SpotLight light, int i)
 {   
-    vec3 lightDir = normalize(vs_out3.spotLightPositionView[i] - vs_out.FragPosView);
+    vec3 lightDir = normalize(vs_out.spotLightPositionView[i] - vs_out.FragPosView);
 
     // diffuse
     float diff = max(dot(normalView, lightDir), 0.0f);
@@ -274,13 +249,13 @@ vec3 CalcSpotLight(SpotLight light, int i)
     vec3 specular = light.color * spec * textureSpecular;
 
     // cone
-    float theta = dot(lightDir, normalize(-vs_out3.spotLightDirectionView[i]));
+    float theta = dot(lightDir, normalize(-vs_out.spotLightDirectionView[i]));
     float intensity = smoothstep(0.0f, 1.0f, (theta - light.outerCutOff) / light.epsilon);
     diffuse *= intensity;
     specular *= intensity;
 
     // attenuation
-    float distance = length(vs_out3.spotLightPositionView[i] - vs_out.FragPosView);
+    float distance = length(vs_out.spotLightPositionView[i] - vs_out.FragPosView);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));      
     //float attenuation = 1.0f / (distance * distance);
     diffuse  *= attenuation;
@@ -289,7 +264,11 @@ vec3 CalcSpotLight(SpotLight light, int i)
     // shadow - 1.0f = no shadow, 0.0f = full shadow
     float shadow = 0.0f;
     // perform perspective divide
-    vec3 ShadowCoord = vs_out.spotLightShadowCoord.xyz / vs_out.spotLightShadowCoord.w;
+    vec3 ShadowCoord;
+    if (i == 0)
+        ShadowCoord = vs_out.spotLight0ShadowCoord.xyz / vs_out.spotLight0ShadowCoord.w;
+    else
+        ShadowCoord = vs_out.spotLight1ShadowCoord.xyz / vs_out.spotLight1ShadowCoord.w;
     // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
     ShadowCoord = ShadowCoord * 0.5f + 0.5f;
     // prevent shadow acne 
@@ -316,138 +295,47 @@ vec3 CalcSpotLight(SpotLight light, int i)
     if(ShadowCoord.z > 1.0f)
         shadow = 1.0f;
 
-    // emission (put them in main if needed by other functions, slower)
-    vec3 textureFlashlightEmissionMap = vec3(texture(material.flashLightEmissionMap, vs_out.TexCoords));
-    vec3 textureFlashlightEmissionTexture = vec3(texture(material.flashLightEmissionTexture, vs_out.TexCoords));
-    // #1. emission: using specularMap as stamp, with if statement
-    //vec3 emission = vec3(0.0f);                         // Default no textureEmission visible
-    //if (textureSpecular.r == 0.0f) {                    // if textureSpecular == black (or whatever you choose)
-    //    emission = light.emission * textureEmission;    // show textureEmission
-    //}
-    // #2. emission: using specularMap as stamp, no if statement, a bit quicker, but less flexible (disable textureEmissionResult calculation)
-    //vec3 emission = textureSpecular.r * light.emission * textureEmissionResult;
-    // #3. emission: using specific emissionMap as stamp, a bit slower
-    vec3 emission = textureFlashlightEmissionMap.r * light.emissionStrength * textureFlashlightEmissionTexture;
-    emission *= shadow;
-    emission *= intensity;
-    emission *= attenuation;
+    vec3 emission;
+    if(light.emissionStrength > 0.0f) {
+        vec3 textureLightEmissionMap = vec3(texture(material.lightEmissionMap, vs_out.TexCoords));
+        vec3 textureLightEmissionTexture = vec3(texture(material.lightEmissionTexture, vs_out.TexCoords));
+        // #1. emission: using specularMap as stamp, with if statement
+        //vec3 emission = vec3(0.0f);                         // Default no textureEmission visible
+        //if (textureSpecular.r == 0.0f) {                    // if textureSpecular == black (or whatever you choose)
+        //    emission = light.emission * textureEmission;    // show textureEmission
+        //}
+        // #2. emission: using specularMap as stamp, no if statement, a bit quicker, but less flexible (disable textureEmissionResult calculation)
+        //vec3 emission = textureSpecular.r * light.emission * textureEmissionResult;
+        // #3. emission: using specific emissionMap as stamp, a bit slower
+        emission = textureLightEmissionMap.r * light.emissionStrength * textureLightEmissionTexture;
+        emission *= shadow;
+        emission *= intensity;
+        emission *= attenuation;
+    }
 
     return shadow * (diffuse + specular + emission) * light.strength;
 }
 
-// Without Emission
-//vec3 CalcFlashLight(FlashLight light)
-//{   
-//    vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
-//    // diffuse
-//    float diff = max(dot(normalView, lightDir), 0.0f);
-//    vec3 diffuse = light.color * diff * textureDiffuse;
-//    // specular
-//    vec3 reflectDir = reflect(-lightDir, normalView);
-//    float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
-//    vec3 specular = light.color * spec * textureSpecular;
-//    // cone
-//    vec3 cameraDirection = vec3(0.0f, 0.0f, 1.0f); // camera.m_front with negated z-axis
-//    float theta = dot(lightDir, cameraDirection);
-//    float intensity = smoothstep(0.0, 1.0, (theta - light.outerCutOff) / light.epsilon);
-//    diffuse *= intensity;
-//    specular *= intensity;
-//    // attenuation
-//    float distance = length(light.origin - vs_out.FragPosView);
-//    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
-//    diffuse  *= attenuation;
-//    specular *= attenuation;
-//
-//    return (diffuse + specular) * light.strength;
-//}
-
-//vec3 CalcFlashLight(FlashLight light)
-//{
-//    vec3 lightDir = normalize(light.origin - vs_out.FragPosView);
-//
-//    // diffuse
-//    float diff = max(dot(normalView, lightDir), 0.0f);
-//    vec3 diffuse = light.color * diff * textureDiffuse;
-//
-//    // specular
-//    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosView); // Blinn-Phong
-//    float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
-//    //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
-//    //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
-//    vec3 specular = light.color * spec * textureSpecular;
-//
-//    // cone
-//    vec3 cameraDirection = vec3(0.0f, 0.0f, 1.0f); // camera.m_front with negated z-axis
-//    float theta = dot(lightDir, cameraDirection);
-//    float intensity = smoothstep(0.0f, 1.0f, (theta - light.outerCutOff) / light.epsilon);
-//    diffuse *= intensity;
-//    specular *= intensity;
-//
-//    // attenuation
-//    float distance = length(light.origin - vs_out.FragPosView);
-//    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-//    //float attenuation = 1.0f / distance; // linear
-//    diffuse *= attenuation;
-//    specular *= attenuation;   
-//
-//    // shadow - 1.0f = no shadow, 0.0f = full shadow
-//    float shadow = 0.0f;
-//    // perform perspective divide
-//    vec3 ShadowCoord = vs_out.flashLightShadowCoord.xyz / vs_out.flashLightShadowCoord.w;
-//    // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
-//    ShadowCoord = ShadowCoord * 0.5 + 0.5;
-//    vec2 texelSize = 1.0f / textureSize(light.depthMap, 0);
-//    for(int x = -1; x <= 1; ++x) {
-//        for(int y = -1; y <= 1; ++y) {
-//            shadow += ShadowCoord.z > (texture(light.depthMap, ShadowCoord.xy + vec2(x, y) * texelSize).x) ? 0.0f : 1.0f; // - bias removed
-//        }    
-//    }
-//    shadow /= 9.0f;    
-//    // Outside the farPlane region of the light's frustum keep the shadow at 1.0f, not to cast shadows
-//    if(ShadowCoord.z > 1.0f) {
-//        shadow = 1.0f;
-//    }
-//
-//    // emission (put them in main if needed by other functions, slower)
-//    vec3 textureFlashlightEmissionMap = vec3(texture(material.flashLightEmissionMap, vs_out.TexCoords));
-//    vec3 textureFlashlightEmissionTexture = vec3(texture(material.flashLightEmissionTexture, vs_out.TexCoords));
-//    // #1. emission: using specularMap as stamp, with if statement
-//    //vec3 emission = vec3(0.0f);                         // Default no textureEmission visible
-//    //if (textureSpecular.r == 0.0f) {                    // if textureSpecular == black (or whatever you choose)
-//    //    emission = light.emission * textureEmission;    // show textureEmission
-//    //}
-//    // #2. emission: using specularMap as stamp, no if statement, a bit quicker, but less flexible (disable textureEmissionResult calculation)
-//    //vec3 emission = textureSpecular.r * light.emission * textureEmissionResult;
-//    // #3. emission: using specific emissionMap as stamp, a bit slower
-//    vec3 emission = textureFlashlightEmissionMap.r * light.emissionStrength * textureFlashlightEmissionTexture;
-//    emission *= shadow;
-//    emission *= intensity;
-//    emission *= attenuation;
-//
-//    return shadow * (diffuse + specular + emission) * light.strength;
-//}
-
 void main()
 {
-    vec3 resultDirLight = CalcDirLight(dirLight);
+    vec3 resultDirLight;
+    if (dirLight.on)
+        resultDirLight = CalcDirLight(dirLight);
 
     vec3 resultPointLight;
-    for(int i = 0; i < pointLights.length(); i++)
-        resultPointLight += CalcPointLight(pointLights[i], i);
+    for(int i = 0; i < pointLights.length(); i++) {
+        if (pointLights[i].on)
+            resultPointLight += CalcPointLight(pointLights[i], i);
+    }
 
-    //vec3 resultSpotLight = CalcSpotLight(spotLight);
     vec3 resultSpotLight;
     for(int i = 0; i < spotLights.length(); i++) {
         if (spotLights[i].on)
             resultSpotLight += CalcSpotLight(spotLights[i], i);
     }
 
-//    vec3 resultFlashLight = vec3(0.0f);
-//    if (flashLight.on)
-//        resultFlashLight = CalcFlashLight(flashLight);       
-
     // emission - no emissionMap used, just 100% coverage
     vec3 emissionMaterial = texture(material.emission, vs_out.TexCoords).rgb * material.emissionStrength;
 
-    FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + emissionMaterial, 1.0); //+ resultFlashLight
+    FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + emissionMaterial, 1.0);
 }

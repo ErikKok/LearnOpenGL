@@ -25,7 +25,7 @@ public:
 protected:
     Light() {};
 
-    bool m_on{ true };
+    bool m_on{ true };                          // If false then light is not caluted in Shader
     glm::vec3 m_position{};                     // World Space - not used for DirectionalLight
     glm::vec3 m_direction{};                    // World Space - not used for PointLight
     glm::vec3 m_color{ 1.0f, 1.0f, 1.0f };      // Diffuse color
@@ -118,26 +118,3 @@ protected:
 };
 
 inline const int getSpotLightCount() { return SpotLight::m_countSpotLight; };
-
-// FlashLight ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//class FlashLight : public SpotLight {
-//public:
-//    FlashLight()
-//        : SpotLight(false)
-//    {}
-//
-//    //const glm::vec3 getOrigin() const { return m_origin; };
-//    //void setOrigin(float x, float y, float z) { m_origin.x = x, m_origin.y = y, m_origin.z = z; };
-//    //const float getEmissionStrength() const { return m_emissionStrength; };
-//    //void setEmissionStrength(float x) { m_emissionStrength = x; };
-//
-//    void sendToShader(const Shader& shader) const override; // Transform World Space to View Space // TODO geen idee wat ik bedoel...
-//    //void updatePositionInViewSpace(const Shader& shader) const override;
-//    //void updateDirectionInViewSpace(const Shader& shader) const override;
-//    void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders... kan met array en loop
-//
-//protected:
-//    //glm::vec3 m_origin{ 0.0f, 0.0f, 0.0f }; // 0.0f, 0.0f, 0.0f == shines straight from the center/camera, offset for holding flashlight in right hand
-//    float m_emissionStrength{ 1.0f }; // Overall strength
-//};

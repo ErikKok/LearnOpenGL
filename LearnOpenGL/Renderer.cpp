@@ -70,8 +70,8 @@ void Renderer::draw(const RenderObject& RO) const
 		RO.material->shader.setInt("material.emission", RO.material->emission);
 		RO.material->shader.setFloat("material.emissionStrength", RO.material->emissionStrength);
 		RO.material->shader.setFloat("material.shininess", RO.material->shininess);
-		RO.material->shader.setInt("material.flashLightEmissionMap", RO.material->flashLightEmissionMap);
-		RO.material->shader.setInt("material.flashLightEmissionTexture", RO.material->flashLightEmissionTexture);
+		RO.material->shader.setInt("material.lightEmissionMap", RO.material->lightEmissionMap);
+		RO.material->shader.setInt("material.lightEmissionTexture", RO.material->lightEmissionTexture);
 
 		// SSBO
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
@@ -141,8 +141,8 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		RO.material->shader.setInt("material.emission", RO.material->emission);
 		RO.material->shader.setFloat("material.emissionStrength", RO.material->emissionStrength);
 		RO.material->shader.setFloat("material.shininess", RO.material->shininess);
-		RO.material->shader.setInt("material.flashLightEmissionMap", RO.material->flashLightEmissionMap);
-		RO.material->shader.setInt("material.flashLightEmissionTexture", RO.material->flashLightEmissionTexture);
+		RO.material->shader.setInt("material.lightEmissionMap", RO.material->lightEmissionMap);
+		RO.material->shader.setInt("material.lightEmissionTexture", RO.material->lightEmissionTexture);
 
 		// SSBO
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
