@@ -19,10 +19,15 @@ struct Material {
 	int normal1{ 7 };					// sampler2D
 	//int height1{ 0 };					// sampler2D
 	float shininess{ 0.0f };
-	int emission{ 0 };					// sampler2D
+	int emissionTexture{ 0 };			// sampler2D
 	float emissionStrength{ 0.0f };
 	int lightEmissionMap{ 0 };			// sampler2D
 	int lightEmissionTexture{ 0 };		// sampler2D
+	bool enableGL_CULL_FACE{ true };
+	//int cullFace{ GL_FRONT };			// false == GL_BACK
+	// bool depthTested;
+	// bool writeToDepthBuffer;
+	// bool blendMode;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

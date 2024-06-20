@@ -66,6 +66,8 @@ int main()
     renderer.createShaderDebugQuad("Shaders\\debugQuad.shader");
     renderer.isRendererComplete();
 
+    //Shader depthMapShader("Shaders\\depthMap.shader");
+
     Shader multiLight("Shaders\\multiLight.shader");
     Shader multiLightNormalMapping("Shaders\\multiLightNormalMapping.shader");
 
@@ -145,6 +147,8 @@ int main()
     SpotLight::spotLights[0].sendToShader(multiLight);
     SpotLight::spotLights[0].sendToShader(multiLightNormalMapping);
 
+    SpotLight::spotLights[0].setCamera(&Global::cameraFlashLight);
+
     // FlashLight depthMap // TODO rename
     Texture depthMapFlashLight(textureType::depthMap, 1920, 1080);
     FrameBuffer depthMapFlashLightFBO(depthMapFlashLight);
@@ -170,6 +174,7 @@ int main()
 
     // TODO get aspectratio from depthmap texture
     Camera cameraSpotLight(1.0f, SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
+    SpotLight::spotLights[1].setCamera(&cameraSpotLight);
 
     // SpotLight depthMap
     Texture depthMapSpotLight(textureType::depthMap, 1024, 1024);
@@ -196,7 +201,7 @@ int main()
         .specular1{ 9 },
         .normal1{ 7 },
         .shininess{ 32.0f },
-        .emission{ 10 },
+        .emissionTexture{ 10 },
         .emissionStrength{ 0.5f },
         .lightEmissionMap{ 11 },
         .lightEmissionTexture{ 12 },
@@ -229,10 +234,11 @@ int main()
         .specular1{ 0 },
         .normal1{ 7 },
         .shininess{ 8.0f },
-        .emission{ 0 },
+        .emissionTexture{ 0 },
         .emissionStrength{ 0.0f },
         .lightEmissionMap{ 0 },
         .lightEmissionTexture{ 12 },
+        .enableGL_CULL_FACE{ false },
     };
 
     RenderObject floorRO{ &floorMesh, &floorMaterial };
@@ -272,7 +278,7 @@ int main()
         .specular1{ 0 },
         .normal1{ 7 },
         .shininess{ 666.0f },
-        .emission{ 0 },
+        .emissionTexture{ 0 },
         .emissionStrength{ 0.0f },
         .lightEmissionMap{ 0 },
         .lightEmissionTexture{ 0 },
@@ -407,6 +413,18 @@ int main()
         SpotLight::spotLights[1].setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
         SpotLight::spotLights[1].updateColor(multiLightNormalMapping);
 
+        // Set SpotLight camera front and position
+        // DirLight does not move, so need for that camera to do this
+        // TODO sync light position with camera classes
+        SpotLight::spotLights[1].getCamera()->setFront(glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f));
+        SpotLight::spotLights[1].getCamera()->setPosition(SpotLight::spotLights[1].getPosition());
+
+        if (SpotLight::spotLights[0].getOn()) {
+            Global::cameraFlashLight.setUp(Global::camera.getUp());
+            Global::cameraFlashLight.setFront(Global::camera.getFront());
+            Global::cameraFlashLight.setPosition(Global::camera.getPosition() + Global::flashLightShadowOffset);
+        }
+
         /////////////////////////////////////////////////////////////////////////////////////
         // Calculate dynamic models/transforms and SSBO's ///////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
@@ -452,8 +470,8 @@ int main()
         for (auto i = 0; i < std::ssize(cubeRO.model); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.model[i];
             temp.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * cubeRO.model[i];
-            temp.flashLightMVPMatrix[i] = Global::cameraFlashLight.getViewProjectionMatrix() * cubeRO.model[i];
-            temp.spotLightMVPMatrix[i] = cameraSpotLight.getViewProjectionMatrix() * cubeRO.model[i];
+            temp.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.model[i];
+            temp.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.model[i];
             temp.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
             temp.modelViewMatrix[i] = Global::modelViewMatrixTemp;
             temp.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
@@ -480,8 +498,8 @@ int main()
         for (auto i = 0; i < std::ssize(floorRO.model); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.model[i];
             temp.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * floorRO.model[i];
-            temp.flashLightMVPMatrix[i] = Global::cameraFlashLight.getViewProjectionMatrix() * floorRO.model[i];
-            temp.spotLightMVPMatrix[i] = cameraSpotLight.getViewProjectionMatrix() * floorRO.model[i];
+            temp.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.model[i];
+            temp.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.model[i];
             temp.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
             temp.modelViewMatrix[i] = Global::modelViewMatrixTemp;
             temp.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
@@ -510,8 +528,8 @@ int main()
         for (auto i = 0; i < std::ssize(modelRO.model); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.model[i];
             temp.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * modelRO.model[i];
-            temp.flashLightMVPMatrix[i] = Global::cameraFlashLight.getViewProjectionMatrix() * modelRO.model[i];
-            temp.spotLightMVPMatrix[i] = cameraSpotLight.getViewProjectionMatrix() * modelRO.model[i];
+            temp.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.model[i];
+            temp.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.model[i];
             temp.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
             temp.modelViewMatrix[i] = Global::modelViewMatrixTemp;
             temp.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
@@ -556,7 +574,7 @@ int main()
             renderer.drawModel(modelRO, backpackModel);
 
             depthMapFlashLightFBO.stopDepthMap();
-            //std::println("End ShadowPass spotLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
+            //std::println("End ShadowPass flashLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
         }
 
         /////////////////////////////////////////////////////////////////////////////////////
@@ -569,11 +587,6 @@ int main()
 
         depthMapSpotLightFBO.startDepthMap(renderer.getShaderDepthMapSpotLight());
 
-        // TODO sync light position with camera classes
-        glm::mat4 view = glm::lookAt(SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
-
-        cameraSpotLight.setViewMatrix(view); // TODO
-
         renderer.draw(cubeRO);
         renderer.draw(floorRO);
         renderer.drawModel(modelRO, backpackModel);
@@ -582,7 +595,30 @@ int main()
         //std::println("End ShadowPass spotLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
 
         /////////////////////////////////////////////////////////////////////////////////////
-        // Start Render scene normal //////////////////////////////////////////////////////////////
+        // Start ShadowPass spotLight General ///////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        //for (auto i = 0; i < getSpotLightCount(); i++) {
+
+        //    renderer.setRenderPassActive(renderPassType::depthMapSpotLight);
+
+        //    depthMapSpotLightFBO.startDepthMap(&depthMapShader);
+
+        //    glm::mat4 lightMVPMatrix[10]{}; // instances
+        //    for (auto i = 0; i < std::ssize(modelRO.model); i++) {
+        //        lightMVPMatrix[i] = SpotLight::spotLights[i].getCamera()->getViewProjectionMatrix() * modelRO.model[i]; // is 1 frame oud...
+        //    }
+        //    update / upload / bind lightMVPMatrix;
+        //    renderer.draw(cubeRO);
+
+        //    renderer.draw(floorRO);
+        //    renderer.drawModel(modelRO, backpackModel);
+
+        //    depthMapSpotLightFBO.stopDepthMap();
+        //}
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Start Render scene normal ////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
         loadTime = static_cast<float>(glfwGetTime());
@@ -600,9 +636,7 @@ int main()
         renderer.draw(cubeRO);
      
         glStencilMask(0xFF); // enable writing to the stencil buffer
-        glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
         renderer.draw(floorRO);
-        glEnable(GL_CULL_FACE);
         glStencilMask(0x00); // disable writing to the stencil buffer
 
         renderer.drawModel(modelRO, backpackModel);

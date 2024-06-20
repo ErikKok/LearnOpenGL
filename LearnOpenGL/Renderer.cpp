@@ -61,13 +61,16 @@ void Renderer::draw(const RenderObject& RO) const
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
 	case renderPassType::normal:
+		if (!RO.material->enableGL_CULL_FACE)
+			glDisable(GL_CULL_FACE);
+
 		RO.material->shader.useShader();
 
 		// Material, dit zijn vaste waardes, die potentieel elke keer, veranderen per draw call, dus hard coded is ok?
 		RO.material->shader.setInt("material.diffuse1", RO.material->diffuse1);
 		RO.material->shader.setInt("material.specular1", RO.material->specular1);
 		//RO.material->shader.setInt("material.normal1", RO.material->normal1);
-		RO.material->shader.setInt("material.emission", RO.material->emission);
+		RO.material->shader.setInt("material.emissionTexture", RO.material->emissionTexture);
 		RO.material->shader.setFloat("material.emissionStrength", RO.material->emissionStrength);
 		RO.material->shader.setFloat("material.shininess", RO.material->shininess);
 		RO.material->shader.setInt("material.lightEmissionMap", RO.material->lightEmissionMap);
@@ -82,6 +85,9 @@ void Renderer::draw(const RenderObject& RO) const
 
 	RO.mesh->m_vao->bindVertexArray();
 	glDrawElementsInstanced(GL_TRIANGLES, RO.mesh->m_ebo->getCount(), GL_UNSIGNED_INT, 0, RO.instances);
+
+	if (!RO.material->enableGL_CULL_FACE)
+		glEnable(GL_CULL_FACE);
 
 	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
 		//glCullFace(GL_BACK);
@@ -135,10 +141,13 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
 	case renderPassType::normal:
+		if (!RO.material->enableGL_CULL_FACE)
+			glDisable(GL_CULL_FACE);
+
 		RO.material->shader.useShader();
 
 		// Material, dit zijn vaste waardes, die potentieel elke keer, veranderen per draw call, dus hard coded is ok?
-		RO.material->shader.setInt("material.emission", RO.material->emission);
+		RO.material->shader.setInt("material.emissionTexture", RO.material->emissionTexture);
 		RO.material->shader.setFloat("material.emissionStrength", RO.material->emissionStrength);
 		RO.material->shader.setFloat("material.shininess", RO.material->shininess);
 		RO.material->shader.setInt("material.lightEmissionMap", RO.material->lightEmissionMap);
@@ -196,6 +205,9 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		model.m_meshes[i].m_vao->bindVertexArray();
 		glDrawElementsInstanced(GL_TRIANGLES, model.m_meshes[i].m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 	}
+
+	if (!RO.material->enableGL_CULL_FACE)
+		glEnable(GL_CULL_FACE);
 
 	//// You could unbind after each call, so you can call this function for a second model... quick fix
 	//for (auto i{ 0 }; i < std::ssize(m_texturesLoaded); i++)

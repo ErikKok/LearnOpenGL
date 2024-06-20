@@ -21,7 +21,11 @@ public:
     Camera(float aspectRatio, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
 
     const glm::vec3 getPosition() const { return m_position; };
+    void setPosition(glm::vec3 x) { m_position = x; calculateViewMatrix(); };
+    const glm::vec3 getFront() const { return m_front; };
+    void setFront(glm::vec3 x) { m_front = x; };
     const glm::vec3 getUp() const { return m_up; };
+    void setUp(glm::vec3 x) { m_up = x; };
     const float getNearPlane() const { return m_nearPlane; };
     void setNearPlane(float x) { m_nearPlane = x; calculateProjectionMatrix(); };
     const float getFarPlane() const { return m_farPlane; };

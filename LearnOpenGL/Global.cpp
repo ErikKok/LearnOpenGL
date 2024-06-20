@@ -134,28 +134,22 @@ void Global::processInput(GLFWwindow* window)
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::FORWARD);
-        Global::cameraFlashLight.processKeyboard(CameraMovement::FORWARD);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::BACKWARD);
-        Global::cameraFlashLight.processKeyboard(CameraMovement::BACKWARD);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::LEFT);
-        Global::cameraFlashLight.processKeyboard(CameraMovement::LEFT);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::RIGHT);
-        Global::cameraFlashLight.processKeyboard(CameraMovement::RIGHT);
     }
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::UP);
-        Global::cameraFlashLight.processKeyboard(CameraMovement::UP);
     }
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         Global::camera.processKeyboard(CameraMovement::DOWN);
-        Global::cameraFlashLight.processKeyboard(CameraMovement::DOWN);
     }
 }
 
@@ -258,14 +252,12 @@ void Global::mouse_callback(GLFWwindow* window, double currentXPosIn, double cur
     lastYPos = currentYPos;
 
     Global::camera.processMouseMovement(xoffset, yoffset);
-    Global::cameraFlashLight.processMouseMovement(xoffset, yoffset);
 }
 
 #pragma warning( suppress : 4100 )
 void Global::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     Global::camera.processMouseScroll(static_cast<float>(yoffset));
-    Global::cameraFlashLight.processMouseScroll(static_cast<float>(yoffset));
 }
 
 #pragma warning( suppress : 4100 )

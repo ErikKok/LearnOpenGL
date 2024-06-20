@@ -25,12 +25,9 @@ TO DO
 		- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
 		- flashlight positie updaten na player positie is geupdated met offset
 		- flashlight frustum is niet meer beeldvullend NA eerste gebruik zoomfunctie
-		- flashLight shines from the player camera (0,0,0), but casts shadow from this camera with flashLightShadowOffset
+		- flashLight shines from the player camera (0,0,0), but casts shadow from this camera with flashLightShadowOffset (shadows won't be visible otherwise)
 		- flashlight camera movement is duplicated in processInput/mouse_callback/scroll_callback, could be linked/feed from player camera I guess
-		- onderscheid SpotLight en FlashLight wel nodig?
-		- origin is stiekem gewoon position toch?
-		- en vs_out.cameraDirectionTangent is stiekem gewoon direction toch?
-		- zo ja, enige verschil is dan nog emission? nuttig?
+		- does not light the underside of floor
 - use a constant array in the shader, e.g. for fullscreen quads
 - implement Bindless Textures
 - cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
@@ -40,10 +37,16 @@ TO DO
 - huidige mesh class inheriten, base kan iets kleiner?
 - font rendering
 - TODO's nalopen
-- for loops checken: auto icm std::ssize heeft de voorkeur
 - gebruik Global::glCheckError(); inperken
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
 - obj van cube en hexagon fixen
+
+v0.2.73 20-6-2024
+-----------------
+- added Camera* to light Class
+- moved position spotlight[1] to top of renderloop (was lagging 1 frame)
+- moved position flashlight to renderloop, from processMovement functions
+- made a array of spotLightShadowCoord in Shader
 
 v0.2.72 19-6-2024
 -----------------

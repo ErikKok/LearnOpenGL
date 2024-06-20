@@ -21,6 +21,8 @@ public:
     void setStrength(float x) { m_strength = x; };
     const int getDepthMap() const { return m_depthMap; };
     void setDepthMap(int x) { m_depthMap = x; };
+    Camera* getCamera() const { return m_camera; };
+    void setCamera(Camera* x) { m_camera = x; };
 
 protected:
     Light() {};
@@ -31,6 +33,7 @@ protected:
     glm::vec3 m_color{ 1.0f, 1.0f, 1.0f };      // Diffuse color
     float m_strength{ 1.0f };                   // Overall strength
     int m_depthMap{};                           // sampler2D
+    Camera* m_camera{ nullptr };                // TODO could become dangling
 };
 
 // DirectionalLight //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +81,6 @@ protected:
     float m_quadratic{ 0.032f };    // Long distance intensity
 };
 
-//inline const int getPointLightCount() { return static_cast<int>(std::ssize(PointLight::pointLights)); };
 inline const int getPointLightCount() { return PointLight::m_countPointLight; };
 
 // SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,10 +105,10 @@ public:
     //const float getOuterCutOff() const { return m_outerCutOff; }; // need to convert radians back to degrees
     void setOuterCutOff(float x) { m_outerCutOff = glm::cos(glm::radians(x)); };
 
-    virtual void sendToShader(const Shader& shader) const;
-    virtual void updatePositionInViewSpace(const Shader& shader) const;
-    virtual void updateDirectionInViewSpace(const Shader& shader) const;
-    virtual void updateColor(const Shader& shader) const;
+    void sendToShader(const Shader& shader) const;
+    void updatePositionInViewSpace(const Shader& shader) const;
+    void updateDirectionInViewSpace(const Shader& shader) const;
+    void updateColor(const Shader& shader) const;
     void setEmissionStrength(float x) { m_emissionStrength = x; };
     void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders... kan met array en loop
 

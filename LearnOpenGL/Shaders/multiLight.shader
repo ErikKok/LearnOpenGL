@@ -8,10 +8,9 @@ out VS_OUT {
     vec2 TexCoords;
     vec3 FragPosView;
     vec3 NormalView;
-    vec4 dirLightShadowCoord;           // clip space   // Orthographic
+    vec4 dirLightShadowCoord;               // clip space   // Orthographic
     vec3 dirLightDirectionView;
-    vec4 spotLight0ShadowCoord;         // clip space   // Perspective
-    vec4 spotLight1ShadowCoord;         // clip space   // Perspective
+    vec4 spotLightShadowCoord[2];           // clip space   // Perspective
     vec3 pointLightPositionView[4];
     vec3 spotLightPositionView[2];
     vec3 spotLightDirectionView[2];
@@ -67,8 +66,8 @@ void main()
     for (int i = 0; i < vs_out.pointLightPositionView.length(); i++)
         vs_out.pointLightPositionView[i] = pointLightPosition[i];
     // spotLight
-    vs_out.spotLight0ShadowCoord = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // dit moet ook een array worden!
-    vs_out.spotLight1ShadowCoord = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // dit moet ook een array worden!
+    vs_out.spotLightShadowCoord[0] = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // dit moet ook een array worden!
+    vs_out.spotLightShadowCoord[1] = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // dit moet ook een array worden!
     for (int i = 0; i < vs_out.spotLightDirectionView.length(); i++) {
         vs_out.spotLightDirectionView[i] = spotLightDirection[i];
         vs_out.spotLightPositionView[i] = spotLightPosition[i];
@@ -116,8 +115,7 @@ in VS_OUT {
     vec3 NormalView;
     vec4 dirLightShadowCoord;
     vec3 dirLightDirectionView;
-    vec4 spotLight0ShadowCoord;
-    vec4 spotLight1ShadowCoord;
+    vec4 spotLightShadowCoord[2];
     vec3 pointLightPositionView[4];
     vec3 spotLightPositionView[2];
     vec3 spotLightDirectionView[2];
@@ -128,10 +126,10 @@ struct Material {
     sampler2D specular1;
     //sampler2D height1;
     float shininess;                // Impacts the scattering/radius of the specular highlight
-    sampler2D emission;             // Texture used used for emission on the object itself (no emissionMap involved, just 100% coverage)
+    sampler2D emissionTexture;      // Texture used used for emission on the object itself (no emissionMap involved, just 100% coverage)
     float emissionStrength;         // Strength for emission
-    sampler2D lightEmissionMap;     // EmissionMap used for spotLight emission
-    sampler2D lightEmissionTexture; // Texture used for spotLight emission
+    sampler2D lightEmissionMap;     // EmissionMap used for light emission
+    sampler2D lightEmissionTexture; // Texture used for light emission
 };   
 uniform Material material;
 
@@ -264,11 +262,7 @@ vec3 CalcSpotLight(SpotLight light, int i)
     // shadow - 1.0f = no shadow, 0.0f = full shadow
     float shadow = 0.0f;
     // perform perspective divide
-    vec3 ShadowCoord;
-    if (i == 0)
-        ShadowCoord = vs_out.spotLight0ShadowCoord.xyz / vs_out.spotLight0ShadowCoord.w;
-    else
-        ShadowCoord = vs_out.spotLight1ShadowCoord.xyz / vs_out.spotLight1ShadowCoord.w;
+    vec3 ShadowCoord = vs_out.spotLightShadowCoord[i].xyz / vs_out.spotLightShadowCoord[i].w;
     // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
     ShadowCoord = ShadowCoord * 0.5f + 0.5f;
     // prevent shadow acne 
@@ -297,6 +291,7 @@ vec3 CalcSpotLight(SpotLight light, int i)
 
     vec3 emission;
     if(light.emissionStrength > 0.0f) {
+        // TODO optimization: these 2 calculations are the same for every spotLight, but are only needed if ONE of them has emissionStrength > 0.0f
         vec3 textureLightEmissionMap = vec3(texture(material.lightEmissionMap, vs_out.TexCoords));
         vec3 textureLightEmissionTexture = vec3(texture(material.lightEmissionTexture, vs_out.TexCoords));
         // #1. emission: using specularMap as stamp, with if statement
@@ -335,7 +330,7 @@ void main()
     }
 
     // emission - no emissionMap used, just 100% coverage
-    vec3 emissionMaterial = texture(material.emission, vs_out.TexCoords).rgb * material.emissionStrength;
+    vec3 resultEmissionMaterial = texture(material.emissionTexture, vs_out.TexCoords).rgb * material.emissionStrength;
 
-    FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + emissionMaterial, 1.0);
+    FragColor = vec4(resultDirLight + resultSpotLight + resultPointLight + resultEmissionMaterial, 1.0f);
 }

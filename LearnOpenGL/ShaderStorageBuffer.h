@@ -28,6 +28,8 @@ enum ssboBindingPoints {
 	spotLightMVPMatrixBP = 6,
 	flashLightMVPMatrixBP = 7,
 	singleColorBP = 20,
+	uberBP = 24,
+	lightMVPMatrixBP = 32,
 };
 
 class ShaderStorageBuffer {
