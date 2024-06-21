@@ -52,7 +52,7 @@ namespace Global {
     inline glm::vec3 flashLightShadowOffset{ 0.4f, 0.0f, -0.3f }; // TODO flashLight shines from the player camera (0,0,0), but casts shadow from this camera with this offset (shadows won't be visible otherwise)
     inline Camera camera((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), cameraPosition); // 8.0f, 1.5f, 8.0f
     // In global because of toggle
-    inline Camera cameraFlashLight(1.77f, cameraPosition + flashLightShadowOffset); // TODO get aspectratio from depthmap texture // Rename
+    inline Camera cameraFlashLight(1.0f, cameraPosition + flashLightShadowOffset); // TODO get aspectratio from depthmap texture // Rename
     inline glm::mat4 modelViewMatrixTemp{}; // Used as cache for various matrix calculations
 
     // Renderloop

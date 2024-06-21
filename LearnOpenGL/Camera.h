@@ -20,7 +20,7 @@ class Camera
 public:
     Camera(float aspectRatio, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
 
-    const glm::vec3 getPosition() const { return m_position; };
+    glm::vec3 getPosition()  { return m_position; };
     void setPosition(glm::vec3 x) { m_position = x; calculateViewMatrix(); };
     const glm::vec3 getFront() const { return m_front; };
     void setFront(glm::vec3 x) { m_front = x; };
@@ -48,15 +48,16 @@ public:
     void processKeyboard(CameraMovement direction);
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
     void processMouseScroll(GLfloat yoffset);
-
+    glm::vec3 m_right{};
+    glm::vec3 m_position{};
 protected:
     Camera() {};
 
     // camera Attributes
-    glm::vec3 m_position{};
+
     glm::vec3 m_front{ 0.0f, 0.0f, 0.0f };
     glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
-    glm::vec3 m_right{};
+
     const glm::vec3 m_defaultUp{ 0.0f, 1.0f, 0.0f };
     GLfloat m_nearPlane{ 0.1f };
     GLfloat m_farPlane{ 400.0f };

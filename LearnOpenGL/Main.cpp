@@ -133,7 +133,23 @@ int main()
     // FlashLight - [0] == flashlight
     SpotLight::spotLights.emplace_back(SpotLight());
     SpotLight::spotLights[0].setOn(false);
-    SpotLight::spotLights[0].setPosition(Global::camera.getPosition()); // TODO light position == camera position == needs to sync, or delete 1
+
+    //glm::vec3 xx = Global::camera.getPosition();
+
+    //xx = glm::normalize(glm::vec3(0.4f, 0.0f, -0.3f)) * 1.0f;
+
+    //m_right bevat rechterkant, dus een direction vector naar rechts?
+    //dit werkt, wellicht werkte het sowieso al, alleen de frustum positie moet OOK worden geupdatet...
+    //glm::mat4 xx = glm::translate(glm::mat4(1.0f), Global::camera.m_right);
+
+    //glm::vec4 kak = xx * glm::vec4(Global::camera.getPosition(), 1.0f);
+
+    //SpotLight::spotLights[0].setPosition({kak.x, kak.y, kak.z});
+
+    
+
+    SpotLight::spotLights[0].setPosition(Global::camera.getPosition() + Global::flashLightShadowOffset);
+
     SpotLight::spotLights[0].setDirection({ 0.0f, 0.0f, -1.0f });
     SpotLight::spotLights[0].setColor({ 1.0f, 1.0f, 1.0f });
     SpotLight::spotLights[0].setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
@@ -150,11 +166,11 @@ int main()
     SpotLight::spotLights[0].setCamera(&Global::cameraFlashLight);
 
     // FlashLight depthMap // TODO rename
-    Texture depthMapFlashLight(textureType::depthMap, 1920, 1080);
+    Texture depthMapFlashLight(textureType::depthMap, 512, 512);
     FrameBuffer depthMapFlashLightFBO(depthMapFlashLight);
-    Global::cameraFlashLight.setFov(60.0f); // too wide, but otherwise does not work ok while zooming
+    Global::cameraFlashLight.setFov(45.0f);
     Global::cameraFlashLight.setNearPlane(0.1f);
-    Global::cameraFlashLight.setFarPlane(100.0f);
+    Global::cameraFlashLight.setFarPlane(30.0f);
 
     // SpotLight 1
     SpotLight::spotLights.emplace_back(SpotLight());
@@ -374,7 +390,7 @@ int main()
         Global::deltaTime = currentFrame - Global::lastFrame;
         Global::lastFrame = currentFrame;
         //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
-        //std::println("Position: {}, {}, {}", Global::camera.m_position.x, Global::camera.m_position.y, Global::camera.m_position.z);
+        std::println("Position: {}, {}, {}", Global::camera.m_position.x, Global::camera.m_position.y, Global::camera.m_position.z);
         //std::println("Front: {}, {}, {}", Global::camera.m_front.x, Global::camera.m_front.y, Global::camera.m_front.z);
         Global::clearStencilBuffer();
         Global::processInput(window);

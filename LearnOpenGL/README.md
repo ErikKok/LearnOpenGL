@@ -41,6 +41,10 @@ TO DO
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
 - obj van cube en hexagon fixen
 
+v0.2.74 21-6-2024
+-----------------
+- test
+
 v0.2.73 20-6-2024
 -----------------
 - added Camera* to light Class
