@@ -43,7 +43,7 @@ TO DO
 
 v0.2.74 21-6-2024
 -----------------
-- test
+- fixed flashLightCamera, flashLightShadowOffset is now respected in every orientation
 
 v0.2.73 20-6-2024
 -----------------

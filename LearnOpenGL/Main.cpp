@@ -133,23 +133,7 @@ int main()
     // FlashLight - [0] == flashlight
     SpotLight::spotLights.emplace_back(SpotLight());
     SpotLight::spotLights[0].setOn(false);
-
-    //glm::vec3 xx = Global::camera.getPosition();
-
-    //xx = glm::normalize(glm::vec3(0.4f, 0.0f, -0.3f)) * 1.0f;
-
-    //m_right bevat rechterkant, dus een direction vector naar rechts?
-    //dit werkt, wellicht werkte het sowieso al, alleen de frustum positie moet OOK worden geupdatet...
-    //glm::mat4 xx = glm::translate(glm::mat4(1.0f), Global::camera.m_right);
-
-    //glm::vec4 kak = xx * glm::vec4(Global::camera.getPosition(), 1.0f);
-
-    //SpotLight::spotLights[0].setPosition({kak.x, kak.y, kak.z});
-
-    
-
     SpotLight::spotLights[0].setPosition(Global::camera.getPosition() + Global::flashLightShadowOffset);
-
     SpotLight::spotLights[0].setDirection({ 0.0f, 0.0f, -1.0f });
     SpotLight::spotLights[0].setColor({ 1.0f, 1.0f, 1.0f });
     SpotLight::spotLights[0].setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
@@ -390,7 +374,7 @@ int main()
         Global::deltaTime = currentFrame - Global::lastFrame;
         Global::lastFrame = currentFrame;
         //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
-        std::println("Position: {}, {}, {}", Global::camera.m_position.x, Global::camera.m_position.y, Global::camera.m_position.z);
+        //std::println("Position: {}, {}, {}", Global::camera.m_position.x, Global::camera.m_position.y, Global::camera.m_position.z);
         //std::println("Front: {}, {}, {}", Global::camera.m_front.x, Global::camera.m_front.y, Global::camera.m_front.z);
         Global::clearStencilBuffer();
         Global::processInput(window);
@@ -435,10 +419,19 @@ int main()
         SpotLight::spotLights[1].getCamera()->setFront(glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f));
         SpotLight::spotLights[1].getCamera()->setPosition(SpotLight::spotLights[1].getPosition());
 
+        // TODO make function
         if (SpotLight::spotLights[0].getOn()) {
-            Global::cameraFlashLight.setUp(Global::camera.getUp());
+
+            glm::mat4 directionTranslated = glm::translate(glm::mat4(1.0f), Global::camera.getRight() * Global::flashLightShadowOffset.x);
+
+            directionTranslated = glm::translate(directionTranslated, Global::camera.getUp() * Global::flashLightShadowOffset.y);
+
+            directionTranslated = glm::translate(directionTranslated, Global::camera.getFront() * Global::flashLightShadowOffset.z);
+
+            glm::vec4 positionTranslated = directionTranslated * glm::vec4(Global::camera.getPosition(), 1.0f);
+
             Global::cameraFlashLight.setFront(Global::camera.getFront());
-            Global::cameraFlashLight.setPosition(Global::camera.getPosition() + Global::flashLightShadowOffset);
+            Global::cameraFlashLight.setPosition({ positionTranslated });
         }
 
         /////////////////////////////////////////////////////////////////////////////////////
