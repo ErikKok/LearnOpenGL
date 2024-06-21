@@ -76,7 +76,7 @@ int main()
     std::println("CREATE Lights");///////
 
     PointLight::pointLights.emplace_back(PointLight());
-    PointLight::pointLights[0].setPosition({ 0.7f, 11.2f, 2.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    PointLight::pointLights[0].setPosition({ 0.7f, 11.2f, 2.0f });
     PointLight::pointLights[0].setColor({ 1.0f, 0.0f, 1.0f });
     PointLight::pointLights[0].setStrength(1.0f);
     PointLight::pointLights[0].setConstant(1.0f);
@@ -86,19 +86,19 @@ int main()
     PointLight::pointLights[0].sendToShader(multiLightNormalMapping);
 
     PointLight::pointLights.emplace_back(PointLight());
-    PointLight::pointLights[1].setPosition({ 4.0f,  2.0f, -12.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    PointLight::pointLights[1].setPosition({ 4.0f,  2.0f, -12.0f });
     PointLight::pointLights[1].setColor({ 1.0f, 1.0f, 1.0f });
     PointLight::pointLights[1].sendToShader(multiLight);
     PointLight::pointLights[1].sendToShader(multiLightNormalMapping);
 
     PointLight::pointLights.emplace_back(PointLight());
-    PointLight::pointLights[2].setPosition({ -4.0f,  2.0f,  12.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    PointLight::pointLights[2].setPosition({ -4.0f,  2.0f,  12.0f });
     PointLight::pointLights[2].setColor({ 0.0f, 1.0f, 0.0f });
     PointLight::pointLights[2].sendToShader(multiLight);
     PointLight::pointLights[2].sendToShader(multiLightNormalMapping);
 
     PointLight::pointLights.emplace_back(PointLight());
-    PointLight::pointLights[3].setPosition({ 15.0f,  1.2f,  -3.0f }); // TODO light position == camera position == needs to sync, or delete 1
+    PointLight::pointLights[3].setPosition({ 15.0f,  1.2f,  -3.0f });
     PointLight::pointLights[3].setColor({ 0.0f, 0.0f, 1.0f });
     PointLight::pointLights[3].setLinear(0.035f);
     PointLight::pointLights[3].setQuadratic(0.44f);
@@ -111,7 +111,7 @@ int main()
 
     // DirLight
     DirectionalLight sun;
-    sun.setDirection({ 0.7f, 0.9f, 0.8f }); // TODO light position == camera position == needs to sync, or delete 1
+    sun.setDirection({ 0.7f, 0.9f, 0.8f });
     sun.setColor({ 1.0f, 1.0f, 0.95f });
     sun.setStrength(0.25f);
     sun.setDepthMap(2);
@@ -124,16 +124,17 @@ int main()
     // DirLight depthMap
     Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
     FrameBuffer depthMapDirLightFBO(depthMapDirLight);
-    depthMapDirLightFBO.setOrthographic(true); // TODO needs to sync with camera type
+    depthMapDirLightFBO.setOrthographic(true);
     cameraDirLight.setNearPlane(-15.0f);
     cameraDirLight.setFarPlane(35.0f);
     cameraDirLight.setViewMatrix(glm::lookAt(sun.getDirection(), sun.getDirection() - sun.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))); // TODO
     cameraDirLight.calculateProjectionMatrix();
 
     // FlashLight - [0] == flashlight
+    glm::vec3 flashLightOffset{ 0.4f, -0.3f, -0.1f };
     SpotLight::spotLights.emplace_back(SpotLight());
     SpotLight::spotLights[0].setOn(false);
-    SpotLight::spotLights[0].setPosition(Global::camera.getPosition() + Global::flashLightShadowOffset);
+    SpotLight::spotLights[0].setPosition(Global::camera.getPosition() + flashLightOffset);
     SpotLight::spotLights[0].setDirection({ 0.0f, 0.0f, -1.0f });
     SpotLight::spotLights[0].setColor({ 1.0f, 1.0f, 1.0f });
     SpotLight::spotLights[0].setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
@@ -147,18 +148,18 @@ int main()
     SpotLight::spotLights[0].sendToShader(multiLight);
     SpotLight::spotLights[0].sendToShader(multiLightNormalMapping);
 
-    SpotLight::spotLights[0].setCamera(&Global::cameraFlashLight);
+    Camera cameraSpotLight0(depthMapDirLight.getAspectRatio(), Global::cameraInitialPosition);
+    SpotLight::spotLights[0].setCamera(&cameraSpotLight0);
 
-    // FlashLight depthMap // TODO rename
-    Texture depthMapFlashLight(textureType::depthMap, 512, 512);
-    FrameBuffer depthMapFlashLightFBO(depthMapFlashLight);
-    Global::cameraFlashLight.setFov(45.0f);
-    Global::cameraFlashLight.setNearPlane(0.1f);
-    Global::cameraFlashLight.setFarPlane(30.0f);
+    Texture depthMapSpotLight0(textureType::depthMap, 512, 512);
+    FrameBuffer depthMapSpotLight0FBO(depthMapSpotLight0);
+    cameraSpotLight0.setFov(25.0f);
+    cameraSpotLight0.setNearPlane(0.1f);
+    cameraSpotLight0.setFarPlane(25.0f);
 
     // SpotLight 1
     SpotLight::spotLights.emplace_back(SpotLight());
-    SpotLight::spotLights[1].setPosition({0.0f, 0.0f, 0.0f}); // TODO light position == camera position == needs to sync, or delete 1
+    SpotLight::spotLights[1].setPosition({0.0f, 0.0f, 0.0f});
     SpotLight::spotLights[1].setDirection({ 0.0f, -1.0f, 0.0f });
     SpotLight::spotLights[1].setColor({ 1.0f, 1.0f, 1.0f });
     SpotLight::spotLights[1].setStrength(1.2f);
@@ -172,16 +173,14 @@ int main()
     SpotLight::spotLights[1].sendToShader(multiLight);
     SpotLight::spotLights[1].sendToShader(multiLightNormalMapping);
 
-    // TODO get aspectratio from depthmap texture
-    Camera cameraSpotLight(1.0f, SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
-    SpotLight::spotLights[1].setCamera(&cameraSpotLight);
+    Camera cameraSpotLight1(depthMapSpotLight0.getAspectRatio(), SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
+    SpotLight::spotLights[1].setCamera(&cameraSpotLight1);
 
-    // SpotLight depthMap
-    Texture depthMapSpotLight(textureType::depthMap, 1024, 1024);
-    FrameBuffer depthMapSpotLightFBO(depthMapSpotLight);
-    cameraSpotLight.setFov((36.0f + 48.0f) * 1.15f); // InnerCutOff + OuterCutOff + 15% for attenuation
-    cameraSpotLight.setNearPlane(0.1f);
-    cameraSpotLight.setFarPlane(10.0f);
+    Texture depthMapSpotLight1(textureType::depthMap, 1024, 1024);
+    FrameBuffer depthMapSpotLight1FBO(depthMapSpotLight1);
+    cameraSpotLight1.setFov((36.0f + 48.0f) * 1.15f);
+    cameraSpotLight1.setNearPlane(0.1f);
+    cameraSpotLight1.setFarPlane(10.0f);
 
     /////////////////////////////////////
     ////// Quad /////////////////////////
@@ -244,7 +243,7 @@ int main()
     RenderObject floorRO{ &floorMesh, &floorMaterial };
 
     // Model voor de renderloop berekenen, floor is statisch -> niet helemaal, de outline heeft eigen model, maar die is op basis van onderstaand model
-    floorRO.model[0] = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
+    floorRO.model[0] = Global::calculateModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
 
     floorRO.addSSBO(24, sizeof(uberSSBO));
 
@@ -286,7 +285,7 @@ int main()
 
     RenderObject modelRO{ nullptr, &modelMaterial};
 
-    modelRO.model[0] = Global::getModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    modelRO.model[0] = Global::calculateModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     modelRO.addSSBO(24, sizeof(uberSSBO));
 
@@ -313,7 +312,7 @@ int main()
     glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), // red
     };
 
-    lightCubeRO.ssbo[1]->updateFully(lightCubeColors, false); // false, want in de loop wordt dit geupload, nadat element 4 is gewijzigd
+    lightCubeRO.ssbo[1]->updateFully(lightCubeColors, false); // false, want in de loop wordt dit pas geupload, nadat element 4 is gewijzigd
 
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -348,8 +347,8 @@ int main()
     /* 02 */ depthMapDirLight.bind(2);
     /* 03 */ flashLightTexture.bind(3);
     /* 04 */ floorTexture.bind(4);
-    /* 05 */ depthMapSpotLight.bind(5);
-    /* 06 */ depthMapFlashLight.bind(6);
+    /* 05 */ depthMapSpotLight1.bind(5); // TODO omdraaien 5 en 6
+    /* 06 */ depthMapSpotLight0.bind(6);
     /* 07 */ normalUpTexture.bind(7);
     /* 08 */ cubeDiffuse.bind(8);
     /* 09 */ cubeSpecular.bind(9);
@@ -376,68 +375,39 @@ int main()
         //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
         //std::println("Position: {}, {}, {}", Global::camera.m_position.x, Global::camera.m_position.y, Global::camera.m_position.z);
         //std::println("Front: {}, {}, {}", Global::camera.m_front.x, Global::camera.m_front.y, Global::camera.m_front.z);
-        Global::clearStencilBuffer();
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Start processInput ///////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        glfwPollEvents();
         Global::processInput(window);
 
-        /////////////////////////////////////
-        ////// Lights ///////////////////////
-        /////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Start UpdateGame /////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
 
-        // Transform dirLight direction to current View Space
+        // Lights
+        SpotLight::spotLights[0].calculateCameraOffset(flashLightOffset.x, flashLightOffset.y, flashLightOffset.z);
+
         sun.updateDirectionInViewSpace(multiLight);
-        // Transform pointLights positions to current View Space
-        for (auto& pointLight : PointLight::pointLights)
-            pointLight.updatePositionInViewSpace(multiLight);
-        // Transform Spotlight direction to current current View Space
-        SpotLight::spotLights[1].updateDirectionInViewSpace(multiLight);
-        // Calculate Spotlight position and transform to current View Space
-        SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) });
-        SpotLight::spotLights[1].updatePositionInViewSpace(multiLight);
-        // Calculate Spotlight color
-        SpotLight::spotLights[1].setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
-        SpotLight::spotLights[1].updateColor(multiLight);
-
-        /////
-
-        // Transform dirLight direction to current View Space
         sun.updateDirectionInViewSpace(multiLightNormalMapping);
-        // Transform pointLights positions to current View Space
-        for (auto& pointLight : PointLight::pointLights)
+
+        for (auto& pointLight : PointLight::pointLights) {
+            pointLight.updatePositionInViewSpace(multiLight);
             pointLight.updatePositionInViewSpace(multiLightNormalMapping);
-        // Transform Spotlight direction to current View Space
-        SpotLight::spotLights[1].updateDirectionInViewSpace(multiLightNormalMapping);
-        // Calculate Spotlight position and transform to current View Space
-        SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) });
-        SpotLight::spotLights[1].updatePositionInViewSpace(multiLightNormalMapping);
-        // Calculate Spotlight color
-        SpotLight::spotLights[1].setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
-        SpotLight::spotLights[1].updateColor(multiLightNormalMapping);
-
-        // Set SpotLight camera front and position
-        // DirLight does not move, so need for that camera to do this
-        // TODO sync light position with camera classes
-        SpotLight::spotLights[1].getCamera()->setFront(glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f));
-        SpotLight::spotLights[1].getCamera()->setPosition(SpotLight::spotLights[1].getPosition());
-
-        // TODO make function
-        if (SpotLight::spotLights[0].getOn()) {
-
-            glm::mat4 directionTranslated = glm::translate(glm::mat4(1.0f), Global::camera.getRight() * Global::flashLightShadowOffset.x);
-
-            directionTranslated = glm::translate(directionTranslated, Global::camera.getUp() * Global::flashLightShadowOffset.y);
-
-            directionTranslated = glm::translate(directionTranslated, Global::camera.getFront() * Global::flashLightShadowOffset.z);
-
-            glm::vec4 positionTranslated = directionTranslated * glm::vec4(Global::camera.getPosition(), 1.0f);
-
-            Global::cameraFlashLight.setFront(Global::camera.getFront());
-            Global::cameraFlashLight.setPosition({ positionTranslated });
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////
-        // Calculate dynamic models/transforms and SSBO's ///////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////////////
+        SpotLight::spotLights[1].updateDirectionInViewSpace(multiLight);
+        SpotLight::spotLights[1].updateDirectionInViewSpace(multiLightNormalMapping);
+        SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) });
+        SpotLight::spotLights[1].updatePositionInViewSpace(multiLight);
+        SpotLight::spotLights[1].updatePositionInViewSpace(multiLightNormalMapping);
+        SpotLight::spotLights[1].setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
+        SpotLight::spotLights[1].updateColor(multiLight);
+        SpotLight::spotLights[1].updateColor(multiLightNormalMapping);
 
+        // Calculate dynamic models/transforms and SSBO's
         // Cube
         for (auto i = 0; i < std::ssize(Data::cubePositions); i++)
         {
@@ -464,7 +434,7 @@ int main()
         //for (auto i = 0; i < std::ssize(cubeRO.model); i++) {
         //    Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.model[i];
         //    cubeRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * cubeRO.model[i], i);
-        //    cubeRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(Global::cameraFlashLight.getViewProjectionMatrix() * cubeRO.model[i], i);
+        //    cubeRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(cameraFlashLight.getViewProjectionMatrix() * cubeRO.model[i], i);
         //    cubeRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(cameraSpotLight.getViewProjectionMatrix() * cubeRO.model[i], i);
         //    cubeRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i);
         //    cubeRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i);
@@ -494,7 +464,7 @@ int main()
         //for (auto i = 0; i < std::ssize(floorRO.model); i++) {
         //    Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.model[i];
         //    floorRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * floorRO.model[i], i);
-        //    floorRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(Global::cameraFlashLight.getViewProjectionMatrix() * floorRO.model[i], i);
+        //    floorRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(cameraFlashLight.getViewProjectionMatrix() * floorRO.model[i], i);
         //    floorRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(cameraSpotLight.getViewProjectionMatrix() * floorRO.model[i], i);
         //    floorRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i);
         //    floorRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i);
@@ -524,7 +494,7 @@ int main()
         //for (auto i = 0; i < std::ssize(modelRO.model); i++) {
         //    Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.model[i];
         //    modelRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * modelRO.model[i], i);
-        //    modelRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(Global::cameraFlashLight.getViewProjectionMatrix() * modelRO.model[i], i);
+        //    modelRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(cameraFlashLight.getViewProjectionMatrix() * modelRO.model[i], i);
         //    modelRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(cameraSpotLight.getViewProjectionMatrix() * modelRO.model[i], i);
         //    modelRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i);
         //    modelRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i);
@@ -549,6 +519,12 @@ int main()
         //modelRO.ssbo[0]->updateFully(temp);
         modelRO.ssbo[0]->uploadUntilSubset();
         //temp = {};
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        // Start Render /////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
+
+        Global::clearStencilBuffer();
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass dirLight ////////////////////////////////////////////////////////
@@ -576,13 +552,13 @@ int main()
 
             renderer.setRenderPassActive(renderPassType::depthMapFlashLight);
 
-            depthMapFlashLightFBO.startDepthMap(renderer.getShaderDepthMapFlashLight());
+            depthMapSpotLight0FBO.startDepthMap(renderer.getShaderDepthMapFlashLight());
 
             renderer.draw(cubeRO);
             renderer.draw(floorRO);
             renderer.drawModel(modelRO, backpackModel);
 
-            depthMapFlashLightFBO.stopDepthMap();
+            depthMapSpotLight0FBO.stopDepthMap();
             //std::println("End ShadowPass flashLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
         }
 
@@ -594,17 +570,17 @@ int main()
 
         renderer.setRenderPassActive(renderPassType::depthMapSpotLight);
 
-        depthMapSpotLightFBO.startDepthMap(renderer.getShaderDepthMapSpotLight());
+        depthMapSpotLight1FBO.startDepthMap(renderer.getShaderDepthMapSpotLight());
 
         renderer.draw(cubeRO);
         renderer.draw(floorRO);
         renderer.drawModel(modelRO, backpackModel);
 
-        depthMapSpotLightFBO.stopDepthMap();
+        depthMapSpotLight1FBO.stopDepthMap();
         //std::println("End ShadowPass spotLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
 
         /////////////////////////////////////////////////////////////////////////////////////
-        // Start ShadowPass spotLight General ///////////////////////////////////////////////////////
+        // Start ShadowPass spotLight General test ///////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
         //for (auto i = 0; i < getSpotLightCount(); i++) {
@@ -637,9 +613,9 @@ int main()
         glViewport(0, 0, Global::windowWidth, Global::windowHeight);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (!Global::flashLightOnUpdated) {
+        if (!Global::isFlashLightOnUpdated) {
             SpotLight::spotLights[0].toggle(multiLight, multiLightNormalMapping);
-            Global::flashLightOnUpdated = true;
+            Global::isFlashLightOnUpdated = true;
         }
 
         renderer.draw(cubeRO);
@@ -659,12 +635,12 @@ int main()
         // pointlights - 4 vaste LightCubes
         for (auto i = 0; i < getPointLightCount(); i++) {
             assert(getPointLightCount() <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
-            lightCubeRO.model[i] = Global::getModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+            lightCubeRO.model[i] = Global::calculateModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
             lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i, false);
         }
 
         // #5, element 4, de draaiende lightcube
-        lightCubeRO.model[4] = Global::getModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+        lightCubeRO.model[4] = Global::calculateModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
         lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4, false);
         lightCubeRO.ssbo[0]->uploadFully();
 
@@ -709,22 +685,20 @@ int main()
         if (Global::frustumVisible) {
             //renderer.drawFrustum(cubeMesh, cameraDirLight.getViewProjectionMatrix());
             //renderer.drawFrustum(cubeMesh, cameraSpotLight.getViewProjectionMatrix());
-            renderer.drawFrustum(cubeMesh, Global::cameraFlashLight.getViewProjectionMatrix());
+            renderer.drawFrustum(cubeMesh, cameraSpotLight0.getViewProjectionMatrix());
         }
 
         // Draw debug quad - toggle with Q
         if (Global::debugQuadVisible) {
             // Set texture sampler2D binding in Shader itself + set orthographic in function + set corresponding Camera below
             //renderer.drawDebugQuad(quadMesh, cameraDirLight); //  binding 2
-            //renderer.drawDebugQuad(quadMesh, cameraSpotLight); //  binding 5
-            renderer.drawDebugQuad(quadMesh, Global::cameraFlashLight); // binding 6
+            //renderer.drawDebugQuad(quadMesh, cameraSpotLight1); //  binding 5
+            renderer.drawDebugQuad(quadMesh, cameraSpotLight0); // binding 6
         }
 
         if (!Global::paused) { // toggle with P
             glfwSwapBuffers(window);
         }
-
-        glfwPollEvents();
     }
     Global::glCheckError();
     glfwTerminate();

@@ -42,5 +42,5 @@ private:
 	GLuint m_id{};
 	framebufferType m_type{ framebufferType::undefined };
 	UPtr<Texture> m_texture{};
-	bool m_orthographic{ false };		// false == perspective
+	bool m_orthographic{ false }; // false == perspective  // TODO could be synced with camera type
 };

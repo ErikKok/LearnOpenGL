@@ -5,8 +5,8 @@
 
 const GLenum Global::glCheckError_(const char* file, int line)
 {
-    GLenum errorCode{};
-    while ((errorCode = glGetError()) != GL_NO_ERROR)
+    GLenum errorCode{ glGetError() };
+    while (errorCode != GL_NO_ERROR)
     {
         std::string error{};
         switch (errorCode)
@@ -30,7 +30,7 @@ void Global::glClearError()
 }
 
 // Takes in full transformation parameters in World space, and outputs model in World space
-const glm::mat4 Global::getModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+const glm::mat4 Global::calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 {
     glm::mat4 model{ 1.0f };
     model = glm::translate(model, translate);
@@ -42,9 +42,9 @@ const glm::mat4 Global::getModelMatrix(glm::vec3 translate, float rotateDegrees,
 }
 
 // Takes in full transformation parameters in World space, and outputs model in View space
-const glm::mat4 Global::getModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+const glm::mat4 Global::calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 { 
-    return Global::camera.getViewMatrix() * getModelMatrix(translate, rotateDegrees, rotateVec3, scale);
+    return Global::camera.getViewMatrix() * calculateModelMatrix(translate, rotateDegrees, rotateVec3, scale);
 }
 
 void Global::initStencilBuffer() {
@@ -127,6 +127,68 @@ const int Global::init(GLFWwindow* window)
     return 0;
 }
 
+#pragma warning( suppress : 4100 )
+void APIENTRY Global::glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam)
+{
+    // ignore non-significant error/warning codes
+    if (id == 131169 || id == 131185 || id == 131218 || id == 131204)                   return;
+
+    std::println("---------------");
+    std::println("Debug message ({})", id);
+
+    switch (source)
+    {
+    case GL_DEBUG_SOURCE_API:             std::println("Source: API");                  break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::println("Source: Window System");        break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER: std::println("Source: Shader Compiler");      break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:     std::println("Source: Third Party");          break;
+    case GL_DEBUG_SOURCE_APPLICATION:     std::println("Source: Application");          break;
+    case GL_DEBUG_SOURCE_OTHER:           std::println("Source: Other");                break;
+    }
+
+    switch (type)
+    {
+    case GL_DEBUG_TYPE_ERROR:               std::println("Type: Error");                break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::println("Type: Deprecated Behaviour"); break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::println("Type: Undefined Behaviour");  break;
+    case GL_DEBUG_TYPE_PORTABILITY:         std::println("Type: Portability");          break;
+    case GL_DEBUG_TYPE_PERFORMANCE:         std::println("Type: Performance");          break;
+    case GL_DEBUG_TYPE_MARKER:              std::println("Type: Marker");               break;
+    case GL_DEBUG_TYPE_PUSH_GROUP:          std::println("Type: Push Group");           break;
+    case GL_DEBUG_TYPE_POP_GROUP:           std::println("Type: Pop Group");            break;
+    case GL_DEBUG_TYPE_OTHER:               std::println("Type: Other");                break;
+    }
+
+    switch (severity)
+    {
+    case GL_DEBUG_SEVERITY_HIGH:         std::println("Severity: high");                break;
+    case GL_DEBUG_SEVERITY_MEDIUM:       std::println("Severity: medium");              break;
+    case GL_DEBUG_SEVERITY_LOW:          std::println("Severity: low");                 break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION: std::println("Severity: notification");        break;
+    }
+}
+
+void Global::getInformation() {
+    GLint returnData{};
+    std::println("************************************************");
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &returnData);
+    std::println("Currently bound VertexArray: {}", returnData);
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &returnData);
+    std::println("Currently bound ElementBuffer: {}", returnData);
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &returnData);
+    std::println("Currently bound VertexBuffer: {}", returnData);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &returnData);
+    std::println("Currently bound Texture: {}", returnData);
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &returnData);
+    std::println("Currently active Texture unit: {}", returnData - 33984);
+    glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
+    std::println("Currently active program (Shader): {}", returnData);
+    std::println("************************************************");
+    glGetIntegerv(GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS, &returnData);
+    std::println("maximum supported texture image units: {}", returnData);
+    std::println("************************************************");
+}
+
 void Global::processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -157,7 +219,7 @@ void Global::processInput(GLFWwindow* window)
 void Global::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_F && action == GLFW_PRESS)
-        flashLightOnUpdated = false;
+        isFlashLightOnUpdated = false;
 
     if (key == GLFW_KEY_K && action == GLFW_PRESS)
         Global::frustumVisible = !frustumVisible;
@@ -258,66 +320,4 @@ void Global::mouse_callback(GLFWwindow* window, double currentXPosIn, double cur
 void Global::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     Global::camera.processMouseScroll(static_cast<float>(yoffset));
-}
-
-#pragma warning( suppress : 4100 )
-void APIENTRY Global::glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam)
-{
-    // ignore non-significant error/warning codes
-    if (id == 131169 || id == 131185 || id == 131218 || id == 131204)                   return;
-
-    std::println("---------------");
-    std::println("Debug message ({})", id);
-
-    switch (source)
-    {
-    case GL_DEBUG_SOURCE_API:             std::println("Source: API");                  break;
-    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::println("Source: Window System");        break;
-    case GL_DEBUG_SOURCE_SHADER_COMPILER: std::println("Source: Shader Compiler");      break;
-    case GL_DEBUG_SOURCE_THIRD_PARTY:     std::println("Source: Third Party");          break;
-    case GL_DEBUG_SOURCE_APPLICATION:     std::println("Source: Application");          break;
-    case GL_DEBUG_SOURCE_OTHER:           std::println("Source: Other");                break;
-    }
-
-    switch (type)
-    {
-    case GL_DEBUG_TYPE_ERROR:               std::println("Type: Error");                break;
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::println("Type: Deprecated Behaviour"); break;
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::println("Type: Undefined Behaviour");  break;
-    case GL_DEBUG_TYPE_PORTABILITY:         std::println("Type: Portability");          break;
-    case GL_DEBUG_TYPE_PERFORMANCE:         std::println("Type: Performance");          break;
-    case GL_DEBUG_TYPE_MARKER:              std::println("Type: Marker");               break;
-    case GL_DEBUG_TYPE_PUSH_GROUP:          std::println("Type: Push Group");           break;
-    case GL_DEBUG_TYPE_POP_GROUP:           std::println("Type: Pop Group");            break;
-    case GL_DEBUG_TYPE_OTHER:               std::println("Type: Other");                break;
-    }
-
-    switch (severity)
-    {
-    case GL_DEBUG_SEVERITY_HIGH:         std::println("Severity: high");                break;
-    case GL_DEBUG_SEVERITY_MEDIUM:       std::println("Severity: medium");              break;
-    case GL_DEBUG_SEVERITY_LOW:          std::println("Severity: low");                 break;
-    case GL_DEBUG_SEVERITY_NOTIFICATION: std::println("Severity: notification");        break;
-    }
-}
-
-void Global::getInformation() {
-    GLint returnData{};
-    std::println("************************************************");
-    glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &returnData);
-    std::println("Currently bound VertexArray: {}", returnData);
-    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &returnData);
-    std::println("Currently bound ElementBuffer: {}", returnData);
-    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &returnData);
-    std::println("Currently bound VertexBuffer: {}", returnData);
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &returnData);
-    std::println("Currently bound Texture: {}", returnData);
-    glGetIntegerv(GL_ACTIVE_TEXTURE, &returnData);
-    std::println("Currently active Texture unit: {}", returnData - 33984);
-    glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
-    std::println("Currently active program (Shader): {}", returnData);
-    std::println("************************************************");
-    glGetIntegerv(GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS, &returnData);
-    std::println("maximum supported texture image units: {}", returnData);
-    std::println("************************************************");
 }

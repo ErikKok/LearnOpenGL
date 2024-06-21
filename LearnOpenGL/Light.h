@@ -12,7 +12,7 @@ public:
     const bool getOn() const { return m_on; };
     void setOn(bool x) { m_on = x; };
     const glm::vec3 getPosition() const { return m_position; };
-    void setPosition(glm::vec3 x) { m_position = x; };
+    void setPosition(glm::vec3 x);
     const glm::vec3 getDirection() const { return m_direction; };
     void setDirection(glm::vec3 x) { m_direction = x; };
     const glm::vec3 getColor() const { return m_color; };
@@ -27,7 +27,7 @@ public:
 protected:
     Light() {};
 
-    bool m_on{ true };                          // If false then light is not caluted in Shader
+    bool m_on{ true };                          // If false then light is not caluted in Shader (use this instead of strength 0.0f)
     glm::vec3 m_position{};                     // World Space - not used for DirectionalLight
     glm::vec3 m_direction{};                    // World Space - not used for PointLight
     glm::vec3 m_color{ 1.0f, 1.0f, 1.0f };      // Diffuse color
@@ -111,6 +111,7 @@ public:
     void updateColor(const Shader& shader) const;
     void setEmissionStrength(float x) { m_emissionStrength = x; };
     void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders... kan met array en loop
+    void calculateCameraOffset(float x, float y, float z);
 
 protected:
     int m_id{};                         // zero based

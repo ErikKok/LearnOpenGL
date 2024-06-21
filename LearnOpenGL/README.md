@@ -21,12 +21,6 @@ TO DO
 		- https://www.reddit.com/r/opengl/comments/iy4jnp/comment/g6ihvom/
 		- https://gamedev.stackexchange.com/questions/139545/how-do-modern-game-engines-handle-many-shadow-casting-lights
 	- flashlight
-		- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
-		- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
-		- flashlight positie updaten na player positie is geupdated met offset
-		- flashlight frustum is niet meer beeldvullend NA eerste gebruik zoomfunctie
-		- flashLight shines from the player camera (0,0,0), but casts shadow from this camera with flashLightShadowOffset (shadows won't be visible otherwise)
-		- flashlight camera movement is duplicated in processInput/mouse_callback/scroll_callback, could be linked/feed from player camera I guess
 		- does not light the underside of floor
 - use a constant array in the shader, e.g. for fullscreen quads
 - implement Bindless Textures
@@ -37,9 +31,21 @@ TO DO
 - huidige mesh class inheriten, base kan iets kleiner?
 - font rendering
 - TODO's nalopen
-- gebruik Global::glCheckError(); inperken
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
 - obj van cube en hexagon fixen
+
+v0.2.75 21-6-2024
+-----------------
+- moved cameraFlashLight out of Global
+- added setCameraOffset()
+- implemented: 		- flashlight camera movement is duplicated in processInput/mouse_callback/scroll_callback, could be linked/feed from player camera I guess
+- fixed: 		- flashLight shines from the player camera (0,0,0), but casts shadow from this camera with flashLightShadowOffset (shadows won't be visible otherwise)
+- fixed: 		- flashlight frustum is niet meer beeldvullend NA eerste gebruik zoomfunctie
+- fixed: 		- flashlight positie updaten na player positie is geupdated met offset
+- fixed: 		- flashlight frustum draait niet goed mee als je je omdraait, blijft altijd naast je, draait niet OM je heen, maar om z'n eigen as
+- niet meer het geval: 		- flashlight camera/FBO settings zijn dubbelop / moeten syncen (getOrthographic / view / projection / fov / farnearplanes / aspectratio / nog meer?)
+- implemented: sync camera and light positions
+- added texture.getAspectRatio()
 
 v0.2.74 21-6-2024
 -----------------
