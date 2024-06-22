@@ -224,15 +224,22 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 void Renderer::drawSingleColor(const RenderObject& RO) const
 {
 	m_shaderSingleColor->useShader();
-
-	// SSBO
+	RO.ssbo[0]->bind(); // uberSSBO
+	// SSBO TODO clean up
 	for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		if (RO.ssbo[i]->getBindingPoint() == singleColorBP || RO.ssbo[i]->getBindingPoint() == MVPMatrixBP)
 			RO.ssbo[i]->bind();
 	}
 
+	// TODO added a check for nullptr, workaround for lightCube which does not have a material, i guess it should have one...
+	if (RO.material && !RO.material->enableGL_CULL_FACE)
+		glDisable(GL_CULL_FACE);
+
 	RO.mesh->m_vao->bindVertexArray();
 	glDrawElementsInstanced(GL_TRIANGLES, RO.mesh->m_ebo->getCount(), GL_UNSIGNED_INT, 0, RO.instances);
+
+	if (RO.material && !RO.material->enableGL_CULL_FACE)
+		glEnable(GL_CULL_FACE);
 
 	Global::glCheckError();
 };
@@ -281,6 +288,52 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
 
 	Global::glCheckError();
 };
+
+void Renderer::initStencilBuffer() {
+	glEnable(GL_STENCIL_TEST);
+	// if both stencil test and depth test succeed replace stencil value
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	// all fragments should pass the stencil test until we need to draw a stencil
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+
+	// some information:
+	// to actually change the depth clearing value, you need to call glClearDepth() before calling glClear()
+	// 
+	// https://a.disquscdn.com/uploads/mediaembed/images/2106/4734/original.jpg
+	// glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_KEEP);
+	// glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_REPLACE);
+}
+
+void Renderer::clearStencilBuffer() {
+	glStencilMask(0xFF); // enable writing to the stencil buffer, so it can be cleared
+	glClear(GL_STENCIL_BUFFER_BIT);
+	glStencilMask(0x00); // disable writing to the stencil buffer (until needed)
+}
+
+void Renderer::drawWithStencil(const RenderObject& RO) {
+	glStencilMask(0xFF);
+	draw(RO);
+	glStencilMask(0x00);
+}
+
+void Renderer::drawOutline(RenderObject& RO) {
+	if (Global::drawOutline) { // TODO make framerate independent
+		if (Global::outlineAlpha >= 0.0f)
+			Global::outlineAlpha += 0.01f;
+		if (Global::outlineAlpha >= 1.0f)
+			Global::outlineAlpha = 0.0f;
+		glm::vec4 color{ 1.0f, 0.28f, 0.26f, Global::outlineAlpha }; // TODO get color from SSBO
+
+		uberSSBO temp{};
+		temp.MVPMatrix[0] = Global::camera.getViewProjectionMatrix() * glm::scale(RO.model[0], glm::vec3(1.05f, 1.05f, 0.0f)); // scale model by 5% for outline MVPMatrixBP
+		RO.ssbo[0]->updateFully(temp, true);
+		RO.ssbo[1]->updateFully(color, true);
+
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
+		drawSingleColor(RO);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF); // De-init Stencil Buffer, all fragments should pass the stencil test again
+	}
+}
 
 //void Renderer::drawXYZ(ShaderStorageBuffer& ssbo) const {
 //

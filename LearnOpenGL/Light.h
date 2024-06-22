@@ -34,6 +34,7 @@ protected:
     float m_strength{ 1.0f };                   // Overall strength
     int m_depthMap{};                           // sampler2D
     Camera* m_camera{ nullptr };                // TODO could become dangling
+    //std::unique_ptr<Camera> m_camera{ std::make_unique<Camera>() };                // TODO?
 };
 
 // DirectionalLight //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +112,6 @@ public:
     void updateColor(const Shader& shader) const;
     void setEmissionStrength(float x) { m_emissionStrength = x; };
     void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders... kan met array en loop
-    void calculateCameraOffset(float x, float y, float z);
 
 protected:
     int m_id{};                         // zero based

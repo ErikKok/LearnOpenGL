@@ -99,15 +99,3 @@ void SpotLight::toggle(const Shader& shader, const Shader& shader2)
     shader2.useShader();
     shader2.setInt("spotLights[" + std::to_string(m_id) + "].on", m_on);
 }
-
-// see https://stackoverflow.com/questions/49840131/unity-how-to-calculate-a-target-position-with-offset-based-on-the-current-posi
-void SpotLight::calculateCameraOffset(float x, float y, float z) {
-    if (m_on) {
-        glm::mat4 directionTranslated = glm::translate(glm::mat4(1.0f), Global::camera.getRight() * x);
-        directionTranslated = glm::translate(directionTranslated, Global::camera.getUp() * y);
-        directionTranslated = glm::translate(directionTranslated, Global::camera.getFront() * z);
-
-        m_camera->setFront(Global::camera.getFront());
-        m_camera->setPosition({ directionTranslated * glm::vec4(Global::camera.getPosition(), 1.0f) });
-    }
-}

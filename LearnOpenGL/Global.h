@@ -39,6 +39,9 @@ namespace Global {
     inline int windowHeight{ 1080 };
     inline bool windowsHasMouseFocus{ false };
 
+    // Misc
+    inline float outlineAlpha{ 0.0f };
+
     // Camera
     inline glm::vec3 cameraInitialPosition{ 0.0f, 1.5f, 15.0f };
     inline Camera camera((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), cameraInitialPosition);
@@ -68,11 +71,9 @@ namespace Global {
     // Matrices
     const glm::mat4 calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
     const glm::mat4 calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
+    void applyCameraOffset(Camera* camera, float x, float y, float z);
 
     // Init
-    void initStencilBuffer();
-    void clearStencilBuffer();
-
     // https://www.learncpp.com/cpp-tutorial/pass-by-const-lvalue-reference/ - The cost of pass by value vs pass by reference
     void cheap2Copy();
 

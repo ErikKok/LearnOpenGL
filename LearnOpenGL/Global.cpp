@@ -44,30 +44,18 @@ const glm::mat4 Global::calculateModelMatrix(glm::vec3 translate, float rotateDe
 // Takes in full transformation parameters in World space, and outputs model in View space
 const glm::mat4 Global::calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 { 
-    return Global::camera.getViewMatrix() * calculateModelMatrix(translate, rotateDegrees, rotateVec3, scale);
+    return camera.getViewMatrix() * calculateModelMatrix(translate, rotateDegrees, rotateVec3, scale);
 }
 
-void Global::initStencilBuffer() {
-    glEnable(GL_STENCIL_TEST);
-    // if both stencil test and depth test succeed replace stencil value
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    // all fragments should pass the stencil test until needed
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+// see https://stackoverflow.com/questions/49840131/unity-how-to-calculate-a-target-position-with-offset-based-on-the-current-posi
+// and https://stackoverflow.com/questions/72095398/translate-objects-relative-to-the-camera-view (I guess I could inverse modelViewMatrix instead, same same...)
+void Global::applyCameraOffset(Camera* cam, float x, float y, float z) {
+    glm::mat4 offsetMatrix{ glm::translate(glm::mat4(1.0f), camera.getRight() * x) };
+    offsetMatrix = glm::translate(offsetMatrix, camera.getUp() * y);
+    offsetMatrix = glm::translate(offsetMatrix, camera.getFront() * z);
 
-    // some information:
-    // to actually change the depth clearing value, you need to call glClearDepth() before calling glClear()
-    // 
-    // https://a.disquscdn.com/uploads/mediaembed/images/2106/4734/original.jpg
-    // glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_KEEP);
-    // glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_REPLACE);
-}
-
-void Global::clearStencilBuffer() {
-    // enable writing to the stencil buffer, so it can be cleared
-    glStencilMask(0xFF);
-    glClear(GL_STENCIL_BUFFER_BIT); // TODO combine with other glClear commands, probably faster?
-    // disable writing to the stencil buffer until needed
-    glStencilMask(0x00);
+    cam->setFront(camera.getFront());
+    cam->setPosition({ offsetMatrix * glm::vec4(camera.getPosition(), 1.0f) });
 }
 
 void Global::cheap2Copy() {
@@ -122,7 +110,7 @@ const int Global::init(GLFWwindow* window)
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
 
-    Global::glCheckError();
+    glCheckError();
 
     return 0;
 }
@@ -195,23 +183,23 @@ void Global::processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        Global::camera.processKeyboard(CameraMovement::FORWARD);
+        camera.processKeyboard(CameraMovement::FORWARD);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        Global::camera.processKeyboard(CameraMovement::BACKWARD);
+        camera.processKeyboard(CameraMovement::BACKWARD);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        Global::camera.processKeyboard(CameraMovement::LEFT);
+        camera.processKeyboard(CameraMovement::LEFT);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        Global::camera.processKeyboard(CameraMovement::RIGHT);
+        camera.processKeyboard(CameraMovement::RIGHT);
     }
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        Global::camera.processKeyboard(CameraMovement::UP);
+        camera.processKeyboard(CameraMovement::UP);
     }
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
-        Global::camera.processKeyboard(CameraMovement::DOWN);
+        camera.processKeyboard(CameraMovement::DOWN);
     }
 }
 
@@ -222,7 +210,7 @@ void Global::key_callback(GLFWwindow* window, int key, int scancode, int action,
         isFlashLightOnUpdated = false;
 
     if (key == GLFW_KEY_K && action == GLFW_PRESS)
-        Global::frustumVisible = !frustumVisible;
+        frustumVisible = !frustumVisible;
 
     static int polygonMode{ 0 };
     if (key == GLFW_KEY_L && action == GLFW_PRESS) {
@@ -248,7 +236,7 @@ void Global::key_callback(GLFWwindow* window, int key, int scancode, int action,
     if (key == GLFW_KEY_M && action == GLFW_PRESS) {
         if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            Global::windowsHasMouseFocus = false;
+            windowsHasMouseFocus = false;
         }
         else if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -259,10 +247,10 @@ void Global::key_callback(GLFWwindow* window, int key, int scancode, int action,
         drawOutline = !drawOutline;
 
     if (key == GLFW_KEY_P && action == GLFW_PRESS)
-        Global::paused = !Global::paused;
+        paused = !paused;
 
     if (key == GLFW_KEY_Q && action == GLFW_PRESS)
-        Global::debugQuadVisible = !debugQuadVisible;
+        debugQuadVisible = !debugQuadVisible;
 
     if (key == GLFW_KEY_V && action == GLFW_PRESS)
         glfwSwapInterval(0);
@@ -272,10 +260,10 @@ void Global::key_callback(GLFWwindow* window, int key, int scancode, int action,
 void Global::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
-    Global::windowWidth = width;
-    Global::windowHeight = height;
-    Global::camera.setAspectRatio((static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight)));
-    Global::glCheckError();
+    windowWidth = width;
+    windowHeight = height;
+    camera.setAspectRatio((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)));
+    glCheckError();
 }
 
 #pragma warning( suppress : 4100 )
@@ -286,9 +274,9 @@ void Global::cursor_enter_callback(GLFWwindow* window, int entered)
     }
     else {
         // The cursor left the client area of the window
-        Global::windowsHasMouseFocus = false;
+        windowsHasMouseFocus = false;
     }
-    Global::glCheckError();
+    glCheckError();
 }
 
 #pragma warning( suppress : 4100 )
@@ -297,13 +285,13 @@ void Global::mouse_callback(GLFWwindow* window, double currentXPosIn, double cur
     float currentXPos{ static_cast<float>(currentXPosIn) };
     float currentYPos{ static_cast<float>(currentYPosIn) };
     // last x,y position, initialize with center x,y coordinates
-    static float lastXPos{ Global::windowWidth / 2.0f };
-    static float lastYPos{ Global::windowHeight / 2.0f };
+    static float lastXPos{ windowWidth / 2.0f };
+    static float lastYPos{windowHeight / 2.0f };
 
-    if (!Global::windowsHasMouseFocus) {
+    if (!windowsHasMouseFocus) {
         lastXPos = currentXPos;
         lastYPos = currentYPos;
-        Global::windowsHasMouseFocus = true;
+        windowsHasMouseFocus = true;
     }
 
     // Calculate the mouse's offset since the last frame
@@ -313,11 +301,11 @@ void Global::mouse_callback(GLFWwindow* window, double currentXPosIn, double cur
     lastXPos = currentXPos;
     lastYPos = currentYPos;
 
-    Global::camera.processMouseMovement(xoffset, yoffset);
+    camera.processMouseMovement(xoffset, yoffset);
 }
 
 #pragma warning( suppress : 4100 )
 void Global::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    Global::camera.processMouseScroll(static_cast<float>(yoffset));
+    camera.processMouseScroll(static_cast<float>(yoffset));
 }

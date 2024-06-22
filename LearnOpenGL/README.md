@@ -34,6 +34,12 @@ TO DO
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
 - obj van cube en hexagon fixen
 
+v0.2.76 22-6-2024
+-----------------
+- moved applyCameraOffset() to Global
+- implemented drawOutline()
+- moved initStencilBuffer() and clearStencilBuffer() to Renderer Class
+
 v0.2.75 21-6-2024
 -----------------
 - moved cameraFlashLight out of Global
@@ -94,6 +100,7 @@ v0.2.69 17-6-2024
 	- the arrays within the ssbo in the shader AND in the struct itself needs a fixed size
 	- need to fix RO which currently resizes the DataBufferStore with the amount of instances, with uberSSBO you just have 1 huge element/struct (temp workaround does not give any significant speed advantage)
 	- if a RenderObject just needs 1 of the mat4's in the uberSSBO it is a bit wastefull (lightCube)
+	- uploadUntilSubset() does not work with uberSSBO, because that is just 1 element anyway
 - neutral
 	- same amount of lines of code to fill the data, one for each mat4, which contains roughly the same code
 

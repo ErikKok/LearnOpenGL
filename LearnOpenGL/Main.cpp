@@ -52,11 +52,10 @@ int main()
         return -1;
     }
 
-    Global::initStencilBuffer();
-
     Global::glCheckError();
     //Global::cheap2Copy();
     Renderer renderer;
+    renderer.initStencilBuffer();
     renderer.createShaderDepthMapDirLight("Shaders\\depthMapDirLight.shader");
     renderer.createShaderDepthMapSpotLight("Shaders\\depthMapSpotLight.shader");
     renderer.createShaderDepthMapFlashLight("Shaders\\depthMapFlashLight.shader");
@@ -130,7 +129,7 @@ int main()
     cameraDirLight.setViewMatrix(glm::lookAt(sun.getDirection(), sun.getDirection() - sun.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))); // TODO
     cameraDirLight.calculateProjectionMatrix();
 
-    // FlashLight - [0] == flashlight
+    // SpotLight0 | [0] == flashlight
     glm::vec3 flashLightOffset{ 0.4f, -0.3f, -0.1f };
     SpotLight::spotLights.emplace_back(SpotLight());
     SpotLight::spotLights[0].setOn(false);
@@ -157,7 +156,7 @@ int main()
     cameraSpotLight0.setNearPlane(0.1f);
     cameraSpotLight0.setFarPlane(25.0f);
 
-    // SpotLight 1
+    // SpotLight1
     SpotLight::spotLights.emplace_back(SpotLight());
     SpotLight::spotLights[1].setPosition({0.0f, 0.0f, 0.0f});
     SpotLight::spotLights[1].setDirection({ 0.0f, -1.0f, 0.0f });
@@ -224,8 +223,6 @@ int main()
     std::println("CREATE Floor");////////
 
     Mesh floorMesh(Data::floor, Data::floorIndices);
-
-    //float floorOutlineAlpha{ 0.0f };
 
     Material floorMaterial{
         .shader{ multiLight },
@@ -300,7 +297,10 @@ int main()
 
     RenderObject lightCubeRO{ &cubeMesh, nullptr, 5 };
 
-    lightCubeRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
+    //lightCubeRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
+    lightCubeRO.instances = 1;
+    lightCubeRO.addSSBO(24, sizeof(uberSSBO));
+    lightCubeRO.instances = 5;
     lightCubeRO.addSSBO(singleColorBP, sizeof(glm::vec4));
 
     // TODO deze kleur/info moet eigenlijk uit de Light zelf worden gehaald
@@ -383,12 +383,18 @@ int main()
         glfwPollEvents();
         Global::processInput(window);
 
+        if (!Global::isFlashLightOnUpdated) {
+            SpotLight::spotLights[0].toggle(multiLight, multiLightNormalMapping);
+            Global::isFlashLightOnUpdated = true;
+        }
+
         /////////////////////////////////////////////////////////////////////////////////////
         // Start UpdateGame /////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
         // Lights
-        SpotLight::spotLights[0].calculateCameraOffset(flashLightOffset.x, flashLightOffset.y, flashLightOffset.z);
+        if (SpotLight::spotLights[0].getOn())
+            Global::applyCameraOffset(SpotLight::spotLights[0].getCamera(), flashLightOffset.x, flashLightOffset.y, flashLightOffset.z);
 
         sun.updateDirectionInViewSpace(multiLight);
         sun.updateDirectionInViewSpace(multiLightNormalMapping);
@@ -444,18 +450,18 @@ int main()
         //    cubeRO.ssbo[i]->uploadFully();
         //}
 
-        uberSSBO temp{};
+        uberSSBO uberSSBOCache{};
 
         for (auto i = 0; i < std::ssize(cubeRO.model); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.model[i];
-            temp.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * cubeRO.model[i];
-            temp.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.model[i];
-            temp.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.model[i];
-            temp.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
-            temp.modelViewMatrix[i] = Global::modelViewMatrixTemp;
-            temp.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
+            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * cubeRO.model[i];
+            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.model[i];
+            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.model[i];
+            uberSSBOCache.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
+            uberSSBOCache.modelViewMatrix[i] = Global::modelViewMatrixTemp;
+            uberSSBOCache.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
         }
-        cubeRO.ssbo[0]->updateSubset(temp, 0, true);
+        cubeRO.ssbo[0]->updateSubset(uberSSBOCache, 0, true);
         //cubeRO.ssbo[0]->updateFully(temp);
         //cubeRO.ssbo[0]->uploadFully();
         //temp = {}; // clears the temp, but ended up not needed
@@ -476,16 +482,16 @@ int main()
 
         for (auto i = 0; i < std::ssize(floorRO.model); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.model[i];
-            temp.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * floorRO.model[i];
-            temp.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.model[i];
-            temp.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.model[i];
-            temp.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
-            temp.modelViewMatrix[i] = Global::modelViewMatrixTemp;
-            temp.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
+            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * floorRO.model[i];
+            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.model[i];
+            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.model[i];
+            uberSSBOCache.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
+            uberSSBOCache.modelViewMatrix[i] = Global::modelViewMatrixTemp;
+            uberSSBOCache.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
 
             //floorRO.ssbo[0]->updateSubset(temp, i);
         }
-        floorRO.ssbo[0]->updateSubset(temp, 0, false);
+        floorRO.ssbo[0]->updateSubset(uberSSBOCache, 0, false);
         //floorRO.ssbo[0]->updateFully(temp);
         floorRO.ssbo[0]->uploadFully();
         //temp = {};
@@ -506,16 +512,16 @@ int main()
 
         for (auto i = 0; i < std::ssize(modelRO.model); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.model[i];
-            temp.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * modelRO.model[i];
-            temp.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.model[i];
-            temp.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.model[i];
-            temp.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
-            temp.modelViewMatrix[i] = Global::modelViewMatrixTemp;
-            temp.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
+            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * modelRO.model[i];
+            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.model[i];
+            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.model[i];
+            uberSSBOCache.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
+            uberSSBOCache.modelViewMatrix[i] = Global::modelViewMatrixTemp;
+            uberSSBOCache.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
 
             //modelRO.ssbo[0]->updateSubset(temp, i);
         }
-        modelRO.ssbo[0]->updateSubset(temp, 0, false);
+        modelRO.ssbo[0]->updateSubset(uberSSBOCache, 0, false);
         //modelRO.ssbo[0]->updateFully(temp);
         modelRO.ssbo[0]->uploadUntilSubset();
         //temp = {};
@@ -524,7 +530,7 @@ int main()
         // Start Render /////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        Global::clearStencilBuffer();
+        renderer.clearStencilBuffer();
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass dirLight ////////////////////////////////////////////////////////
@@ -613,36 +619,28 @@ int main()
         glViewport(0, 0, Global::windowWidth, Global::windowHeight);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (!Global::isFlashLightOnUpdated) {
-            SpotLight::spotLights[0].toggle(multiLight, multiLightNormalMapping);
-            Global::isFlashLightOnUpdated = true;
-        }
-
-        renderer.draw(cubeRO);
-     
-        glStencilMask(0xFF); // enable writing to the stencil buffer
-        renderer.draw(floorRO);
-        glStencilMask(0x00); // disable writing to the stencil buffer
-
+        renderer.draw(cubeRO);  
+        renderer.drawWithStencil(floorRO);
         renderer.drawModel(modelRO, backpackModel);
 
         // XYZ
         //renderer.drawXYZ(MVPMatrixSSBO); // Non-DSA
 
-        ////// LightCube ////////////////////
-        /////////////////////////////////////
-
+        // LightCube
         // pointlights - 4 vaste LightCubes
         for (auto i = 0; i < getPointLightCount(); i++) {
             assert(getPointLightCount() <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
             lightCubeRO.model[i] = Global::calculateModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-            lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i, false);
+            uberSSBOCache.MVPMatrix[i] = Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i];
+            //lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i, false);
         }
 
         // #5, element 4, de draaiende lightcube
         lightCubeRO.model[4] = Global::calculateModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-        lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4, false);
-        lightCubeRO.ssbo[0]->uploadFully();
+        uberSSBOCache.MVPMatrix[4] = Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4];
+        //lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4, false);
+
+        lightCubeRO.ssbo[0]->updateFully(uberSSBOCache, true);
 
         lightCubeRO.ssbo[1]->updateSubset(glm::vec4(SpotLight::spotLights[1].getColor(), 1.0f), 4, false);
         lightCubeRO.ssbo[1]->uploadFully();
@@ -652,48 +650,22 @@ int main()
         // Skybox
         renderer.drawSkybox(cubeMesh);
 
-        ////// Floor Outline ////////////////
-        /////////////////////////////////////
-
-        // Temporary disabled because of uberSSBO
-
-        // Until order independent transparency is implemented, partly transparant objects need to be drawn last (even after the skybox)
-        //if (Global::drawOutline) {
-        //    if (floorOutlineAlpha >= 0.0f)
-        //        floorOutlineAlpha += 0.01f;
-        //    if (floorOutlineAlpha >= 1.0f)
-        //        floorOutlineAlpha = 0.0f;
-        //    glm::vec4 color{ 1.0f, 0.28f, 0.26f, 0.0f };
-        //    color.w = floorOutlineAlpha;
-
-        //    //floorRO.model[0] = Global::getModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(26.0f, 26.0f, 2.0f));
-        //    floorRO.ssbo[5]->updateAndUploadSubset(Global::camera.getViewProjectionMatrix() * glm::scale(floorRO.model[0], glm::vec3(1.05f, 1.05f, 0.0f))); // scale model by 5% for outline
-        //    floorRO.ssbo[6]->updateAndUploadSubset(color);
-        // 
-        //    glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
-        //    glDisable(GL_CULL_FACE); // disable because floor has no Z dimension, the underside IS the BACK_FACE
-        //    renderer.drawSingleColor(floorRO);
-        //    glEnable(GL_CULL_FACE);
-
-        //    // De-init Stencil Buffer
-        //    glStencilFunc(GL_ALWAYS, 1, 0xFF); // all fragments should pass the stencil test again
-        //}
-
-        //std::println("End Renderpass time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
+        // Floor Outline
+        renderer.drawOutline(floorRO);
 
         // Draw frustum - toggle with K
         if (Global::frustumVisible) {
             //renderer.drawFrustum(cubeMesh, cameraDirLight.getViewProjectionMatrix());
-            //renderer.drawFrustum(cubeMesh, cameraSpotLight.getViewProjectionMatrix());
             renderer.drawFrustum(cubeMesh, cameraSpotLight0.getViewProjectionMatrix());
+            //renderer.drawFrustum(cubeMesh, cameraSpotLight1.getViewProjectionMatrix());
         }
 
         // Draw debug quad - toggle with Q
         if (Global::debugQuadVisible) {
             // Set texture sampler2D binding in Shader itself + set orthographic in function + set corresponding Camera below
             //renderer.drawDebugQuad(quadMesh, cameraDirLight); //  binding 2
-            //renderer.drawDebugQuad(quadMesh, cameraSpotLight1); //  binding 5
             renderer.drawDebugQuad(quadMesh, cameraSpotLight0); // binding 6
+            //renderer.drawDebugQuad(quadMesh, cameraSpotLight1); //  binding 5
         }
 
         if (!Global::paused) { // toggle with P

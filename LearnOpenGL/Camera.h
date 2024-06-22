@@ -66,7 +66,7 @@ protected:
     // camera Options
     GLfloat m_movementSpeed{ 2.5f };
     GLfloat m_mouseSensitivity{ 0.035f };
-    GLfloat m_fov{ 45.0f }; // InnerCutOff + OuterCutOff + 15% for attenuation seems about right
+    GLfloat m_fov{ 45.0f }; // (InnerCutOff + OuterCutOff + 15% for attenuation) seems about right
     float m_aspectRatio{ 1.0f };
     glm::mat4 m_viewMatrix{};
     glm::mat4 m_projectionMatrix{};

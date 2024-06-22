@@ -97,6 +97,11 @@ public:
 	void drawFrustum(const Mesh& mesh, const glm::mat4& viewProjectionMatrix) const;
 	void drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const; // Takes in a Camera, not an OrthograpicCamera!
 
+	void initStencilBuffer();
+	void clearStencilBuffer();
+	void drawWithStencil(const RenderObject& RO);
+	void drawOutline(RenderObject& RO);
+
 	// OLD
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    
 	//void drawXYZ(ShaderStorageBuffer& ssbo) const;
