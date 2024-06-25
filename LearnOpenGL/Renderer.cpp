@@ -8,11 +8,7 @@
 
 #include <vector>
 
-void Renderer::clear() const
-{
-	//glClearColor(1.0f, 0.0f, 1.0f, 1.0f); // magenta
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-};
+
 
 // TODO hoe weet renderer welke uniforms en ssbo's hij moet doen, zonder dit hard te coden?
 // vaste elementen gebruiken voor de passes? maar wat als 1 pass vaker voorkomt (spotlight)
@@ -42,7 +38,7 @@ void Renderer::draw(const RenderObject& RO) const
 		//RO.ssbo[0]->bind(); // uberSSBO
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
-	case renderPassType::depthMapFlashLight:
+	case renderPassType::depthMapSpotLight0:
 		//m_shaderDepthMapFlashLight->useShader();
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		//	if (RO.ssbo[i]->getBindingPoint() == flashLightMVPMatrixBP)
@@ -51,7 +47,7 @@ void Renderer::draw(const RenderObject& RO) const
 		//RO.ssbo[0]->bind(); // uberSSBO
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
-	case renderPassType::depthMapSpotLight:
+	case renderPassType::depthMapSpotLight1:
 		//m_shaderDepthMapSpotLight->useShader();
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		//	if (RO.ssbo[i]->getBindingPoint() == spotLightMVPMatrixBP)
@@ -89,7 +85,7 @@ void Renderer::draw(const RenderObject& RO) const
 	if (!RO.material->enableGL_CULL_FACE)
 		glEnable(GL_CULL_FACE);
 
-	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight || m_renderPassActive == renderPassType::depthMapFlashLight) {
+	if (m_renderPassActive == renderPassType::depthMapDirLight || m_renderPassActive == renderPassType::depthMapSpotLight1 || m_renderPassActive == renderPassType::depthMapSpotLight0) {
 		//glCullFace(GL_BACK);
 	}
 
@@ -122,7 +118,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		//RO.ssbo[0]->bind(); // uberSSBO
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
-	case renderPassType::depthMapFlashLight:
+	case renderPassType::depthMapSpotLight0:
 		//m_shaderDepthMapFlashLight->useShader();
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		//	if (RO.ssbo[i]->getBindingPoint() == flashLightMVPMatrixBP)
@@ -131,7 +127,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		//RO.ssbo[0]->bind(); // uberSSBO
 		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
 		break;
-	case renderPassType::depthMapSpotLight:
+	case renderPassType::depthMapSpotLight1:
 		//m_shaderDepthMapSpotLight->useShader();
 		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		//	if (RO.ssbo[i]->getBindingPoint() == spotLightMVPMatrixBP)
@@ -244,7 +240,7 @@ void Renderer::drawSingleColor(const RenderObject& RO) const
 	Global::glCheckError();
 };
 
-void Renderer::drawSkybox(const Mesh& mesh) const {
+void Renderer::goRenderSkybox(const Mesh& mesh) const {
 	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 	m_shaderSkybox->useShader();
 	m_shaderSkybox->setMat4("viewProjectionMatrixTranslationRemoved", Global::camera.getProjectionMatrix() * glm::mat4(glm::mat3(Global::camera.getViewMatrix()))); // remove translation from the view matrix (cast to mat3 and back to mat4)
@@ -289,6 +285,12 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
 	Global::glCheckError();
 };
 
+void Renderer::clearStencilBuffer() const {
+	glStencilMask(0xFF); // enable writing to the stencil buffer, so it can be cleared
+	glClear(GL_STENCIL_BUFFER_BIT);
+	glStencilMask(0x00); // disable writing to the stencil buffer (until needed)
+}
+
 void Renderer::initStencilBuffer() {
 	glEnable(GL_STENCIL_TEST);
 	// if both stencil test and depth test succeed replace stencil value
@@ -304,19 +306,13 @@ void Renderer::initStencilBuffer() {
 	// glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
-void Renderer::clearStencilBuffer() {
-	glStencilMask(0xFF); // enable writing to the stencil buffer, so it can be cleared
-	glClear(GL_STENCIL_BUFFER_BIT);
-	glStencilMask(0x00); // disable writing to the stencil buffer (until needed)
-}
-
 void Renderer::drawWithStencil(const RenderObject& RO) {
 	glStencilMask(0xFF);
 	draw(RO);
 	glStencilMask(0x00);
 }
 
-void Renderer::drawOutline(RenderObject& RO) {
+void Renderer::goRenderOutline() {
 	if (Global::drawOutline) { // TODO make framerate independent
 		if (Global::outlineAlpha >= 0.0f)
 			Global::outlineAlpha += 0.01f;
@@ -325,15 +321,154 @@ void Renderer::drawOutline(RenderObject& RO) {
 		glm::vec4 color{ 1.0f, 0.28f, 0.26f, Global::outlineAlpha }; // TODO get color from SSBO
 
 		uberSSBO temp{};
-		temp.MVPMatrix[0] = Global::camera.getViewProjectionMatrix() * glm::scale(RO.modelTransform[0], glm::vec3(1.05f, 1.05f, 0.0f)); // scale model by 5% for outline MVPMatrixBP
-		RO.ssbo[0]->updateFully(temp, true);
-		RO.ssbo[1]->updateFully(color, true);
-
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
-		drawSingleColor(RO);
+		for (auto& RO : m_renderVector) {
+			if (RO->drawOutline) {
+				temp.MVPMatrix[0] = Global::camera.getViewProjectionMatrix() * glm::scale(RO->modelTransform[0], glm::vec3(1.05f, 1.05f, 0.0f)); // scale model by 5% for outline MVPMatrixBP
+				RO->ssbo[0]->updateFully(temp, true);
+				RO->ssbo[1]->updateFully(color, true);
+
+				drawSingleColor(*RO);
+			}
+		}
 		glStencilFunc(GL_ALWAYS, 1, 0xFF); // De-init Stencil Buffer, all fragments should pass the stencil test again
 	}
 }
+
+void Renderer::goRender() {
+	clearStencilBuffer();
+
+	glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way
+
+	m_renderPassActive = renderPassType::depthMap;
+	for (auto& FBOShaderPair : m_pair) {
+		assert(FBOShaderPair.first && "FBO is nullptr");
+		assert(FBOShaderPair.first->getType() == framebufferType::depthMap && "Wrong framebufferType");
+
+		m_renderPassActive = static_cast<renderPassType>(m_renderPassActive + 1); // TODO dit is niet nodig op het moment met uberSSBO
+
+		if (m_renderPassActive == depthMapSpotLight0 && !SpotLight::spotLights[0].getOn())
+			break;
+
+		FBOShaderPair.first->bind();
+		setViewPort(FBOShaderPair.first.get());
+		clearDepthBuffer();
+		FBOShaderPair.second->useShader();
+
+		for (const auto& RO : m_renderVector) {
+			if (RO->drawShadow && RO->model)
+				drawModel(*RO, *RO->model);
+			else if (RO->drawShadow)
+				draw(*RO);
+		}
+
+		FBOShaderPair.first->unbind();
+	}
+
+	m_renderPassActive = renderPassType::normal;
+	glCullFace(GL_BACK);
+
+	setViewPort();
+	clearColorAndDepthBuffer();
+
+	for (const auto& RO : m_renderVector) {
+		if (!RO->material) // == nullptr
+			drawSingleColor(*RO);
+		else if (RO->model)
+			drawModel(*RO, *RO->model);
+		else if (Global::drawOutline)
+			drawWithStencil(*RO);
+		else
+			draw(*RO);
+	}
+}
+
+//void Renderer::goRender() {
+//	clearStencilBuffer();
+//
+//	glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way // TODO to renderer
+//
+//
+//	m_renderPassActive = renderPassType::depthMapDirLight;
+//	assert(m_FBODirLight && "FBO is nullptr");
+//	assert(m_FBODirLight->getType() == framebufferType::depthMap && "Wrong framebufferType");
+//	assert(m_FBODirLight->getTexture()->getType() == textureType::depthMap && "Texture has wrong Type for this constructor"); // TODO test
+//
+//	m_FBODirLight->bind();
+//	setViewPort(m_FBODirLight.get());
+//	clearDepthBuffer();
+//	m_shaderDepthMapDirLight->useShader();
+//
+//	for (const auto& RO : m_renderVector) {
+//		if (RO->drawShadow && RO->model)
+//			drawModel(*RO, *RO->model);
+//		else if (RO->drawShadow)
+//			draw(*RO);
+//	}
+//
+//	m_FBODirLight->unbind();
+//
+//	//////////////
+//
+//	m_renderPassActive = renderPassType::depthMapFlashLight;
+//	assert(m_FBOSpotLight0 && "FBO is nullptr");
+//	assert(m_FBOSpotLight0->getType() == framebufferType::depthMap && "Wrong framebufferType");
+//
+//	if (SpotLight::spotLights[0].getOn()) {
+//		m_FBOSpotLight0->bind();
+//		setViewPort(m_FBOSpotLight0.get());
+//		clearDepthBuffer();
+//		m_shaderDepthMapSpotLight0->useShader();
+//
+//		for (const auto& RO : m_renderVector) {
+//			if (RO->drawShadow && RO->model)
+//				drawModel(*RO, *RO->model);
+//			else if (RO->drawShadow)
+//				draw(*RO);
+//		}
+//
+//		m_FBOSpotLight0->unbind();
+//	}
+//
+//	//////////////
+//
+//	m_renderPassActive = renderPassType::depthMapSpotLight;
+//	assert(m_FBOSpotLight1 && "FBO is nullptr");
+//	assert(m_FBOSpotLight1->getType() == framebufferType::depthMap && "Wrong framebufferType");
+//
+//	m_FBOSpotLight1->bind();
+//	setViewPort(m_FBOSpotLight1.get());
+//	clearDepthBuffer();
+//	m_shaderDepthMapSpotLight1->useShader();
+//
+//	for (const auto& RO : m_renderVector) {
+//		if (RO->drawShadow && RO->model)
+//			drawModel(*RO, *RO->model);
+//		else if (RO->drawShadow)
+//			draw(*RO);
+//	}
+//
+//	m_FBOSpotLight1->unbind();
+//
+//	//////////////
+//
+//	m_renderPassActive = renderPassType::normal;
+//	glCullFace(GL_BACK);
+//
+//	setViewPort();
+//	clearColorAndDepthBuffer();
+//
+//	for (const auto& RO : m_renderVector) {
+//		if (!RO->material) // == nullptr
+//			drawSingleColor(*RO);
+//		else if (RO->model)
+//			drawModel(*RO, *RO->model);
+//		else if (Global::drawOutline)
+//			drawWithStencil(*RO);
+//		else
+//			draw(*RO);
+//	}
+//}
 
 //void Renderer::drawXYZ(ShaderStorageBuffer& ssbo) const {
 //

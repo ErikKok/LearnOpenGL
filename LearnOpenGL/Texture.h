@@ -29,7 +29,7 @@ public:
 	Texture(textureType textureType, GLsizei width, GLsizei height);		// Constructor depthMap			// Constructor expects parameter textureType::depthMap
 	Texture(const Texture& other) = delete;									// Copy constructor
 	Texture& operator=(const Texture& other) = delete;						// Copy assignment
-	Texture(Texture&& other) noexcept = delete; 							// Move constructor	
+	Texture(Texture&& other) noexcept = default; 							// Move constructor	
 	Texture& operator=(Texture&& other) noexcept = delete;					// Move assignment
 	~Texture();																// Destructor
 

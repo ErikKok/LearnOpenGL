@@ -56,14 +56,14 @@ int main()
     //Global::cheap2Copy();
     Renderer renderer;
     renderer.initStencilBuffer();
-    renderer.createShaderDepthMapDirLight("Shaders\\depthMapDirLight.shader");
-    renderer.createShaderDepthMapSpotLight("Shaders\\depthMapSpotLight.shader");
-    renderer.createShaderDepthMapFlashLight("Shaders\\depthMapFlashLight.shader");
+    //renderer.createShaderDepthMapDirLight("Shaders\\depthMapDirLight.shader");
+    //renderer.createShaderDepthMapSpotLight0("Shaders\\depthMapFlashLight.shader");
+    //renderer.createShaderDepthMapSpotLight1("Shaders\\depthMapSpotLight.shader");
     renderer.createShaderSingleColor("Shaders\\singleColor.shader");
     renderer.createShaderSkybox("Shaders\\skybox.shader");
     renderer.createShaderFrustum("Shaders\\frustum.shader");
     renderer.createShaderDebugQuad("Shaders\\debugQuad.shader");
-    renderer.isRendererComplete();
+    //renderer.isRendererComplete();
 
     //Shader depthMapShader("Shaders\\depthMap.shader");
 
@@ -122,10 +122,12 @@ int main()
 
     // DirLight depthMap
     Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
-    FrameBuffer depthMapDirLightFBO(depthMapDirLight);
-    renderer.m_FBODirLight = std::make_unique<FrameBuffer>(depthMapDirLight);
+    //renderer.createFBODirLight(depthMapDirLight);
+    //renderer.getFBODirLight()->setOrthographic(true);
 
-    depthMapDirLightFBO.setOrthographic(true);
+    renderer.m_pair.emplace_back(std::make_unique<FrameBuffer>(depthMapDirLight), std::make_unique<Shader>("Shaders\\depthMapDirLight.shader"));
+    renderer.m_pair[0].first->setOrthographic(true);
+
     cameraDirLight.setNearPlane(-15.0f);
     cameraDirLight.setFarPlane(35.0f);
     cameraDirLight.setViewMatrix(glm::lookAt(sun.getDirection(), sun.getDirection() - sun.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))); // TODO
@@ -153,8 +155,10 @@ int main()
     SpotLight::spotLights[0].setCamera(&cameraSpotLight0);
 
     Texture depthMapSpotLight0(textureType::depthMap, 512, 512);
-    FrameBuffer depthMapSpotLight0FBO(depthMapSpotLight0);
-    renderer.m_FBOFlashLight = std::make_unique<FrameBuffer>(depthMapSpotLight0);
+    //renderer.createFBOSpotLight0(depthMapSpotLight0);
+
+    renderer.m_pair.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight0), std::make_unique<Shader>("Shaders\\depthMapFlashLight.shader"));
+
     cameraSpotLight0.setFov(25.0f);
     cameraSpotLight0.setNearPlane(0.1f);
     cameraSpotLight0.setFarPlane(25.0f);
@@ -178,9 +182,11 @@ int main()
     Camera cameraSpotLight1(depthMapSpotLight0.getAspectRatio(), SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
     SpotLight::spotLights[1].setCamera(&cameraSpotLight1);
 
-    Texture depthMapSpotLight1(textureType::depthMap, 1024, 1024); // deze kan direct ín de fbo worden gemaakt
-    FrameBuffer depthMapSpotLight1FBO(depthMapSpotLight1);
-    renderer.m_FBOSpotLight = std::make_unique<FrameBuffer>(depthMapSpotLight1);
+    Texture depthMapSpotLight1(textureType::depthMap, 1024, 1024);
+    //renderer.createFBOSpotLight1(depthMapSpotLight1);
+
+    renderer.m_pair.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight1), std::make_unique<Shader>("Shaders\\depthMapSpotLight.shader"));
+
     cameraSpotLight1.setFov((36.0f + 48.0f) * 1.15f);
     cameraSpotLight1.setNearPlane(0.1f);
     cameraSpotLight1.setFarPlane(10.0f);
@@ -210,8 +216,6 @@ int main()
     };
 
     RenderObject cubeRO{ &cubeMesh, &cubeMaterial, std::ssize(Data::cubePositions) };
-
-
     cubeRO.instances = 1; // temp fix to make sure the BufferDataStore size == elementsize, instead of 10x (std::ssize(Data::cubePositions)
     cubeRO.addSSBO(24, sizeof(uberSSBO));
     cubeRO.instances = 10;
@@ -248,7 +252,7 @@ int main()
 
     // Model voor de renderloop berekenen, floor is statisch -> niet helemaal, de outline heeft eigen model, maar die is op basis van onderstaand model
     floorRO.modelTransform[0] = Global::calculateModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
-
+    floorRO.drawOutline = true;
     floorRO.addSSBO(24, sizeof(uberSSBO));
 
     //floorRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4));
@@ -268,7 +272,7 @@ int main()
 
     //Shader ourModelShader("Shaders\\multiLight.shader");
     //Model backpackModel("Models/Hexagon/hexagon.obj"); // crash
-    Model backpackModel("Models/Backpack/backpack.obj");
+    //Model backpackModel("Models/Backpack/backpack.obj");
     //Model ourModel("Models/Nanosuit/nanosuit.obj");
     //Model ourModel("Models/Cyborg/cyborg.obj");
     //Model ourModel("Models/Mars/planet.obj");
@@ -289,10 +293,12 @@ int main()
     };
 
     RenderObject modelRO{ nullptr, &modelMaterial};
+    modelRO.model = std::make_unique<Model>("Models/Backpack/backpack.obj");
 
     modelRO.modelTransform[0] = Global::calculateModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     modelRO.addSSBO(24, sizeof(uberSSBO));
+    renderer.m_renderVector.emplace_back(&modelRO);
 
     //modelRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4));
     //modelRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4));
@@ -559,118 +565,14 @@ int main()
         // Start Render /////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        //renderer.clearStencilBuffer();
-
-        /////////////////////////////////////////////////////////////////////////////////////
-        // Start ShadowPass dirLight ////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////////////
-            
-        //loadTime = static_cast<float>(glfwGetTime());
-
-        //renderer.setRenderPassActive(renderPassType::depthMapDirLight);
-
-        //depthMapDirLightFBO.startDepthMap(renderer.getShaderDepthMapDirLight());
-
-        //renderer.draw(cubeRO);
-        //renderer.draw(floorRO);
-        //renderer.drawModel(modelRO, backpackModel);
-
-        //depthMapDirLightFBO.stopDepthMap();
-        //std::println("End ShadowPass dirLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
-            
-        /////////////////////////////////////////////////////////////////////////////////////
-        // Start ShadowPass flashLight //////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////////////
-
-        //if (SpotLight::spotLights[0].getOn()) {
-        //    loadTime = static_cast<float>(glfwGetTime());
-
-        //    renderer.setRenderPassActive(renderPassType::depthMapFlashLight);
-
-        //    depthMapSpotLight0FBO.startDepthMap(renderer.getShaderDepthMapFlashLight());
-
-        //    renderer.draw(cubeRO);
-        //    renderer.draw(floorRO);
-        //    renderer.drawModel(modelRO, backpackModel);
-
-        //    depthMapSpotLight0FBO.stopDepthMap();
-        //    //std::println("End ShadowPass flashLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
-        //}
-
-        /////////////////////////////////////////////////////////////////////////////////////
-        // Start ShadowPass spotLight ///////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////////////
-
-        //loadTime = static_cast<float>(glfwGetTime());
-
-        //renderer.setRenderPassActive(renderPassType::depthMapSpotLight);
-
-        //depthMapSpotLight1FBO.startDepthMap(renderer.getShaderDepthMapSpotLight());
-
-        //renderer.draw(cubeRO);
-        //renderer.draw(floorRO);
-        //renderer.drawModel(modelRO, backpackModel);
-
-        //depthMapSpotLight1FBO.stopDepthMap();
-        //std::println("End ShadowPass spotLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
-
-        /////////////////////////////////////////////////////////////////////////////////////
-        // Start ShadowPass spotLight General test ///////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////////////
-
-        //for (auto i = 0; i < getSpotLightCount(); i++) {
-
-        //    renderer.setRenderPassActive(renderPassType::depthMapSpotLight);
-
-        //    depthMapSpotLightFBO.startDepthMap(&depthMapShader);
-
-        //    glm::mat4 lightMVPMatrix[10]{}; // instances
-        //    for (auto i = 0; i < std::ssize(modelRO.model); i++) {
-        //        lightMVPMatrix[i] = SpotLight::spotLights[i].getCamera()->getViewProjectionMatrix() * modelRO.model[i]; // is 1 frame oud...
-        //    }
-        //    update / upload / bind lightMVPMatrix;
-        //    renderer.draw(cubeRO);
-
-        //    renderer.draw(floorRO);
-        //    renderer.drawModel(modelRO, backpackModel);
-
-        //    depthMapSpotLightFBO.stopDepthMap();
-        //}
-
-        /////////////////////////////////////////////////////////////////////////////////////
-        // Start Render scene normal ////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////////////
-
-        //loadTime = static_cast<float>(glfwGetTime());
-
-        //renderer.setRenderPassActive(renderPassType::normal);
-
-        //glViewport(0, 0, Global::windowWidth, Global::windowHeight);
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        //renderer.draw(cubeRO); 
-        //Global::drawOutline ? renderer.drawWithStencil(floorRO) : renderer.draw(floorRO);       
-        //renderer.drawModel(modelRO, backpackModel);
-
-        //// XYZ
-        ////renderer.drawXYZ(MVPMatrixSSBO); // Non-DSA
-
-        //renderer.drawSingleColor(lightCubeRO);
-
-
-
+        // Depthpasses and normal renderpass
         renderer.goRender();
 
-
         // Skybox
-        renderer.drawSkybox(cubeMesh);
+        renderer.goRenderSkybox(cubeMesh);
 
         // Floor Outline
-        renderer.drawOutline(floorRO);
-
-        ////////////////////////////////
-
-
+        renderer.goRenderOutline();
 
         // Draw frustum - toggle with K
         if (Global::frustumVisible) {

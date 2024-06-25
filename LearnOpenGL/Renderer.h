@@ -48,11 +48,12 @@ public:
 
 	Mesh* mesh{ nullptr }; // TODO should it own it's mesh?
 	Material* material{ nullptr }; // TODO make unique_ptr van maken? // TODO should it own it's material?
-	Model* model{ nullptr };
+	std::unique_ptr<Model> model{ nullptr };
 	std::vector<glm::mat4> modelTransform{}; // transforms
 	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // Each RenderObject owns it's unique SSBOs (on the heap), this way you can upload them just once per renderpass (raw pointers (on the stack) are max 1% faster)
 	int instances{ 1 };
 	bool drawShadow{ true };
+	bool drawOutline{ false };
 	// renderType type; (transparant, singleColor, isModel, etc.;
 	// bool isSelected; true = de outline renderen
 	// bool castShadow;
@@ -60,12 +61,13 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-enum class renderPassType {
+enum renderPassType : int {
 	undefined,
 	normal,
+	depthMap,
 	depthMapDirLight,
-	depthMapSpotLight,
-	depthMapFlashLight,
+	depthMapSpotLight0,
+	depthMapSpotLight1,
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,125 +77,53 @@ public:
 	const renderPassType getRenderPassActive() const { return m_renderPassActive; };
 	void setRenderPassActive(renderPassType type) { m_renderPassActive = type; };
 
-	const Shader* getShaderDepthMapDirLight() const { return m_shaderDepthMapDirLight.get(); };
-	void createShaderDepthMapDirLight(std::string string) { m_shaderDepthMapDirLight = std::make_unique<Shader>(string); };
-	const Shader* getShaderDepthMapSpotLight() const { return m_shaderDepthMapSpotLight.get(); };
-	void createShaderDepthMapSpotLight(std::string string) { m_shaderDepthMapSpotLight = std::make_unique<Shader>(string); };
-	const Shader* getShaderDepthMapFlashLight() const { return m_shaderDepthMapFlashLight.get(); };
-	void createShaderDepthMapFlashLight(std::string string) { m_shaderDepthMapFlashLight = std::make_unique<Shader>(string); };
+	//const Shader* getShaderDepthMapDirLight() const { return m_shaderDepthMapDirLight.get(); };
+	//void createShaderDepthMapDirLight(std::string string) { m_shaderDepthMapDirLight = std::make_unique<Shader>(string); };
+	//void createFBODirLight(Texture& texture) { m_FBODirLight = std::make_unique<FrameBuffer>(texture); };
+	//FrameBuffer* getFBODirLight() { return m_FBODirLight.get(); };
+
+	//const Shader* getShaderDepthMapSpotLight0() const { return m_shaderDepthMapSpotLight0.get(); };
+	//void createShaderDepthMapSpotLight0(std::string string) { m_shaderDepthMapSpotLight0 = std::make_unique<Shader>(string); };
+	//void createFBOSpotLight0(Texture& texture) { m_FBOSpotLight0 = std::make_unique<FrameBuffer>(texture); };
+
+	//const Shader* getShaderDepthMapSpotLight1() const { return m_shaderDepthMapSpotLight1.get(); };
+	//void createShaderDepthMapSpotLight1(std::string string) { m_shaderDepthMapSpotLight1 = std::make_unique<Shader>(string); };
+	//void createFBOSpotLight1(Texture& texture) { m_FBOSpotLight1 = std::make_unique<FrameBuffer>(texture); };
+
 	const Shader* getShaderSingleColor() const { return m_shaderSingleColor.get(); };
 	void createShaderSingleColor(std::string string) { m_shaderSingleColor = std::make_unique<Shader>(string); };
 	void createShaderSkybox(std::string string) { m_shaderSkybox = std::make_unique<Shader>(string); };
 	void createShaderFrustum(std::string string) { m_shaderFrustum = std::make_unique<Shader>(string); };
 	void createShaderDebugQuad(std::string string) { m_shaderDebugQuad = std::make_unique<Shader>(string); };
 
-	void isRendererComplete() { assert(m_shaderDepthMapDirLight != nullptr || m_shaderDepthMapSpotLight != nullptr || m_shaderDepthMapFlashLight != nullptr || m_shaderSingleColor != nullptr || m_shaderSkybox != nullptr || m_shaderFrustum != nullptr || m_shaderDebugQuad != nullptr); };
-	void clear() const; //  color and depth
+	//void isRendererComplete() const { assert(m_shaderDepthMapDirLight != nullptr || m_shaderDepthMapSpotLight1 != nullptr || m_shaderDepthMapSpotLight0 != nullptr || m_shaderSingleColor != nullptr || m_shaderSkybox != nullptr || m_shaderFrustum != nullptr || m_shaderDebugQuad != nullptr); };
+	
+	void clearColor() const { glClearColor(1.0f, 0.0f, 1.0f, 1.0f); }; // magenta
+	void clearColorAndDepthBuffer() const { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); };
+	void clearDepthBuffer() const { glClear(GL_DEPTH_BUFFER_BIT); }
 
-	// TODO store the vao/ebo's/meshes/RO's etc in a list/batch/whatever, order them, then batch render them
-	// void draw(RenderBatch);
 	void draw(const RenderObject& RO) const;
 	void drawModel(const RenderObject& RO, Model& model);
 	void drawSingleColor(const RenderObject& RO) const;
-	void drawSkybox(const Mesh& mesh) const; // Assumes SkyBox Texture is already bound, and will never be changed
+	void goRenderSkybox(const Mesh& mesh) const; // Assumes SkyBox Texture is already bound, and will never be changed
 	void drawFrustum(const Mesh& mesh, const glm::mat4& viewProjectionMatrix) const;
 	void drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const; // Takes in a Camera, not an OrthograpicCamera!
 
+	void clearStencilBuffer() const;
 	void initStencilBuffer();
-	void clearStencilBuffer();
-	void clearDepthBuffer() { glClear(GL_DEPTH_BUFFER_BIT);	}
 	void drawWithStencil(const RenderObject& RO);
-	void drawOutline(RenderObject& RO);
+	void goRenderOutline();
 
-	void setViewPort(FrameBuffer* FBO) {
-		glViewport(0, 0, FBO->getTexture()->getWidth(), FBO->getTexture()->getHeight());
-	}
+	void setViewPort() { glViewport(0, 0, Global::windowWidth, Global::windowHeight); }
+	void setViewPort(FrameBuffer* FBO) { glViewport(0, 0, FBO->getTexture()->getWidth(), FBO->getTexture()->getHeight()); }
 
-	std::vector<RenderObject*> m_renderVector{}; // TODO uPtr?
+	void submitRO(RenderObject RO) { m_renderVector.emplace_back(); }
 
-	void goRender() {
-		clearStencilBuffer();
+	void goRender();
 
-		glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way // TODO to renderer
-
-		m_renderPassActive = renderPassType::depthMapDirLight;
-		assert(m_FBODirLight && "FBO is nullptr");
-		assert(m_FBODirLight->getType() == framebufferType::depthMap && "Wrong framebufferType");
-
-		m_FBODirLight->bind();
-		setViewPort(m_FBODirLight.get());
-		clearDepthBuffer();
-		m_shaderDepthMapDirLight->useShader();
-
-		for (const auto& RO : m_renderVector) {
-			//if (RO.drawShadow && RO.model)
-			//	drawModel(RO, &RO.model);
-			if (RO->drawShadow)
-				draw(*RO);
-		}
-
-		m_FBODirLight->unbind();
-
-		m_renderPassActive = renderPassType::depthMapFlashLight;
-		assert(m_FBOFlashLight && "FBO is nullptr");
-		assert(m_FBOFlashLight->getType() == framebufferType::depthMap && "Wrong framebufferType");
-
-		if (SpotLight::spotLights[0].getOn()) {
-			m_FBOFlashLight->bind();
-			setViewPort(m_FBOFlashLight.get());
-			clearDepthBuffer();
-			m_shaderDepthMapFlashLight->useShader();
-
-			for (const auto& RO : m_renderVector) {
-				if (RO->drawShadow)
-					draw(*RO);
-			}
-
-			m_FBOFlashLight->unbind();
-		}
-
-		m_renderPassActive = renderPassType::depthMapSpotLight;
-		assert(m_FBOSpotLight && "FBO is nullptr");
-		assert(m_FBOSpotLight->getType() == framebufferType::depthMap && "Wrong framebufferType");
-
-
-		
-		m_FBOSpotLight->bind();
-		setViewPort(m_FBOSpotLight.get());
-		clearDepthBuffer();
-		m_shaderDepthMapSpotLight->useShader();
-
-		for (const auto& RO : m_renderVector) {
-			if (RO->drawShadow)
-				draw(*RO);
-		}
-
-
-		m_FBOSpotLight->unbind();
-
-
-		glCullFace(GL_BACK);
-
-		m_renderPassActive = renderPassType::normal;
-
-		glViewport(0, 0, Global::windowWidth, Global::windowHeight);
-		clear();
-
-		
-
-		for (const auto& RO : m_renderVector) {
-			if (!RO->material) // == nullptr
-				drawSingleColor(*RO);
-			else if (Global::drawOutline)
-				drawWithStencil(*RO);
-			else
-				draw(*RO);
-		}
-	}
-
-	std::unique_ptr<FrameBuffer> m_FBODirLight{ nullptr };
-	std::unique_ptr<FrameBuffer> m_FBOSpotLight{ nullptr };
-	std::unique_ptr<FrameBuffer> m_FBOFlashLight{ nullptr };
+	// TODO private
+	std::vector<RenderObject*> m_renderVector{}; // TODO uPtr? or reference wrappers? of een shared ptr?
+	std::vector<std::pair<std::unique_ptr<FrameBuffer>, std::unique_ptr<Shader>>> m_pair{}; // TODO make setter, rename, and is pair good?
 
 	// OLD
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    
@@ -204,16 +134,22 @@ public:
 private:
 	renderPassType m_renderPassActive{ renderPassType::undefined };
 
-	std::unique_ptr<Shader> m_shaderDepthMapDirLight{ nullptr };
-
-	std::unique_ptr<Shader> m_shaderDepthMapSpotLight{ nullptr };
-
-	std::unique_ptr<Shader> m_shaderDepthMapFlashLight{ nullptr };
-
+	//std::unique_ptr<Shader> m_shaderDepthMapDirLight{ nullptr };
+	//std::unique_ptr<FrameBuffer> m_FBODirLight{ nullptr };
+	//std::unique_ptr<Shader> m_shaderDepthMapSpotLight0{ nullptr };
+	//std::unique_ptr<FrameBuffer> m_FBOSpotLight0{ nullptr };
+	//std::unique_ptr<Shader> m_shaderDepthMapSpotLight1{ nullptr };
+	//std::unique_ptr<FrameBuffer> m_FBOSpotLight1{ nullptr };
 	std::unique_ptr<Shader> m_shaderSingleColor{ nullptr };
 	std::unique_ptr<Shader> m_shaderSkybox{ nullptr };
 	std::unique_ptr<Shader> m_shaderFrustum{ nullptr };
 	std::unique_ptr<Shader> m_shaderDebugQuad{ nullptr };
+
+	//std::vector<std::unique_ptr<FrameBuffer>> m_FBOVector{};
+	//std::vector<std::unique_ptr<Shader>> m_FBOShader{};
+
+
+
 
 	//bool glStencilFuncActive{};
 	//bool glDepthTestActive{}; // ?

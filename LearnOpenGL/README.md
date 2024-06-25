@@ -32,6 +32,14 @@ TO DO
 - TODO's nalopen
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
 - obj van cube en hexagon fixen
+- move Camera into FrameBuffer?
+
+v0.2.78 25-6-2024
+-----------------
+- Texture Move constructor enabled
+- Framebuffer now moves an existing texture to itself (instead of just filling an unique_ptr)
+- added a for loop to goRender() and drawOutline()
+- added a std::vector<std::pair> for FBO's and Shaders
 
 v0.2.77 25-6-2024
 -----------------

@@ -18,10 +18,12 @@ FrameBuffer::FrameBuffer()
 
 FrameBuffer::FrameBuffer(Texture& texture)
 	: m_type{ framebufferType::depthMap }
-	, m_texture{ &texture }
+	, m_texture{ std::make_unique<Texture>(std::move(texture)) } // TODO is this what I want?
 {
-	assert(texture.getType() == textureType::depthMap && "Texture has wrong Type for this constructor");
+	texture.setType(textureType::undefined); // texture got moved into FrameBuffer, this object is not to be used anymore, so I invalidate it here
 	
+	assert(m_texture->getType() == textureType::depthMap && "Texture has wrong Type for this constructor");	
+
 	glCreateFramebuffers(1, &m_id);
 	glNamedFramebufferTexture(m_id, GL_DEPTH_ATTACHMENT, m_texture->getId(), 0);
 	glNamedFramebufferDrawBuffer(m_id, GL_NONE);
