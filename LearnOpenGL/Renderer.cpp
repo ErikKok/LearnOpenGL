@@ -21,7 +21,7 @@ void Renderer::draw(const RenderObject& RO) const
 {
 	// TODO onderstaande checks een algemene functie van maken?
 	assert(RO.mesh && "No mesh defined, is this a RenderObject for a Model?");
-	assert(RO.instances == std::ssize(RO.model) && "Amount of instances and models is not equal!");
+	assert(RO.instances == std::ssize(RO.modelTransform) && "Amount of instances and models is not equal!");
 	// TODO more checks needed?
 
 	////////////////////////////////
@@ -325,7 +325,7 @@ void Renderer::drawOutline(RenderObject& RO) {
 		glm::vec4 color{ 1.0f, 0.28f, 0.26f, Global::outlineAlpha }; // TODO get color from SSBO
 
 		uberSSBO temp{};
-		temp.MVPMatrix[0] = Global::camera.getViewProjectionMatrix() * glm::scale(RO.model[0], glm::vec3(1.05f, 1.05f, 0.0f)); // scale model by 5% for outline MVPMatrixBP
+		temp.MVPMatrix[0] = Global::camera.getViewProjectionMatrix() * glm::scale(RO.modelTransform[0], glm::vec3(1.05f, 1.05f, 0.0f)); // scale model by 5% for outline MVPMatrixBP
 		RO.ssbo[0]->updateFully(temp, true);
 		RO.ssbo[1]->updateFully(color, true);
 

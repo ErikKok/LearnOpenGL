@@ -123,6 +123,8 @@ int main()
     // DirLight depthMap
     Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
     FrameBuffer depthMapDirLightFBO(depthMapDirLight);
+    renderer.m_FBODirLight = std::make_unique<FrameBuffer>(depthMapDirLight);
+
     depthMapDirLightFBO.setOrthographic(true);
     cameraDirLight.setNearPlane(-15.0f);
     cameraDirLight.setFarPlane(35.0f);
@@ -152,6 +154,7 @@ int main()
 
     Texture depthMapSpotLight0(textureType::depthMap, 512, 512);
     FrameBuffer depthMapSpotLight0FBO(depthMapSpotLight0);
+    renderer.m_FBOFlashLight = std::make_unique<FrameBuffer>(depthMapSpotLight0);
     cameraSpotLight0.setFov(25.0f);
     cameraSpotLight0.setNearPlane(0.1f);
     cameraSpotLight0.setFarPlane(25.0f);
@@ -175,8 +178,9 @@ int main()
     Camera cameraSpotLight1(depthMapSpotLight0.getAspectRatio(), SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
     SpotLight::spotLights[1].setCamera(&cameraSpotLight1);
 
-    Texture depthMapSpotLight1(textureType::depthMap, 1024, 1024);
+    Texture depthMapSpotLight1(textureType::depthMap, 1024, 1024); // deze kan direct ín de fbo worden gemaakt
     FrameBuffer depthMapSpotLight1FBO(depthMapSpotLight1);
+    renderer.m_FBOSpotLight = std::make_unique<FrameBuffer>(depthMapSpotLight1);
     cameraSpotLight1.setFov((36.0f + 48.0f) * 1.15f);
     cameraSpotLight1.setNearPlane(0.1f);
     cameraSpotLight1.setFarPlane(10.0f);
@@ -207,9 +211,11 @@ int main()
 
     RenderObject cubeRO{ &cubeMesh, &cubeMaterial, std::ssize(Data::cubePositions) };
 
+
     cubeRO.instances = 1; // temp fix to make sure the BufferDataStore size == elementsize, instead of 10x (std::ssize(Data::cubePositions)
     cubeRO.addSSBO(24, sizeof(uberSSBO));
     cubeRO.instances = 10;
+    renderer.m_renderVector.emplace_back(&cubeRO);
 
     //cubeRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4));
     //cubeRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4));
@@ -239,8 +245,9 @@ int main()
 
     RenderObject floorRO{ &floorMesh, &floorMaterial };
 
+
     // Model voor de renderloop berekenen, floor is statisch -> niet helemaal, de outline heeft eigen model, maar die is op basis van onderstaand model
-    floorRO.model[0] = Global::calculateModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
+    floorRO.modelTransform[0] = Global::calculateModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
 
     floorRO.addSSBO(24, sizeof(uberSSBO));
 
@@ -251,6 +258,7 @@ int main()
     //floorRO.addSSBO(modelViewMatrixBP, sizeof(glm::mat4));
     //floorRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
     floorRO.addSSBO(singleColorBP, sizeof(glm::vec4)); // TODO only 1 element needed in this vector
+    renderer.m_renderVector.emplace_back(&floorRO);
 
     ////////////////////////////////////
     ////// Models //////////////////////
@@ -282,7 +290,7 @@ int main()
 
     RenderObject modelRO{ nullptr, &modelMaterial};
 
-    modelRO.model[0] = Global::calculateModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    modelRO.modelTransform[0] = Global::calculateModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     modelRO.addSSBO(24, sizeof(uberSSBO));
 
@@ -294,8 +302,9 @@ int main()
     //modelRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
 
     // Lightcubes
-
     RenderObject lightCubeRO{ &cubeMesh, nullptr, 5 };
+
+    lightCubeRO.drawShadow = false;
 
     //lightCubeRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
     lightCubeRO.instances = 1;
@@ -313,7 +322,8 @@ int main()
     };
 
     lightCubeRO.ssbo[1]->updateFully(lightCubeColors, false); // false, want in de loop wordt dit pas geupload, nadat element 4 is gewijzigd
-
+    //renderer.m_renderVector.emplace_back(&lightCubeRO);
+    
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
     std::println("Load time model: {} seconds", static_cast<float>(glfwGetTime()) - loadTime);
@@ -419,21 +429,21 @@ int main()
         {
             assert(std::size(Data::cubePositions) <= cubeRO.instances && "Loop will create more instances then ssbo can hold");
 
-            cubeRO.model[i] = glm::translate(glm::mat4(1.0f), Data::cubePositions[i]);
+            cubeRO.modelTransform[i] = glm::translate(glm::mat4(1.0f), Data::cubePositions[i]);
             if (i == 2 || i == 5 || i == 8) {
                 float angle = 25.0f + (15 * i);
-                cubeRO.model[i] = glm::rotate(cubeRO.model[i], (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+                cubeRO.modelTransform[i] = glm::rotate(cubeRO.modelTransform[i], (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
             }
             if (i == 3) { // wall
-                cubeRO.model[i] = glm::translate(cubeRO.model[i], glm::vec3(-5.0f, 0.0f, -3.0f));
-                cubeRO.model[i] = glm::scale(cubeRO.model[i], glm::vec3(20.0f, 20.0f, 1.0f));
+                cubeRO.modelTransform[i] = glm::translate(cubeRO.modelTransform[i], glm::vec3(-5.0f, 0.0f, -3.0f));
+                cubeRO.modelTransform[i] = glm::scale(cubeRO.modelTransform[i], glm::vec3(20.0f, 20.0f, 1.0f));
             }
             //if (i == 9) { // floor
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
 
-            cubeRO.model[i] = glm::scale(cubeRO.model[i], glm::vec3(0.5f, 0.5f, 0.5f));
+            cubeRO.modelTransform[i] = glm::scale(cubeRO.modelTransform[i], glm::vec3(0.5f, 0.5f, 0.5f));
         }
 
         // Calculate SSBO's, and upload them to their buffers
@@ -452,11 +462,11 @@ int main()
 
         uberSSBO uberSSBOCache{};
 
-        for (auto i = 0; i < std::ssize(cubeRO.model); i++) {
-            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.model[i];
-            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * cubeRO.model[i];
-            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.model[i];
-            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.model[i];
+        for (auto i = 0; i < std::ssize(cubeRO.modelTransform); i++) {
+            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.modelTransform[i];
+            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * cubeRO.modelTransform[i];
+            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.modelTransform[i];
+            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.modelTransform[i];
             uberSSBOCache.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
             uberSSBOCache.modelViewMatrix[i] = Global::modelViewMatrixTemp;
             uberSSBOCache.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
@@ -480,11 +490,11 @@ int main()
         //    floorRO.ssbo[i]->uploadFully();
         //}
 
-        for (auto i = 0; i < std::ssize(floorRO.model); i++) {
-            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.model[i];
-            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * floorRO.model[i];
-            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.model[i];
-            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.model[i];
+        for (auto i = 0; i < std::ssize(floorRO.modelTransform); i++) {
+            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.modelTransform[i];
+            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * floorRO.modelTransform[i];
+            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.modelTransform[i];
+            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.modelTransform[i];
             uberSSBOCache.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
             uberSSBOCache.modelViewMatrix[i] = Global::modelViewMatrixTemp;
             uberSSBOCache.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
@@ -510,11 +520,11 @@ int main()
         //    modelRO.ssbo[i]->uploadFully();
         //}
 
-        for (auto i = 0; i < std::ssize(modelRO.model); i++) {
-            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.model[i];
-            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * modelRO.model[i];
-            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.model[i];
-            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.model[i];
+        for (auto i = 0; i < std::ssize(modelRO.modelTransform); i++) {
+            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.modelTransform[i];
+            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * modelRO.modelTransform[i];
+            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.modelTransform[i];
+            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.modelTransform[i];
             uberSSBOCache.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
             uberSSBOCache.modelViewMatrix[i] = Global::modelViewMatrixTemp;
             uberSSBOCache.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
@@ -526,63 +536,82 @@ int main()
         modelRO.ssbo[0]->uploadUntilSubset();
         //temp = {};
 
+        // LightCube
+        // pointlights - 4 vaste LightCubes
+        for (auto i = 0; i < getPointLightCount(); i++) {
+            assert(getPointLightCount() <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
+            lightCubeRO.modelTransform[i] = Global::calculateModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+            uberSSBOCache.MVPMatrix[i] = Global::camera.getViewProjectionMatrix() * lightCubeRO.modelTransform[i];
+            //lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i, false);
+        }
+
+        // #5, element 4, de draaiende lightcube
+        lightCubeRO.modelTransform[4] = Global::calculateModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+        uberSSBOCache.MVPMatrix[4] = Global::camera.getViewProjectionMatrix() * lightCubeRO.modelTransform[4];
+        //lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4, false);
+
+        lightCubeRO.ssbo[0]->updateFully(uberSSBOCache, true);
+
+        lightCubeRO.ssbo[1]->updateSubset(glm::vec4(SpotLight::spotLights[1].getColor(), 1.0f), 4, false);
+        lightCubeRO.ssbo[1]->uploadFully();
+
         /////////////////////////////////////////////////////////////////////////////////////
         // Start Render /////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        renderer.clearStencilBuffer();
+        //renderer.clearStencilBuffer();
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass dirLight ////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
             
-        loadTime = static_cast<float>(glfwGetTime());
+        //loadTime = static_cast<float>(glfwGetTime());
 
-        renderer.setRenderPassActive(renderPassType::depthMapDirLight);
+        //renderer.setRenderPassActive(renderPassType::depthMapDirLight);
 
-        depthMapDirLightFBO.startDepthMap(renderer.getShaderDepthMapDirLight());
+        //depthMapDirLightFBO.startDepthMap(renderer.getShaderDepthMapDirLight());
 
-        renderer.draw(cubeRO);
-        renderer.draw(floorRO);
-        renderer.drawModel(modelRO, backpackModel);
+        //renderer.draw(cubeRO);
+        //renderer.draw(floorRO);
+        //renderer.drawModel(modelRO, backpackModel);
 
-        depthMapDirLightFBO.stopDepthMap();
+        //depthMapDirLightFBO.stopDepthMap();
         //std::println("End ShadowPass dirLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
             
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass flashLight //////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        if (SpotLight::spotLights[0].getOn()) {
-            loadTime = static_cast<float>(glfwGetTime());
+        //if (SpotLight::spotLights[0].getOn()) {
+        //    loadTime = static_cast<float>(glfwGetTime());
 
-            renderer.setRenderPassActive(renderPassType::depthMapFlashLight);
+        //    renderer.setRenderPassActive(renderPassType::depthMapFlashLight);
 
-            depthMapSpotLight0FBO.startDepthMap(renderer.getShaderDepthMapFlashLight());
+        //    depthMapSpotLight0FBO.startDepthMap(renderer.getShaderDepthMapFlashLight());
 
-            renderer.draw(cubeRO);
-            renderer.draw(floorRO);
-            renderer.drawModel(modelRO, backpackModel);
+        //    renderer.draw(cubeRO);
+        //    renderer.draw(floorRO);
+        //    renderer.drawModel(modelRO, backpackModel);
 
-            depthMapSpotLight0FBO.stopDepthMap();
-            //std::println("End ShadowPass flashLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
-        }
+        //    depthMapSpotLight0FBO.stopDepthMap();
+        //    //std::println("End ShadowPass flashLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
+        //}
 
         /////////////////////////////////////////////////////////////////////////////////////
         // Start ShadowPass spotLight ///////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        loadTime = static_cast<float>(glfwGetTime());
+        //loadTime = static_cast<float>(glfwGetTime());
 
-        renderer.setRenderPassActive(renderPassType::depthMapSpotLight);
+        //renderer.setRenderPassActive(renderPassType::depthMapSpotLight);
 
-        depthMapSpotLight1FBO.startDepthMap(renderer.getShaderDepthMapSpotLight());
+        //depthMapSpotLight1FBO.startDepthMap(renderer.getShaderDepthMapSpotLight());
 
-        renderer.draw(cubeRO);
-        renderer.draw(floorRO);
-        renderer.drawModel(modelRO, backpackModel);
+        //renderer.draw(cubeRO);
+        //renderer.draw(floorRO);
+        //renderer.drawModel(modelRO, backpackModel);
 
-        depthMapSpotLight1FBO.stopDepthMap();
+        //depthMapSpotLight1FBO.stopDepthMap();
         //std::println("End ShadowPass spotLight time: {}ms", (static_cast<float>(glfwGetTime()) - loadTime) * 1000);
 
         /////////////////////////////////////////////////////////////////////////////////////
@@ -612,46 +641,36 @@ int main()
         // Start Render scene normal ////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
-        loadTime = static_cast<float>(glfwGetTime());
+        //loadTime = static_cast<float>(glfwGetTime());
 
-        renderer.setRenderPassActive(renderPassType::normal);
+        //renderer.setRenderPassActive(renderPassType::normal);
 
-        glViewport(0, 0, Global::windowWidth, Global::windowHeight);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //glViewport(0, 0, Global::windowWidth, Global::windowHeight);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        renderer.draw(cubeRO);  
-        renderer.drawWithStencil(floorRO);
-        renderer.drawModel(modelRO, backpackModel);
+        //renderer.draw(cubeRO); 
+        //Global::drawOutline ? renderer.drawWithStencil(floorRO) : renderer.draw(floorRO);       
+        //renderer.drawModel(modelRO, backpackModel);
 
-        // XYZ
-        //renderer.drawXYZ(MVPMatrixSSBO); // Non-DSA
+        //// XYZ
+        ////renderer.drawXYZ(MVPMatrixSSBO); // Non-DSA
 
-        // LightCube
-        // pointlights - 4 vaste LightCubes
-        for (auto i = 0; i < getPointLightCount(); i++) {
-            assert(getPointLightCount() <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
-            lightCubeRO.model[i] = Global::calculateModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-            uberSSBOCache.MVPMatrix[i] = Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i];
-            //lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i, false);
-        }
+        //renderer.drawSingleColor(lightCubeRO);
 
-        // #5, element 4, de draaiende lightcube
-        lightCubeRO.model[4] = Global::calculateModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-        uberSSBOCache.MVPMatrix[4] = Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4];
-        //lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4, false);
 
-        lightCubeRO.ssbo[0]->updateFully(uberSSBOCache, true);
 
-        lightCubeRO.ssbo[1]->updateSubset(glm::vec4(SpotLight::spotLights[1].getColor(), 1.0f), 4, false);
-        lightCubeRO.ssbo[1]->uploadFully();
+        renderer.goRender();
 
-        renderer.drawSingleColor(lightCubeRO);
 
         // Skybox
         renderer.drawSkybox(cubeMesh);
 
         // Floor Outline
         renderer.drawOutline(floorRO);
+
+        ////////////////////////////////
+
+
 
         // Draw frustum - toggle with K
         if (Global::frustumVisible) {

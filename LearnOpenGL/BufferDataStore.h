@@ -102,7 +102,7 @@ private:
 
 	// Uploads all elements of the buffer until the specified ElementIndex to the GPU (untilElement itself is not included in the upload)
 	// Defaults to upload element 0
-	// If you want to upload a specific Subset, maybe use updateSubset() with upload = true?
+	// If you want to upload a specific Subset, you could use updateSubset() with upload = true
 	void uploadUntilSubset(int untilElementIndex = 1) {
 		assert((untilElementIndex - 1) <= static_cast<GLintptr>(m_data.size()) - 1 && "ElementIndex out of range");
 		

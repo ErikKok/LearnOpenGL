@@ -28,11 +28,14 @@ TO DO
 - try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
 - samplers and other opaque shader types can be given explicit binding points https://juandiegomontoya.github.io/modern_opengl.html#sampler%20objects
 - asset manager - unique ptr owns the object, returns a raw * if needed
-- huidige mesh class inheriten, base kan iets kleiner?
 - font rendering
 - TODO's nalopen
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
 - obj van cube en hexagon fixen
+
+v0.2.77 25-6-2024
+-----------------
+- first time goRender! working
 
 v0.2.76 22-6-2024
 -----------------

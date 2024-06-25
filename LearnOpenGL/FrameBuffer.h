@@ -29,6 +29,8 @@ public:
 	~FrameBuffer();													// Destructor
 	
 	const unsigned int getId() const { return m_id; };
+	const framebufferType getType() const { return m_type; };
+	const Texture* getTexture() const { return m_texture.get(); };
 	const bool getOrthographic() const { return m_orthographic; };
 	void setOrthographic(bool x) { m_orthographic = x; };
 

@@ -39,7 +39,7 @@ public:
 		, material{ material }
 		, instances{ instances } // used to resize model array and BufferDataStore m_data in ShaderStorageBuffer
 	{
-		model.resize(instances);
+		modelTransform.resize(instances);
 	}
 
 	void addSSBO(int bindingPoint, GLsizeiptr elementSize) {
@@ -48,9 +48,11 @@ public:
 
 	Mesh* mesh{ nullptr }; // TODO should it own it's mesh?
 	Material* material{ nullptr }; // TODO make unique_ptr van maken? // TODO should it own it's material?
-	std::vector<glm::mat4> model{}; // transforms
+	Model* model{ nullptr };
+	std::vector<glm::mat4> modelTransform{}; // transforms
 	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // Each RenderObject owns it's unique SSBOs (on the heap), this way you can upload them just once per renderpass (raw pointers (on the stack) are max 1% faster)
 	int instances{ 1 };
+	bool drawShadow{ true };
 	// renderType type; (transparant, singleColor, isModel, etc.;
 	// bool isSelected; true = de outline renderen
 	// bool castShadow;
@@ -86,7 +88,7 @@ public:
 	void createShaderDebugQuad(std::string string) { m_shaderDebugQuad = std::make_unique<Shader>(string); };
 
 	void isRendererComplete() { assert(m_shaderDepthMapDirLight != nullptr || m_shaderDepthMapSpotLight != nullptr || m_shaderDepthMapFlashLight != nullptr || m_shaderSingleColor != nullptr || m_shaderSkybox != nullptr || m_shaderFrustum != nullptr || m_shaderDebugQuad != nullptr); };
-	void clear() const;
+	void clear() const; //  color and depth
 
 	// TODO store the vao/ebo's/meshes/RO's etc in a list/batch/whatever, order them, then batch render them
 	// void draw(RenderBatch);
@@ -99,8 +101,99 @@ public:
 
 	void initStencilBuffer();
 	void clearStencilBuffer();
+	void clearDepthBuffer() { glClear(GL_DEPTH_BUFFER_BIT);	}
 	void drawWithStencil(const RenderObject& RO);
 	void drawOutline(RenderObject& RO);
+
+	void setViewPort(FrameBuffer* FBO) {
+		glViewport(0, 0, FBO->getTexture()->getWidth(), FBO->getTexture()->getHeight());
+	}
+
+	std::vector<RenderObject*> m_renderVector{}; // TODO uPtr?
+
+	void goRender() {
+		clearStencilBuffer();
+
+		glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way // TODO to renderer
+
+		m_renderPassActive = renderPassType::depthMapDirLight;
+		assert(m_FBODirLight && "FBO is nullptr");
+		assert(m_FBODirLight->getType() == framebufferType::depthMap && "Wrong framebufferType");
+
+		m_FBODirLight->bind();
+		setViewPort(m_FBODirLight.get());
+		clearDepthBuffer();
+		m_shaderDepthMapDirLight->useShader();
+
+		for (const auto& RO : m_renderVector) {
+			//if (RO.drawShadow && RO.model)
+			//	drawModel(RO, &RO.model);
+			if (RO->drawShadow)
+				draw(*RO);
+		}
+
+		m_FBODirLight->unbind();
+
+		m_renderPassActive = renderPassType::depthMapFlashLight;
+		assert(m_FBOFlashLight && "FBO is nullptr");
+		assert(m_FBOFlashLight->getType() == framebufferType::depthMap && "Wrong framebufferType");
+
+		if (SpotLight::spotLights[0].getOn()) {
+			m_FBOFlashLight->bind();
+			setViewPort(m_FBOFlashLight.get());
+			clearDepthBuffer();
+			m_shaderDepthMapFlashLight->useShader();
+
+			for (const auto& RO : m_renderVector) {
+				if (RO->drawShadow)
+					draw(*RO);
+			}
+
+			m_FBOFlashLight->unbind();
+		}
+
+		m_renderPassActive = renderPassType::depthMapSpotLight;
+		assert(m_FBOSpotLight && "FBO is nullptr");
+		assert(m_FBOSpotLight->getType() == framebufferType::depthMap && "Wrong framebufferType");
+
+
+		
+		m_FBOSpotLight->bind();
+		setViewPort(m_FBOSpotLight.get());
+		clearDepthBuffer();
+		m_shaderDepthMapSpotLight->useShader();
+
+		for (const auto& RO : m_renderVector) {
+			if (RO->drawShadow)
+				draw(*RO);
+		}
+
+
+		m_FBOSpotLight->unbind();
+
+
+		glCullFace(GL_BACK);
+
+		m_renderPassActive = renderPassType::normal;
+
+		glViewport(0, 0, Global::windowWidth, Global::windowHeight);
+		clear();
+
+		
+
+		for (const auto& RO : m_renderVector) {
+			if (!RO->material) // == nullptr
+				drawSingleColor(*RO);
+			else if (Global::drawOutline)
+				drawWithStencil(*RO);
+			else
+				draw(*RO);
+		}
+	}
+
+	std::unique_ptr<FrameBuffer> m_FBODirLight{ nullptr };
+	std::unique_ptr<FrameBuffer> m_FBOSpotLight{ nullptr };
+	std::unique_ptr<FrameBuffer> m_FBOFlashLight{ nullptr };
 
 	// OLD
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    
@@ -111,9 +204,12 @@ public:
 private:
 	renderPassType m_renderPassActive{ renderPassType::undefined };
 
-	std::unique_ptr<Shader> m_shaderDepthMapDirLight{ nullptr }; 
+	std::unique_ptr<Shader> m_shaderDepthMapDirLight{ nullptr };
+
 	std::unique_ptr<Shader> m_shaderDepthMapSpotLight{ nullptr };
+
 	std::unique_ptr<Shader> m_shaderDepthMapFlashLight{ nullptr };
+
 	std::unique_ptr<Shader> m_shaderSingleColor{ nullptr };
 	std::unique_ptr<Shader> m_shaderSkybox{ nullptr };
 	std::unique_ptr<Shader> m_shaderFrustum{ nullptr };
@@ -130,19 +226,23 @@ private:
 	//glEnable(GL_FRAMEBUFFER_SRGB);
 };
 
+//https://youtu.be/akxevYYWd9g?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT
 //renderCommand
 //- clear
 //- enzo
 //
 //beginScene(lights, camera);  environment stuff
+// sene bevat alles voor de scene, dat veranderd niet zo vaak, pas als je verder beweegt bijv.
+// scene kan voor nu fixed zijn
 //
 //submit(); Geometry, meshes, transforms
 //
-//- queue in RenderCommand
-//
+//- al deze submits komen in een queue
+// als alles is gesubmit, dan:
 //endScene();
 //
 //renderCommand
-//- order meshes
+// nu alles voor de scene bekend is, gaan we alles orderen
+//- order meshes, etc
 //
 //- draw everthing
