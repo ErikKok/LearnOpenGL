@@ -27,20 +27,20 @@ void Renderer::draw(const RenderObject& RO) const
 		break;
 	case renderPassType::depthMapDirLight:
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-			if (RO.ssbo[i]->getType() == ssboTypes::dirLightMVPMatrixSSBO)
-				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
+			if (RO.ssbo[i]->getType() == SSBO::dirLightMVP)
+				RO.ssbo[i]->bindOverrideBindingPoint(+SSBO::genericDepthMap);
 		}
 		break;
 	case renderPassType::depthMapSpotLight0:
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-			if (RO.ssbo[i]->getType() == ssboTypes::flashLightMVPMatrixSSBO)
-				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
+			if (RO.ssbo[i]->getType() == SSBO::spotLight0MVP)
+				RO.ssbo[i]->bindOverrideBindingPoint(+SSBO::genericDepthMap);
 		}
 		break;
 	case renderPassType::depthMapSpotLight1:
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-			if (RO.ssbo[i]->getType() == ssboTypes::spotLightMVPMatrixSSBO)
-				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
+			if (RO.ssbo[i]->getType() == SSBO::spotLight1MVP)
+				RO.ssbo[i]->bindOverrideBindingPoint(+SSBO::genericDepthMap);
 		}
 		break;
 	case renderPassType::normal:
@@ -98,20 +98,20 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		break;
 	case renderPassType::depthMapDirLight:
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-			if (RO.ssbo[i]->getType() == ssboTypes::dirLightMVPMatrixSSBO)
-				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
+			if (RO.ssbo[i]->getType() == SSBO::dirLightMVP)
+				RO.ssbo[i]->bindOverrideBindingPoint(+SSBO::genericDepthMap);
 		}
 		break;
 	case renderPassType::depthMapSpotLight0:
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-			if (RO.ssbo[i]->getType() == ssboTypes::flashLightMVPMatrixSSBO)
-				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
+			if (RO.ssbo[i]->getType() == SSBO::spotLight0MVP)
+				RO.ssbo[i]->bindOverrideBindingPoint(+SSBO::genericDepthMap);
 		}
 		break;
 	case renderPassType::depthMapSpotLight1:
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-			if (RO.ssbo[i]->getType() == ssboTypes::spotLightMVPMatrixSSBO)
-				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
+			if (RO.ssbo[i]->getType() == SSBO::spotLight1MVP)
+				RO.ssbo[i]->bindOverrideBindingPoint(+SSBO::genericDepthMap);
 		}
 		break;
 	case renderPassType::normal:
@@ -201,7 +201,7 @@ void Renderer::drawSingleColor(const RenderObject& RO) const
 	//RO.ssbo[0]->bind(); // uberSSBO
 	// SSBO TODO clean up
 	for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-		if (RO.ssbo[i]->getBindingPoint() == singleColorBP || RO.ssbo[i]->getBindingPoint() == MVPMatrixBP)
+		if (RO.ssbo[i]->getType() == SSBO::singleColor || RO.ssbo[i]->getType() == SSBO::MVP)
 			RO.ssbo[i]->bind();
 	}
 
@@ -302,9 +302,9 @@ void Renderer::goRenderOutline() {
 		for (auto& RO : m_renderVector) {
 			if (RO->drawOutline) {
 				for (auto i = 0; i < std::ssize(RO->ssbo); i++) {
-					if (RO->ssbo[i]->getBindingPoint() == MVPMatrixBP) // TODO use type?
+					if (RO->ssbo[i]->getType() == SSBO::MVP)
 						RO->ssbo[i]->updateFully(Global::camera.getViewProjectionMatrix() * glm::scale(RO->transform[0], glm::vec3(1.05f, 1.05f, 0.0f)), true);
-					if (RO->ssbo[i]->getBindingPoint() == singleColorBP)
+					if (RO->ssbo[i]->getType() == SSBO::singleColor)
 						RO->ssbo[i]->updateFully(color, true);
 				}
 				drawSingleColor(*RO);

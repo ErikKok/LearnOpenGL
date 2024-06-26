@@ -19,38 +19,23 @@ out VS_OUT { // PASS_THROUGH_GS
     vec3 spotLightDirectionTangent[2];
 } vs_out;
 
-layout(binding = 2, std430) readonly buffer NormalMatrixSSBO {
-    mat4 normalMatrix[];
-};
+layout(binding = 0, std430) readonly buffer dirLightMVPSSBO {
+    mat4 dirLightMVP[]; };
 
-layout(binding = 3, std430) readonly buffer ModelViewMatrixSSBO {
-    mat4 modelViewMatrix[];
-};
+layout(binding = 1, std430) readonly buffer spotLight0MVPSSBO {
+    mat4 spotLight0MVP[]; };
 
-layout(binding = 4, std430) readonly buffer MVPMatrixSSBO {
-    mat4 MVPMatrix[];
-};
+layout(binding = 2, std430) readonly buffer spotLight1MVPSSBO {
+    mat4 spotLight1MVP[]; };
 
-layout(binding = 5, std430) readonly buffer dirLightMVPMatrixSSBO {
-    mat4 dirLightMVPMatrix[];
-};
+layout(binding = 3, std430) readonly buffer normalMatrixSSBO {
+    mat4 normalMatrix[]; };
 
-layout(binding = 6, std430) readonly buffer spotLightMVPMatrixSSBO {
-    mat4 spotLightMVPMatrix[];
-};
+layout(binding = 4, std430) readonly buffer ModelViewMatrixSSBO {
+    mat4 modelViewMatrix[]; };
 
-layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
-    mat4 flashLightMVPMatrix[];
-};
-
-//layout(binding = 24, std430) readonly buffer uberSSBO {
-//    mat4 dirLightMVPMatrix[10];
-//    mat4 flashLightMVPMatrix[10];
-//    mat4 spotLightMVPMatrix[10];
-//    mat4 normalMatrix[10];
-//    mat4 modelViewMatrix[10];
-//    mat4 MVPMatrix[10];
-//};
+layout(binding = 5, std430) readonly buffer MVPMatrixSSBO {
+    mat4 MVP[]; };
 
 uniform vec3 dirLightDirection;      // View Space // normalized
 uniform vec3 pointLightPosition[4];  // View Space // NOT normalized
@@ -71,20 +56,20 @@ void main()
     vs_out.TexCoords = aTexCoords;
     vs_out.FragPosTangent = TBN * vec3(modelViewMatrix[gl_InstanceID] * vec4(aPos, 1.0f));
     // dirLight
-    vs_out.dirLightShadowCoord = dirLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
+    vs_out.dirLightShadowCoord = dirLightMVP[gl_InstanceID] * vec4(aPos, 1.0f);
     vs_out.dirLightDirectionTangent = TBN * dirLightDirection;
     // pointLight
     for (int i = 0; i < vs_out.pointLightPositionTangent.length(); i++)
         vs_out.pointLightPositionTangent[i] = TBN * pointLightPosition[i];
     // spotLight
-    vs_out.spotLightShadowCoord[0] = flashLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
-    vs_out.spotLightShadowCoord[1] = spotLightMVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f);
+    vs_out.spotLightShadowCoord[0] = spotLight0MVP[gl_InstanceID] * vec4(aPos, 1.0f);
+    vs_out.spotLightShadowCoord[1] = spotLight1MVP[gl_InstanceID] * vec4(aPos, 1.0f);
     for (int i = 0; i < vs_out.spotLightPositionTangent.length(); i++) {
         vs_out.spotLightPositionTangent[i] = TBN * spotLightPosition[i];
         vs_out.spotLightDirectionTangent[i] = TBN * spotLightDirection[i];
     }
 
-    gl_Position = MVPMatrix[gl_InstanceID] * vec4(aPos, 1.0f); // clip space
+    gl_Position = MVP[gl_InstanceID] * vec4(aPos, 1.0f); // clip space
 }
 
 #shader fragment

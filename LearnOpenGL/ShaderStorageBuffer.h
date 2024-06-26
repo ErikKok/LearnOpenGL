@@ -11,32 +11,44 @@
 
 //There can only be one array of variable size per SSBO and it has to be the bottommost variable in the block definition.
 
-enum ssboTypes { // is dit wel nodig?
-	dirLightMVPMatrixSSBO = 0,
-	flashLightMVPMatrixSSBO = 1,
-	spotLightMVPMatrixSSBO = 2,
-	normalMatrixSSBO = 3,
-	modelViewMatrixSSBO = 4,
-	MVPMatrixSSBO = 5,
-	undefinedSSBO = 6,
+// This magic enum can be used as element-index, as type and/or as binding point
+// If used as binding point, you must use it as type as well
+enum class SSBO : GLuint {\
+	dirLightMVP = 0,
+	spotLight0MVP = 1,
+	spotLight1MVP = 2,
+	normalMatrix = 3,
+	modelViewMatrix = 4,
+	MVP = 5,
+
+	genericDepthMap = 8,
+	singleColor = 20,
+
+	undefined = 99,
 };
 
-enum ssboBindingPoints {
-	normalMatrixBP = 2,
-	modelViewMatrixBP = 3,
-	MVPMatrixBP = 4,
-	dirLightMVPMatrixBP = 5,
-	spotLightMVPMatrixBP = 6,
-	flashLightMVPMatrixBP = 7,
-	depthMapBP = 8,
-	singleColorBP = 20,
-	uberBP = 24,
-	//lightMVPMatrixBP = 32,
-};
+// Overload the unary + operator to convert SSBO to the underlying type
+constexpr auto operator+(SSBO x) noexcept
+{
+	return std::to_underlying(x);
+}
+
+//enum ssboBindingPoints {
+//	dirLightMVPMatrixBP = 0,
+//	spotLight0MVPMatrixBP = 1,
+//	spotLight1MVPMatrixBP = 2,
+//	normalMatrixBP = 3,
+//	modelViewMatrixBP = 4,
+//	MVPMatrixBP = 5,
+//
+//	genericDepthMapBP = 8,
+//	singleColorBP = 20,
+//	undefinedSSBO = 99,
+//};
 
 class ShaderStorageBuffer {
 public:
-	ShaderStorageBuffer(GLuint bindingPoint, int elementCount, GLsizeiptr elementSize, ssboTypes type = ssboTypes::undefinedSSBO);
+	ShaderStorageBuffer(GLuint bindingPoint, int elementCount, GLsizeiptr elementSize, SSBO type = SSBO::undefined);
 	ShaderStorageBuffer(const ShaderStorageBuffer& other) = delete;					// Copy constructor
 	ShaderStorageBuffer& operator=(const ShaderStorageBuffer& other) = delete;		// Copy assignment
 	ShaderStorageBuffer(ShaderStorageBuffer&& other) noexcept = delete; 			// Move constructor	
@@ -44,9 +56,9 @@ public:
 	~ShaderStorageBuffer();															// Destructor
 
 	const GLuint getId() const { return m_id; };
-	const ssboTypes getType() const { return m_ssboType; };
-	void setType(ssboTypes type) { m_ssboType = type; };
-	const int getBindingPoint() const { return m_bindingPoint; };
+	const SSBO getType() const { return m_ssboType; };
+	//void setType(SSBO type) { m_ssboType = type; };
+	//const GLuint getBindingPoint() const { return m_bindingPoint; };
 
 	void bind() const;
 	void bindOverrideBindingPoint(GLuint BP) const;
@@ -60,7 +72,7 @@ public:
 
 private:
 	GLuint m_id{};
-	ssboTypes m_ssboType{ ssboTypes::undefinedSSBO };
+	SSBO m_ssboType{ SSBO::undefined };
 	GLuint m_bindingPoint{};
 	BufferDataStore m_BufferDataStore;
 };

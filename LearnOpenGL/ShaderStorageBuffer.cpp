@@ -4,11 +4,13 @@
 
 #include <print>
 
-ShaderStorageBuffer::ShaderStorageBuffer(GLuint bindingPoint, int elementCount, GLsizeiptr elementSize, ssboTypes type)
+ShaderStorageBuffer::ShaderStorageBuffer(GLuint bindingPoint, int elementCount, GLsizeiptr elementSize, SSBO type)
 	: m_ssboType { type }
 	, m_bindingPoint{ bindingPoint }
 	, m_BufferDataStore{ elementCount, elementSize }
 {
+	assert(type == SSBO::undefined || m_bindingPoint == std::to_underlying(type) && "BindingPoint and type are not equal");
+
 	glCreateBuffers(1, &m_id);
 	m_BufferDataStore.setBufferId(m_id);
 	m_BufferDataStore.createImmutableDataStore();

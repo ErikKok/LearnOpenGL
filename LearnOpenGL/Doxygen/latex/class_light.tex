@@ -1,0 +1,85 @@
+\doxysection{Light Class Reference}
+\hypertarget{class_light}{}\label{class_light}\index{Light@{Light}}
+
+
+Inheritance diagram for Light\+:
+% FIG 0
+
+
+Collaboration diagram for Light\+:
+% FIG 1
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_light_a1fd25fe6b694670ab4f833a2640aee53}\label{class_light_a1fd25fe6b694670ab4f833a2640aee53} 
+const bool {\bfseries get\+On} () const
+\item 
+\Hypertarget{class_light_a11fb96723068364f43739c983b6af805}\label{class_light_a11fb96723068364f43739c983b6af805} 
+void {\bfseries set\+On} (bool x)
+\item 
+\Hypertarget{class_light_a8e6fc8e569d9260f64c90cfb51ca7b45}\label{class_light_a8e6fc8e569d9260f64c90cfb51ca7b45} 
+const glm\+::vec3 {\bfseries get\+Position} () const
+\item 
+\Hypertarget{class_light_a8c60ff0cda275693348e04bd480d44ef}\label{class_light_a8c60ff0cda275693348e04bd480d44ef} 
+void {\bfseries set\+Position} (glm\+::vec3 x)
+\item 
+\Hypertarget{class_light_a70c549c39c314c418861e12665b08645}\label{class_light_a70c549c39c314c418861e12665b08645} 
+const glm\+::vec3 {\bfseries get\+Direction} () const
+\item 
+\Hypertarget{class_light_a806fe9f466f75fffd0572fcc992e22fd}\label{class_light_a806fe9f466f75fffd0572fcc992e22fd} 
+void {\bfseries set\+Direction} (glm\+::vec3 x)
+\item 
+\Hypertarget{class_light_a26e2d65d88ae2d55c8c3e8ef7b8a6e83}\label{class_light_a26e2d65d88ae2d55c8c3e8ef7b8a6e83} 
+const glm\+::vec3 {\bfseries get\+Color} () const
+\item 
+\Hypertarget{class_light_afd490e6f9708b37be25bf2d48498713a}\label{class_light_afd490e6f9708b37be25bf2d48498713a} 
+void {\bfseries set\+Color} (glm\+::vec3 x)
+\item 
+\Hypertarget{class_light_a55b83adc5c11c3b5d0ea2ef29a182f2a}\label{class_light_a55b83adc5c11c3b5d0ea2ef29a182f2a} 
+const float {\bfseries get\+Strength} () const
+\item 
+\Hypertarget{class_light_a46823150be3e66b760d8be438d897b24}\label{class_light_a46823150be3e66b760d8be438d897b24} 
+void {\bfseries set\+Strength} (float x)
+\item 
+\Hypertarget{class_light_af2767f771a199626f881493a44db00dc}\label{class_light_af2767f771a199626f881493a44db00dc} 
+const int {\bfseries get\+Depth\+Map} () const
+\item 
+\Hypertarget{class_light_a7fe58c29307b9f9f2f83491a5fd328ff}\label{class_light_a7fe58c29307b9f9f2f83491a5fd328ff} 
+void {\bfseries set\+Depth\+Map} (int x)
+\item 
+\Hypertarget{class_light_ad45a418d4a478bc42ee47eea07c39100}\label{class_light_ad45a418d4a478bc42ee47eea07c39100} 
+\mbox{\hyperlink{class_camera}{Camera}} \texorpdfstring{$\ast$}{*} {\bfseries get\+Camera} () const
+\item 
+\Hypertarget{class_light_ab7f270b937ce08f698ebc4248ab8712e}\label{class_light_ab7f270b937ce08f698ebc4248ab8712e} 
+void {\bfseries set\+Camera} (\mbox{\hyperlink{class_camera}{Camera}} \texorpdfstring{$\ast$}{*}x)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_light_a604e6bd8be6621e2d29d99a79127e7e7}\label{class_light_a604e6bd8be6621e2d29d99a79127e7e7} 
+bool {\bfseries m\+\_\+on} \{ true \}
+\item 
+\Hypertarget{class_light_a526b1103fa068079b8477a3cb0461d5b}\label{class_light_a526b1103fa068079b8477a3cb0461d5b} 
+glm\+::vec3 {\bfseries m\+\_\+position} \{\}
+\item 
+\Hypertarget{class_light_a4c78efa60b482408ae381541f0634e8e}\label{class_light_a4c78efa60b482408ae381541f0634e8e} 
+glm\+::vec3 {\bfseries m\+\_\+direction} \{\}
+\item 
+\Hypertarget{class_light_ae1e458802424a95b629cc1947ef2bcac}\label{class_light_ae1e458802424a95b629cc1947ef2bcac} 
+glm\+::vec3 {\bfseries m\+\_\+color} \{ 1.\+0f, 1.\+0f, 1.\+0f \}
+\item 
+\Hypertarget{class_light_a503bef2d13a58337337015ba9934d733}\label{class_light_a503bef2d13a58337337015ba9934d733} 
+float {\bfseries m\+\_\+strength} \{ 1.\+0f \}
+\item 
+\Hypertarget{class_light_ad6a9a07ae339c4fad8bde0c4aacbefc8}\label{class_light_ad6a9a07ae339c4fad8bde0c4aacbefc8} 
+int {\bfseries m\+\_\+depth\+Map} \{\}
+\item 
+\Hypertarget{class_light_a3227d22b73eb7b0f8c4af71ff5596a9d}\label{class_light_a3227d22b73eb7b0f8c4af71ff5596a9d} 
+\mbox{\hyperlink{class_camera}{Camera}} \texorpdfstring{$\ast$}{*} {\bfseries m\+\_\+camera} \{ nullptr \}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Learn\+Open\+GL/Light.\+h\item 
+Learn\+Open\+GL/Light.\+cpp\end{DoxyCompactItemize}

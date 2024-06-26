@@ -1,0 +1,54 @@
+\doxysection{Mesh.\+h}
+\hypertarget{_mesh_8h_source}{}\label{_mesh_8h_source}\index{LearnOpenGL/Mesh.h@{LearnOpenGL/Mesh.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}Buffers.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}Global.h"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}Texture.h"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}VertexArray.h"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <memory>}\ \textcolor{comment}{//\ for\ std::unique\_ptr\ and\ std::make\_unique}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <print>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{comment}{//\#define\ MAX\_BONE\_INFLUENCE\ 4}}
+\DoxyCodeLine{00013\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{struct_vertex}{Vertex}}\ \{}
+\DoxyCodeLine{00014\ \ \ \ \ glm::vec3\ position;}
+\DoxyCodeLine{00015\ \ \ \ \ glm::vec2\ texCoords;}
+\DoxyCodeLine{00016\ \ \ \ \ glm::vec3\ normal;}
+\DoxyCodeLine{00017\ \ \ \ \ glm::vec3\ tangent;}
+\DoxyCodeLine{00018\ \ \ \ \ glm::vec3\ bitangent;}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//int\ m\_BoneIDs[MAX\_BONE\_INFLUENCE];\ //\ bone\ indexes\ which\ will\ influence\ this\ vertex}}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//float\ m\_Weights[MAX\_BONE\_INFLUENCE];\ //\ weights\ from\ each\ bone}}
+\DoxyCodeLine{00021\ \};}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_mesh}{Mesh}}\ \{}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_renderer}{Renderer}};}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00027\ \ \ \ \ \mbox{\hyperlink{class_mesh}{Mesh}}(\textcolor{keyword}{const}\ std::vector<float>\&\ vertices,\ \textcolor{keyword}{const}\ std::vector<unsigned\ int>\&\ indices);}
+\DoxyCodeLine{00028\ \ \ \ \ \mbox{\hyperlink{class_mesh}{Mesh}}(\textcolor{keyword}{const}\ std::vector<Vertex>\&\ vertices,\ \textcolor{keyword}{const}\ std::vector<unsigned\ int>\&\ indices,\ \textcolor{keyword}{const}\ std::vector<SPtr<Texture>>\&\ textures);\ \textcolor{comment}{//\ Constructor}}
+\DoxyCodeLine{00029\ \ \ \ \ \mbox{\hyperlink{class_mesh}{Mesh}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_mesh}{Mesh}}\&\ other)\ =\ \textcolor{keyword}{delete};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Copy\ constructor}}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{class_mesh}{Mesh}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{class_mesh}{Mesh}}\&\ other)\ =\ \textcolor{keyword}{delete};\ \ \ \ \ \ \ \ \textcolor{comment}{//\ Copy\ assignment}}
+\DoxyCodeLine{00031\ \ \ \ \ \mbox{\hyperlink{class_mesh}{Mesh}}(\mbox{\hyperlink{class_mesh}{Mesh}}\&\&\ other)\ \textcolor{keyword}{noexcept}\ =\ \textcolor{keywordflow}{default};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Move\ constructor}}
+\DoxyCodeLine{00032\ \ \ \ \ \mbox{\hyperlink{class_mesh}{Mesh}}\&\ operator=(\mbox{\hyperlink{class_mesh}{Mesh}}\&\&\ other)\ \textcolor{keyword}{noexcept}\ =\ \textcolor{keywordflow}{default};\ \ \ \textcolor{comment}{//\ Move\ assignment}}
+\DoxyCodeLine{00033\ \ \ \ \ \mbox{\hyperlink{class_mesh}{\string~Mesh}}()\ =\ \textcolor{keywordflow}{default};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Destructor}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00036\ \ \ \ \ std::vector<Vertex>\ m\_vertices;\ \textcolor{comment}{//\ TODO\ samenvoegen\ met\ die\ eronder\ Template?}}
+\DoxyCodeLine{00037\ \ \ \ \ std::vector<float>\ m\_verticesFloat;}
+\DoxyCodeLine{00038\ \ \ \ \ std::vector<unsigned\ int>\ m\_indices;}
+\DoxyCodeLine{00039\ \ \ \ \ std::vector<SPtr<Texture>>\ m\_textures;}
+\DoxyCodeLine{00040\ \ \ \ \ std::unique\_ptr<VertexArray>\ m\_vao\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00041\ \ \ \ \ std::unique\_ptr<VertexBuffer>\ m\_vbo\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00042\ \ \ \ \ std::unique\_ptr<ElementBuffer>\ m\_ebo\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00043\ \ \ \ \ std::unique\_ptr<VertexAttributeLayout>\ m\_layout\{\ \textcolor{keyword}{nullptr}\ \};}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordtype}{void}\ setupVBO323()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordtype}{void}\ setupVBO3233()\ \textcolor{keyword}{const};\ \textcolor{comment}{//\ +\ Tangent}}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{void}\ setupVBO32333()\ \textcolor{keyword}{const};\ \textcolor{comment}{//\ +\ BiTangent}}
+\DoxyCodeLine{00048\ \};}
+
+\end{DoxyCode}

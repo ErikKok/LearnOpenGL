@@ -142,9 +142,6 @@
     <None Include="Shaders\depthMap.shader" />
     <None Include="Shaders\frustum.shader" />
     <None Include="Shaders\multiLight.shader" />
-    <None Include="Shaders\depthMapDirLight.shader" />
-    <None Include="Shaders\depthMapFlashLight.shader" />
-    <None Include="Shaders\depthMapSpotLight.shader" />
     <None Include="Shaders\multiLightNormalMapping.shader" />
     <None Include="Shaders\visualizeNormals.shader" />
     <None Include="Shaders\singleColor.shader" />

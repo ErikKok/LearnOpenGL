@@ -203,12 +203,12 @@ int main()
     RenderObject cubeRO{ &cubeMesh, &cubeMaterial, std::ssize(Data::cubePositions) };
     renderer.m_renderVector.emplace_back(&cubeRO);
 
-    cubeRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::dirLightMVPMatrixSSBO);
-    cubeRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::flashLightMVPMatrixSSBO);
-    cubeRO.addSSBO(spotLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::spotLightMVPMatrixSSBO);
-    cubeRO.addSSBO(normalMatrixBP, sizeof(glm::mat4));
-    cubeRO.addSSBO(modelViewMatrixBP, sizeof(glm::mat4));
-    cubeRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
+    cubeRO.addSSBO(+SSBO::dirLightMVP, sizeof(glm::mat4), SSBO::dirLightMVP);
+    cubeRO.addSSBO(+SSBO::spotLight0MVP, sizeof(glm::mat4), SSBO::spotLight0MVP);
+    cubeRO.addSSBO(+SSBO::spotLight1MVP, sizeof(glm::mat4), SSBO::spotLight1MVP);
+    cubeRO.addSSBO(+SSBO::normalMatrix, sizeof(glm::mat4));
+    cubeRO.addSSBO(+SSBO::modelViewMatrix, sizeof(glm::mat4));
+    cubeRO.addSSBO(+SSBO::MVP, sizeof(glm::mat4), SSBO::MVP);
 
     /////////////////////////////////////
     ////// Floor ////////////////////////
@@ -235,13 +235,13 @@ int main()
     floorRO.transform[0] = Global::calculateModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
     floorRO.drawOutline = true;
 
-    floorRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::dirLightMVPMatrixSSBO);
-    floorRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::flashLightMVPMatrixSSBO);
-    floorRO.addSSBO(spotLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::spotLightMVPMatrixSSBO);
-    floorRO.addSSBO(normalMatrixBP, sizeof(glm::mat4));
-    floorRO.addSSBO(modelViewMatrixBP, sizeof(glm::mat4));
-    floorRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
-    floorRO.addSSBO(singleColorBP, sizeof(glm::vec4)); // TODO only 1 element needed in this vector
+    floorRO.addSSBO(+SSBO::dirLightMVP, sizeof(glm::mat4), SSBO::dirLightMVP);
+    floorRO.addSSBO(+SSBO::spotLight0MVP, sizeof(glm::mat4), SSBO::spotLight0MVP);
+    floorRO.addSSBO(+SSBO::spotLight1MVP, sizeof(glm::mat4), SSBO::spotLight1MVP);
+    floorRO.addSSBO(+SSBO::normalMatrix, sizeof(glm::mat4));
+    floorRO.addSSBO(+SSBO::modelViewMatrix, sizeof(glm::mat4));
+    floorRO.addSSBO(+SSBO::MVP, sizeof(glm::mat4), SSBO::MVP);
+    floorRO.addSSBO(+SSBO::singleColor, sizeof(glm::vec4), SSBO::singleColor); // TODO only 1 element needed in this vector
     renderer.m_renderVector.emplace_back(&floorRO);
 
     ////////////////////////////////////
@@ -279,20 +279,20 @@ int main()
 
     renderer.m_renderVector.emplace_back(&modelRO);
 
-    modelRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::dirLightMVPMatrixSSBO);
-    modelRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::flashLightMVPMatrixSSBO);
-    modelRO.addSSBO(spotLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::spotLightMVPMatrixSSBO);
-    modelRO.addSSBO(normalMatrixBP, sizeof(glm::mat4));
-    modelRO.addSSBO(modelViewMatrixBP, sizeof(glm::mat4));
-    modelRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
+    modelRO.addSSBO(+SSBO::dirLightMVP, sizeof(glm::mat4), SSBO::dirLightMVP);
+    modelRO.addSSBO(+SSBO::spotLight0MVP, sizeof(glm::mat4), SSBO::spotLight0MVP);
+    modelRO.addSSBO(+SSBO::spotLight1MVP, sizeof(glm::mat4), SSBO::spotLight1MVP);
+    modelRO.addSSBO(+SSBO::normalMatrix, sizeof(glm::mat4));
+    modelRO.addSSBO(+SSBO::modelViewMatrix, sizeof(glm::mat4));
+    modelRO.addSSBO(+SSBO::MVP, sizeof(glm::mat4), SSBO::MVP);
 
     // Lightcubes
     RenderObject lightCubeRO{ &cubeMesh, nullptr, 5 };
 
     lightCubeRO.drawShadow = false;
 
-    lightCubeRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
-    lightCubeRO.addSSBO(singleColorBP, sizeof(glm::vec4));
+    lightCubeRO.addSSBO(+SSBO::MVP, sizeof(glm::mat4), SSBO::MVP);
+    lightCubeRO.addSSBO(+SSBO::singleColor, sizeof(glm::vec4), SSBO::singleColor);
 
     // TODO deze kleur/info moet eigenlijk uit de Light zelf worden gehaald
     const std::vector<glm::vec4> lightCubeColors = {
@@ -431,12 +431,12 @@ int main()
         // Calculate SSBO's, and upload them to their buffers
         for (auto i = 0; i < std::ssize(cubeRO.transform); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.transform[i];
-            cubeRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * cubeRO.transform[i], i, false);
-            cubeRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.transform[i], i, false);
-            cubeRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.transform[i], i, false);
-            cubeRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
-            cubeRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i, false);
-            cubeRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
+            cubeRO.ssbo[+SSBO::dirLightMVP]->updateSubset(cameraDirLight.getViewProjectionMatrix() * cubeRO.transform[i], i, false);
+            cubeRO.ssbo[+SSBO::spotLight0MVP]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.transform[i], i, false);
+            cubeRO.ssbo[+SSBO::spotLight1MVP]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.transform[i], i, false);
+            cubeRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
+            cubeRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(Global::modelViewMatrixTemp, i, false);
+            cubeRO.ssbo[+SSBO::MVP]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
         }
         for (auto i = 0; i < std::ssize(cubeRO.ssbo); i++) {
             cubeRO.ssbo[i]->uploadFully();
@@ -445,12 +445,12 @@ int main()
         // Floor
         for (auto i = 0; i < std::ssize(floorRO.transform); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.transform[i];
-            floorRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * floorRO.transform[i], i, false);
-            floorRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.transform[i], i, false);
-            floorRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.transform[i], i, false);
-            floorRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
-            floorRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i, false);
-            floorRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
+            floorRO.ssbo[+SSBO::dirLightMVP]->updateSubset(cameraDirLight.getViewProjectionMatrix() * floorRO.transform[i], i, false);
+            floorRO.ssbo[+SSBO::spotLight0MVP]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.transform[i], i, false);
+            floorRO.ssbo[+SSBO::spotLight1MVP]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.transform[i], i, false);
+            floorRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
+            floorRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(Global::modelViewMatrixTemp, i, false);
+            floorRO.ssbo[+SSBO::MVP]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
         }
         for (auto i = 0; i < std::ssize(floorRO.ssbo); i++) {
             floorRO.ssbo[i]->uploadFully();
@@ -459,12 +459,12 @@ int main()
         // Model
         for (auto i = 0; i < std::ssize(modelRO.transform); i++) {
             Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.transform[i];
-            modelRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * modelRO.transform[i], i, false);
-            modelRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.transform[i], i, false);
-            modelRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.transform[i], i, false);
-            modelRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
-            modelRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i, false);
-            modelRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
+            modelRO.ssbo[+SSBO::dirLightMVP]->updateSubset(cameraDirLight.getViewProjectionMatrix() * modelRO.transform[i], i, false);
+            modelRO.ssbo[+SSBO::spotLight0MVP]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.transform[i], i, false);
+            modelRO.ssbo[+SSBO::spotLight1MVP]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.transform[i], i, false);
+            modelRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
+            modelRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(Global::modelViewMatrixTemp, i, false);
+            modelRO.ssbo[+SSBO::MVP]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
         }
         for (auto i = 0; i < std::ssize(modelRO.ssbo); i++) {
             modelRO.ssbo[i]->uploadFully();

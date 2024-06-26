@@ -1,0 +1,139 @@
+\doxysection{Orthographic\+Camera Class Reference}
+\hypertarget{class_orthographic_camera}{}\label{class_orthographic_camera}\index{OrthographicCamera@{OrthographicCamera}}
+
+
+Inheritance diagram for Orthographic\+Camera\+:
+% FIG 0
+
+
+Collaboration diagram for Orthographic\+Camera\+:
+% FIG 1
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_orthographic_camera_ae2f7e70e5aa97c64d2d88c48fc8f58ea}\label{class_orthographic_camera_ae2f7e70e5aa97c64d2d88c48fc8f58ea} 
+{\bfseries Orthographic\+Camera} (glm\+::vec3 direction, float left, float right, float bottom, float top)
+\item 
+const void \mbox{\hyperlink{class_orthographic_camera_a74c4e51a87f4b54e52546be9cae28165}{calculate\+View\+Matrix}} () override
+\item 
+void \mbox{\hyperlink{class_orthographic_camera_a457ae57a2e66cf566ef40c9c39848b7f}{calculate\+Projection\+Matrix}} () override
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{class_camera}{Camera}}}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Camera} (float aspect\+Ratio, glm\+::vec3 position=glm\+::vec3(0.\+0f, 0.\+0f, 0.\+0f), glm\+::vec3 front=glm\+::vec3(0.\+0f, 0.\+0f, 0.\+0f), glm\+::vec3 up=glm\+::vec3(0.\+0f, 1.\+0f, 0.\+0f))
+\item 
+glm\+::vec3 {\bfseries get\+Position} ()
+\item 
+void {\bfseries set\+Position} (glm\+::vec3 x)
+\item 
+const glm\+::vec3 {\bfseries get\+Front} () const
+\item 
+void {\bfseries set\+Front} (glm\+::vec3 x)
+\item 
+const glm\+::vec3 {\bfseries get\+Up} () const
+\item 
+const glm\+::vec3 {\bfseries get\+Right} () const
+\item 
+const float {\bfseries get\+Near\+Plane} () const
+\item 
+void {\bfseries set\+Near\+Plane} (float x)
+\item 
+const float {\bfseries get\+Far\+Plane} () const
+\item 
+void {\bfseries set\+Far\+Plane} (float x)
+\item 
+const float {\bfseries get\+Aspect\+Ratio} () const
+\item 
+void {\bfseries set\+Aspect\+Ratio} (float x)
+\item 
+const float {\bfseries get\+Fov} () const
+\item 
+void {\bfseries set\+Fov} (float x)
+\item 
+const glm\+::mat4 {\bfseries get\+View\+Matrix} () const
+\item 
+void {\bfseries set\+View\+Matrix} (const glm\+::mat4 \&mat4)
+\item 
+const glm\+::mat4 {\bfseries get\+View\+Projection\+Matrix} () const
+\item 
+const glm\+::mat4 {\bfseries get\+Projection\+Matrix} () const
+\item 
+void {\bfseries fake\+Gravity} (GLfloat delta\+Time)
+\item 
+void {\bfseries process\+Keyboard} (Camera\+Movement direction)
+\item 
+void {\bfseries process\+Mouse\+Movement} (GLfloat xoffset, GLfloat yoffset, GLboolean constrain\+Pitch=true)
+\item 
+void {\bfseries process\+Mouse\+Scroll} (GLfloat yoffset)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Additional Inherited Members}
+\doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{class_camera}{Camera}}}
+\begin{DoxyCompactItemize}
+\item 
+void {\bfseries update\+Camera\+Vectors} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{class_camera}{Camera}}}
+\begin{DoxyCompactItemize}
+\item 
+glm\+::vec3 {\bfseries m\+\_\+position} \{\}
+\item 
+glm\+::vec3 {\bfseries m\+\_\+front} \{ 0.\+0f, 0.\+0f, 0.\+0f \}
+\item 
+glm\+::vec3 {\bfseries m\+\_\+up} \{ 0.\+0f, 1.\+0f, 0.\+0f \}
+\item 
+glm\+::vec3 {\bfseries m\+\_\+right} \{\}
+\item 
+const glm\+::vec3 {\bfseries m\+\_\+default\+Up} \{ 0.\+0f, 1.\+0f, 0.\+0f \}
+\item 
+GLfloat {\bfseries m\+\_\+near\+Plane} \{ 0.\+1f \}
+\item 
+GLfloat {\bfseries m\+\_\+far\+Plane} \{ 400.\+0f \}
+\item 
+GLfloat {\bfseries m\+\_\+yaw} \{ -\/90.\+0f \}
+\item 
+GLfloat {\bfseries m\+\_\+pitch} \{ 0.\+0f \}
+\item 
+GLfloat {\bfseries m\+\_\+movement\+Speed} \{ 2.\+5f \}
+\item 
+GLfloat {\bfseries m\+\_\+mouse\+Sensitivity} \{ 0.\+035f \}
+\item 
+GLfloat {\bfseries m\+\_\+fov} \{ 45.\+0f \}
+\item 
+float {\bfseries m\+\_\+aspect\+Ratio} \{ 1.\+0f \}
+\item 
+glm\+::mat4 {\bfseries m\+\_\+view\+Matrix} \{\}
+\item 
+glm\+::mat4 {\bfseries m\+\_\+projection\+Matrix} \{\}
+\item 
+glm\+::mat4 {\bfseries m\+\_\+view\+Projection\+Matrix} \{\}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_orthographic_camera_a457ae57a2e66cf566ef40c9c39848b7f}\index{OrthographicCamera@{OrthographicCamera}!calculateProjectionMatrix@{calculateProjectionMatrix}}
+\index{calculateProjectionMatrix@{calculateProjectionMatrix}!OrthographicCamera@{OrthographicCamera}}
+\doxysubsubsection{\texorpdfstring{calculateProjectionMatrix()}{calculateProjectionMatrix()}}
+{\footnotesize\ttfamily \label{class_orthographic_camera_a457ae57a2e66cf566ef40c9c39848b7f} 
+void Orthographic\+Camera\+::calculate\+Projection\+Matrix (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_camera}{Camera}}.
+
+\Hypertarget{class_orthographic_camera_a74c4e51a87f4b54e52546be9cae28165}\index{OrthographicCamera@{OrthographicCamera}!calculateViewMatrix@{calculateViewMatrix}}
+\index{calculateViewMatrix@{calculateViewMatrix}!OrthographicCamera@{OrthographicCamera}}
+\doxysubsubsection{\texorpdfstring{calculateViewMatrix()}{calculateViewMatrix()}}
+{\footnotesize\ttfamily \label{class_orthographic_camera_a74c4e51a87f4b54e52546be9cae28165} 
+const void Orthographic\+Camera\+::calculate\+View\+Matrix (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{class_camera}{Camera}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Learn\+Open\+GL/Camera.\+h\item 
+Learn\+Open\+GL/Camera.\+cpp\end{DoxyCompactItemize}

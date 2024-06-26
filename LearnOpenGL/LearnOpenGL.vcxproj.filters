@@ -151,15 +151,6 @@
     <None Include="Shaders\debugQuad.shader">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="Shaders\depthMapFlashLight.shader">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\depthMapDirLight.shader">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="Shaders\depthMapSpotLight.shader">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="Shaders\frustum.shader">
       <Filter>Shader Files</Filter>
     </None>
@@ -167,8 +158,6 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="README.md" />
-    <None Include="depthMap.shader">
-      <Filter>Shader Files</Filter>
-    </None>
+    <None Include="Shaders\depthMap.shader" />
   </ItemGroup>
 </Project>

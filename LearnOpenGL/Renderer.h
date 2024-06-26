@@ -42,7 +42,7 @@ public:
 		transform.resize(instances);
 	}
 
-	void addSSBO(int bindingPoint, GLsizeiptr elementSize, ssboTypes type = ssboTypes::undefinedSSBO) {
+	void addSSBO(int bindingPoint, GLsizeiptr elementSize, SSBO type = SSBO::undefined) {
 		ssbo.emplace_back(std::make_unique<ShaderStorageBuffer>(bindingPoint, instances, elementSize, type));
 	}
 

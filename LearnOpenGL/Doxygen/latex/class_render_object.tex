@@ -1,0 +1,47 @@
+\doxysection{Render\+Object Class Reference}
+\hypertarget{class_render_object}{}\label{class_render_object}\index{RenderObject@{RenderObject}}
+
+
+Collaboration diagram for Render\+Object\+:
+% FIG 0
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_render_object_af451b244f2ca9362806ebf9ec64c3784}\label{class_render_object_af451b244f2ca9362806ebf9ec64c3784} 
+{\bfseries Render\+Object} (\mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*}mesh=nullptr, \mbox{\hyperlink{struct_material}{Material}} \texorpdfstring{$\ast$}{*}material=nullptr, int instances=1)
+\item 
+\Hypertarget{class_render_object_a1e65cb4f3da6bfdc5a80d9273a95c0ef}\label{class_render_object_a1e65cb4f3da6bfdc5a80d9273a95c0ef} 
+void {\bfseries add\+SSBO} (int binding\+Point, GLsizeiptr element\+Size, ssbo\+Types type=ssbo\+Types\+::undefined\+SSBO)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_render_object_aa27bf8cd7d10da3792647a71cb7802b3}\label{class_render_object_aa27bf8cd7d10da3792647a71cb7802b3} 
+\mbox{\hyperlink{class_mesh}{Mesh}} \texorpdfstring{$\ast$}{*} {\bfseries mesh} \{ nullptr \}
+\item 
+\Hypertarget{class_render_object_a7d32aaebc230f7e77ce1aee472b71503}\label{class_render_object_a7d32aaebc230f7e77ce1aee472b71503} 
+\mbox{\hyperlink{struct_material}{Material}} \texorpdfstring{$\ast$}{*} {\bfseries material} \{ nullptr \}
+\item 
+\Hypertarget{class_render_object_a9223fc67964cd424e6b392e229dda694}\label{class_render_object_a9223fc67964cd424e6b392e229dda694} 
+std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{class_model}{Model}} $>$ {\bfseries model} \{ nullptr \}
+\item 
+\Hypertarget{class_render_object_ab6310ad54ca3d437b4edb34dca2111eb}\label{class_render_object_ab6310ad54ca3d437b4edb34dca2111eb} 
+std\+::vector$<$ glm\+::mat4 $>$ {\bfseries transform} \{\}
+\item 
+\Hypertarget{class_render_object_a163d832e38732267dea2c423224f8c37}\label{class_render_object_a163d832e38732267dea2c423224f8c37} 
+std\+::vector$<$ std\+::unique\+\_\+ptr$<$ \mbox{\hyperlink{class_shader_storage_buffer}{Shader\+Storage\+Buffer}} $>$ $>$ {\bfseries ssbo}
+\item 
+\Hypertarget{class_render_object_affe07d71d63fc910cdebefdb83bb4bf6}\label{class_render_object_affe07d71d63fc910cdebefdb83bb4bf6} 
+int {\bfseries instances} \{ 1 \}
+\item 
+\Hypertarget{class_render_object_a704885e0190da90d3af4c4515e06faa6}\label{class_render_object_a704885e0190da90d3af4c4515e06faa6} 
+bool {\bfseries draw\+Shadow} \{ true \}
+\item 
+\Hypertarget{class_render_object_ae66a75dcfda537c8da11e9e100777311}\label{class_render_object_ae66a75dcfda537c8da11e9e100777311} 
+bool {\bfseries draw\+Outline} \{ false \}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Learn\+Open\+GL/Renderer.\+h\end{DoxyCompactItemize}

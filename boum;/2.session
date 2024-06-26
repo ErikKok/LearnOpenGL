@@ -1,0 +1,8 @@
+window_sizes 2880 1449 720 2153 1212 168
+
+show_stereotypes
+selected class_ref 128642 // OrthographicCamera
+open
+  class_ref 128642 // OrthographicCamera
+end
+end

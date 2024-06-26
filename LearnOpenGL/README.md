@@ -36,6 +36,14 @@ TO DO
 - move Camera into FrameBuffer?
 - make sun static in-Class, and check for getOn in goRender loop
 
+v0.2.81 26-6-2024
+-----------------
+- renamed and reorderd SSBO enums
+- combined the two SSBO enums
+- upgraded enum to enum class
+- added overload unary + operator to convert SSBO to the underlying type
+- commented out setType() and getBindingPoint()
+
 v0.2.80 26-6-2024
 -----------------
 - removed uberSSBO, everything seem to be working
