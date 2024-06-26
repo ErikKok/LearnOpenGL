@@ -18,6 +18,7 @@ enum ssboTypes { // is dit wel nodig?
 	normalMatrixSSBO = 3,
 	modelViewMatrixSSBO = 4,
 	MVPMatrixSSBO = 5,
+	undefinedSSBO = 6,
 };
 
 enum ssboBindingPoints {
@@ -27,14 +28,15 @@ enum ssboBindingPoints {
 	dirLightMVPMatrixBP = 5,
 	spotLightMVPMatrixBP = 6,
 	flashLightMVPMatrixBP = 7,
+	depthMapBP = 8,
 	singleColorBP = 20,
 	uberBP = 24,
-	lightMVPMatrixBP = 32,
+	//lightMVPMatrixBP = 32,
 };
 
 class ShaderStorageBuffer {
 public:
-	ShaderStorageBuffer(GLuint bindingPoint, int elementCount, GLsizeiptr elementSize);
+	ShaderStorageBuffer(GLuint bindingPoint, int elementCount, GLsizeiptr elementSize, ssboTypes type = ssboTypes::undefinedSSBO);
 	ShaderStorageBuffer(const ShaderStorageBuffer& other) = delete;					// Copy constructor
 	ShaderStorageBuffer& operator=(const ShaderStorageBuffer& other) = delete;		// Copy assignment
 	ShaderStorageBuffer(ShaderStorageBuffer&& other) noexcept = delete; 			// Move constructor	
@@ -42,9 +44,12 @@ public:
 	~ShaderStorageBuffer();															// Destructor
 
 	const GLuint getId() const { return m_id; };
+	const ssboTypes getType() const { return m_ssboType; };
+	void setType(ssboTypes type) { m_ssboType = type; };
 	const int getBindingPoint() const { return m_bindingPoint; };
 
 	void bind() const;
+	void bindOverrideBindingPoint(GLuint BP) const;
 	//void unbind() const;
 
 	// Pass-through functions BufferDataStore
@@ -55,6 +60,7 @@ public:
 
 private:
 	GLuint m_id{};
+	ssboTypes m_ssboType{ ssboTypes::undefinedSSBO };
 	GLuint m_bindingPoint{};
 	BufferDataStore m_BufferDataStore;
 };

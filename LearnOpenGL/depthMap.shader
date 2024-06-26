@@ -2,7 +2,7 @@
 #version 450 core
 layout (location = 0) in vec3 aPos;
 
-layout(binding = 32, std430) readonly buffer lightMVPMatrixSSBO {
+layout(binding = 8, std430) readonly buffer lightMVPMatrixSSBO {
     mat4 lightMVPMatrix[10];
 };
 

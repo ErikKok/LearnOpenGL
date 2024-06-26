@@ -8,6 +8,7 @@ TO DO
 	- glResult als global opslaan ipv elke keer opvragen
 	- combine buffer and bufferDataStore class, with ubo and ssbo as inheritance
 	- for now don't use ubo, only ssbo
+	- cost of state changes: https://community.khronos.org/t/relative-costs-of-state-changes-pipelinelayout-compatibility/108644
 - Lighting
 	- implement energy conservation? see comments at Blinn-Phong
 	- Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
@@ -33,6 +34,11 @@ TO DO
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
 - obj van cube en hexagon fixen
 - move Camera into FrameBuffer?
+- make sun static in-Class, and check for getOn in goRender loop
+
+v0.2.79 26-6-2024
+-----------------
+- added m_ssboType
 
 v0.2.78 25-6-2024
 -----------------

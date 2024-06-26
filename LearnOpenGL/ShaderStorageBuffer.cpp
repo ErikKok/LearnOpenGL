@@ -4,8 +4,9 @@
 
 #include <print>
 
-ShaderStorageBuffer::ShaderStorageBuffer(GLuint bindingPoint, int elementCount, GLsizeiptr elementSize)
-	: m_bindingPoint{ bindingPoint }
+ShaderStorageBuffer::ShaderStorageBuffer(GLuint bindingPoint, int elementCount, GLsizeiptr elementSize, ssboTypes type)
+	: m_ssboType { type }
+	, m_bindingPoint{ bindingPoint }
 	, m_BufferDataStore{ elementCount, elementSize }
 {
 	glCreateBuffers(1, &m_id);
@@ -25,6 +26,12 @@ ShaderStorageBuffer::~ShaderStorageBuffer()
 void ShaderStorageBuffer::bind() const
 {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_bindingPoint, m_id);
+	Global::glCheckError();
+}
+
+void ShaderStorageBuffer::bindOverrideBindingPoint(GLuint BP) const
+{
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BP, m_id);
 	Global::glCheckError();
 }
 

@@ -18,43 +18,32 @@ void Renderer::draw(const RenderObject& RO) const
 	// TODO onderstaande checks een algemene functie van maken?
 	assert(RO.mesh && "No mesh defined, is this a RenderObject for a Model?");
 	assert(RO.instances == std::ssize(RO.modelTransform) && "Amount of instances and models is not equal!");
-	// TODO more checks needed?
 
-	////////////////////////////////
 	RO.ssbo[0]->bind(); // uberSSBO
 
 	// Activate Shader + set material properties
 	switch (m_renderPassActive)
 	{
 	case renderPassType::undefined:
-		assert(false); // should never be the case 
+		assert(false);
 		break;
 	case renderPassType::depthMapDirLight:
-		//m_shaderDepthMapDirLight->useShader();
-		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-		//	if (RO.ssbo[i]->getBindingPoint() == dirLightMVPMatrixBP)
-		//		RO.ssbo[i]->bind();
-		//}
-		//RO.ssbo[0]->bind(); // uberSSBO
-		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
+			if (RO.ssbo[i]->getType() == dirLightMVPMatrixSSBO)
+				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
+		}
 		break;
 	case renderPassType::depthMapSpotLight0:
-		//m_shaderDepthMapFlashLight->useShader();
-		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-		//	if (RO.ssbo[i]->getBindingPoint() == flashLightMVPMatrixBP)
-		//		RO.ssbo[i]->bind();
-		//}
-		//RO.ssbo[0]->bind(); // uberSSBO
-		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
+			if (RO.ssbo[i]->getType() == flashLightMVPMatrixSSBO)
+				RO.ssbo[i]->bind();
+		}
 		break;
 	case renderPassType::depthMapSpotLight1:
-		//m_shaderDepthMapSpotLight->useShader();
-		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-		//	if (RO.ssbo[i]->getBindingPoint() == spotLightMVPMatrixBP)
-		//		RO.ssbo[i]->bind();
-		//}
-		//RO.ssbo[0]->bind(); // uberSSBO
-		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
+			if (RO.ssbo[i]->getType() == spotLightMVPMatrixSSBO)
+				RO.ssbo[i]->bind();
+		}
 		break;
 	case renderPassType::normal:
 		if (!RO.material->enableGL_CULL_FACE)
@@ -313,7 +302,7 @@ void Renderer::drawWithStencil(const RenderObject& RO) {
 }
 
 void Renderer::goRenderOutline() {
-	if (Global::drawOutline) { // TODO make framerate independent
+	if (Global::drawOutline) { // TODO make framerate independent and independent of this function
 		if (Global::outlineAlpha >= 0.0f)
 			Global::outlineAlpha += 0.01f;
 		if (Global::outlineAlpha >= 1.0f)
@@ -341,19 +330,21 @@ void Renderer::goRender() {
 	glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way
 
 	m_renderPassActive = renderPassType::depthMap;
-	for (auto& FBOShaderPair : m_pair) {
-		assert(FBOShaderPair.first && "FBO is nullptr");
-		assert(FBOShaderPair.first->getType() == framebufferType::depthMap && "Wrong framebufferType");
+	for (auto& [FBO, Shader] : m_FBOShaderPair) {
+		assert(FBO && "FBO is nullptr");
+		assert(FBO->getType() == framebufferType::depthMap && "Wrong framebufferType");
 
 		m_renderPassActive = static_cast<renderPassType>(m_renderPassActive + 1); // TODO dit is niet nodig op het moment met uberSSBO
 
-		if (m_renderPassActive == depthMapSpotLight0 && !SpotLight::spotLights[0].getOn())
+		if (m_renderPassActive == depthMapSpotLight0 && !SpotLight::spotLights[0].getOn() ||
+			m_renderPassActive == depthMapSpotLight1 && !SpotLight::spotLights[1].getOn()   )
 			break;
 
-		FBOShaderPair.first->bind();
-		setViewPort(FBOShaderPair.first.get());
+		FBO->bind();
+		setViewPort(FBO.get());
 		clearDepthBuffer();
-		FBOShaderPair.second->useShader();
+		// DepthMap Shader
+		Shader->useShader();
 
 		for (const auto& RO : m_renderVector) {
 			if (RO->drawShadow && RO->model)
@@ -362,7 +353,7 @@ void Renderer::goRender() {
 				draw(*RO);
 		}
 
-		FBOShaderPair.first->unbind();
+		FBO->unbind();
 	}
 
 	m_renderPassActive = renderPassType::normal;

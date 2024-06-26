@@ -123,7 +123,7 @@ public:
 
 	// TODO private
 	std::vector<RenderObject*> m_renderVector{}; // TODO uPtr? or reference wrappers? of een shared ptr?
-	std::vector<std::pair<std::unique_ptr<FrameBuffer>, std::unique_ptr<Shader>>> m_pair{}; // TODO make setter, rename, and is pair good?
+	std::vector<std::pair<std::unique_ptr<FrameBuffer>, std::unique_ptr<Shader>>> m_FBOShaderPair{}; // TODO make setter, rename, and is pair good?
 
 	// OLD
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    

@@ -125,8 +125,8 @@ int main()
     //renderer.createFBODirLight(depthMapDirLight);
     //renderer.getFBODirLight()->setOrthographic(true);
 
-    renderer.m_pair.emplace_back(std::make_unique<FrameBuffer>(depthMapDirLight), std::make_unique<Shader>("Shaders\\depthMapDirLight.shader"));
-    renderer.m_pair[0].first->setOrthographic(true);
+    renderer.m_FBOShaderPair.emplace_back(std::make_unique<FrameBuffer>(depthMapDirLight), std::make_unique<Shader>("Shaders\\depthMapDirLight.shader"));
+    renderer.m_FBOShaderPair[0].first->setOrthographic(true);
 
     cameraDirLight.setNearPlane(-15.0f);
     cameraDirLight.setFarPlane(35.0f);
@@ -157,7 +157,7 @@ int main()
     Texture depthMapSpotLight0(textureType::depthMap, 512, 512);
     //renderer.createFBOSpotLight0(depthMapSpotLight0);
 
-    renderer.m_pair.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight0), std::make_unique<Shader>("Shaders\\depthMapFlashLight.shader"));
+    renderer.m_FBOShaderPair.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight0), std::make_unique<Shader>("Shaders\\depthMapFlashLight.shader"));
 
     cameraSpotLight0.setFov(25.0f);
     cameraSpotLight0.setNearPlane(0.1f);
@@ -185,7 +185,7 @@ int main()
     Texture depthMapSpotLight1(textureType::depthMap, 1024, 1024);
     //renderer.createFBOSpotLight1(depthMapSpotLight1);
 
-    renderer.m_pair.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight1), std::make_unique<Shader>("Shaders\\depthMapSpotLight.shader"));
+    renderer.m_FBOShaderPair.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight1), std::make_unique<Shader>("Shaders\\depthMapSpotLight.shader"));
 
     cameraSpotLight1.setFov((36.0f + 48.0f) * 1.15f);
     cameraSpotLight1.setNearPlane(0.1f);
