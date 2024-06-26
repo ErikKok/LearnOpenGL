@@ -17,9 +17,7 @@ void Renderer::draw(const RenderObject& RO) const
 {
 	// TODO onderstaande checks een algemene functie van maken?
 	assert(RO.mesh && "No mesh defined, is this a RenderObject for a Model?");
-	assert(RO.instances == std::ssize(RO.modelTransform) && "Amount of instances and models is not equal!");
-
-	RO.ssbo[0]->bind(); // uberSSBO
+	assert(RO.instances == std::ssize(RO.transform) && "Amount of instances and models is not equal!");
 
 	// Activate Shader + set material properties
 	switch (m_renderPassActive)
@@ -29,20 +27,20 @@ void Renderer::draw(const RenderObject& RO) const
 		break;
 	case renderPassType::depthMapDirLight:
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-			if (RO.ssbo[i]->getType() == dirLightMVPMatrixSSBO)
+			if (RO.ssbo[i]->getType() == ssboTypes::dirLightMVPMatrixSSBO)
 				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
 		}
 		break;
 	case renderPassType::depthMapSpotLight0:
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-			if (RO.ssbo[i]->getType() == flashLightMVPMatrixSSBO)
-				RO.ssbo[i]->bind();
+			if (RO.ssbo[i]->getType() == ssboTypes::flashLightMVPMatrixSSBO)
+				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
 		}
 		break;
 	case renderPassType::depthMapSpotLight1:
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-			if (RO.ssbo[i]->getType() == spotLightMVPMatrixSSBO)
-				RO.ssbo[i]->bind();
+			if (RO.ssbo[i]->getType() == ssboTypes::spotLightMVPMatrixSSBO)
+				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
 		}
 		break;
 	case renderPassType::normal:
@@ -62,9 +60,9 @@ void Renderer::draw(const RenderObject& RO) const
 		RO.material->shader.setInt("material.lightEmissionTexture", RO.material->lightEmissionTexture);
 
 		// SSBO
-		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-		//	RO.ssbo[i]->bind();
-		//}
+		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
+			RO.ssbo[i]->bind();
+		}
 		break;
 	}
 
@@ -90,7 +88,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 	assert(!RO.mesh && "RenderObject contains a Mesh, is this a RenderObject for a Mesh instead of a Model?");
 
 	////////////////////////////////
-	RO.ssbo[0]->bind(); // uberSSBO
+	//RO.ssbo[0]->bind(); // uberSSBO
 
 	// Activate Shader + set material properties
 	switch (m_renderPassActive)
@@ -99,31 +97,22 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		assert(false); // should never be the case 
 		break;
 	case renderPassType::depthMapDirLight:
-		//m_shaderDepthMapDirLight->useShader();
-		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-		//	if (RO.ssbo[i]->getBindingPoint() == dirLightMVPMatrixBP)
-		//		RO.ssbo[i]->bind();
-		//}
-		//RO.ssbo[0]->bind(); // uberSSBO
-		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
+			if (RO.ssbo[i]->getType() == ssboTypes::dirLightMVPMatrixSSBO)
+				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
+		}
 		break;
 	case renderPassType::depthMapSpotLight0:
-		//m_shaderDepthMapFlashLight->useShader();
-		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-		//	if (RO.ssbo[i]->getBindingPoint() == flashLightMVPMatrixBP)
-		//		RO.ssbo[i]->bind();
-		//}
-		//RO.ssbo[0]->bind(); // uberSSBO
-		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
+			if (RO.ssbo[i]->getType() == ssboTypes::flashLightMVPMatrixSSBO)
+				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
+		}
 		break;
 	case renderPassType::depthMapSpotLight1:
-		//m_shaderDepthMapSpotLight->useShader();
-		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-		//	if (RO.ssbo[i]->getBindingPoint() == spotLightMVPMatrixBP)
-		//		RO.ssbo[i]->bind();
-		//}
-		//RO.ssbo[0]->bind(); // uberSSBO
-		//glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a Depth this way
+		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
+			if (RO.ssbo[i]->getType() == ssboTypes::spotLightMVPMatrixSSBO)
+				RO.ssbo[i]->bindOverrideBindingPoint(ssboBindingPoints::depthMapBP);
+		}
 		break;
 	case renderPassType::normal:
 		if (!RO.material->enableGL_CULL_FACE)
@@ -139,9 +128,9 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		RO.material->shader.setInt("material.lightEmissionTexture", RO.material->lightEmissionTexture);
 
 		// SSBO
-		//for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
-		//	RO.ssbo[i]->bind();
-		//}
+		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
+			RO.ssbo[i]->bind();
+		}
 		break;
 	}
 
@@ -209,7 +198,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 void Renderer::drawSingleColor(const RenderObject& RO) const
 {
 	m_shaderSingleColor->useShader();
-	RO.ssbo[0]->bind(); // uberSSBO
+	//RO.ssbo[0]->bind(); // uberSSBO
 	// SSBO TODO clean up
 	for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		if (RO.ssbo[i]->getBindingPoint() == singleColorBP || RO.ssbo[i]->getBindingPoint() == MVPMatrixBP)
@@ -309,14 +298,15 @@ void Renderer::goRenderOutline() {
 			Global::outlineAlpha = 0.0f;
 		glm::vec4 color{ 1.0f, 0.28f, 0.26f, Global::outlineAlpha }; // TODO get color from SSBO
 
-		uberSSBO temp{};
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
 		for (auto& RO : m_renderVector) {
 			if (RO->drawOutline) {
-				temp.MVPMatrix[0] = Global::camera.getViewProjectionMatrix() * glm::scale(RO->modelTransform[0], glm::vec3(1.05f, 1.05f, 0.0f)); // scale model by 5% for outline MVPMatrixBP
-				RO->ssbo[0]->updateFully(temp, true);
-				RO->ssbo[1]->updateFully(color, true);
-
+				for (auto i = 0; i < std::ssize(RO->ssbo); i++) {
+					if (RO->ssbo[i]->getBindingPoint() == MVPMatrixBP) // TODO use type?
+						RO->ssbo[i]->updateFully(Global::camera.getViewProjectionMatrix() * glm::scale(RO->transform[0], glm::vec3(1.05f, 1.05f, 0.0f)), true);
+					if (RO->ssbo[i]->getBindingPoint() == singleColorBP)
+						RO->ssbo[i]->updateFully(color, true);
+				}
 				drawSingleColor(*RO);
 			}
 		}
@@ -330,7 +320,8 @@ void Renderer::goRender() {
 	glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way
 
 	m_renderPassActive = renderPassType::depthMap;
-	for (auto& [FBO, Shader] : m_FBOShaderPair) {
+	m_shaderDepthMap->useShader();
+	for (auto& FBO : m_FBO) {
 		assert(FBO && "FBO is nullptr");
 		assert(FBO->getType() == framebufferType::depthMap && "Wrong framebufferType");
 
@@ -338,13 +329,11 @@ void Renderer::goRender() {
 
 		if (m_renderPassActive == depthMapSpotLight0 && !SpotLight::spotLights[0].getOn() ||
 			m_renderPassActive == depthMapSpotLight1 && !SpotLight::spotLights[1].getOn()   )
-			break;
+			continue;
 
 		FBO->bind();
 		setViewPort(FBO.get());
 		clearDepthBuffer();
-		// DepthMap Shader
-		Shader->useShader();
 
 		for (const auto& RO : m_renderVector) {
 			if (RO->drawShadow && RO->model)

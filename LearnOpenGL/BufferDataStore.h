@@ -15,15 +15,6 @@
 // https://www.khronos.org/opengl/wiki/Interface_Block_(GLSL)#Memory_layout
 // https://ktstephano.github.io/rendering/opengl/ssbos
 
-struct uberSSBO {
-	alignas(16) glm::mat4 dirLightMVPMatrix[10]; // alignas(16) just to be sure, not 100% needed
-	glm::mat4 flashLightMVPMatrix[10];
-	glm::mat4 spotLightMVPMatrix[10];
-	glm::mat4 normalMatrix[10];
-	glm::mat4 modelViewMatrix[10];
-	glm::mat4 MVPMatrix[10];
-};
-
 class BufferDataStore {
 	friend class ShaderStorageBuffer;
 
@@ -44,8 +35,7 @@ private:
 		if (m_hasValidData) {
 			assert(
 				std::holds_alternative<glm::vec4>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(glm::vec4).hash_code()) ||
-				std::holds_alternative<glm::mat4>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(glm::mat4).hash_code()) ||
-				std::holds_alternative<uberSSBO>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(uberSSBO).hash_code()));
+				std::holds_alternative<glm::mat4>(m_data[elementIndex]) & (typeid(data).hash_code() == typeid(glm::mat4).hash_code())   );
 		}
 		assert(sizeof(m_data) != 0 && "WARNING: m_data is not resized!");
 		assert(elementIndex <= static_cast<GLintptr>(m_data.size()) - 1 && "ElementIndex out of range");
@@ -67,8 +57,7 @@ private:
 		if (m_hasValidData) {
 			assert(
 				std::holds_alternative<glm::vec4>(m_data[0]) & (typeid(data).hash_code() == typeid(glm::vec4).hash_code()) ||
-				std::holds_alternative<glm::mat4>(m_data[0]) & (typeid(data).hash_code() == typeid(glm::mat4).hash_code()) ||
-				std::holds_alternative<uberSSBO>(m_data[0]) & (typeid(data).hash_code() == typeid(uberSSBO).hash_code()) );
+				std::holds_alternative<glm::mat4>(m_data[0]) & (typeid(data).hash_code() == typeid(glm::mat4).hash_code())   );
 		}
 		assert(sizeof(m_data) != 0 && "WARNING: m_data is not resized!");
 		m_elementSize = sizeof(data);
@@ -85,8 +74,7 @@ private:
 		if (m_hasValidData) {
 			assert(
 				std::holds_alternative<glm::vec4>(m_data[0]) & (typeid(data[0]).hash_code() == typeid(glm::vec4).hash_code()) ||
-				std::holds_alternative<glm::mat4>(m_data[0]) & (typeid(data[0]).hash_code() == typeid(glm::mat4).hash_code()) ||
-				std::holds_alternative<uberSSBO>(m_data[0]) & (typeid(data[0]).hash_code() == typeid(uberSSBO).hash_code()) );
+				std::holds_alternative<glm::mat4>(m_data[0]) & (typeid(data[0]).hash_code() == typeid(glm::mat4).hash_code())   );
 		}
 		assert(sizeof(m_data) != 0 && "WARNING: m_data is not resized!");
 		assert(m_data.size() == data.size() && "Data has different elementcount then existing data");
@@ -131,7 +119,7 @@ private:
 private:
 	GLuint m_ssboId{ 0 }; // id of associated ssbo (only ssbo for now because of std430 packing layout)
 	bool m_hasValidData{ false }; // if false m_data has only been resized by constructor
-	std::vector<std::variant<glm::vec4, glm::mat4, uberSSBO>> m_data{};
+	std::vector<std::variant<glm::vec4, glm::mat4>> m_data{};
 	GLsizeiptr m_elementSize{ 0 };
 };
 

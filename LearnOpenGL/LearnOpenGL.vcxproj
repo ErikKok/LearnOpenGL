@@ -137,9 +137,9 @@
     <ClInclude Include="VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="depthMap.shader" />
     <None Include="README.md" />
     <None Include="Shaders\debugQuad.shader" />
+    <None Include="Shaders\depthMap.shader" />
     <None Include="Shaders\frustum.shader" />
     <None Include="Shaders\multiLight.shader" />
     <None Include="Shaders\depthMapDirLight.shader" />

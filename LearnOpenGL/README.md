@@ -36,6 +36,10 @@ TO DO
 - move Camera into FrameBuffer?
 - make sun static in-Class, and check for getOn in goRender loop
 
+v0.2.80 26-6-2024
+-----------------
+- removed uberSSBO, everything seem to be working
+
 v0.2.79 26-6-2024
 -----------------
 - added m_ssboType

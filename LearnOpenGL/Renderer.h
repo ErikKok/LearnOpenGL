@@ -39,17 +39,17 @@ public:
 		, material{ material }
 		, instances{ instances } // used to resize model array and BufferDataStore m_data in ShaderStorageBuffer
 	{
-		modelTransform.resize(instances);
+		transform.resize(instances);
 	}
 
-	void addSSBO(int bindingPoint, GLsizeiptr elementSize) {
-		ssbo.emplace_back(std::make_unique<ShaderStorageBuffer>(bindingPoint, instances, elementSize));
+	void addSSBO(int bindingPoint, GLsizeiptr elementSize, ssboTypes type = ssboTypes::undefinedSSBO) {
+		ssbo.emplace_back(std::make_unique<ShaderStorageBuffer>(bindingPoint, instances, elementSize, type));
 	}
 
 	Mesh* mesh{ nullptr }; // TODO should it own it's mesh?
 	Material* material{ nullptr }; // TODO make unique_ptr van maken? // TODO should it own it's material?
 	std::unique_ptr<Model> model{ nullptr };
-	std::vector<glm::mat4> modelTransform{}; // transforms
+	std::vector<glm::mat4> transform{}; // transforms
 	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // Each RenderObject owns it's unique SSBOs (on the heap), this way you can upload them just once per renderpass (raw pointers (on the stack) are max 1% faster)
 	int instances{ 1 };
 	bool drawShadow{ true };
@@ -95,6 +95,7 @@ public:
 	void createShaderSkybox(std::string string) { m_shaderSkybox = std::make_unique<Shader>(string); };
 	void createShaderFrustum(std::string string) { m_shaderFrustum = std::make_unique<Shader>(string); };
 	void createShaderDebugQuad(std::string string) { m_shaderDebugQuad = std::make_unique<Shader>(string); };
+	void createShaderDepthMap(std::string string) { m_shaderDepthMap = std::make_unique<Shader>(string); };
 
 	//void isRendererComplete() const { assert(m_shaderDepthMapDirLight != nullptr || m_shaderDepthMapSpotLight1 != nullptr || m_shaderDepthMapSpotLight0 != nullptr || m_shaderSingleColor != nullptr || m_shaderSkybox != nullptr || m_shaderFrustum != nullptr || m_shaderDebugQuad != nullptr); };
 	
@@ -123,7 +124,7 @@ public:
 
 	// TODO private
 	std::vector<RenderObject*> m_renderVector{}; // TODO uPtr? or reference wrappers? of een shared ptr?
-	std::vector<std::pair<std::unique_ptr<FrameBuffer>, std::unique_ptr<Shader>>> m_FBOShaderPair{}; // TODO make setter, rename, and is pair good?
+	std::vector<std::unique_ptr<FrameBuffer>> m_FBO{}; // TODO make setter
 
 	// OLD
 	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    
@@ -144,7 +145,7 @@ private:
 	std::unique_ptr<Shader> m_shaderSkybox{ nullptr };
 	std::unique_ptr<Shader> m_shaderFrustum{ nullptr };
 	std::unique_ptr<Shader> m_shaderDebugQuad{ nullptr };
-
+	std::unique_ptr<Shader> m_shaderDepthMap{ nullptr };
 	//std::vector<std::unique_ptr<FrameBuffer>> m_FBOVector{};
 	//std::vector<std::unique_ptr<Shader>> m_FBOShader{};
 

@@ -16,38 +16,38 @@ out VS_OUT {
     vec3 spotLightDirectionView[2];
 } vs_out;
 
-//layout(binding = 2, std430) readonly buffer NormalMatrixSSBO {
-//    mat4 normalMatrix[];
-//};
-//
-//layout(binding = 3, std430) readonly buffer ModelViewMatrixSSBO {
-//    mat4 modelViewMatrix[];
-//};
-//
-//layout(binding = 4, std430) readonly buffer MVPMatrixSSBO {
-//    mat4 MVPMatrix[];
-//};
-//
-//layout(binding = 5, std430) readonly buffer dirLightMVPMatrixSSBO {
-//    mat4 dirLightMVPMatrix[];
-//};
-//
-//layout(binding = 6, std430) readonly buffer spotLightMVPMatrixSSBO {
-//    mat4 spotLightMVPMatrix[];
-//};
-//
-//layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
-//    mat4 flashLightMVPMatrix[];
-//};
-
-layout(binding = 24, std430) readonly buffer uberSSBO {
-    mat4 dirLightMVPMatrix[10];
-    mat4 flashLightMVPMatrix[10];
-    mat4 spotLightMVPMatrix[10];
-    mat4 normalMatrix[10];
-    mat4 modelViewMatrix[10];
-    mat4 MVPMatrix[10];
+layout(binding = 2, std430) readonly buffer NormalMatrixSSBO {
+    mat4 normalMatrix[];
 };
+
+layout(binding = 3, std430) readonly buffer ModelViewMatrixSSBO {
+    mat4 modelViewMatrix[];
+};
+
+layout(binding = 4, std430) readonly buffer MVPMatrixSSBO {
+    mat4 MVPMatrix[];
+};
+
+layout(binding = 5, std430) readonly buffer dirLightMVPMatrixSSBO {
+    mat4 dirLightMVPMatrix[];
+};
+
+layout(binding = 6, std430) readonly buffer spotLightMVPMatrixSSBO {
+    mat4 spotLightMVPMatrix[];
+};
+
+layout(binding = 7, std430) readonly buffer flashLightMVPMatrixSSBO {
+    mat4 flashLightMVPMatrix[];
+};
+
+//layout(binding = 24, std430) readonly buffer uberSSBO {
+//    mat4 dirLightMVPMatrix[10];
+//    mat4 flashLightMVPMatrix[10];
+//    mat4 spotLightMVPMatrix[10];
+//    mat4 normalMatrix[10];
+//    mat4 modelViewMatrix[10];
+//    mat4 MVPMatrix[10];
+//};
 
 uniform vec3 dirLightDirection;      // View Space // normalized
 uniform vec3 pointLightPosition[4];  // View Space // NOT normalized

@@ -56,16 +56,12 @@ int main()
     //Global::cheap2Copy();
     Renderer renderer;
     renderer.initStencilBuffer();
-    //renderer.createShaderDepthMapDirLight("Shaders\\depthMapDirLight.shader");
-    //renderer.createShaderDepthMapSpotLight0("Shaders\\depthMapFlashLight.shader");
-    //renderer.createShaderDepthMapSpotLight1("Shaders\\depthMapSpotLight.shader");
     renderer.createShaderSingleColor("Shaders\\singleColor.shader");
     renderer.createShaderSkybox("Shaders\\skybox.shader");
     renderer.createShaderFrustum("Shaders\\frustum.shader");
     renderer.createShaderDebugQuad("Shaders\\debugQuad.shader");
+    renderer.createShaderDepthMap("Shaders\\depthMap.shader");
     //renderer.isRendererComplete();
-
-    //Shader depthMapShader("Shaders\\depthMap.shader");
 
     Shader multiLight("Shaders\\multiLight.shader");
     Shader multiLightNormalMapping("Shaders\\multiLightNormalMapping.shader");
@@ -118,16 +114,11 @@ int main()
     sun.sendToShader(multiLight);
     sun.sendToShader(multiLightNormalMapping);
 
-    OrthographicCamera cameraDirLight(sun.getDirection(), -20.0f, 20.0f, -20.0f, 20.0f);
-
-    // DirLight depthMap
     Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
-    //renderer.createFBODirLight(depthMapDirLight);
-    //renderer.getFBODirLight()->setOrthographic(true);
+    renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(depthMapDirLight));
+    renderer.m_FBO[0]->setOrthographic(true);
 
-    renderer.m_FBOShaderPair.emplace_back(std::make_unique<FrameBuffer>(depthMapDirLight), std::make_unique<Shader>("Shaders\\depthMapDirLight.shader"));
-    renderer.m_FBOShaderPair[0].first->setOrthographic(true);
-
+    OrthographicCamera cameraDirLight(sun.getDirection(), -20.0f, 20.0f, -20.0f, 20.0f);
     cameraDirLight.setNearPlane(-15.0f);
     cameraDirLight.setFarPlane(35.0f);
     cameraDirLight.setViewMatrix(glm::lookAt(sun.getDirection(), sun.getDirection() - sun.getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))); // TODO
@@ -151,14 +142,11 @@ int main()
     SpotLight::spotLights[0].sendToShader(multiLight);
     SpotLight::spotLights[0].sendToShader(multiLightNormalMapping);
 
-    Camera cameraSpotLight0(depthMapDirLight.getAspectRatio(), Global::cameraInitialPosition);
-    SpotLight::spotLights[0].setCamera(&cameraSpotLight0);
-
     Texture depthMapSpotLight0(textureType::depthMap, 512, 512);
-    //renderer.createFBOSpotLight0(depthMapSpotLight0);
+    renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight0));
 
-    renderer.m_FBOShaderPair.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight0), std::make_unique<Shader>("Shaders\\depthMapFlashLight.shader"));
-
+    Camera cameraSpotLight0(depthMapSpotLight0.getAspectRatio(), Global::cameraInitialPosition);
+    SpotLight::spotLights[0].setCamera(&cameraSpotLight0);
     cameraSpotLight0.setFov(25.0f);
     cameraSpotLight0.setNearPlane(0.1f);
     cameraSpotLight0.setFarPlane(25.0f);
@@ -179,14 +167,11 @@ int main()
     SpotLight::spotLights[1].sendToShader(multiLight);
     SpotLight::spotLights[1].sendToShader(multiLightNormalMapping);
 
-    Camera cameraSpotLight1(depthMapSpotLight0.getAspectRatio(), SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
-    SpotLight::spotLights[1].setCamera(&cameraSpotLight1);
-
     Texture depthMapSpotLight1(textureType::depthMap, 1024, 1024);
-    //renderer.createFBOSpotLight1(depthMapSpotLight1);
+    renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight1));
 
-    renderer.m_FBOShaderPair.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight1), std::make_unique<Shader>("Shaders\\depthMapSpotLight.shader"));
-
+    Camera cameraSpotLight1(depthMapSpotLight1.getAspectRatio(), SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
+    SpotLight::spotLights[1].setCamera(&cameraSpotLight1);
     cameraSpotLight1.setFov((36.0f + 48.0f) * 1.15f);
     cameraSpotLight1.setNearPlane(0.1f);
     cameraSpotLight1.setFarPlane(10.0f);
@@ -216,17 +201,14 @@ int main()
     };
 
     RenderObject cubeRO{ &cubeMesh, &cubeMaterial, std::ssize(Data::cubePositions) };
-    cubeRO.instances = 1; // temp fix to make sure the BufferDataStore size == elementsize, instead of 10x (std::ssize(Data::cubePositions)
-    cubeRO.addSSBO(24, sizeof(uberSSBO));
-    cubeRO.instances = 10;
     renderer.m_renderVector.emplace_back(&cubeRO);
 
-    //cubeRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4));
-    //cubeRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4));
-    //cubeRO.addSSBO(spotLightMVPMatrixBP, sizeof(glm::mat4));
-    //cubeRO.addSSBO(normalMatrixBP, sizeof(glm::mat4));
-    //cubeRO.addSSBO(modelViewMatrixBP, sizeof(glm::mat4));
-    //cubeRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
+    cubeRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::dirLightMVPMatrixSSBO);
+    cubeRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::flashLightMVPMatrixSSBO);
+    cubeRO.addSSBO(spotLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::spotLightMVPMatrixSSBO);
+    cubeRO.addSSBO(normalMatrixBP, sizeof(glm::mat4));
+    cubeRO.addSSBO(modelViewMatrixBP, sizeof(glm::mat4));
+    cubeRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
 
     /////////////////////////////////////
     ////// Floor ////////////////////////
@@ -249,18 +231,16 @@ int main()
 
     RenderObject floorRO{ &floorMesh, &floorMaterial };
 
-
     // Model voor de renderloop berekenen, floor is statisch -> niet helemaal, de outline heeft eigen model, maar die is op basis van onderstaand model
-    floorRO.modelTransform[0] = Global::calculateModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
+    floorRO.transform[0] = Global::calculateModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
     floorRO.drawOutline = true;
-    floorRO.addSSBO(24, sizeof(uberSSBO));
 
-    //floorRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4));
-    //floorRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4));
-    //floorRO.addSSBO(spotLightMVPMatrixBP, sizeof(glm::mat4));
-    //floorRO.addSSBO(normalMatrixBP, sizeof(glm::mat4));
-    //floorRO.addSSBO(modelViewMatrixBP, sizeof(glm::mat4));
-    //floorRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
+    floorRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::dirLightMVPMatrixSSBO);
+    floorRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::flashLightMVPMatrixSSBO);
+    floorRO.addSSBO(spotLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::spotLightMVPMatrixSSBO);
+    floorRO.addSSBO(normalMatrixBP, sizeof(glm::mat4));
+    floorRO.addSSBO(modelViewMatrixBP, sizeof(glm::mat4));
+    floorRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
     floorRO.addSSBO(singleColorBP, sizeof(glm::vec4)); // TODO only 1 element needed in this vector
     renderer.m_renderVector.emplace_back(&floorRO);
 
@@ -295,27 +275,23 @@ int main()
     RenderObject modelRO{ nullptr, &modelMaterial};
     modelRO.model = std::make_unique<Model>("Models/Backpack/backpack.obj");
 
-    modelRO.modelTransform[0] = Global::calculateModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    modelRO.transform[0] = Global::calculateModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
-    modelRO.addSSBO(24, sizeof(uberSSBO));
     renderer.m_renderVector.emplace_back(&modelRO);
 
-    //modelRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4));
-    //modelRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4));
-    //modelRO.addSSBO(spotLightMVPMatrixBP, sizeof(glm::mat4));
-    //modelRO.addSSBO(normalMatrixBP, sizeof(glm::mat4));
-    //modelRO.addSSBO(modelViewMatrixBP, sizeof(glm::mat4));
-    //modelRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
+    modelRO.addSSBO(dirLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::dirLightMVPMatrixSSBO);
+    modelRO.addSSBO(flashLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::flashLightMVPMatrixSSBO);
+    modelRO.addSSBO(spotLightMVPMatrixBP, sizeof(glm::mat4), ssboTypes::spotLightMVPMatrixSSBO);
+    modelRO.addSSBO(normalMatrixBP, sizeof(glm::mat4));
+    modelRO.addSSBO(modelViewMatrixBP, sizeof(glm::mat4));
+    modelRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
 
     // Lightcubes
     RenderObject lightCubeRO{ &cubeMesh, nullptr, 5 };
 
     lightCubeRO.drawShadow = false;
 
-    //lightCubeRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
-    lightCubeRO.instances = 1;
-    lightCubeRO.addSSBO(24, sizeof(uberSSBO));
-    lightCubeRO.instances = 5;
+    lightCubeRO.addSSBO(MVPMatrixBP, sizeof(glm::mat4));
     lightCubeRO.addSSBO(singleColorBP, sizeof(glm::vec4));
 
     // TODO deze kleur/info moet eigenlijk uit de Light zelf worden gehaald
@@ -328,7 +304,7 @@ int main()
     };
 
     lightCubeRO.ssbo[1]->updateFully(lightCubeColors, false); // false, want in de loop wordt dit pas geupload, nadat element 4 is gewijzigd
-    //renderer.m_renderVector.emplace_back(&lightCubeRO);
+    renderer.m_renderVector.emplace_back(&lightCubeRO);
     
     //Global::deltaTime = currentFrame - Global::lastFrame;
     //Global::lastFrame = currentFrame;
@@ -435,128 +411,77 @@ int main()
         {
             assert(std::size(Data::cubePositions) <= cubeRO.instances && "Loop will create more instances then ssbo can hold");
 
-            cubeRO.modelTransform[i] = glm::translate(glm::mat4(1.0f), Data::cubePositions[i]);
+            cubeRO.transform[i] = glm::translate(glm::mat4(1.0f), Data::cubePositions[i]);
             if (i == 2 || i == 5 || i == 8) {
                 float angle = 25.0f + (15 * i);
-                cubeRO.modelTransform[i] = glm::rotate(cubeRO.modelTransform[i], (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+                cubeRO.transform[i] = glm::rotate(cubeRO.transform[i], (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
             }
             if (i == 3) { // wall
-                cubeRO.modelTransform[i] = glm::translate(cubeRO.modelTransform[i], glm::vec3(-5.0f, 0.0f, -3.0f));
-                cubeRO.modelTransform[i] = glm::scale(cubeRO.modelTransform[i], glm::vec3(20.0f, 20.0f, 1.0f));
+                cubeRO.transform[i] = glm::translate(cubeRO.transform[i], glm::vec3(-5.0f, 0.0f, -3.0f));
+                cubeRO.transform[i] = glm::scale(cubeRO.transform[i], glm::vec3(20.0f, 20.0f, 1.0f));
             }
             //if (i == 9) { // floor
             //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
             //    model = glm::scale(model, glm::vec3(20.0, 1.0, 20.0));
             //}
 
-            cubeRO.modelTransform[i] = glm::scale(cubeRO.modelTransform[i], glm::vec3(0.5f, 0.5f, 0.5f));
+            cubeRO.transform[i] = glm::scale(cubeRO.transform[i], glm::vec3(0.5f, 0.5f, 0.5f));
         }
 
         // Calculate SSBO's, and upload them to their buffers
-        //for (auto i = 0; i < std::ssize(cubeRO.model); i++) {
-        //    Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.model[i];
-        //    cubeRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * cubeRO.model[i], i);
-        //    cubeRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(cameraFlashLight.getViewProjectionMatrix() * cubeRO.model[i], i);
-        //    cubeRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(cameraSpotLight.getViewProjectionMatrix() * cubeRO.model[i], i);
-        //    cubeRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i);
-        //    cubeRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i);
-        //    cubeRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i);
-        //}
-        //for (auto i = 0; i < std::ssize(cubeRO.ssbo); i++) {
-        //    cubeRO.ssbo[i]->uploadFully();
-        //}
-
-        uberSSBO uberSSBOCache{};
-
-        for (auto i = 0; i < std::ssize(cubeRO.modelTransform); i++) {
-            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.modelTransform[i];
-            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * cubeRO.modelTransform[i];
-            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.modelTransform[i];
-            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.modelTransform[i];
-            uberSSBOCache.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
-            uberSSBOCache.modelViewMatrix[i] = Global::modelViewMatrixTemp;
-            uberSSBOCache.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
+        for (auto i = 0; i < std::ssize(cubeRO.transform); i++) {
+            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.transform[i];
+            cubeRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * cubeRO.transform[i], i, false);
+            cubeRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.transform[i], i, false);
+            cubeRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.transform[i], i, false);
+            cubeRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
+            cubeRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i, false);
+            cubeRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
         }
-        cubeRO.ssbo[0]->updateSubset(uberSSBOCache, 0, true);
-        //cubeRO.ssbo[0]->updateFully(temp);
-        //cubeRO.ssbo[0]->uploadFully();
-        //temp = {}; // clears the temp, but ended up not needed
+        for (auto i = 0; i < std::ssize(cubeRO.ssbo); i++) {
+            cubeRO.ssbo[i]->uploadFully();
+        }
 
         // Floor
-        //for (auto i = 0; i < std::ssize(floorRO.model); i++) {
-        //    Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.model[i];
-        //    floorRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * floorRO.model[i], i);
-        //    floorRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(cameraFlashLight.getViewProjectionMatrix() * floorRO.model[i], i);
-        //    floorRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(cameraSpotLight.getViewProjectionMatrix() * floorRO.model[i], i);
-        //    floorRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i);
-        //    floorRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i);
-        //    floorRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i);
-        //}
-        //for (auto i = 0; i < std::ssize(floorRO.ssbo); i++) {
-        //    floorRO.ssbo[i]->uploadFully();
-        //}
-
-        for (auto i = 0; i < std::ssize(floorRO.modelTransform); i++) {
-            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.modelTransform[i];
-            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * floorRO.modelTransform[i];
-            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.modelTransform[i];
-            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.modelTransform[i];
-            uberSSBOCache.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
-            uberSSBOCache.modelViewMatrix[i] = Global::modelViewMatrixTemp;
-            uberSSBOCache.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
-
-            //floorRO.ssbo[0]->updateSubset(temp, i);
+        for (auto i = 0; i < std::ssize(floorRO.transform); i++) {
+            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.transform[i];
+            floorRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * floorRO.transform[i], i, false);
+            floorRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.transform[i], i, false);
+            floorRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.transform[i], i, false);
+            floorRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
+            floorRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i, false);
+            floorRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
         }
-        floorRO.ssbo[0]->updateSubset(uberSSBOCache, 0, false);
-        //floorRO.ssbo[0]->updateFully(temp);
-        floorRO.ssbo[0]->uploadFully();
-        //temp = {};
+        for (auto i = 0; i < std::ssize(floorRO.ssbo); i++) {
+            floorRO.ssbo[i]->uploadFully();
+        }
 
         // Model
-        //for (auto i = 0; i < std::ssize(modelRO.model); i++) {
-        //    Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.model[i];
-        //    modelRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * modelRO.model[i], i);
-        //    modelRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(cameraFlashLight.getViewProjectionMatrix() * modelRO.model[i], i);
-        //    modelRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(cameraSpotLight.getViewProjectionMatrix() * modelRO.model[i], i);
-        //    modelRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i);
-        //    modelRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i);
-        //    modelRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i);
-        //}
-        //for (auto i = 0; i < std::ssize(modelRO.ssbo); i++) {
-        //    modelRO.ssbo[i]->uploadFully();
-        //}
-
-        for (auto i = 0; i < std::ssize(modelRO.modelTransform); i++) {
-            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.modelTransform[i];
-            uberSSBOCache.dirLightMVPMatrix[i] = cameraDirLight.getViewProjectionMatrix() * modelRO.modelTransform[i];
-            uberSSBOCache.flashLightMVPMatrix[i] = SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.modelTransform[i];
-            uberSSBOCache.spotLightMVPMatrix[i] = SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.modelTransform[i];
-            uberSSBOCache.normalMatrix[i] = glm::transpose(glm::inverse(Global::modelViewMatrixTemp));
-            uberSSBOCache.modelViewMatrix[i] = Global::modelViewMatrixTemp;
-            uberSSBOCache.MVPMatrix[i] = Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp;
-
-            //modelRO.ssbo[0]->updateSubset(temp, i);
+        for (auto i = 0; i < std::ssize(modelRO.transform); i++) {
+            Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.transform[i];
+            modelRO.ssbo[dirLightMVPMatrixSSBO]->updateSubset(cameraDirLight.getViewProjectionMatrix() * modelRO.transform[i], i, false);
+            modelRO.ssbo[flashLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.transform[i], i, false);
+            modelRO.ssbo[spotLightMVPMatrixSSBO]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.transform[i], i, false);
+            modelRO.ssbo[normalMatrixSSBO]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
+            modelRO.ssbo[modelViewMatrixSSBO]->updateSubset(Global::modelViewMatrixTemp, i, false);
+            modelRO.ssbo[MVPMatrixSSBO]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
         }
-        modelRO.ssbo[0]->updateSubset(uberSSBOCache, 0, false);
-        //modelRO.ssbo[0]->updateFully(temp);
-        modelRO.ssbo[0]->uploadUntilSubset();
-        //temp = {};
+        for (auto i = 0; i < std::ssize(modelRO.ssbo); i++) {
+            modelRO.ssbo[i]->uploadFully();
+        }
 
         // LightCube
         // pointlights - 4 vaste LightCubes
         for (auto i = 0; i < getPointLightCount(); i++) {
             assert(getPointLightCount() <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
-            lightCubeRO.modelTransform[i] = Global::calculateModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-            uberSSBOCache.MVPMatrix[i] = Global::camera.getViewProjectionMatrix() * lightCubeRO.modelTransform[i];
-            //lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[i], i, false);
+            lightCubeRO.transform[i] = Global::calculateModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+            lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.transform[i], i, false);
         }
 
         // #5, element 4, de draaiende lightcube
-        lightCubeRO.modelTransform[4] = Global::calculateModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-        uberSSBOCache.MVPMatrix[4] = Global::camera.getViewProjectionMatrix() * lightCubeRO.modelTransform[4];
-        //lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.model[4], 4, false);
-
-        lightCubeRO.ssbo[0]->updateFully(uberSSBOCache, true);
+        lightCubeRO.transform[4] = Global::calculateModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+        lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.transform[4], 4, false);
+        lightCubeRO.ssbo[0]->uploadFully();
 
         lightCubeRO.ssbo[1]->updateSubset(glm::vec4(SpotLight::spotLights[1].getColor(), 1.0f), 4, false);
         lightCubeRO.ssbo[1]->uploadFully();
