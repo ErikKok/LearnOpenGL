@@ -4,7 +4,7 @@ Build while learning OpenGL
 
 Features:
 - OpenGL 4.6, Fully DSA (Direct State Access)
-- (Almost) everything is abstracting into Classes
+- (Almost) everything is abstracted into Classes
 - Every draw call is through glDrawElementsInstanced()
 - ASSIMP model loader
 - Normal Mapping
