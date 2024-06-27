@@ -34,6 +34,7 @@ public:
     void setAspectRatio(float x) { m_aspectRatio = x; calculateProjectionMatrix(); };
     const float getFov() const { return m_fov; };
     void setFov(float x) { m_fov = x; calculateProjectionMatrix(); };
+    const bool getOrthographic() const { return m_orthographic; };
 
     virtual const void calculateViewMatrix();
     const glm::mat4 getViewMatrix() const { return m_viewMatrix; };
@@ -52,7 +53,6 @@ public:
 protected:
     Camera() {};
 
-    // camera Attributes
     glm::vec3 m_position{};
     glm::vec3 m_front{ 0.0f, 0.0f, 0.0f };
     glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
@@ -68,6 +68,7 @@ protected:
     GLfloat m_mouseSensitivity{ 0.035f };
     GLfloat m_fov{ 45.0f }; // (InnerCutOff + OuterCutOff + 15% for attenuation) seems about right
     float m_aspectRatio{ 1.0f };
+    bool m_orthographic{ false }; // false == perspective
     glm::mat4 m_viewMatrix{};
     glm::mat4 m_projectionMatrix{};
     glm::mat4 m_viewProjectionMatrix{};   

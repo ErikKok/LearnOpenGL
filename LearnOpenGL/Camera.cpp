@@ -26,6 +26,7 @@ OrthographicCamera::OrthographicCamera(glm::vec3 direction, float left, float ri
     , m_bottomOrtho{ bottom }
     , m_topOrtho{ top }
 {
+    m_orthographic = true;
     updateCameraVectors();
     calculateViewMatrix();
     calculateProjectionMatrix();

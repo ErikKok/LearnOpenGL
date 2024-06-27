@@ -13,7 +13,7 @@
 
 // TODO transparency opslaan in Material, of uit texture halen in constructor van een Material class?
 struct Material {
-	Shader& shader;
+	Shader* shader{ nullptr };
 	int diffuse1{ 0 };					// sampler2D
 	int specular1{ 0 };					// sampler2D
 	int normal1{ 7 };					// sampler2D
@@ -34,7 +34,7 @@ struct Material {
 
 class RenderObject {
 public:
-	RenderObject(Mesh* mesh = nullptr, Material* material = nullptr, int instances = 1)
+	RenderObject(Mesh* mesh, Material* material, int instances = 1)
 		: mesh{ mesh }
 		, material{ material }
 		, instances{ instances } // used to resize model array and BufferDataStore m_data in ShaderStorageBuffer
@@ -90,11 +90,11 @@ public:
 	//void createShaderDepthMapSpotLight1(std::string string) { m_shaderDepthMapSpotLight1 = std::make_unique<Shader>(string); };
 	//void createFBOSpotLight1(Texture& texture) { m_FBOSpotLight1 = std::make_unique<FrameBuffer>(texture); };
 
-	const Shader* getShaderSingleColor() const { return m_shaderSingleColor.get(); };
 	void createShaderSingleColor(std::string string) { m_shaderSingleColor = std::make_unique<Shader>(string); };
 	void createShaderSkybox(std::string string) { m_shaderSkybox = std::make_unique<Shader>(string); };
 	void createShaderFrustum(std::string string) { m_shaderFrustum = std::make_unique<Shader>(string); };
 	void createShaderDebugQuad(std::string string) { m_shaderDebugQuad = std::make_unique<Shader>(string); };
+	const Shader* getShaderDebugQuad() const { return m_shaderDebugQuad.get(); };
 	void createShaderDepthMap(std::string string) { m_shaderDepthMap = std::make_unique<Shader>(string); };
 
 	//void isRendererComplete() const { assert(m_shaderDepthMapDirLight != nullptr || m_shaderDepthMapSpotLight1 != nullptr || m_shaderDepthMapSpotLight0 != nullptr || m_shaderSingleColor != nullptr || m_shaderSkybox != nullptr || m_shaderFrustum != nullptr || m_shaderDebugQuad != nullptr); };

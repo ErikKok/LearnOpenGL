@@ -47,17 +47,17 @@ void Renderer::draw(const RenderObject& RO) const
 		if (!RO.material->enableGL_CULL_FACE)
 			glDisable(GL_CULL_FACE);
 
-		RO.material->shader.useShader();
+		RO.material->shader->useShader();
 
 		// Material, dit zijn vaste waardes, die potentieel elke keer, veranderen per draw call, dus hard coded is ok?
-		RO.material->shader.setInt("material.diffuse1", RO.material->diffuse1);
-		RO.material->shader.setInt("material.specular1", RO.material->specular1);
-		//RO.material->shader.setInt("material.normal1", RO.material->normal1);
-		RO.material->shader.setInt("material.emissionTexture", RO.material->emissionTexture);
-		RO.material->shader.setFloat("material.emissionStrength", RO.material->emissionStrength);
-		RO.material->shader.setFloat("material.shininess", RO.material->shininess);
-		RO.material->shader.setInt("material.lightEmissionMap", RO.material->lightEmissionMap);
-		RO.material->shader.setInt("material.lightEmissionTexture", RO.material->lightEmissionTexture);
+		RO.material->shader->setInt("material.diffuse1", RO.material->diffuse1);
+		RO.material->shader->setInt("material.specular1", RO.material->specular1);
+		//RO.material->shader->setInt("material.normal1", RO.material->normal1);
+		RO.material->shader->setInt("material.emissionTexture", RO.material->emissionTexture);
+		RO.material->shader->setFloat("material.emissionStrength", RO.material->emissionStrength);
+		RO.material->shader->setFloat("material.shininess", RO.material->shininess);
+		RO.material->shader->setInt("material.lightEmissionMap", RO.material->lightEmissionMap);
+		RO.material->shader->setInt("material.lightEmissionTexture", RO.material->lightEmissionTexture);
 
 		// SSBO
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
@@ -87,14 +87,11 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 
 	assert(!RO.mesh && "RenderObject contains a Mesh, is this a RenderObject for a Mesh instead of a Model?");
 
-	////////////////////////////////
-	//RO.ssbo[0]->bind(); // uberSSBO
-
 	// Activate Shader + set material properties
 	switch (m_renderPassActive)
 	{
 	case renderPassType::undefined:
-		assert(false); // should never be the case 
+		assert(false);
 		break;
 	case renderPassType::depthMapDirLight:
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
@@ -118,14 +115,14 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 		if (!RO.material->enableGL_CULL_FACE)
 			glDisable(GL_CULL_FACE);
 
-		RO.material->shader.useShader();
+		RO.material->shader->useShader();
 
 		// Material, dit zijn vaste waardes, die potentieel elke keer, veranderen per draw call, dus hard coded is ok?
-		RO.material->shader.setInt("material.emissionTexture", RO.material->emissionTexture);
-		RO.material->shader.setFloat("material.emissionStrength", RO.material->emissionStrength);
-		RO.material->shader.setFloat("material.shininess", RO.material->shininess);
-		RO.material->shader.setInt("material.lightEmissionMap", RO.material->lightEmissionMap);
-		RO.material->shader.setInt("material.lightEmissionTexture", RO.material->lightEmissionTexture);
+		RO.material->shader->setInt("material.emissionTexture", RO.material->emissionTexture);
+		RO.material->shader->setFloat("material.emissionStrength", RO.material->emissionStrength);
+		RO.material->shader->setFloat("material.shininess", RO.material->shininess);
+		RO.material->shader->setInt("material.lightEmissionMap", RO.material->lightEmissionMap);
+		RO.material->shader->setInt("material.lightEmissionTexture", RO.material->lightEmissionTexture);
 
 		// SSBO
 		for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
@@ -170,7 +167,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 
 		std::string result{ "material." + model.m_meshes[i].m_textures[i]->getTypeAsString() + count };
 		if (m_renderPassActive == renderPassType::normal) {
-			RO.material->shader.setInt(result, model.m_meshes[i].m_textures[i]->getBound());
+			RO.material->shader->setInt(result, model.m_meshes[i].m_textures[i]->getBound());
 		}
 	}
 
@@ -198,8 +195,7 @@ void Renderer::drawModel(const RenderObject& RO, Model& model) // TODO const con
 void Renderer::drawSingleColor(const RenderObject& RO) const
 {
 	m_shaderSingleColor->useShader();
-	//RO.ssbo[0]->bind(); // uberSSBO
-	// SSBO TODO clean up
+
 	for (auto i = 0; i < std::ssize(RO.ssbo); i++) {
 		if (RO.ssbo[i]->getType() == SSBO::singleColor || RO.ssbo[i]->getType() == SSBO::MVP)
 			RO.ssbo[i]->bind();
@@ -253,7 +249,7 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
 {
 	m_shaderDebugQuad->useShader();
 	m_shaderDebugQuad->setMat4("model", Global::calculateModelMatrix(glm::vec3(0.6f, 0.6f, -1.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.0f)));
-	m_shaderDebugQuad->setBool("orthographic", false); // TODO get from camera class // true for dirLight only
+	m_shaderDebugQuad->setBool("orthographic", useCamera.getOrthographic());
 	m_shaderDebugQuad->setFloat("nearPlane", useCamera.getNearPlane());
 	m_shaderDebugQuad->setFloat("farPlane", useCamera.getFarPlane());
 
@@ -352,7 +348,7 @@ void Renderer::goRender() {
 	clearColorAndDepthBuffer();
 
 	for (const auto& RO : m_renderVector) {
-		if (!RO->material) // == nullptr
+		if (!RO->material) // == nullptr TODO should be a flag in RO
 			drawSingleColor(*RO);
 		else if (RO->model)
 			drawModel(*RO, *RO->model);

@@ -209,8 +209,11 @@ void Global::key_callback(GLFWwindow* window, int key, int scancode, int action,
     if (key == GLFW_KEY_F && action == GLFW_PRESS)
         isFlashLightOnUpdated = false;
 
-    if (key == GLFW_KEY_K && action == GLFW_PRESS)
-        frustumVisible = !frustumVisible;
+    if (key == GLFW_KEY_K && action == GLFW_PRESS) {
+        frustumVisible++;
+        if (frustumVisible == 4)
+            frustumVisible = 0;
+    }
 
     static int polygonMode{ 0 };
     if (key == GLFW_KEY_L && action == GLFW_PRESS) {
@@ -249,8 +252,11 @@ void Global::key_callback(GLFWwindow* window, int key, int scancode, int action,
     if (key == GLFW_KEY_P && action == GLFW_PRESS)
         paused = !paused;
 
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS)
-        debugQuadVisible = !debugQuadVisible;
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        debugQuadVisible++;
+        if (debugQuadVisible == 4)
+            debugQuadVisible = 0;
+    }
 
     if (key == GLFW_KEY_V && action == GLFW_PRESS)
         glfwSwapInterval(0);

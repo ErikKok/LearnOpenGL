@@ -14,25 +14,22 @@ void main()
 } 
 
 #shader fragment
-#version 420 core
+#version 330 core
 out vec4 FragColor;
   
 in vec2 TexCoords;
 
-layout (binding=6) uniform sampler2D someTexture;
-
+uniform sampler2D quadTexture;
 uniform bool orthographic;
 uniform float nearPlane;
 uniform float farPlane;
 
 void main()
 { 
-    float depthValue = texture(someTexture, TexCoords).r;
+    float depthValue = texture(quadTexture, TexCoords).r;
 
-        // if type = depthMap {
-
+   // if type = depthMap {
         if (orthographic) {  // Transform non-linear depth values to linear for visibility when using perspective projection
-
             FragColor = vec4(vec3(depthValue), 1.0f);
         }
         else if (!orthographic) { // Orthographic projection

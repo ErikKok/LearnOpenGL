@@ -59,9 +59,9 @@ namespace Global {
 
     // Toggles
     inline bool drawOutline{ false };
-    inline bool debugQuadVisible{ false };
+    inline int frustumVisible{ 0 };
+    inline int debugQuadVisible{ 0 };
     inline bool isFlashLightOnUpdated{ true };
-    inline bool frustumVisible{ false };
 
     // Error
     const GLenum glCheckError_(const char* file, int line);

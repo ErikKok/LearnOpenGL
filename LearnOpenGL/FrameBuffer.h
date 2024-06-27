@@ -31,8 +31,6 @@ public:
 	const unsigned int getId() const { return m_id; };
 	const framebufferType getType() const { return m_type; };
 	const Texture* getTexture() const { return m_texture.get(); };
-	const bool getOrthographic() const { return m_orthographic; };
-	void setOrthographic(bool x) { m_orthographic = x; };
 
 	void bind() const;
 	void unbind() const;
@@ -44,5 +42,4 @@ private:
 	GLuint m_id{};
 	framebufferType m_type{ framebufferType::undefined };
 	UPtr<Texture> m_texture{};
-	bool m_orthographic{ false }; // false == perspective  // TODO could be synced with camera type
 };

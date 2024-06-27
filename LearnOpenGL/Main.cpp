@@ -116,7 +116,6 @@ int main()
 
     Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
     renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(depthMapDirLight));
-    renderer.m_FBO[0]->setOrthographic(true);
 
     OrthographicCamera cameraDirLight(sun.getDirection(), -20.0f, 20.0f, -20.0f, 20.0f);
     cameraDirLight.setNearPlane(-15.0f);
@@ -189,7 +188,7 @@ int main()
     Mesh cubeMesh(Data::cube, Data::cubeIndices);
 
     Material cubeMaterial{
-        .shader{ multiLight },
+        .shader{ &multiLight },
         .diffuse1{ 8 },
         .specular1{ 9 },
         .normal1{ 7 },
@@ -217,7 +216,7 @@ int main()
     Mesh floorMesh(Data::floor, Data::floorIndices);
 
     Material floorMaterial{
-        .shader{ multiLight },
+        .shader{ &multiLight },
         .diffuse1{ 4 },
         .specular1{ 0 },
         .normal1{ 7 },
@@ -261,7 +260,7 @@ int main()
     //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
 
     Material modelMaterial{
-        .shader{ multiLightNormalMapping },
+        .shader{ &multiLightNormalMapping },
         .diffuse1{ 0 },
         .specular1{ 0 },
         .normal1{ 7 },
@@ -272,7 +271,7 @@ int main()
         .lightEmissionTexture{ 0 },
     };
 
-    RenderObject modelRO{ nullptr, &modelMaterial};
+    RenderObject modelRO{ nullptr, &modelMaterial };
     modelRO.model = std::make_unique<Model>("Models/Backpack/backpack.obj");
 
     modelRO.transform[0] = Global::calculateModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -284,7 +283,7 @@ int main()
     modelRO.addSSBO(+SSBO::spotLight1MVP, sizeof(glm::mat4), SSBO::spotLight1MVP);
     modelRO.addSSBO(+SSBO::normalMatrix, sizeof(glm::mat4));
     modelRO.addSSBO(+SSBO::modelViewMatrix, sizeof(glm::mat4));
-    modelRO.addSSBO(+SSBO::MVP, sizeof(glm::mat4), SSBO::MVP);
+    modelRO.addSSBO(+SSBO::MVP, sizeof(glm::mat4), SSBO::MVP);  
 
     // Lightcubes
     RenderObject lightCubeRO{ &cubeMesh, nullptr, 5 };
@@ -500,18 +499,38 @@ int main()
         renderer.goRenderOutline();
 
         // Draw frustum - toggle with K
-        if (Global::frustumVisible) {
-            //renderer.drawFrustum(cubeMesh, cameraDirLight.getViewProjectionMatrix());
-            renderer.drawFrustum(cubeMesh, cameraSpotLight0.getViewProjectionMatrix());
-            //renderer.drawFrustum(cubeMesh, cameraSpotLight1.getViewProjectionMatrix());
+        if (Global::frustumVisible > 0) {
+            switch (Global::frustumVisible)
+            {
+            case 1:
+                renderer.drawFrustum(cubeMesh, cameraDirLight.getViewProjectionMatrix());
+                break;
+            case 2:
+                renderer.drawFrustum(cubeMesh, cameraSpotLight0.getViewProjectionMatrix());
+                break;
+            case 3:
+                renderer.drawFrustum(cubeMesh, cameraSpotLight1.getViewProjectionMatrix());
+                break;
+            }
         }
 
         // Draw debug quad - toggle with Q
-        if (Global::debugQuadVisible) {
-            // Set texture sampler2D binding in Shader itself + set orthographic in function + set corresponding Camera below
-            //renderer.drawDebugQuad(quadMesh, cameraDirLight); //  binding 2
-            renderer.drawDebugQuad(quadMesh, cameraSpotLight0); // binding 6
-            //renderer.drawDebugQuad(quadMesh, cameraSpotLight1); //  binding 5
+        if (Global::debugQuadVisible > 0) {
+            switch (Global::debugQuadVisible)
+            {
+            case 1:
+                renderer.drawDebugQuad(quadMesh, cameraDirLight);
+                renderer.getShaderDebugQuad()->setInt("quadTexture", 2);
+                break;
+            case 2:
+                renderer.drawDebugQuad(quadMesh, cameraSpotLight0);
+                renderer.getShaderDebugQuad()->setInt("quadTexture", 5);
+                break;
+            case 3:
+                renderer.drawDebugQuad(quadMesh, cameraSpotLight1);
+                renderer.getShaderDebugQuad()->setInt("quadTexture", 6);
+                break;
+            }
         }
 
         if (!Global::paused) { // toggle with P

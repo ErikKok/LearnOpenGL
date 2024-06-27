@@ -36,6 +36,12 @@ TO DO
 - move Camera into FrameBuffer?
 - make sun static in-Class, and check for getOn in goRender loop
 
+v0.2.82 27-6-2024
+-----------------
+- moved orthographic to camera, from framebuffer
+- improved debugQuad, you can now scroll through the depthMaps
+- ...and through the frustum as well
+
 v0.2.81 26-6-2024
 -----------------
 - renamed and reorderd SSBO enums
