@@ -24,7 +24,7 @@ struct Material {
 	int lightEmissionMap{ 0 };			// sampler2D
 	int lightEmissionTexture{ 0 };		// sampler2D
 	bool enableGL_CULL_FACE{ true };
-	//int cullFace{ GL_FRONT };			// false == GL_BACK
+	// int cullFace{ GL_FRONT };			// false == GL_BACK
 	// bool depthTested;
 	// bool writeToDepthBuffer;
 	// bool blendMode;
@@ -46,17 +46,14 @@ public:
 		ssbo.emplace_back(std::make_unique<ShaderStorageBuffer>(bindingPoint, instances, elementSize, type));
 	}
 
-	Mesh* mesh{ nullptr }; // TODO should it own it's mesh?
+	Mesh* mesh{ nullptr }; // TODO should it own it's mesh? if you want a copy of a Mesh, the data members should be shared ptr's, not unique.
 	Material* material{ nullptr }; // TODO make unique_ptr van maken? // TODO should it own it's material?
 	std::unique_ptr<Model> model{ nullptr };
-	std::vector<glm::mat4> transform{}; // transforms
+	std::vector<glm::mat4> transform{};
 	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // Each RenderObject owns it's unique SSBOs (on the heap), this way you can upload them just once per renderpass (raw pointers (on the stack) are max 1% faster)
 	int instances{ 1 };
-	bool drawShadow{ true };
+	bool castsShadow{ true };
 	bool drawOutline{ false };
-	// renderType type; (transparant, singleColor, isModel, etc.;
-	// bool isSelected; true = de outline renderen
-	// bool castShadow;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

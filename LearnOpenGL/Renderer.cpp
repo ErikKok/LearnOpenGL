@@ -8,8 +8,6 @@
 
 #include <vector>
 
-
-
 // TODO hoe weet renderer welke uniforms en ssbo's hij moet doen, zonder dit hard te coden?
 // vaste elementen gebruiken voor de passes? maar wat als 1 pass vaker voorkomt (spotlight)
 // die kan in een aparte vector
@@ -332,9 +330,9 @@ void Renderer::goRender() {
 		clearDepthBuffer();
 
 		for (const auto& RO : m_renderVector) {
-			if (RO->drawShadow && RO->model)
+			if (RO->castsShadow && RO->model)
 				drawModel(*RO, *RO->model);
-			else if (RO->drawShadow)
+			else if (RO->castsShadow)
 				draw(*RO);
 		}
 
@@ -348,12 +346,12 @@ void Renderer::goRender() {
 	clearColorAndDepthBuffer();
 
 	for (const auto& RO : m_renderVector) {
-		if (!RO->material) // == nullptr TODO should be a flag in RO
+		if (!RO->material) // == nullptr TODO should be a flag in RO?	// RO without a Material will be drawn as SingleColor)
 			drawSingleColor(*RO);
-		else if (RO->model)
+		else if (RO->model)												// RO with a Model will be drawn as a Model
 			drawModel(*RO, *RO->model);
-		else if (Global::drawOutline)
-			drawWithStencil(*RO);
+		else if (Global::drawOutline && RO->drawOutline)
+			drawWithStencil(*RO);										// RO SingleColor or Model will never reach this branch TODO: if (RO->model && RO->drawOutline)
 		else
 			draw(*RO);
 	}

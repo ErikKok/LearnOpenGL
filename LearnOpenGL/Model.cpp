@@ -17,9 +17,8 @@
 #include <print>
 #include <vector>
 
-Model::Model(std::string const& path, bool gamma)
-    : m_gammaCorrection{ gamma }
-    , m_pathAndFileName{ path }
+Model::Model(std::string const& path)
+    : m_pathAndFileName{ path }
 {
     std::println("CREATE Model: {}", path);
     loadModel(path);

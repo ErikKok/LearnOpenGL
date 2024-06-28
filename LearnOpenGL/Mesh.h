@@ -25,7 +25,7 @@ class Mesh {
 
 public:
     Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& indices);
-    Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<SPtr<Texture>>& textures); // Constructor
+    Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<SPtr<Texture>>& textures);
     Mesh(const Mesh& other) = delete;		        	// Copy constructor
     Mesh& operator=(const Mesh& other) = delete;	    // Copy assignment
     Mesh(Mesh&& other) noexcept = default;				// Move constructor
@@ -33,8 +33,8 @@ public:
     ~Mesh() = default;									// Destructor
 
 private:
-    std::vector<Vertex> m_vertices; // TODO samenvoegen met die eronder Template?
-    std::vector<float> m_verticesFloat;
+    std::vector<Vertex> m_vertices; // TODO samenvoegen met die eronder, Template?
+    std::vector<float> m_verticesFloat; // same, but with only floats
     std::vector<unsigned int> m_indices;
     std::vector<SPtr<Texture>> m_textures;
     std::unique_ptr<VertexArray> m_vao{ nullptr };

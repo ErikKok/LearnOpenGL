@@ -33,8 +33,15 @@ TO DO
 - TODO's nalopen
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
 - obj van cube en hexagon fixen
-- move Camera into FrameBuffer?
+- move Camera into FrameBuffer? zit al in Light... moet die in de framebuffer?
 - make sun static in-Class, and check for getOn in goRender loop
+- implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
+- could tangent be replaced with * 0.0f?
+
+v0.2.83 28-6-2024
+-----------------
+- removed m_gammaCorrection from Model, unused...
+- added a OpenGL scope to properly delete OpenGL stuff when closing glfwWindow
 
 v0.2.82 27-6-2024
 -----------------

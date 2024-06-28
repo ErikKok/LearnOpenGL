@@ -88,11 +88,13 @@ const int Global::init(GLFWwindow* window)
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(window, key_callback);
 
+    std::println("Initialize GLAD");
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::println("Failed to initialize GLAD");
         return -1;
     }
 
+    std::println("Initialize OpenGL");
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -100,7 +102,7 @@ const int Global::init(GLFWwindow* window)
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_FRAMEBUFFER_SRGB);
 
-    // Debug
+    std::println("Initialize Debug");
     int flags{};
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {

@@ -19,13 +19,15 @@ Camera::Camera(float aspectRatio, glm::vec3 position, glm::vec3 front, glm::vec3
     calculateProjectionMatrix();
 }
 
-OrthographicCamera::OrthographicCamera(glm::vec3 direction, float left, float right, float bottom, float top)
+OrthographicCamera::OrthographicCamera(glm::vec3 direction, float left, float right, float bottom, float top, float nearPlane, float farPlane)
     : m_direction{ direction }
     , m_leftOrtho{ left }
     , m_rightOrtho{ right }
     , m_bottomOrtho{ bottom }
     , m_topOrtho{ top }
 {
+    m_nearPlane = nearPlane;
+    m_farPlane = farPlane;
     m_orthographic = true;
     updateCameraVectors();
     calculateViewMatrix();

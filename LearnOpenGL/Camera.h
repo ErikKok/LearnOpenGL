@@ -79,7 +79,7 @@ protected:
 
 class OrthographicCamera : public Camera{
 public:
-    OrthographicCamera(glm::vec3 direction, float left, float right, float bottom, float top);
+    OrthographicCamera(glm::vec3 direction, float left, float right, float bottom, float top, float nearPlane, float farPlane);
 
     const void calculateViewMatrix() override;
     void calculateProjectionMatrix() override { m_projectionMatrix = glm::ortho(m_leftOrtho, m_rightOrtho, m_bottomOrtho, m_topOrtho, m_nearPlane, m_farPlane); m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix; };
