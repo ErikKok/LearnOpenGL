@@ -21,22 +21,25 @@ static_assert(std::size(framebufferTypeName) == static_cast<int>(framebufferType
 class FrameBuffer {
 public:
 	FrameBuffer();													// Constructor
-	FrameBuffer(Texture& texture);									// Constructor depthMap // TODO make const
+	FrameBuffer(int x, int y);										// Constructor depthMap
 	FrameBuffer(const FrameBuffer& other) = delete;					// Copy constructor
 	FrameBuffer& operator=(const FrameBuffer& other) = delete;		// Copy assignment
 	FrameBuffer(FrameBuffer&& other) noexcept = delete; 			// Move constructor	
 	FrameBuffer& operator=(FrameBuffer&& other) noexcept = delete;	// Move assignment
 	~FrameBuffer();													// Destructor
 	
-	const unsigned int getId() const { return m_id; };
-	const framebufferType getType() const { return m_type; };
-	const Texture* getTexture() const { return m_texture.get(); };
+	unsigned int getId() const { return m_id; };
+	const framebufferType& getType() const { return m_type; };
+
+	// TODO is this implemented / used the correct way?
+	//const Texture* getTexture() const { return m_texture.get(); };
+	template <class Self>
+	auto&& getTexture(this Self&& self) {
+		return std::forward<Self>(self).m_texture;
+	}
 
 	void bind() const;
 	void unbind() const;
-
-	void startDepthMap(const Shader* shader) const;
-	void stopDepthMap() const;
 
 private:
 	GLuint m_id{};

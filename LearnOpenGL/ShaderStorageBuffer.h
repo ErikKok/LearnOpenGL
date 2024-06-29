@@ -55,8 +55,8 @@ public:
 	ShaderStorageBuffer& operator=(ShaderStorageBuffer&& other) noexcept = delete;	// Move assignment
 	~ShaderStorageBuffer();															// Destructor
 
-	const GLuint getId() const { return m_id; };
-	const SSBO getType() const { return m_ssboType; };
+	GLuint getId() const { return m_id; };
+	SSBO getType() const { return m_ssboType; };
 	//void setType(SSBO type) { m_ssboType = type; };
 	//const GLuint getBindingPoint() const { return m_bindingPoint; };
 

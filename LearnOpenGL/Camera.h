@@ -20,31 +20,30 @@ class Camera
 public:
     Camera(float aspectRatio, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
 
-    glm::vec3 getPosition()  { return m_position; };
+    glm::vec3 getPosition() const { return m_position; };
     void setPosition(glm::vec3 x) { m_position = x; calculateViewMatrix(); };
-    const glm::vec3 getFront() const { return m_front; };
+    const glm::vec3& getFront() const { return m_front; };
     void setFront(glm::vec3 x) { m_front = x; };
-    const glm::vec3 getUp() const { return m_up; };
-    const glm::vec3 getRight() const { return m_right; };
-    const float getNearPlane() const { return m_nearPlane; };
+    const glm::vec3& getUp() const { return m_up; };
+    const glm::vec3& getRight() const { return m_right; };
+    float getNearPlane() const { return m_nearPlane; };
     void setNearPlane(float x) { m_nearPlane = x; calculateProjectionMatrix(); };
-    const float getFarPlane() const { return m_farPlane; };
+    float getFarPlane() const { return m_farPlane; };
     void setFarPlane(float x) { m_farPlane = x; calculateProjectionMatrix(); };
-    const float getAspectRatio() const { return m_aspectRatio; };
+    float getAspectRatio() const { return m_aspectRatio; };
     void setAspectRatio(float x) { m_aspectRatio = x; calculateProjectionMatrix(); };
-    const float getFov() const { return m_fov; };
+    float getFov() const { return m_fov; };
     void setFov(float x) { m_fov = x; calculateProjectionMatrix(); };
-    const bool getOrthographic() const { return m_orthographic; };
+    bool getOrthographic() const { return m_orthographic; };
 
     virtual const void calculateViewMatrix();
-    const glm::mat4 getViewMatrix() const { return m_viewMatrix; };
-    void setViewMatrix(const glm::mat4& mat4) { m_viewMatrix = mat4; m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix; }; // TODO
+    const glm::mat4& getViewMatrix() const { return m_viewMatrix; };
+    void setViewMatrix(const glm::mat4& mat4) { m_viewMatrix = mat4; m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix; };
+    const glm::mat4& getProjectionMatrix() const { return m_projectionMatrix; };
+    const glm::mat4& getViewProjectionMatrix() const { return m_viewProjectionMatrix; };
+    virtual void calculateProjectionMatrix();
 
-    const glm::mat4 getViewProjectionMatrix() const { return m_viewProjectionMatrix; };
-    virtual void calculateProjectionMatrix() { m_projectionMatrix = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane); m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix; }; // TODO
-    const glm::mat4 getProjectionMatrix() const { return m_projectionMatrix; };
-
-    void fakeGravity(GLfloat deltaTime); // TODO
+    void fakeGravity(GLfloat deltaTime);
 
     void processKeyboard(CameraMovement direction);
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
@@ -60,10 +59,8 @@ protected:
     const glm::vec3 m_defaultUp{ 0.0f, 1.0f, 0.0f };
     GLfloat m_nearPlane{ 0.1f };
     GLfloat m_farPlane{ 400.0f };
-    // euler Angles
     GLfloat m_yaw{ -90.0f };
     GLfloat m_pitch{ 0.0f };
-    // camera Options
     GLfloat m_movementSpeed{ 2.5f };
     GLfloat m_mouseSensitivity{ 0.035f };
     GLfloat m_fov{ 45.0f }; // (InnerCutOff + OuterCutOff + 15% for attenuation) seems about right

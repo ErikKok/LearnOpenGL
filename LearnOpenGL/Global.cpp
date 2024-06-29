@@ -30,7 +30,7 @@ void Global::glClearError()
 }
 
 // Takes in full transformation parameters in World space, and outputs model in World space
-const glm::mat4 Global::calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+glm::mat4 Global::calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 {
     glm::mat4 model{ 1.0f };
     model = glm::translate(model, translate);
@@ -42,7 +42,7 @@ const glm::mat4 Global::calculateModelMatrix(glm::vec3 translate, float rotateDe
 }
 
 // Takes in full transformation parameters in World space, and outputs model in View space
-const glm::mat4 Global::calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+glm::mat4 Global::calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 { 
     return camera.getViewMatrix() * calculateModelMatrix(translate, rotateDegrees, rotateVec3, scale);
 }
@@ -73,7 +73,7 @@ void Global::cheap2Copy() {
     //std::println("Is Texture cheap to copy: {} (provided there are no additional setup costs)", cheap);
 }
 
-const int Global::init(GLFWwindow* window)
+int Global::init(GLFWwindow* window)
 {
     assert(sizeof(int) == sizeof(GLint) && "size of int and GL_INT is not equal"); 
     assert(sizeof(unsigned int) == sizeof(GLuint) && "size of unsigned int and GLuint is not equal");

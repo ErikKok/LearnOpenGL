@@ -51,7 +51,7 @@ Texture::Texture(const std::string& filePath, bool convertToLinearSpace)
 }
 
 // Creates single color, single pixel texture from a hex value:
-Texture::Texture(uint32_t color)
+Texture::Texture(uint32_t color, bool convertToLinearSpace)
     :m_singleColor{ color }
     ,m_type { textureType::singleColor }
     ,m_width{ 1 }
@@ -62,8 +62,11 @@ Texture::Texture(uint32_t color)
     glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    GLenum internalFormat{};
+    convertToLinearSpace ? internalFormat = GL_SRGB8 : internalFormat = GL_RGB8;
 
-    glTextureStorage2D(m_id, 1, GL_SRGB8, m_width, m_height);
+    glTextureStorage2D(m_id, 1, internalFormat, m_width, m_height);
     glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
 
     Global::glCheckError();

@@ -16,14 +16,10 @@ FrameBuffer::FrameBuffer()
 	std::println("CREATE FrameBuffer id: {}", m_id);
 }
 
-FrameBuffer::FrameBuffer(Texture& texture)
+FrameBuffer::FrameBuffer(int x, int y)
 	: m_type{ framebufferType::depthMap }
-	, m_texture{ std::make_unique<Texture>(std::move(texture)) } // TODO is this what I want?
+	, m_texture{ std::make_unique<Texture>(textureType::depthMap, x, y) }
 {
-	texture.setType(textureType::undefined); // texture got moved into FrameBuffer, this object is not to be used anymore, so I invalidate it here
-	
-	assert(m_texture->getType() == textureType::depthMap && "Texture has wrong Type for this constructor");	
-
 	glCreateFramebuffers(1, &m_id);
 	glNamedFramebufferTexture(m_id, GL_DEPTH_ATTACHMENT, m_texture->getId(), 0);
 	glNamedFramebufferDrawBuffer(m_id, GL_NONE);
@@ -50,30 +46,6 @@ void FrameBuffer::bind() const
 
 void FrameBuffer::unbind() const
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	Global::glCheckError();
-}
-
-void FrameBuffer::startDepthMap(const Shader* shader) const
-{
-	assert(m_type == framebufferType::depthMap && "Wrong framebufferType");
-
-	glBindFramebuffer(GL_FRAMEBUFFER, m_id);
-
-	glViewport(0, 0, m_texture->getWidth(), m_texture->getHeight());
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way // TODO to renderer
-	shader->useShader();
-	//shader.bindTexture(x);
-
-	Global::glCheckError();
-}
-
-void FrameBuffer::stopDepthMap() const
-{
-	assert(m_type == framebufferType::depthMap && "Wrong framebufferType");
-	
-	glCullFace(GL_BACK);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	Global::glCheckError();
 }

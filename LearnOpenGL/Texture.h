@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-enum class textureType {
+enum class textureType : int {
 	undefined,
 	diffuse,
 	specular,
@@ -24,7 +24,7 @@ static_assert(std::size(textureTypeName) == static_cast<int>(textureType::max_te
 class Texture {
 public:
 	Texture(const std::string& filePath, bool convertToLinearSpace = true);	// Constructor					// Default converts to Linear Space
-	Texture(uint32_t color);												// Constructor single color		// Always converts to Linear Space
+	Texture(uint32_t color, bool convertToLinearSpace = true);				// Constructor single color		// Default converts to Linear Space
 	Texture(const std::vector<std::string>& faces);							// Constructor cubeMap			// Always converts to Linear Space
 	Texture(textureType textureType, GLsizei width, GLsizei height);		// Constructor depthMap			// Constructor expects parameter textureType::depthMap
 	Texture(const Texture& other) = delete;									// Copy constructor
@@ -37,17 +37,17 @@ public:
 	void bind(GLuint);
 	//void unbind(); // Not DSA, but not needed?
 
-	const GLuint getId() const { return m_id; };
-	const int getBound() const { return m_boundTextureUnit; };
+	GLuint getId() const { return m_id; };
+	int getBound() const { return m_boundTextureUnit; };
 	void setBound(int textureUnit) { m_boundTextureUnit = textureUnit; };
-	const textureType getType() const { return m_type; };
-	const std::string getTypeAsString() const { return textureTypeName[static_cast<int>(m_type)]; };
+	const textureType& getType() const { return m_type; };
+	std::string getTypeAsString() const { return textureTypeName[static_cast<int>(m_type)]; }; // TODO std:to underlying ofzo
 	void setType(textureType type) { m_type = type; };
-	const std::string_view getfileName() const { return m_fileName; };
+	const std::string& getfileName() const { return m_fileName; };
 	void setfileName(const std::string& fileName) { m_fileName = fileName; };
-	const GLuint getWidth() const { return m_width; };
-	const GLuint getHeight() const { return m_height; };
-	const float getAspectRatio() const { return static_cast<float>(m_width / m_height); };
+	GLuint getWidth() const { return m_width; };
+	GLuint getHeight() const { return m_height; };
+	float getAspectRatio() const { return static_cast<float>(m_width / m_height); };
 
 private:
 	GLuint m_id{};

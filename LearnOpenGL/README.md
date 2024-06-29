@@ -38,6 +38,12 @@ TO DO
 - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
 - could tangent be replaced with * 0.0f?
 
+v0.2.84 29-6-2024
+-----------------
+- fixed some small TODO's
+- FrameBuffer depthMap constructor now creates it's own Texture
+- implemented: Getters should return by value or by const lvalue reference
+
 v0.2.83 28-6-2024
 -----------------
 - removed m_gammaCorrection from Model, unused...

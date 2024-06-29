@@ -115,8 +115,8 @@ int main()
         sun.sendToShader(multiLight);
         sun.sendToShader(multiLightNormalMapping);
 
-        Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
-        renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(depthMapDirLight));
+        //Texture depthMapDirLight(textureType::depthMap, 4096, 4096);
+        renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(4096, 4096));
 
         OrthographicCamera cameraDirLight(sun.getDirection(), -20.0f, 20.0f, -20.0f, 20.0f, -15.0f, 35.0f);
 
@@ -128,7 +128,7 @@ int main()
         SpotLight::spotLights[0].setDirection({ 0.0f, 0.0f, -1.0f });
         SpotLight::spotLights[0].setColor({ 1.0f, 1.0f, 1.0f });
         SpotLight::spotLights[0].setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
-        SpotLight::spotLights[0].setDepthMap(6);
+        SpotLight::spotLights[0].setDepthMap(5);
         SpotLight::spotLights[0].setConstant(1.0f);
         SpotLight::spotLights[0].setLinear(0.045f);
         SpotLight::spotLights[0].setQuadratic(0.0075f);
@@ -138,10 +138,10 @@ int main()
         SpotLight::spotLights[0].sendToShader(multiLight);
         SpotLight::spotLights[0].sendToShader(multiLightNormalMapping);
 
-        Texture depthMapSpotLight0(textureType::depthMap, 512, 512);
-        renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight0));
+        //Texture depthMapSpotLight0(textureType::depthMap, 512, 512);
+        renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(512, 512));
 
-        Camera cameraSpotLight0(depthMapSpotLight0.getAspectRatio(), Global::cameraInitialPosition);
+        Camera cameraSpotLight0(renderer.m_FBO[1]->getTexture()->getAspectRatio(), Global::cameraInitialPosition);
         SpotLight::spotLights[0].setCamera(&cameraSpotLight0);
         cameraSpotLight0.setFov(25.0f);
         cameraSpotLight0.setNearPlane(0.1f);
@@ -153,7 +153,7 @@ int main()
         SpotLight::spotLights[1].setDirection({ 0.0f, -1.0f, 0.0f });
         SpotLight::spotLights[1].setColor({ 1.0f, 1.0f, 1.0f });
         SpotLight::spotLights[1].setStrength(1.2f);
-        SpotLight::spotLights[1].setDepthMap(5);
+        SpotLight::spotLights[1].setDepthMap(6);
         SpotLight::spotLights[1].setConstant(1.0f);
         SpotLight::spotLights[1].setLinear(0.014f);
         SpotLight::spotLights[1].setQuadratic(0.07f);
@@ -163,10 +163,10 @@ int main()
         SpotLight::spotLights[1].sendToShader(multiLight);
         SpotLight::spotLights[1].sendToShader(multiLightNormalMapping);
 
-        Texture depthMapSpotLight1(textureType::depthMap, 1024, 1024);
-        renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(depthMapSpotLight1));
+        //Texture depthMapSpotLight1(textureType::depthMap, 1024, 1024);
+        renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(1024, 1024));
 
-        Camera cameraSpotLight1(depthMapSpotLight1.getAspectRatio(), SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
+        Camera cameraSpotLight1(renderer.m_FBO[2]->getTexture()->getAspectRatio(), SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
         SpotLight::spotLights[1].setCamera(&cameraSpotLight1);
         cameraSpotLight1.setFov((36.0f + 48.0f) * 1.15f);
         cameraSpotLight1.setNearPlane(0.1f);
@@ -237,7 +237,7 @@ int main()
         floorRO.addSSBO(+SSBO::normalMatrix, sizeof(glm::mat4));
         floorRO.addSSBO(+SSBO::modelViewMatrix, sizeof(glm::mat4));
         floorRO.addSSBO(+SSBO::MVP, sizeof(glm::mat4), SSBO::MVP);
-        floorRO.addSSBO(+SSBO::singleColor, sizeof(glm::vec4), SSBO::singleColor); // TODO only 1 element needed in this vector
+        floorRO.addSSBO(+SSBO::singleColor, sizeof(glm::vec4), SSBO::singleColor);
         renderer.m_renderVector.emplace_back(&floorRO);
 
         ////////////////////////////////////
@@ -287,13 +287,12 @@ int main()
         lightCubeRO.addSSBO(+SSBO::MVP, sizeof(glm::mat4), SSBO::MVP);
         lightCubeRO.addSSBO(+SSBO::singleColor, sizeof(glm::vec4), SSBO::singleColor);
 
-        // TODO deze kleur/info moet eigenlijk uit de Light zelf worden gehaald
         const std::vector<glm::vec4> lightCubeColors = {
-        glm::vec4(1.0f, 0.0f, 1.0f, 1.0f), // magenta
-        glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), // white
-        glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), // green
-        glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), // blue
-        glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), // red
+        glm::vec4(PointLight::pointLights[0].getColor(), 1.0f), // magenta
+        glm::vec4(PointLight::pointLights[1].getColor(), 1.0f), // white
+        glm::vec4(PointLight::pointLights[2].getColor(), 1.0f), // green
+        glm::vec4(PointLight::pointLights[3].getColor(), 1.0f), // blue
+        glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), // draaiende lightCube, wordt later nog geupload
         };
 
         lightCubeRO.ssbo[1]->updateFully(lightCubeColors, false); // false, want in de loop wordt dit pas geupload, nadat element 4 is gewijzigd
@@ -315,7 +314,7 @@ int main()
         /* 04 */ Texture floorTexture("Textures\\floor.jpg");
         /* 05 */
         /* 06 */
-        /* 07 */ Texture normalUpTexture("Textures\\normal_up.jpg", false); //0x807fffff); // TODO single color?
+        /* 07 */ Texture normalUpTexture("Textures\\normal_up.jpg", false); //0x807fffff); // TODO single color convertToLinearSpace implemented, but not tested!
         /* 08 */ Texture cubeDiffuse("Textures\\container2.png");
         /* 09 */ Texture cubeSpecular("Textures\\container2_specular.png");
         /* 10 */ Texture cubeEmission("Textures\\emission.png");
@@ -329,11 +328,11 @@ int main()
         /* 00 GL_TEXTURE_CUBE_MAP */ cubemapTexture.bind(0);
         /* 00 */ blackTexture.bind(0);
         /* 01 */ whiteTexture.bind(1);
-        /* 02 */ depthMapDirLight.bind(2);
+        /* 02 */ renderer.m_FBO[0]->getTexture()->bind(2); // dirLight
         /* 03 */ flashLightTexture.bind(3);
         /* 04 */ floorTexture.bind(4);
-        /* 05 */ depthMapSpotLight1.bind(5); // TODO omdraaien 5 en 6
-        /* 06 */ depthMapSpotLight0.bind(6);
+        /* 05 */ renderer.m_FBO[1]->getTexture()->bind(5); // spotLight[0]
+        /* 06 */ renderer.m_FBO[2]->getTexture()->bind(6); // spotLight[1]
         /* 07 */ normalUpTexture.bind(7);
         /* 08 */ cubeDiffuse.bind(8);
         /* 09 */ cubeSpecular.bind(9);

@@ -71,7 +71,7 @@ enum renderPassType : int {
 
 class Renderer {
 public:
-	const renderPassType getRenderPassActive() const { return m_renderPassActive; };
+	const renderPassType& getRenderPassActive() const { return m_renderPassActive; };
 	void setRenderPassActive(renderPassType type) { m_renderPassActive = type; };
 
 	//const Shader* getShaderDepthMapDirLight() const { return m_shaderDepthMapDirLight.get(); };
@@ -91,7 +91,7 @@ public:
 	void createShaderSkybox(std::string string) { m_shaderSkybox = std::make_unique<Shader>(string); };
 	void createShaderFrustum(std::string string) { m_shaderFrustum = std::make_unique<Shader>(string); };
 	void createShaderDebugQuad(std::string string) { m_shaderDebugQuad = std::make_unique<Shader>(string); };
-	const Shader* getShaderDebugQuad() const { return m_shaderDebugQuad.get(); };
+	const Shader* const getShaderDebugQuad() const { return m_shaderDebugQuad.get(); };
 	void createShaderDepthMap(std::string string) { m_shaderDepthMap = std::make_unique<Shader>(string); };
 
 	//void isRendererComplete() const { assert(m_shaderDepthMapDirLight != nullptr || m_shaderDepthMapSpotLight1 != nullptr || m_shaderDepthMapSpotLight0 != nullptr || m_shaderSingleColor != nullptr || m_shaderSkybox != nullptr || m_shaderFrustum != nullptr || m_shaderDebugQuad != nullptr); };

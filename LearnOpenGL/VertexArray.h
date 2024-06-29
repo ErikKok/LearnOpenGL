@@ -20,7 +20,7 @@ public:
     VertexArray& operator=(VertexArray&& other) noexcept = delete;	// Move assignment
     ~VertexArray();
 
-    const GLuint getId() const { return m_id; };
+    GLuint getId() const { return m_id; };
 
     void bindVertexArray() const;
     //void unbindVertexArray() const;

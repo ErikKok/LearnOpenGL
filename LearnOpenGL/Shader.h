@@ -11,7 +11,7 @@ class Shader
 public:
     Shader(const std::string& shaderPath);
 
-    const GLuint getId() const { return m_id; };
+    GLuint getId() const { return m_id; };
 
     void useShader() const;
 

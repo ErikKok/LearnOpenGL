@@ -9,19 +9,19 @@
 
 class Light {
 public:
-    const bool getOn() const { return m_on; };
+    bool getOn() const { return m_on; };
     void setOn(bool x) { m_on = x; };
-    const glm::vec3 getPosition() const { return m_position; };
+    const glm::vec3& getPosition() const { return m_position; };
     void setPosition(glm::vec3 x);
-    const glm::vec3 getDirection() const { return m_direction; };
+    const glm::vec3& getDirection() const { return m_direction; };
     void setDirection(glm::vec3 x) { m_direction = x; };
-    const glm::vec3 getColor() const { return m_color; };
+    const glm::vec3& getColor() const { return m_color; };
     void setColor(glm::vec3 x) { m_color = x; };
-    const float getStrength() const { return m_strength; };
+    float getStrength() const { return m_strength; };
     void setStrength(float x) { m_strength = x; };
-    const int getDepthMap() const { return m_depthMap; };
+    int getDepthMap() const { return m_depthMap; };
     void setDepthMap(int x) { m_depthMap = x; };
-    Camera* getCamera() const { return m_camera; };
+    Camera* const getCamera() { return m_camera; }; // TODO non-const
     void setCamera(Camera* x) { m_camera = x; };
 
 protected:
@@ -41,7 +41,7 @@ protected:
 
 class DirectionalLight : public Light {
 public:
-    const float getAmbient() const { return m_ambient; };
+    float getAmbient() const { return m_ambient; };
     void setAmbient(float x) { m_ambient = x; };
 
     void sendToShader(const Shader& shader) const;
@@ -68,11 +68,11 @@ public:
 
     void sendToShader(const Shader& shader) const;
     void updatePositionInViewSpace(const Shader& shader) const;
-    const float getConstant() const { return m_constant; };
+    float getConstant() const { return m_constant; };
     void setConstant(float x) { m_constant = x; };
-    const float getLinear() const { return m_linear; };
+    float getLinear() const { return m_linear; };
     void setLinear(float x) { m_linear = x; };
-    const float getQuadratic() const { return m_quadratic; };
+    float getQuadratic() const { return m_quadratic; };
     void setQuadratic(float x) { m_quadratic = x; };
 
 protected:
@@ -82,7 +82,7 @@ protected:
     float m_quadratic{ 0.032f };    // Long distance intensity
 };
 
-inline const int getPointLightCount() { return PointLight::m_countPointLight; };
+inline int getPointLightCount() { return PointLight::m_countPointLight; };
 
 // SpotLight ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -120,4 +120,4 @@ protected:
     float m_emissionStrength{ 0.0f };   // Overall strength
 };
 
-inline const int getSpotLightCount() { return SpotLight::m_countSpotLight; };
+inline int getSpotLightCount() { return SpotLight::m_countSpotLight; };

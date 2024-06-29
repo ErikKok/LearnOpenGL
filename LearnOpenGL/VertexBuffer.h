@@ -11,7 +11,7 @@ public:
     VertexBuffer& operator=(VertexBuffer&& other) noexcept = delete;	// Move assignment
     ~VertexBuffer();
 
-    const GLuint getId() const { return m_id; };
+    GLuint getId() const { return m_id; };
 
     //void bindVertexBuffer() const;
     //void unbindVertexBuffer() const;

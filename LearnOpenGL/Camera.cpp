@@ -39,25 +39,17 @@ const void Camera::calculateViewMatrix()
 {
    m_viewMatrix = glm::lookAt(m_position, m_position + m_front, m_up);
    m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
-
-    // TODO 
-    // m_position = eye aka target = the position of the camera's viewpoint
-    // m_position = center = is where you are looking at (a position)
-    // m_position + m_front = center = is where you are looking at (a direction vector)
-
-    // eye is the position of the camera's viewpoint, and center is where you are looking at (a position). If you want to use a direction vector D instead of a center position,
-    // you can simply use eye + D as the center position, where D can be a unit vector for example.
- 
-    // not a rearviewmirror, just looking backwards:
-    // glm::mat4 view{ glm::lookAt(m_position, m_position + -m_front, m_up) };
-
-    // view from above, disable mouse
-    //glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), m_up);
 }
 
 const void OrthographicCamera::calculateViewMatrix()
 {
     m_viewMatrix = glm::lookAt(m_direction, { 0.0f, 0.0f, 0.0f }, m_up);
+    m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
+}
+
+void Camera::calculateProjectionMatrix()
+{ 
+    m_projectionMatrix = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane);
     m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
 }
 

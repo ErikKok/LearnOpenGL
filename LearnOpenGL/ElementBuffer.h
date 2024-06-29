@@ -13,8 +13,8 @@ public:
     ElementBuffer& operator=(ElementBuffer&& other) noexcept = delete;	// Move assignment
     ~ElementBuffer();
 
-    const GLuint getId() const { return m_id; };
-    const GLuint getCount() const { return m_count; };
+    GLuint getId() const { return m_id; };
+    GLuint getCount() const { return m_count; };
 
     //void bindElementBuffer() const;
     //void unbindElementBuffer() const;

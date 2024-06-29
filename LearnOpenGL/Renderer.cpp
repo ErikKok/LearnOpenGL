@@ -319,7 +319,7 @@ void Renderer::goRender() {
 		assert(FBO && "FBO is nullptr");
 		assert(FBO->getType() == framebufferType::depthMap && "Wrong framebufferType");
 
-		m_renderPassActive = static_cast<renderPassType>(m_renderPassActive + 1); // TODO dit is niet nodig op het moment met uberSSBO
+		m_renderPassActive = static_cast<renderPassType>(m_renderPassActive + 1);
 
 		if (m_renderPassActive == depthMapSpotLight0 && !SpotLight::spotLights[0].getOn() ||
 			m_renderPassActive == depthMapSpotLight1 && !SpotLight::spotLights[1].getOn()   )
@@ -356,93 +356,6 @@ void Renderer::goRender() {
 			draw(*RO);
 	}
 }
-
-//void Renderer::goRender() {
-//	clearStencilBuffer();
-//
-//	glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way // TODO to renderer
-//
-//
-//	m_renderPassActive = renderPassType::depthMapDirLight;
-//	assert(m_FBODirLight && "FBO is nullptr");
-//	assert(m_FBODirLight->getType() == framebufferType::depthMap && "Wrong framebufferType");
-//	assert(m_FBODirLight->getTexture()->getType() == textureType::depthMap && "Texture has wrong Type for this constructor"); // TODO test
-//
-//	m_FBODirLight->bind();
-//	setViewPort(m_FBODirLight.get());
-//	clearDepthBuffer();
-//	m_shaderDepthMapDirLight->useShader();
-//
-//	for (const auto& RO : m_renderVector) {
-//		if (RO->drawShadow && RO->model)
-//			drawModel(*RO, *RO->model);
-//		else if (RO->drawShadow)
-//			draw(*RO);
-//	}
-//
-//	m_FBODirLight->unbind();
-//
-//	//////////////
-//
-//	m_renderPassActive = renderPassType::depthMapFlashLight;
-//	assert(m_FBOSpotLight0 && "FBO is nullptr");
-//	assert(m_FBOSpotLight0->getType() == framebufferType::depthMap && "Wrong framebufferType");
-//
-//	if (SpotLight::spotLights[0].getOn()) {
-//		m_FBOSpotLight0->bind();
-//		setViewPort(m_FBOSpotLight0.get());
-//		clearDepthBuffer();
-//		m_shaderDepthMapSpotLight0->useShader();
-//
-//		for (const auto& RO : m_renderVector) {
-//			if (RO->drawShadow && RO->model)
-//				drawModel(*RO, *RO->model);
-//			else if (RO->drawShadow)
-//				draw(*RO);
-//		}
-//
-//		m_FBOSpotLight0->unbind();
-//	}
-//
-//	//////////////
-//
-//	m_renderPassActive = renderPassType::depthMapSpotLight;
-//	assert(m_FBOSpotLight1 && "FBO is nullptr");
-//	assert(m_FBOSpotLight1->getType() == framebufferType::depthMap && "Wrong framebufferType");
-//
-//	m_FBOSpotLight1->bind();
-//	setViewPort(m_FBOSpotLight1.get());
-//	clearDepthBuffer();
-//	m_shaderDepthMapSpotLight1->useShader();
-//
-//	for (const auto& RO : m_renderVector) {
-//		if (RO->drawShadow && RO->model)
-//			drawModel(*RO, *RO->model);
-//		else if (RO->drawShadow)
-//			draw(*RO);
-//	}
-//
-//	m_FBOSpotLight1->unbind();
-//
-//	//////////////
-//
-//	m_renderPassActive = renderPassType::normal;
-//	glCullFace(GL_BACK);
-//
-//	setViewPort();
-//	clearColorAndDepthBuffer();
-//
-//	for (const auto& RO : m_renderVector) {
-//		if (!RO->material) // == nullptr
-//			drawSingleColor(*RO);
-//		else if (RO->model)
-//			drawModel(*RO, *RO->model);
-//		else if (Global::drawOutline)
-//			drawWithStencil(*RO);
-//		else
-//			draw(*RO);
-//	}
-//}
 
 //void Renderer::drawXYZ(ShaderStorageBuffer& ssbo) const {
 //

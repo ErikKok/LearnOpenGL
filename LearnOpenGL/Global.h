@@ -69,15 +69,15 @@ namespace Global {
     void glClearError();
 
     // Matrices
-    const glm::mat4 calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
-    const glm::mat4 calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
+    glm::mat4 calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
+    glm::mat4 calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
     void applyCameraOffset(Camera* camera, float x, float y, float z);
 
     // Init
     // https://www.learncpp.com/cpp-tutorial/pass-by-const-lvalue-reference/ - The cost of pass by value vs pass by reference
     void cheap2Copy();
 
-    const int init(GLFWwindow* window);
+    int init(GLFWwindow* window);
     void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
     void getInformation();
 
