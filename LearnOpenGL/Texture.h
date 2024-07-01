@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-enum class textureType : int {
+enum class textureType {
 	undefined,
 	diffuse,
 	specular,
@@ -41,8 +41,8 @@ public:
 	int getBound() const { return m_boundTextureUnit; };
 	void setBound(int textureUnit) { m_boundTextureUnit = textureUnit; };
 	const textureType& getType() const { return m_type; };
-	std::string getTypeAsString() const { return textureTypeName[static_cast<int>(m_type)]; }; // TODO std:to underlying ofzo
-	void setType(textureType type) { m_type = type; };
+	std::string getTypeAsString() const { return textureTypeName[static_cast<int>(m_type)]; };
+	void setType(textureType& type) { m_type = type; };
 	const std::string& getfileName() const { return m_fileName; };
 	void setfileName(const std::string& fileName) { m_fileName = fileName; };
 	GLuint getWidth() const { return m_width; };

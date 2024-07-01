@@ -1,3 +1,9 @@
+Reminder:
+- cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
+- try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
+- samplers and other opaque shader types can be given explicit binding points https://juandiegomontoya.github.io/modern_opengl.html#sampler%20objects
+- use a constant array in the shader, e.g. for fullscreen quads
+
 TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
 - time class maken
@@ -17,26 +23,25 @@ TO DO
 	- transparency shadow testen
 	- structs in 1x zetten ipv per element in sendToShader()
 	- TODO Hard limit pointlights count. Of via SSBO met een variabel aantal. Of via UBO met een vast max aantal, en dan het daadwerkelijke gebruikte aantal ook doorgeven voor de loop in de Shader
-	- m_id is used as an index for the setters, and will break if a light is removed from the vector, or the order changes, replace with ECS
+	- ECS - m_id is used as an index for the setters, and will break if a light is removed from the vector, or the order changes, replace with ECS
 	- Shadows:
 		- https://www.reddit.com/r/opengl/comments/iy4jnp/comment/g6ihvom/
 		- https://gamedev.stackexchange.com/questions/139545/how-do-modern-game-engines-handle-many-shadow-casting-lights
 	- flashlight
 		- does not light the underside of floor
-- use a constant array in the shader, e.g. for fullscreen quads
 - implement Bindless Textures
-- cubemaps can be problematic around their edges: if each face is mip-mapped independently some seams will be noticeable around the borders
-- try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
-- samplers and other opaque shader types can be given explicit binding points https://juandiegomontoya.github.io/modern_opengl.html#sampler%20objects
-- asset manager - unique ptr owns the object, returns a raw * if needed
 - font rendering
 - TODO's nalopen
 - TODO BiTangent coords are extracted in Model::processMesh and used for correction of TexCoords. They are also stored in the vertices and VBO, but not used. Maybe in the future?
-- obj van cube en hexagon fixen
-- move Camera into FrameBuffer? zit al in Light... moet die in de framebuffer?
-- make sun static in-Class, and check for getOn in goRender loop
-- implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
 - could tangent be replaced with * 0.0f?
+- obj van cube en hexagon fixen
+- ECS - move Camera into FrameBuffer? zit al in Light... moet die in de framebuffer?
+- ECS - make sun static in-Class, and check for getOn in goRender loop
+- ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
+
+v0.2.85 1-7-2024
+-----------------
+- Light now has a unique ptr Camera instead of a raw*
 
 v0.2.84 29-6-2024
 -----------------

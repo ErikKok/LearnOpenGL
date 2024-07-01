@@ -1,0 +1,62 @@
+# Blender MTL File: 'cube and avatar.blend'
+# Material Count: 5
+
+newmtl ARES_mat
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd E:\\Users\\remco\\no crashing here\\Assets\\cube\\YEPPERS.png
+
+newmtl FaceEmotes.005
+Ns 179.999996
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.691176 0.691176 0.691176
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd E:\\Users\\remco\\egirl yes\\Assets\\body\\Assets\\Texture2D\\- ! Facial Gestures New.png
+map_d E:\\Users\\remco\\egirl yes\\Assets\\body\\Assets\\Texture2D\\- ! Facial Gestures New.png
+
+newmtl Hair.004
+Ns 179.999996
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd E:\\Users\\remco\\egirl yes\\Assets\\egirl yes\\Assets\\Texture2D\\Fox Hair Black.png
+map_d E:\\Users\\remco\\egirl yes\\Assets\\egirl yes\\Assets\\Texture2D\\Fox Hair Black.png
+
+newmtl SweaterPoiyomi.005
+Ns 179.999996
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 1.000000 1.000000 1.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd E:\\Users\\remco\\egirl yes\\Assets\\body\\Assets\\Texture2D\\Sweater.png
+map_Ke E:\\Users\\remco\\egirl yes\\Assets\\egirl yes\\Assets\\Texture2D\\circuitMask.png
+map_d E:\\Users\\remco\\egirl yes\\Assets\\body\\Assets\\Texture2D\\Sweater.png
+
+newmtl material_atlas_93475_1
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd E:\\Users\\remco\\egirl yes\\Assets\\egirl yes\\Atlas_93475.png
+map_d E:\\Users\\remco\\egirl yes\\Assets\\egirl yes\\Atlas_93475.png

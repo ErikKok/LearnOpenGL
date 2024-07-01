@@ -138,14 +138,12 @@ int main()
         SpotLight::spotLights[0].sendToShader(multiLight);
         SpotLight::spotLights[0].sendToShader(multiLightNormalMapping);
 
-        //Texture depthMapSpotLight0(textureType::depthMap, 512, 512);
         renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(512, 512));
 
-        Camera cameraSpotLight0(renderer.m_FBO[1]->getTexture()->getAspectRatio(), Global::cameraInitialPosition);
-        SpotLight::spotLights[0].setCamera(&cameraSpotLight0);
-        cameraSpotLight0.setFov(25.0f);
-        cameraSpotLight0.setNearPlane(0.1f);
-        cameraSpotLight0.setFarPlane(25.0f);
+        SpotLight::spotLights[0].setCamera(Camera(renderer.m_FBO[1]->getTexture()->getAspectRatio(), Global::cameraInitialPosition));
+        SpotLight::spotLights[0].getCamera()->setFov(25.0f);
+        SpotLight::spotLights[0].getCamera()->setNearPlane(0.1f);
+        SpotLight::spotLights[0].getCamera()->setFarPlane(25.0f);
 
         // SpotLight1
         SpotLight::spotLights.emplace_back(SpotLight());
@@ -163,14 +161,12 @@ int main()
         SpotLight::spotLights[1].sendToShader(multiLight);
         SpotLight::spotLights[1].sendToShader(multiLightNormalMapping);
 
-        //Texture depthMapSpotLight1(textureType::depthMap, 1024, 1024);
         renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(1024, 1024));
 
-        Camera cameraSpotLight1(renderer.m_FBO[2]->getTexture()->getAspectRatio(), SpotLight::spotLights[1].getPosition(), SpotLight::spotLights[1].getPosition() + glm::vec3(0.0f, -SpotLight::spotLights[1].getPosition().y, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // cameraPos + glm::vec3(0.0f, -cameraPos.y, 0.0f) == glm::vec3(cameraPos.x, 0.0f, cameraPos.z)
-        SpotLight::spotLights[1].setCamera(&cameraSpotLight1);
-        cameraSpotLight1.setFov((36.0f + 48.0f) * 1.15f);
-        cameraSpotLight1.setNearPlane(0.1f);
-        cameraSpotLight1.setFarPlane(10.0f);
+        SpotLight::spotLights[1].setCamera(Camera(renderer.m_FBO[2]->getTexture()->getAspectRatio(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+        SpotLight::spotLights[1].getCamera()->setFov((36.0f + 48.0f) * 1.15f);
+        SpotLight::spotLights[1].getCamera()->setNearPlane(0.1f);
+        SpotLight::spotLights[1].getCamera()->setFarPlane(10.0f);
 
         /////////////////////////////////////
         ////// Quad /////////////////////////
@@ -255,6 +251,7 @@ int main()
         //Model ourModel("Models/Rock/rock.obj");
         //Model ourModel("Models/Vampire/dancing_vampire.dae"); // crash
         //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
+        //cubeandavatar.obj
 
         Material modelMaterial{
             .shader{ &multiLightNormalMapping },
@@ -378,7 +375,7 @@ int main()
 
             // Lights
             if (SpotLight::spotLights[0].getOn())
-                Global::applyCameraOffset(SpotLight::spotLights[0].getCamera(), flashLightOffset.x, flashLightOffset.y, flashLightOffset.z);
+                Global::applyCameraOffset(SpotLight::spotLights[0].getCamera().get(), flashLightOffset.x, flashLightOffset.y, flashLightOffset.z);
 
             sun.updateDirectionInViewSpace(multiLight);
             sun.updateDirectionInViewSpace(multiLightNormalMapping);
@@ -499,10 +496,10 @@ int main()
                     renderer.drawFrustum(cubeMesh, cameraDirLight.getViewProjectionMatrix());
                     break;
                 case 2:
-                    renderer.drawFrustum(cubeMesh, cameraSpotLight0.getViewProjectionMatrix());
+                    renderer.drawFrustum(cubeMesh, SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix());
                     break;
                 case 3:
-                    renderer.drawFrustum(cubeMesh, cameraSpotLight1.getViewProjectionMatrix());
+                    renderer.drawFrustum(cubeMesh, SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix());
                     break;
                 }
             }
@@ -516,11 +513,11 @@ int main()
                     renderer.getShaderDebugQuad()->setInt("quadTexture", 2);
                     break;
                 case 2:
-                    renderer.drawDebugQuad(quadMesh, cameraSpotLight0);
+                    renderer.drawDebugQuad(quadMesh, *SpotLight::spotLights[0].getCamera());
                     renderer.getShaderDebugQuad()->setInt("quadTexture", 5);
                     break;
                 case 3:
-                    renderer.drawDebugQuad(quadMesh, cameraSpotLight1);
+                    renderer.drawDebugQuad(quadMesh, *SpotLight::spotLights[1].getCamera());
                     renderer.getShaderDebugQuad()->setInt("quadTexture", 6);
                     break;
                 }

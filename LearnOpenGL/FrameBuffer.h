@@ -31,7 +31,7 @@ public:
 	unsigned int getId() const { return m_id; };
 	const framebufferType& getType() const { return m_type; };
 
-	// TODO is this implemented / used the correct way?
+	// Explicit object parameters - TODO is this implemented / used the correct way?
 	//const Texture* getTexture() const { return m_texture.get(); };
 	template <class Self>
 	auto&& getTexture(this Self&& self) {

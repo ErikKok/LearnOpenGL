@@ -46,7 +46,7 @@ public:
 		ssbo.emplace_back(std::make_unique<ShaderStorageBuffer>(bindingPoint, instances, elementSize, type));
 	}
 
-	Mesh* mesh{ nullptr }; // TODO should it own it's mesh? if you want a copy of a Mesh, the data members should be shared ptr's, not unique.
+	Mesh* mesh{ nullptr }; // TODO should it own it's mesh? if you want a copy of a Mesh, the data members should be shared ptr's, not unique. // std::shared_ptr
 	Material* material{ nullptr }; // TODO make unique_ptr van maken? // TODO should it own it's material?
 	std::unique_ptr<Model> model{ nullptr };
 	std::vector<glm::mat4> transform{};

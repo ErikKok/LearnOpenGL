@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Global.h"
+#include <memory> // for std::unique_ptr and std::make_unique
 #include "Shader.h"
 
 #include <glm/glm.hpp>
@@ -21,8 +22,11 @@ public:
     void setStrength(float x) { m_strength = x; };
     int getDepthMap() const { return m_depthMap; };
     void setDepthMap(int x) { m_depthMap = x; };
-    Camera* const getCamera() { return m_camera; }; // TODO non-const
-    void setCamera(Camera* x) { m_camera = x; };
+    void setCamera(Camera x) { m_camera = std::make_unique<Camera>(x); };
+    template <class Self>
+    auto&& getCamera(this Self&& self) {
+        return std::forward<Self>(self).m_camera;
+    }
 
 protected:
     Light() {};
@@ -33,8 +37,7 @@ protected:
     glm::vec3 m_color{ 1.0f, 1.0f, 1.0f };      // Diffuse color
     float m_strength{ 1.0f };                   // Overall strength
     int m_depthMap{};                           // sampler2D
-    Camera* m_camera{ nullptr };                // TODO could become dangling
-    //std::unique_ptr<Camera> m_camera{ std::make_unique<Camera>() };                // TODO?
+    std::unique_ptr<Camera> m_camera{ nullptr };
 };
 
 // DirectionalLight //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
