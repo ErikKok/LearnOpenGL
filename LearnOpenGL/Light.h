@@ -23,10 +23,8 @@ public:
     int getDepthMap() const { return m_depthMap; };
     void setDepthMap(int x) { m_depthMap = x; };
     void setCamera(Camera x) { m_camera = std::make_unique<Camera>(x); };
-    template <class Self>
-    auto&& getCamera(this Self&& self) {
-        return std::forward<Self>(self).m_camera;
-    }
+    Camera* getCamera() { return m_camera.get(); };
+    const Camera* getCamera() const { return m_camera.get(); };
 
 protected:
     Light() {};
@@ -114,7 +112,7 @@ public:
     void updateDirectionInViewSpace(const Shader& shader) const;
     void updateColor(const Shader& shader) const;
     void setEmissionStrength(float x) { m_emissionStrength = x; };
-    void toggle(const Shader& shader, const Shader& shader2); // TODO werkt nu alleen met exact 2 shaders... kan met array en loop
+    void toggle(const Shader& shader, const Shader& shader2);
 
 protected:
     int m_id{};                         // zero based

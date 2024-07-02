@@ -34,7 +34,7 @@ public:
 
 private:
     std::vector<Vertex> m_vertices; // TODO samenvoegen met die eronder, Template?
-    std::vector<float> m_verticesFloat; // same, but with only floats
+    std::vector<float> m_verticesFloat; // same as above, used for meshes made from Data.h without tangent and bitangent data
     std::vector<unsigned int> m_indices;
     std::vector<SPtr<Texture>> m_textures;
     std::unique_ptr<VertexArray> m_vao{ nullptr };

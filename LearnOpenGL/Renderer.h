@@ -11,7 +11,7 @@
 
 #include <memory> // for std::unique_ptr and std::make_unique
 
-// TODO transparency opslaan in Material, of uit texture halen in constructor van een Material class?
+// TODO ECS - transparency opslaan in Material, of uit texture halen in constructor van een Material class?
 struct Material {
 	Shader* shader{ nullptr };
 	int diffuse1{ 0 };					// sampler2D
@@ -23,7 +23,7 @@ struct Material {
 	float emissionStrength{ 0.0f };
 	int lightEmissionMap{ 0 };			// sampler2D
 	int lightEmissionTexture{ 0 };		// sampler2D
-	bool enableGL_CULL_FACE{ true };
+	bool enableGL_CULL_FACE{ true };	// set false for 2D objects
 	// int cullFace{ GL_FRONT };			// false == GL_BACK
 	// bool depthTested;
 	// bool writeToDepthBuffer;
@@ -46,14 +46,15 @@ public:
 		ssbo.emplace_back(std::make_unique<ShaderStorageBuffer>(bindingPoint, instances, elementSize, type));
 	}
 
-	Mesh* mesh{ nullptr }; // TODO should it own it's mesh? if you want a copy of a Mesh, the data members should be shared ptr's, not unique. // std::shared_ptr
-	Material* material{ nullptr }; // TODO make unique_ptr van maken? // TODO should it own it's material?
+	Mesh* mesh{ nullptr }; // TODO ECS - should it own it's mesh? if you want a copy of a Mesh, the data members should be shared ptr's, not unique. // std::shared_ptr
+	Material* material{ nullptr }; // TODO ECS - make unique_ptr van maken? // TODO should it own it's material?
 	std::unique_ptr<Model> model{ nullptr };
 	std::vector<glm::mat4> transform{};
 	std::vector<std::unique_ptr<ShaderStorageBuffer>> ssbo; // Each RenderObject owns it's unique SSBOs (on the heap), this way you can upload them just once per renderpass (raw pointers (on the stack) are max 1% faster)
 	int instances{ 1 };
 	bool castsShadow{ true };
 	bool drawOutline{ false };
+	bool drawAsSingleColor{ false };
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,20 +74,6 @@ class Renderer {
 public:
 	const renderPassType& getRenderPassActive() const { return m_renderPassActive; };
 	void setRenderPassActive(renderPassType type) { m_renderPassActive = type; };
-
-	//const Shader* getShaderDepthMapDirLight() const { return m_shaderDepthMapDirLight.get(); };
-	//void createShaderDepthMapDirLight(std::string string) { m_shaderDepthMapDirLight = std::make_unique<Shader>(string); };
-	//void createFBODirLight(Texture& texture) { m_FBODirLight = std::make_unique<FrameBuffer>(texture); };
-	//FrameBuffer* getFBODirLight() { return m_FBODirLight.get(); };
-
-	//const Shader* getShaderDepthMapSpotLight0() const { return m_shaderDepthMapSpotLight0.get(); };
-	//void createShaderDepthMapSpotLight0(std::string string) { m_shaderDepthMapSpotLight0 = std::make_unique<Shader>(string); };
-	//void createFBOSpotLight0(Texture& texture) { m_FBOSpotLight0 = std::make_unique<FrameBuffer>(texture); };
-
-	//const Shader* getShaderDepthMapSpotLight1() const { return m_shaderDepthMapSpotLight1.get(); };
-	//void createShaderDepthMapSpotLight1(std::string string) { m_shaderDepthMapSpotLight1 = std::make_unique<Shader>(string); };
-	//void createFBOSpotLight1(Texture& texture) { m_FBOSpotLight1 = std::make_unique<FrameBuffer>(texture); };
-
 	void createShaderSingleColor(std::string string) { m_shaderSingleColor = std::make_unique<Shader>(string); };
 	void createShaderSkybox(std::string string) { m_shaderSkybox = std::make_unique<Shader>(string); };
 	void createShaderFrustum(std::string string) { m_shaderFrustum = std::make_unique<Shader>(string); };
@@ -101,7 +88,6 @@ public:
 	void clearDepthBuffer() const { glClear(GL_DEPTH_BUFFER_BIT); }
 
 	void draw(const RenderObject& RO) const;
-	void drawModel(const RenderObject& RO, Model& model);
 	void drawSingleColor(const RenderObject& RO) const;
 	void goRenderSkybox(const Mesh& mesh) const; // Assumes SkyBox Texture is already bound, and will never be changed
 	void drawFrustum(const Mesh& mesh, const glm::mat4& viewProjectionMatrix) const;
@@ -110,54 +96,26 @@ public:
 	void clearStencilBuffer() const;
 	void initStencilBuffer();
 	void drawWithStencil(const RenderObject& RO);
+	void goRender();
 	void goRenderOutline();
 
 	void setViewPort() { glViewport(0, 0, Global::windowWidth, Global::windowHeight); }
 	void setViewPort(FrameBuffer* FBO) { glViewport(0, 0, FBO->getTexture()->getWidth(), FBO->getTexture()->getHeight()); }
 
+
+
 	void submitRO(RenderObject RO) { m_renderVector.emplace_back(); }
-
-	void goRender();
-
 	// TODO private
-	std::vector<RenderObject*> m_renderVector{}; // TODO uPtr? or reference wrappers? of een shared ptr?
-	std::vector<std::unique_ptr<FrameBuffer>> m_FBO{}; // TODO make setter
-
-	// OLD
-	//void draw(const VertexArray& vao, const ElementBuffer& ebo, const Material& material, GLsizei instances = 1) const;		    
-	//void drawXYZ(ShaderStorageBuffer& ssbo) const;
-	//void draw(const Mesh& mesh, const Material& material, GLsizei instances = 1) const;												
-	//void drawSingleColor(const Mesh& mesh, const glm::vec4 color, GLsizei instances = 1) const;
+	std::vector<RenderObject*> m_renderVector{}; // TODO ECS - uPtr? or reference wrappers? of een shared ptr?
+	std::vector<std::unique_ptr<FrameBuffer>> m_FBO{}; // TODO ECS - make setter
 
 private:
 	renderPassType m_renderPassActive{ renderPassType::undefined };
-
-	//std::unique_ptr<Shader> m_shaderDepthMapDirLight{ nullptr };
-	//std::unique_ptr<FrameBuffer> m_FBODirLight{ nullptr };
-	//std::unique_ptr<Shader> m_shaderDepthMapSpotLight0{ nullptr };
-	//std::unique_ptr<FrameBuffer> m_FBOSpotLight0{ nullptr };
-	//std::unique_ptr<Shader> m_shaderDepthMapSpotLight1{ nullptr };
-	//std::unique_ptr<FrameBuffer> m_FBOSpotLight1{ nullptr };
 	std::unique_ptr<Shader> m_shaderSingleColor{ nullptr };
 	std::unique_ptr<Shader> m_shaderSkybox{ nullptr };
 	std::unique_ptr<Shader> m_shaderFrustum{ nullptr };
 	std::unique_ptr<Shader> m_shaderDebugQuad{ nullptr };
 	std::unique_ptr<Shader> m_shaderDepthMap{ nullptr };
-	//std::vector<std::unique_ptr<FrameBuffer>> m_FBOVector{};
-	//std::vector<std::unique_ptr<Shader>> m_FBOShader{};
-
-
-
-
-	//bool glStencilFuncActive{};
-	//bool glDepthTestActive{}; // ?
-
-	//glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glEnable(GL_CULL_FACE);
-	//glEnable(GL_MULTISAMPLE);
-	//glEnable(GL_FRAMEBUFFER_SRGB);
 };
 
 //https://youtu.be/akxevYYWd9g?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT

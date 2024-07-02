@@ -281,6 +281,7 @@ int main()
         // Lightcubes
         RenderObject lightCubeRO{ &cubeMesh, {}, 5 };
         lightCubeRO.castsShadow = false;
+        lightCubeRO.drawAsSingleColor = true;
         lightCubeRO.addSSBO(+SSBO::MVP, sizeof(glm::mat4), SSBO::MVP);
         lightCubeRO.addSSBO(+SSBO::singleColor, sizeof(glm::vec4), SSBO::singleColor);
 
@@ -375,7 +376,7 @@ int main()
 
             // Lights
             if (SpotLight::spotLights[0].getOn())
-                Global::applyCameraOffset(SpotLight::spotLights[0].getCamera().get(), flashLightOffset.x, flashLightOffset.y, flashLightOffset.z);
+                Global::applyCameraOffset(SpotLight::spotLights[0].getCamera(), flashLightOffset.x, flashLightOffset.y, flashLightOffset.z);
 
             sun.updateDirectionInViewSpace(multiLight);
             sun.updateDirectionInViewSpace(multiLightNormalMapping);

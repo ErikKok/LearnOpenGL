@@ -31,12 +31,13 @@ public:
 	unsigned int getId() const { return m_id; };
 	const framebufferType& getType() const { return m_type; };
 
-	// Explicit object parameters - TODO is this implemented / used the correct way?
-	//const Texture* getTexture() const { return m_texture.get(); };
-	template <class Self>
-	auto&& getTexture(this Self&& self) {
-		return std::forward<Self>(self).m_texture;
-	}
+	Texture* getTexture() { return m_texture.get(); };
+	const Texture* getTexture() const { return m_texture.get(); };
+	// Or use Explicit object parameters (this is just here as an example) - https://devblogs.microsoft.com/cppblog/cpp23-deducing-this/
+	//template <class Self>
+	//auto&& getTexture(this Self&& self) {
+	//	return std::forward<Self>(self).m_texture;
+	//}
 
 	void bind() const;
 	void unbind() const;

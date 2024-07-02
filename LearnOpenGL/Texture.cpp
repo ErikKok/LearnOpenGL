@@ -88,7 +88,7 @@ Texture::Texture(const std::vector<std::string>& faces)
 
     stbi_set_flip_vertically_on_load(false);
     int textureNrChannels{};
-    // Set m_width & m_height before the loop for glTextureStorage2D // TODO
+    // Set m_width & m_height once before the loop for glTextureStorage2D (all faces must have same resolution)
     stbi_load(faces[0].c_str(), &m_width, &m_height, &textureNrChannels, 0);
     glTextureStorage2D(m_id, 1, GL_SRGB8, m_width, m_height);
     for (auto i = 0; i < std::ssize(faces); i++)
