@@ -19,7 +19,6 @@ TO DO
 	- implement energy conservation? see comments at Blinn-Phong
 	- Blinn-Phong can also produce invalid highlights for objects that are lit from behind, see comments at Blinn-Phong
 	- which attenuation values/formula is best/sufficient in combination with gamma correction
-	- use sampler2DShadow free 4x AA https://stackoverflow.com/questions/22419682/glsl-sampler2dshadow-and-shadow2d-clarification
 	- transparency shadow testen
 	- structs in 1x zetten ipv per element in sendToShader()
 	- TODO Hard limit pointlights count. Of via SSBO met een variabel aantal. Of via UBO met een vast max aantal, en dan het daadwerkelijke gebruikte aantal ook doorgeven voor de loop in de Shader
@@ -37,6 +36,8 @@ TO DO
 - ECS - move Camera into FrameBuffer? zit al in Light... moet die in de framebuffer?
 - ECS - make sun static in-Class, and check for getOn in goRender loop
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
+
+reflectie van lichten op beide kanten van model
 
 v0.2.87 3-7-2024
 -----------------
