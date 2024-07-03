@@ -355,7 +355,7 @@ int main()
             Global::deltaTime = currentFrame - Global::lastFrame;
             Global::lastFrame = currentFrame;
             //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
-            //std::println("Position: {}, {}, {}", Global::camera.m_position.x, Global::camera.m_position.y, Global::camera.m_position.z);
+            //std::println("Position: {}, {}, {}", Global::camera.getPosition().x, Global::camera.getPosition().y, Global::camera.getPosition().z);
             //std::println("Front: {}, {}, {}", Global::camera.m_front.x, Global::camera.m_front.y, Global::camera.m_front.z);
 
             /////////////////////////////////////////////////////////////////////////////////////

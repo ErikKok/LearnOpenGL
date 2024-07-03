@@ -107,7 +107,7 @@ Texture::Texture(const std::vector<std::string>& faces)
     std::println("CREATE cubeMap id: {}", m_id);
 }
 
-// Creates a depthMap:
+// Creates a sampler2DShadow depthMap:
 Texture::Texture(textureType textureType, GLsizei width, GLsizei height)
     : m_type{ textureType }
     , m_width{ width }
@@ -116,12 +116,9 @@ Texture::Texture(textureType textureType, GLsizei width, GLsizei height)
     assert(textureType == textureType::depthMap && "Wrong textureType for this constructor");
 
     glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
-    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTextureParameteri(m_id, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 
-    // a sample outside the depthMap's border returns 1.0f, so no shadows are drawn:
+    // a sample outside the depthMap's border returns 1.0f, so no shadows are drawn (this does not include the space outside the far plane of the light's frustum)
     float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     glTextureParameterfv(m_id, GL_TEXTURE_BORDER_COLOR, borderColor);
 

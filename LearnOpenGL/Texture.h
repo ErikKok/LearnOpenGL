@@ -23,10 +23,10 @@ static_assert(std::size(textureTypeName) == static_cast<int>(textureType::max_te
 
 class Texture {
 public:
-	Texture(const std::string& filePath, bool convertToLinearSpace = true);	// Constructor					// Default converts to Linear Space
-	Texture(uint32_t color, bool convertToLinearSpace = true);				// Constructor single color		// Default converts to Linear Space
-	Texture(const std::vector<std::string>& faces);							// Constructor cubeMap			// Always converts to Linear Space
-	Texture(textureType textureType, GLsizei width, GLsizei height);		// Constructor depthMap			// Constructor expects parameter textureType::depthMap
+	Texture(const std::string& filePath, bool convertToLinearSpace = true);	// Constructor								// Default converts to Linear Space
+	Texture(uint32_t color, bool convertToLinearSpace = true);				// Constructor single color					// Default converts to Linear Space
+	Texture(const std::vector<std::string>& faces);							// Constructor cubeMap						// Always converts to Linear Space
+	Texture(textureType textureType, GLsizei width, GLsizei height);		// Constructor sampler2DShadow depthMap		// Constructor expects parameter textureType::depthMap
 	Texture(const Texture& other) = delete;									// Copy constructor
 	Texture& operator=(const Texture& other) = delete;						// Copy assignment
 	Texture(Texture&& other) noexcept = default; 							// Move constructor	

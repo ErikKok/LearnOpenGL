@@ -117,7 +117,7 @@ void Renderer::draw(const RenderObject& RO) const
 		glEnable(GL_CULL_FACE);
 
 	//if (RO.model) {
-		//	//// You could unbind after each call, so you can call this function for a second model... quick fix
+		// You could unbind after each call, so you can call this function for a second model... quick fix
 		//for (auto i{ 0 }; i < std::ssize(m_texturesLoaded); i++)
 		//{
 		//    assert(i <= 15 && "Model uses > 16 textures, this is not supported!");

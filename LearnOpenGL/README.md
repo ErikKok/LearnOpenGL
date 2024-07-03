@@ -38,6 +38,15 @@ TO DO
 - ECS - make sun static in-Class, and check for getOn in goRender loop
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
 
+v0.2.87 3-7-2024
+-----------------
+- implemented sampler2DShadow 
+- some optimizations, reversed the if outside frustum statement and moved some calucations to that if
+- dirLight dirLightShadowCoord reduced from vec4 to vec3, no need to perform perspective divide, so no need for the .w component
+- 245fps -> 275fps
+- applied the if outside frustum statement to the whole caluclation for spotlight, and part of dirLight (no more specular lighting outside frustum)
+- 275fps -> 300~315fps
+
 v0.2.86 2-7-2024
 -----------------
 - merged draw() and drawModel()
