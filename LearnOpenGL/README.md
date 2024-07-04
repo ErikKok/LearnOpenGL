@@ -42,7 +42,7 @@ TO DO
 
 reflectie van lichten op beide kanten van model
 
-v0.2.88 3-7-2024
+v0.2.88 4-7-2024
 -----------------
 - bug in reflections found (introduced in v0.2.67), fixed: Normalized FragPosTangent and FragPosView for specular
 - added a limit to calculate specular reflections for all light types
