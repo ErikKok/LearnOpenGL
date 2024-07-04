@@ -5,7 +5,7 @@ Reminder:
 - use a constant array in the shader, e.g. for fullscreen quads
 
 Known bugs:
- - drawDebugQuad gives Undefined Behaviour, as quadTexture is actually a sampler2dShadow (see https://community.khronos.org/t/read-depth-buffer-value-from-sampler2dshadow/53156)
+ - drawDebugQuad gives Undefined Behaviour warnings, because quadTexture is actually a sampler2DShadow, but used as a sampler2D (see https://community.khronos.org/t/read-depth-buffer-value-from-sampler2dshadow/53156)
 
 TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
@@ -40,7 +40,10 @@ TO DO
 - ECS - make sun static in-Class, and check for getOn in goRender loop
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
 
-reflectie van lichten op beide kanten van model
+v0.2.89 4-7-2024
+-----------------
+- drawDebugQuad gives Undefined Behaviour warnings, see 'Known bugs'
+- drawDebugQuad now corrects for aspect ratio of the depthmap, and keeps margins fixed independent of viewport size
 
 v0.2.88 4-7-2024
 -----------------

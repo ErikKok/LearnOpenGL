@@ -183,13 +183,22 @@ void Renderer::drawFrustum(const Mesh& mesh, const glm::mat4& lightViewProjectio
 	Global::glCheckError();
 };
 
-void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& useCamera) const
+void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& camera) const
 {
+	// correct quad for the aspectRatio of the depthmap
+	float height{ 0.3f };
+	float width = (height / (static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight))) * camera.getAspectRatio();
+
+	// correct margin for viewport
+	float margin{ 0.05f };
+	float translateX{ 1.0f - (width + (margin / (static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight)))) };
+	float translateY{ 1.0f - (height + margin) };
+	
 	m_shaderDebugQuad->useShader();
-	m_shaderDebugQuad->setMat4("model", Global::calculateModelMatrix(glm::vec3(0.6f, 0.6f, -1.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.0f)));
-	m_shaderDebugQuad->setBool("orthographic", useCamera.getOrthographic());
-	m_shaderDebugQuad->setFloat("nearPlane", useCamera.getNearPlane());
-	m_shaderDebugQuad->setFloat("farPlane", useCamera.getFarPlane());
+	m_shaderDebugQuad->setMat4("model", Global::calculateModelMatrix(glm::vec3(translateX, translateY, 0.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(width, height, 0.0f)));
+	m_shaderDebugQuad->setBool("orthographic", camera.getOrthographic());
+	m_shaderDebugQuad->setFloat("nearPlane", camera.getNearPlane());
+	m_shaderDebugQuad->setFloat("farPlane", camera.getFarPlane());
 
 	mesh.m_vao->bindVertexArray();
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);

@@ -47,7 +47,7 @@ public:
 	void setfileName(const std::string& fileName) { m_fileName = fileName; };
 	GLuint getWidth() const { return m_width; };
 	GLuint getHeight() const { return m_height; };
-	float getAspectRatio() const { return static_cast<float>(m_width / m_height); };
+	float getAspectRatio() const { return static_cast<float>(m_width) / static_cast<float>(m_height); };
 
 private:
 	GLuint m_id{};

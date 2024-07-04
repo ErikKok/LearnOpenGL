@@ -97,7 +97,8 @@ int main()
 
         PointLight::pointLights.emplace_back(PointLight());
         PointLight::pointLights[3].setPosition({ 15.0f,  1.2f,  -3.0f });
-        PointLight::pointLights[3].setColor({ 0.0f, 0.0f, 1.0f });
+        PointLight::pointLights[3].setColor({ 1.0f, 0.0f, 0.0f });
+        PointLight::pointLights[3].setStrength(4.0f);
         PointLight::pointLights[3].setLinear(0.035f);
         PointLight::pointLights[3].setQuadratic(0.44f);
         PointLight::pointLights[3].sendToShader(multiLight);
@@ -163,7 +164,7 @@ int main()
         SpotLight::spotLights[1].sendToShader(multiLight);
         SpotLight::spotLights[1].sendToShader(multiLightNormalMapping);
 
-        renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(1024, 1024));
+        renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(1000, 1200));
 
         SpotLight::spotLights[1].setCamera(Camera(renderer.m_FBO[2]->getTexture()->getAspectRatio(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
         SpotLight::spotLights[1].getCamera()->setFov((36.0f + 48.0f) * 1.15f);
