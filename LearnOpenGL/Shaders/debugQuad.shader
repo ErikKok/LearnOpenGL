@@ -19,14 +19,14 @@ out vec4 FragColor;
   
 in vec2 TexCoords;
 
-uniform sampler2D quadTexture;
+uniform sampler2D quadTexture; // actually a sampler2dShadow
 uniform bool orthographic;
 uniform float nearPlane;
 uniform float farPlane;
 
 void main()
 { 
-    float depthValue = texture(quadTexture, TexCoords).r;
+    float depthValue = texture(quadTexture, TexCoords).x;
 
    // if type = depthMap {
         if (orthographic) {  // Transform non-linear depth values to linear for visibility when using perspective projection

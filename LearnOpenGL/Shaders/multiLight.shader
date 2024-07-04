@@ -152,10 +152,14 @@ struct SpotLight {
 };
 uniform SpotLight spotLights[2];
 
-vec3 normalView = normalize(vs_out.NormalView);
+vec3 normalViewNormalized = normalize(vs_out.NormalView);
+vec3 FragPosViewNormalized = normalize(vs_out.FragPosView);
 
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
+
+float cutOffSpecular = 0.1f;
+float cutOffAttenuation = 0.01f;
 
 vec3 CalcDirLight(DirLight light)
 {
@@ -163,7 +167,7 @@ vec3 CalcDirLight(DirLight light)
     vec3 ambient = light.ambient * textureDiffuse;
 
     // diffuse
-    float diff = max(dot(normalView, vs_out.dirLightDirectionView), 0.0f);
+    float diff = max(dot(normalViewNormalized, vs_out.dirLightDirectionView), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // Outside depthMap/frustum?
@@ -172,12 +176,17 @@ vec3 CalcDirLight(DirLight light)
      || vs_out.dirLightShadowCoord.z > 1.0f || vs_out.dirLightShadowCoord.z < -1.0f)
         return (ambient + diffuse) * light.strength;
 
+    // shadow
     vec3 ShadowCoord = vs_out.dirLightShadowCoord.xyz * 0.5f + 0.5f;
     float shadow = texture(light.depthMap, ShadowCoord.xyz);
 
+    // no specular lighting in last part of the frustum
+    if (ShadowCoord.z > 0.75f)
+        return shadow * (ambient + diffuse) * light.strength;
+
     // specular
-    vec3 halfwayDir = normalize(vs_out.dirLightDirectionView - vs_out.FragPosView); // Blinn-Phong
-    float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
+    vec3 halfwayDir = normalize(vs_out.dirLightDirectionView - FragPosViewNormalized); // Blinn-Phong
+    float spec = pow(max(dot(normalViewNormalized, halfwayDir), 0.0f), material.shininess);
 
     //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
     //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
@@ -189,25 +198,35 @@ vec3 CalcDirLight(DirLight light)
 
 vec3 CalcPointLight(PointLight light, int i)
 {
-    vec3 lightDir = normalize(vs_out.pointLightPositionView[i] - vs_out.FragPosView);
-
-    // diffuse
-    float diff = max(dot(normalView, lightDir), 0.0f);
-    vec3 diffuse = light.color * diff * textureDiffuse;
-
-    // specular
-    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosView); // Blinn-Phong
-    float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
-    //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
-    //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
-    vec3 specular = light.color * spec * textureSpecular;
-
     // attenuation
     float distance = length(vs_out.pointLightPositionView[i] - vs_out.FragPosView);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
     //float attenuation = 1.0f / (distance * distance);
+    // smooth attentuation to zero if x amount of light remaining (attenuation will never reach 0.0f)
+    attenuation = (attenuation - cutOffAttenuation) / (1.0f - cutOffAttenuation);
+    attenuation = max(attenuation, 0.0f);
+    
+    // Earyl return here is a bit slower
+    // if (attenuation == 0.0f)
+    //    return vec3(0.0f);
+
+    vec3 lightDir = normalize(vs_out.pointLightPositionView[i] - vs_out.FragPosView);
+
+    // diffuse
+    float diff = max(dot(normalViewNormalized, lightDir), 0.0f);
+    vec3 diffuse = light.color * diff * textureDiffuse;
     diffuse *= attenuation;
-    specular *= attenuation;
+
+    // specular (only calculate specular above a certain amount of light remaining)
+    vec3 specular;
+    if (attenuation > cutOffSpecular) {
+        vec3 halfwayDir = normalize(lightDir - FragPosViewNormalized); // Blinn-Phong
+        float spec = pow(max(dot(normalViewNormalized, halfwayDir), 0.0f), material.shininess);
+        //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
+        //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
+        specular = light.color * spec * textureSpecular;
+        specular *= attenuation;
+    }
 
     return (diffuse + specular) * light.strength;
 }
@@ -219,42 +238,43 @@ vec3 CalcSpotLight(SpotLight light, int i)
     // Outside depthMap/frustum?
     if (ShadowCoord.x > 1.0f || ShadowCoord.x < -1.0f || ShadowCoord.y > 1.0f  || ShadowCoord.y < -1.0f || ShadowCoord.z > 1.0f || ShadowCoord.z < 0.0f)
         return vec3(0.0f);
-    
+
     // convert from normalized device coordinates (in range [-1, 1]) to texture coordinates (in range [0, 1])
     ShadowCoord = ShadowCoord * 0.5f + 0.5f;
 
-    // inside frustum
-    //if ( (ShadowCoord.x >= 0.0f && ShadowCoord.x <= 1.0f) || (ShadowCoord.y >= 0.0f && ShadowCoord.y <= 1.0f) || (ShadowCoord.z >= 0.0f && ShadowCoord.z <= 1.0f) ) {
-    
     // sampler2DShadow
     float shadow = texture(light.depthMap, ShadowCoord.xyz);
-
-    vec3 lightDir = normalize(vs_out.spotLightPositionView[i] - vs_out.FragPosView);
-
-    // diffuse
-    float diff = max(dot(normalView, lightDir), 0.0f);
-    vec3 diffuse = light.color * diff * textureDiffuse;
-
-    // specular
-    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosView); // Blinn-Phong
-    float spec = pow(max(dot(normalView, halfwayDir), 0.0f), material.shininess);
-    //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
-    //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
-    vec3 specular = light.color * spec * textureSpecular;
-
-    // cone
-    float theta = dot(lightDir, normalize(-vs_out.spotLightDirectionView[i]));
-    float intensity = smoothstep(0.0f, 1.0f, (theta - light.outerCutOff) / light.epsilon);
-    diffuse *= intensity;
-    specular *= intensity;
 
     // attenuation
     float distance = length(vs_out.spotLightPositionView[i] - vs_out.FragPosView);
     float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));      
     //float attenuation = 1.0f / (distance * distance);
-    diffuse  *= attenuation;
-    specular *= attenuation;
+    attenuation = (attenuation - cutOffAttenuation) / (1.0f - cutOffAttenuation);
+    attenuation = max(attenuation, 0.0f);
 
+    vec3 lightDir = normalize(vs_out.spotLightPositionView[i] - vs_out.FragPosView);
+
+    // cone
+    float theta = dot(lightDir, normalize(-vs_out.spotLightDirectionView[i]));
+    float intensity = smoothstep(0.0f, 1.0f, (theta - light.outerCutOff) / light.epsilon);
+
+    // diffuse
+    float diff = max(dot(normalViewNormalized, lightDir), 0.0f);
+    vec3 diffuse = light.color * diff * textureDiffuse;
+    diffuse *= attenuation;
+    diffuse *= intensity;
+
+    // specular
+    vec3 specular;
+    if (attenuation > cutOffSpecular) {
+        vec3 halfwayDir = normalize(lightDir - FragPosViewNormalized); // Blinn-Phong
+        float spec = pow(max(dot(normalViewNormalized, halfwayDir), 0.0f), material.shininess);
+        //vec3 reflectDir = reflect(-lightDir, normalView); // Phong
+        //float spec = pow(max(dot(viewDirView, reflectDir), 0.0f), material.shininess);
+        specular = light.color * spec * textureSpecular;
+        specular *= attenuation;
+        specular *= intensity;
+    }
     //float shadow = 0.0f;
 
     //vec3 ShadowCoord = vs_out.spotLightShadowCoord[i].xyz / vs_out.spotLightShadowCoord[i].w;

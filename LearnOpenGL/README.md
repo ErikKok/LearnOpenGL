@@ -4,6 +4,9 @@ Reminder:
 - samplers and other opaque shader types can be given explicit binding points https://juandiegomontoya.github.io/modern_opengl.html#sampler%20objects
 - use a constant array in the shader, e.g. for fullscreen quads
 
+Known bugs:
+ - drawDebugQuad gives Undefined Behaviour, as quadTexture is actually a sampler2dShadow (see https://community.khronos.org/t/read-depth-buffer-value-from-sampler2dshadow/53156)
+
 TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
 - time class maken
@@ -38,6 +41,13 @@ TO DO
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
 
 reflectie van lichten op beide kanten van model
+
+v0.2.88 3-7-2024
+-----------------
+- bug in reflections found (introduced in v0.2.67), fixed: Normalized FragPosTangent and FragPosView for specular
+- added a limit to calculate specular reflections for all light types
+- added a limit to calculate specular attenuation for all spot/pointLight types
+- 333~347fps now
 
 v0.2.87 3-7-2024
 -----------------

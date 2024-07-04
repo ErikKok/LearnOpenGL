@@ -136,10 +136,14 @@ struct SpotLight {
 };
 uniform SpotLight spotLights[2];
 
-vec3 normalTangent = normalize(texture(material.normal1, vs_out.TexCoords).rgb * 2.0 - 1.0);
+vec3 normalTangentNormalized = normalize(texture(material.normal1, vs_out.TexCoords).rgb * 2.0 - 1.0);
+vec3 FragPosTangentNormalized = normalize(vs_out.FragPosTangent);
 
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
+
+float cutOffSpecular = 0.1f;
+float cutOffAttenuation = 0.01f;
 
 vec3 CalcDirLight(DirLight light)
 {
@@ -147,7 +151,7 @@ vec3 CalcDirLight(DirLight light)
     vec3 ambient = light.ambient * textureDiffuse;
 
     // diffuse
-    float diff = max(dot(normalTangent, vs_out.dirLightDirectionTangent), 0.0f);
+    float diff = max(dot(normalTangentNormalized, vs_out.dirLightDirectionTangent), 0.0f);
     vec3 diffuse = light.color * diff * textureDiffuse;
 
     // Outside depthMap/frustum?
@@ -159,10 +163,14 @@ vec3 CalcDirLight(DirLight light)
 
     float shadow = texture(light.depthMap, ShadowCoord.xyz);
 
-    // specular
-    vec3 halfwayDir = normalize(vs_out.dirLightDirectionTangent - vs_out.FragPosTangent); // Blinn-Phong
+    // no more specular (calculations)
+    if (ShadowCoord.z > 0.75f)
+        return shadow * (ambient + diffuse) * light.strength;
 
-    float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
+    // specular
+    vec3 halfwayDir = normalize(vs_out.dirLightDirectionTangent - FragPosTangentNormalized); // Blinn-Phong
+
+    float spec = pow(max(dot(normalTangentNormalized, halfwayDir), 0.0f), material.shininess);
     vec3 specular = light.color * spec * textureSpecular;
 
     return shadow * (ambient + diffuse + specular) * light.strength;
@@ -170,22 +178,27 @@ vec3 CalcDirLight(DirLight light)
 
 vec3 CalcPointLight(PointLight light, int i)
 {
-    vec3 lightDir = normalize(vs_out.pointLightPositionTangent[i] - vs_out.FragPosTangent);
-    
-    // diffuse
-    float diff = max(dot(normalTangent, lightDir), 0.0f);
-    vec3 diffuse = light.color * diff * textureDiffuse;
-
-    // specular
-    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosTangent); // Blinn-Phong
-    float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
-    vec3 specular = light.color * spec * textureSpecular;
-
     // attenuation
     float distance = length(vs_out.pointLightPositionTangent[i] - vs_out.FragPosTangent);
-    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));    
+    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    attenuation = (attenuation - cutOffAttenuation) / (1.0f - cutOffAttenuation);
+    attenuation = max(attenuation, 0.0f);
+
+    vec3 lightDir = normalize(vs_out.pointLightPositionTangent[i] - vs_out.FragPosTangent);
+
+    // diffuse
+    float diff = max(dot(normalTangentNormalized, lightDir), 0.0f);
+    vec3 diffuse = light.color * diff * textureDiffuse;
     diffuse *= attenuation;
-    specular *= attenuation;
+
+    // specular
+    vec3 specular;
+    if (attenuation > cutOffSpecular) {
+        vec3 halfwayDir = normalize(lightDir - FragPosTangentNormalized); // Blinn-Phong
+        float spec = pow(max(dot(normalTangentNormalized, halfwayDir), 0.0f), material.shininess);
+        specular = light.color * spec * textureSpecular;
+        specular *= attenuation;
+    }
 
     return (diffuse + specular) * light.strength;
 }
@@ -200,28 +213,33 @@ vec3 CalcSpotLight(SpotLight light, int i)
 
     float shadow = texture(light.depthMap, ShadowCoord.xyz);
 
+    // attenuation
+    float distance = length(vs_out.spotLightPositionTangent[i] - vs_out.FragPosTangent);
+    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));     
+    attenuation = (attenuation - cutOffAttenuation) / (1.0f - cutOffAttenuation);
+    attenuation = max(attenuation, 0.0f);
+
     vec3 lightDir = normalize(vs_out.spotLightPositionTangent[i] - vs_out.FragPosTangent);
-
-    // diffuse
-    float diff = max(dot(normalTangent, lightDir), 0.0f);
-    vec3 diffuse = light.color * diff * textureDiffuse;
-
-    // specular
-    vec3 halfwayDir = normalize(lightDir - vs_out.FragPosTangent); // Blinn-Phong
-    float spec = pow(max(dot(normalTangent, halfwayDir), 0.0f), material.shininess);
-    vec3 specular = light.color * spec * textureSpecular;
 
     // cone
     float theta = dot(lightDir, normalize(-vs_out.spotLightDirectionTangent[i]));
     float intensity = smoothstep(0.0f, 1.0f, (theta - light.outerCutOff) / light.epsilon);
-    diffuse *= intensity;
-    specular *= intensity;
 
-    // attenuation
-    float distance = length(vs_out.spotLightPositionTangent[i] - vs_out.FragPosTangent);
-    float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));      
-    diffuse  *= attenuation;
-    specular *= attenuation;
+    // diffuse
+    float diff = max(dot(normalTangentNormalized, lightDir), 0.0f);
+    vec3 diffuse = light.color * diff * textureDiffuse;
+    diffuse *= attenuation;
+    diffuse *= intensity;
+
+    // specular
+    vec3 specular;
+    if (attenuation > cutOffSpecular) {
+        vec3 halfwayDir = normalize(lightDir - FragPosTangentNormalized); // Blinn-Phong
+        float spec = pow(max(dot(normalTangentNormalized, halfwayDir), 0.0f), material.shininess);
+        vec3 specular = light.color * spec * textureSpecular;
+        specular *= intensity;
+        specular *= attenuation;
+    }
 
     // emission
     vec3 emission;

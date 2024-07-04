@@ -84,12 +84,14 @@ int main()
         PointLight::pointLights.emplace_back(PointLight());
         PointLight::pointLights[1].setPosition({ 4.0f,  2.0f, -12.0f });
         PointLight::pointLights[1].setColor({ 1.0f, 1.0f, 1.0f });
+        PointLight::pointLights[1].setStrength(2.4f);
         PointLight::pointLights[1].sendToShader(multiLight);
         PointLight::pointLights[1].sendToShader(multiLightNormalMapping);
 
         PointLight::pointLights.emplace_back(PointLight());
         PointLight::pointLights[2].setPosition({ -4.0f,  2.0f,  12.0f });
         PointLight::pointLights[2].setColor({ 0.0f, 1.0f, 0.0f });
+        PointLight::pointLights[2].setStrength(1.0f);
         PointLight::pointLights[2].sendToShader(multiLight);
         PointLight::pointLights[2].sendToShader(multiLightNormalMapping);
 
@@ -121,7 +123,7 @@ int main()
         OrthographicCamera cameraDirLight(sun.getDirection(), -20.0f, 20.0f, -20.0f, 20.0f, -15.0f, 35.0f);
 
         // SpotLight0 | [0] == flashlight
-        glm::vec3 flashLightOffset{ 0.4f, -0.3f, -0.1f };
+        glm::vec3 flashLightOffset{ 0.4f, -0.1f, -0.1f };
         SpotLight::spotLights.emplace_back(SpotLight());
         SpotLight::spotLights[0].setOn(false);
         SpotLight::spotLights[0].setPosition(Global::camera.getPosition() + flashLightOffset);
