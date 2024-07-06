@@ -13,8 +13,8 @@ out VS_OUT { // PASS_THROUGH_GS
     vec3 FragPosTangent;
     vec3 dirLightShadowCoord;               // clip space   // Orthographic
     vec3 dirLightDirectionTangent;
-    vec4 spotLightShadowCoord[2];           // clip space   // Perspective
     vec3 pointLightPositionTangent[4];
+    vec4 spotLightShadowCoord[2];           // clip space   // Perspective
     vec3 spotLightPositionTangent[2];
     vec3 spotLightDirectionTangent[2];
 } vs_out;
@@ -83,8 +83,8 @@ in VS_OUT {
     vec3 FragPosTangent;      
     vec3 dirLightShadowCoord;
     vec3 dirLightDirectionTangent;
-    vec4 spotLightShadowCoord[2];
     vec3 pointLightPositionTangent[4];
+    vec4 spotLightShadowCoord[2];
     vec3 spotLightPositionTangent[2];
     vec3 spotLightDirectionTangent[2];
 } vs_out;

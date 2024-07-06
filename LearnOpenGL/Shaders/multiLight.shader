@@ -10,8 +10,8 @@ out VS_OUT {
     vec3 NormalView;
     vec3 dirLightShadowCoord;               // clip space   // Orthographic
     vec3 dirLightDirectionView;
-    vec4 spotLightShadowCoord[2];           // clip space   // Perspective
     vec3 pointLightPositionView[4];
+    vec4 spotLightShadowCoord[2];           // clip space   // Perspective
     vec3 spotLightPositionView[2];
     vec3 spotLightDirectionView[2];
 } vs_out;
@@ -51,8 +51,8 @@ void main()
     for (int i = 0; i < vs_out.pointLightPositionView.length(); i++)
         vs_out.pointLightPositionView[i] = pointLightPosition[i];
     // spotLight
-    vs_out.spotLightShadowCoord[0] = spotLight0MVP[gl_InstanceID] * vec4(aPos, 1.0f); // dit moet ook een array worden!
-    vs_out.spotLightShadowCoord[1] = spotLight1MVP[gl_InstanceID] * vec4(aPos, 1.0f); // dit moet ook een array worden!
+    vs_out.spotLightShadowCoord[0] = spotLight0MVP[gl_InstanceID] * vec4(aPos, 1.0f); // spotLight0MVP kan een loop/struct worden
+    vs_out.spotLightShadowCoord[1] = spotLight1MVP[gl_InstanceID] * vec4(aPos, 1.0f);
     for (int i = 0; i < vs_out.spotLightDirectionView.length(); i++) {
         vs_out.spotLightDirectionView[i] = spotLightDirection[i];
         vs_out.spotLightPositionView[i] = spotLightPosition[i];
@@ -100,8 +100,8 @@ in VS_OUT {
     vec3 NormalView;
     vec3 dirLightShadowCoord;
     vec3 dirLightDirectionView;
-    vec4 spotLightShadowCoord[2];
     vec3 pointLightPositionView[4];
+    vec4 spotLightShadowCoord[2];
     vec3 spotLightPositionView[2];
     vec3 spotLightDirectionView[2];
 } vs_out;

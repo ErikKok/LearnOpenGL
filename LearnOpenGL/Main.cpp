@@ -164,7 +164,7 @@ int main()
         SpotLight::spotLights[1].sendToShader(multiLight);
         SpotLight::spotLights[1].sendToShader(multiLightNormalMapping);
 
-        renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(1000, 1200));
+        renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(1024, 1024));
 
         SpotLight::spotLights[1].setCamera(Camera(renderer.m_FBO[2]->getTexture()->getAspectRatio(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
         SpotLight::spotLights[1].getCamera()->setFov((36.0f + 48.0f) * 1.15f);

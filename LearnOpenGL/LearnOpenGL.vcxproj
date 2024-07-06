@@ -44,8 +44,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>D:\Visual Studio\OpenGL Library;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\Visual Studio\OpenGL Library;$(IncludePath)</IncludePath>
+    <LibraryPath>Dependencies;$(LibraryPath)</LibraryPath>
+    <IncludePath>Dependencies;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>D:\Visual Studio\OpenGL Library;$(LibraryPath)</LibraryPath>

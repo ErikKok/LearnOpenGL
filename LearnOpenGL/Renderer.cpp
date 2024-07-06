@@ -185,7 +185,7 @@ void Renderer::drawFrustum(const Mesh& mesh, const glm::mat4& lightViewProjectio
 
 void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& camera) const
 {
-	// correct quad for the aspectRatio of the depthmap
+	// correct quad for the aspectRatio of the depthmap and viewport
 	float height{ 0.3f };
 	float width = (height / (static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight))) * camera.getAspectRatio();
 
@@ -236,32 +236,32 @@ void Renderer::drawWithStencil(const RenderObject& RO) {
 void Renderer::goRender() {
 	clearStencilBuffer();
 
-	glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way
+		glCullFace(GL_FRONT); // use instead (or in addition to?) of bias in the shader, only draw back faces (culling front faces), but 2d faces won't cast a shadow this way
 
-	m_renderPassActive = renderPassType::depthMap;
-	m_shaderDepthMap->useShader();
-	for (auto& FBO : m_FBO) {
-		assert(FBO && "FBO is nullptr");
-		assert(FBO->getType() == framebufferType::depthMap && "Wrong framebufferType");
+		m_renderPassActive = renderPassType::depthMap;
+		m_shaderDepthMap->useShader();
+		for (auto& FBO : m_FBO) {
+			assert(FBO && "FBO is nullptr");
+			assert(FBO->getType() == framebufferType::depthMap && "Wrong framebufferType");
 
-		m_renderPassActive = static_cast<renderPassType>(m_renderPassActive + 1);
+			m_renderPassActive = static_cast<renderPassType>(m_renderPassActive + 1);
 
-		if (m_renderPassActive == depthMapSpotLight0 && !SpotLight::spotLights[0].getOn() ||
-			m_renderPassActive == depthMapSpotLight1 && !SpotLight::spotLights[1].getOn()   )
-			continue;
+			if (m_renderPassActive == depthMapSpotLight0 && !SpotLight::spotLights[0].getOn() ||
+				m_renderPassActive == depthMapSpotLight1 && !SpotLight::spotLights[1].getOn())
+				continue;
 
-		FBO->bind();
-		setViewPort(FBO.get());
-		clearDepthBuffer();
+			FBO->bind();
+			setViewPort(FBO.get());
+			clearDepthBuffer();
 
-		for (const auto& RO : m_renderVector) {
-			if (RO->castsShadow)
-				draw(*RO);
+			for (const auto& RO : m_renderVector) {
+				if (RO->castsShadow)
+					draw(*RO);
+			}
+
+			FBO->unbind();
 		}
-
-		FBO->unbind();
-	}
-	glCullFace(GL_BACK);
+		glCullFace(GL_BACK);
 
 	m_renderPassActive = renderPassType::normal;
 
