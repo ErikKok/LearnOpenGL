@@ -41,6 +41,11 @@ TO DO
 - ECS - make sun static in-Class, and check for getOn in goRender loop
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
 
+v0.2.91 5-10-2024
+-----------------
+- added setYawPitch()
+- added a rudimental teleporter
+
 v0.2.90 6-7-2024
 -----------------
 - depencies moved

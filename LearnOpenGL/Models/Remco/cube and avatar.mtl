@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd E:\\Users\\remco\\no crashing here\\Assets\\cube\\YEPPERS.png
+map_Kd YEPPERS.png
 
 newmtl FaceEmotes.005
 Ns 179.999996
@@ -21,8 +21,8 @@ Ke 0.691176 0.691176 0.691176
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd E:\\Users\\remco\\egirl yes\\Assets\\body\\Assets\\Texture2D\\- ! Facial Gestures New.png
-map_d E:\\Users\\remco\\egirl yes\\Assets\\body\\Assets\\Texture2D\\- ! Facial Gestures New.png
+map_Kd Facial Gestures New.png
+map_d Facial Gestures New.png
 
 newmtl Hair.004
 Ns 179.999996
@@ -33,8 +33,8 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd E:\\Users\\remco\\egirl yes\\Assets\\egirl yes\\Assets\\Texture2D\\Fox Hair Black.png
-map_d E:\\Users\\remco\\egirl yes\\Assets\\egirl yes\\Assets\\Texture2D\\Fox Hair Black.png
+map_Kd Fox Hair Black.png
+map_d Fox Hair Black.png
 
 newmtl SweaterPoiyomi.005
 Ns 179.999996
@@ -45,9 +45,9 @@ Ke 1.000000 1.000000 1.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd E:\\Users\\remco\\egirl yes\\Assets\\body\\Assets\\Texture2D\\Sweater.png
-map_Ke E:\\Users\\remco\\egirl yes\\Assets\\egirl yes\\Assets\\Texture2D\\circuitMask.png
-map_d E:\\Users\\remco\\egirl yes\\Assets\\body\\Assets\\Texture2D\\Sweater.png
+map_Kd Sweater.png
+map_Ke circuitMask.png
+map_d Sweater.png
 
 newmtl material_atlas_93475_1
 Ns 225.000000
@@ -58,5 +58,5 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd E:\\Users\\remco\\egirl yes\\Assets\\egirl yes\\Atlas_93475.png
-map_d E:\\Users\\remco\\egirl yes\\Assets\\egirl yes\\Atlas_93475.png
+map_Kd Atlas_93475.png
+map_d Atlas_93475.png

@@ -1,8 +1,6 @@
-window_sizes 2880 1449 720 2153 1212 168
+window_sizes 2560 1351 720 1834 1129 168
 
 show_stereotypes
-selected class_ref 128642 // OrthographicCamera
-open
-  class_ref 128642 // OrthographicCamera
-end
+selected 
+package_ref 129 // boum;
 end

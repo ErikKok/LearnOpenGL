@@ -254,7 +254,7 @@ int main()
         //Model ourModel("Models/Rock/rock.obj");
         //Model ourModel("Models/Vampire/dancing_vampire.dae"); // crash
         //Model ourModel("FinalBaseMesh.obj"); // TODO laadt niet 100%
-        //cubeandavatar.obj
+        //Remco/cubeandavatar.obj
 
         Material modelMaterial{
             .shader{ &multiLightNormalMapping },
@@ -358,8 +358,8 @@ int main()
             Global::deltaTime = currentFrame - Global::lastFrame;
             Global::lastFrame = currentFrame;
             //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
-            //std::println("Position: {}, {}, {}", Global::camera.getPosition().x, Global::camera.getPosition().y, Global::camera.getPosition().z);
-            //std::println("Front: {}, {}, {}", Global::camera.m_front.x, Global::camera.m_front.y, Global::camera.m_front.z);
+            std::println("Position: {}, {}, {}", Global::camera.getPosition().x, Global::camera.getPosition().y, Global::camera.getPosition().z);
+            std::println("Front: {}, {}, {}", Global::camera.getFront().x, Global::camera.getFront().y, Global::camera.getFront().z);
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start processInput ///////////////////////////////////////////////////////////////
@@ -367,6 +367,15 @@ int main()
 
             glfwPollEvents();
             Global::processInput(window);
+
+            // Teleporter
+            if (Global::camera.getPosition().x > -0.5f && Global::camera.getPosition().x <  1.5f &&
+                Global::camera.getPosition().y >  0.0f && Global::camera.getPosition().y <  5.0f &&
+                Global::camera.getPosition().z > 24.5f && Global::camera.getPosition().z < 25.5f ) {
+
+                Global::camera.setYawPitch(-90.0f, 0.0f);
+                Global::camera.setPosition(glm::vec3(0.0f, 8.0f, 30.0f));
+            }
 
             if (!Global::isFlashLightOnUpdated) {
                 SpotLight::spotLights[0].toggle(multiLight, multiLightNormalMapping);

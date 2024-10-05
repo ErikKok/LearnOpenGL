@@ -30,6 +30,7 @@ public:
     void setNearPlane(float x) { m_nearPlane = x; calculateProjectionMatrix(); };
     float getFarPlane() const { return m_farPlane; };
     void setFarPlane(float x) { m_farPlane = x; calculateProjectionMatrix(); };
+    void setYawPitch(float yaw, float pitch) { m_yaw = yaw; m_pitch = pitch; updateCameraVectors(); };
     float getAspectRatio() const { return m_aspectRatio; };
     void setAspectRatio(float x) { m_aspectRatio = x; calculateProjectionMatrix(); };
     float getFov() const { return m_fov; };
@@ -68,7 +69,7 @@ protected:
     bool m_orthographic{ false }; // false == perspective
     glm::mat4 m_viewMatrix{};
     glm::mat4 m_projectionMatrix{};
-    glm::mat4 m_viewProjectionMatrix{};   
+    glm::mat4 m_viewProjectionMatrix{};
 
     // update m_front, m_right and m_up Vectors using the updated Euler angles
     void updateCameraVectors();
