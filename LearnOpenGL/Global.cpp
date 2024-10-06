@@ -181,9 +181,6 @@ void Global::getInformation() {
 
 void Global::processInput(GLFWwindow* window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         camera.processKeyboard(CameraMovement::FORWARD);
     }
@@ -196,13 +193,22 @@ void Global::processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         camera.processKeyboard(CameraMovement::RIGHT);
     }
-
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         camera.processKeyboard(CameraMovement::UP);
     }
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         camera.processKeyboard(CameraMovement::DOWN);
     }
+    
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+        camera.setMovementSpeed(10.0f);
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
+        camera.setMovementSpeed(5.0f);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
 
 #pragma warning( suppress : 4100 )

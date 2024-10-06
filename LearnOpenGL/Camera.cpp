@@ -54,7 +54,10 @@ void Camera::calculateProjectionMatrix()
 }
 
 void Camera::fakeGravity(GLfloat deltaTime) {
-    if (m_position.y > 0.15f)
+    //if (m_position.y > 0.15f)
+    //    m_position.y -= 0.2f * m_movementSpeed * deltaTime;
+
+    if (m_position.y >= 1.5f)
         m_position.y -= 0.2f * m_movementSpeed * deltaTime;
 }
 
@@ -63,10 +66,17 @@ void Camera::processKeyboard(CameraMovement direction)
 {      
     float velocity{ m_movementSpeed * Global::deltaTime };
 
-    if (direction == CameraMovement::UP)
-        m_position.y += 0.5f * velocity;
-    if (direction == CameraMovement::DOWN)
+    if (direction == CameraMovement::UP) {
+        //m_position.y += 0.5f * velocity;
+        if (Global::acceleration == 9.81f) {// + check if touching ground
+            Global::acceleration = 666.0f; // once!   
+            Global::jumping = true;
+        }
+    }
+    if (direction == CameraMovement::DOWN) {
         m_position.y -= 0.5f * velocity;
+        Global::crouching = true;
+    }
 
     if (direction == CameraMovement::FORWARD) {
         m_position.x += m_front.x * velocity;
@@ -85,7 +95,7 @@ void Camera::processKeyboard(CameraMovement direction)
         m_position.z += m_right.z * velocity;
     }
 
-    calculateViewMatrix();
+    //calculateViewMatrix();
 }
 
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.

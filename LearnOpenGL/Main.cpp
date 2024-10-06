@@ -355,11 +355,13 @@ int main()
         while (!glfwWindowShouldClose(window)) {
             // per-frame time logic
             float currentFrame{ static_cast<float>(glfwGetTime()) };
-            Global::deltaTime = currentFrame - Global::lastFrame;
-            Global::lastFrame = currentFrame;
+            Global::deltaTime = currentFrame - Global::deltaTimeLastFrame;
+            Global::deltaTimeLastFrame = currentFrame;
             //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
             std::println("Position: {}, {}, {}", Global::camera.getPosition().x, Global::camera.getPosition().y, Global::camera.getPosition().z);
-            std::println("Front: {}, {}, {}", Global::camera.getFront().x, Global::camera.getFront().y, Global::camera.getFront().z);
+            //std::println("Front: {}, {}, {}", Global::camera.getFront().x, Global::camera.getFront().y, Global::camera.getFront().z);
+
+            Global::yPositionLastFrame = Global::camera.getPosition().y;
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start processInput ///////////////////////////////////////////////////////////////
@@ -368,19 +370,89 @@ int main()
             glfwPollEvents();
             Global::processInput(window);
 
-            // Teleporter
-            if (Global::camera.getPosition().x > -0.5f && Global::camera.getPosition().x <  1.5f &&
-                Global::camera.getPosition().y >  0.0f && Global::camera.getPosition().y <  5.0f &&
-                Global::camera.getPosition().z > 24.5f && Global::camera.getPosition().z < 25.5f ) {
+            // per-frame vSpeed logic
+            //float verticalDistanceTravelled{ Global::camera.getPosition().y - Global::lastFrame_vPosition };
+            //Global::vSpeed = (Global::camera.getPosition().y - Global::lastFrameVPosition) / Global::deltaTime;
+            //std::println("vertical speed: {}m/s", Global::vSpeed);
+
+            // 0.5 * 25'C air resistance * speed_squared * human drag * frontal area (guess)
+            //float drag = 0.30f * (Global::vSpeed * Global::vSpeed); // 0.5f * 1.204f * (Global::vSpeed * Global::vSpeed) * 1.15f * 0.4f;
+            //float weight = 85.0f * Global::gravity; // 85 = human mass in kg
+            //float force = weight - drag; // net external force
+            //Global::acceleration = (force / 85.0f) - Global::gravity;
+            //std::println("acceleration: {}", Global::acceleration);
+
+
+
+            //Global::camera.m_position.y += Global::deltaTime * (Global::gravity + Global::acceleration);
+
+            //if (Global::acceleration != 9.81f)
+            //    Global::acceleration *= Global::deltaTime * Global::drag; // Global::vSpeed * Global::deltaTime *
+
+            //if (Global::camera.m_position.y <= 1.5f) { // landed
+            //    Global::acceleration = 9.81f;
+            //    Global::camera.m_position.y = 1.5f;
+            //}
+
+            /////////////
+
+            //Global::vSpeed = (Global::camera.getPosition().y - Global::lastFrameVPosition) / Global::deltaTime;
+            //Global::lastFrameVSpeed = Global::vSpeed;
+            //Global::vSpeed += Global::deltaTime * (Global::gravity + Global::acceleration);
+            //Global::camera.m_position.y += (Global::vSpeed + Global::lastFrameVSpeed) / 2 * Global::deltaTime;
+
+            //if (Global::acceleration != 9.81f)
+            //    Global::acceleration *= Global::drag;
+
+            //if (Global::camera.m_position.y <= 1.5f) { // landed
+            //    Global::acceleration = 9.81f;
+            //    Global::camera.m_position.y = 1.5f;
+            //}
+
+            //m_position.y += m_position.y + (Global::deltaTime * Global::vSpeed * Global::drag);
+            //if (Global::vSpeed < 0.0f)
+            //    Global::vSpeed = 0.0f;
+
+            /////////////////
+
+            // https://gafferongames.com/post/integration_basics/
+            // https://gamedev.stackexchange.com/questions/94000/how-to-implement-accurate-frame-rate-independent-physics
+            Global::yVelocityLastFrame = Global::yVelocity;
+            Global::yVelocity += (Global::gravity + Global::acceleration) * Global::deltaTime;
+            Global::camera.m_position.y += ((Global::yVelocity + Global::yVelocityLastFrame) / 2) * Global::deltaTime;
+
+            if (Global::gravity + Global::acceleration != 0.0f)
+                Global::acceleration *= Global::deltaTime * Global::drag;
+
+            if (Global::camera.m_position.y <= 1.5f && Global::crouching == false) { // landed
+                Global::acceleration = 9.81f;
+                Global::camera.m_position.y = 1.5f;
+                Global::yVelocity = 0.0f;
+                Global::jumping = false;
+            }
+
+            /////////////////
+
+            // Teleporter (green light)
+            if (Global::camera.getPosition().x > -4.5f && Global::camera.getPosition().x < -3.5f &&
+                Global::camera.getPosition().y >  1.5f && Global::camera.getPosition().y <  2.5f &&
+                Global::camera.getPosition().z > 11.5f && Global::camera.getPosition().z < 12.5f ) {
 
                 Global::camera.setYawPitch(-90.0f, 0.0f);
                 Global::camera.setPosition(glm::vec3(0.0f, 8.0f, 30.0f));
             }
 
+            std::println("Netto acceleration: {}", Global::gravity + Global::acceleration);
+            std::println("yVelocity: {}", Global::yVelocity);
+
+
             if (!Global::isFlashLightOnUpdated) {
                 SpotLight::spotLights[0].toggle(multiLight, multiLightNormalMapping);
                 Global::isFlashLightOnUpdated = true;
             }
+
+            // moved from Camera::processKeyboard due to player being able to move without inputs now
+            Global::camera.calculateViewMatrix();
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start UpdateGame /////////////////////////////////////////////////////////////////

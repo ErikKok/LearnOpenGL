@@ -31,6 +31,7 @@ public:
     float getFarPlane() const { return m_farPlane; };
     void setFarPlane(float x) { m_farPlane = x; calculateProjectionMatrix(); };
     void setYawPitch(float yaw, float pitch) { m_yaw = yaw; m_pitch = pitch; updateCameraVectors(); };
+    void setMovementSpeed(float x) { m_movementSpeed = x; };
     float getAspectRatio() const { return m_aspectRatio; };
     void setAspectRatio(float x) { m_aspectRatio = x; calculateProjectionMatrix(); };
     float getFov() const { return m_fov; };
@@ -50,10 +51,13 @@ public:
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
     void processMouseScroll(GLfloat yoffset);
 
+    //TODO
+    glm::vec3 m_position{};
+
 protected:
     Camera() {};
 
-    glm::vec3 m_position{};
+
     glm::vec3 m_front{ 0.0f, 0.0f, 0.0f };
     glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
     glm::vec3 m_right{};
@@ -62,7 +66,7 @@ protected:
     GLfloat m_farPlane{ 400.0f };
     GLfloat m_yaw{ -90.0f };
     GLfloat m_pitch{ 0.0f };
-    GLfloat m_movementSpeed{ 2.5f };
+    GLfloat m_movementSpeed{}; // set in processInput()
     GLfloat m_mouseSensitivity{ 0.035f };
     GLfloat m_fov{ 45.0f }; // (InnerCutOff + OuterCutOff + 15% for attenuation) seems about right
     float m_aspectRatio{ 1.0f };
