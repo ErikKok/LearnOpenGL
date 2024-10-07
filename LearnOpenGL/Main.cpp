@@ -29,6 +29,50 @@
 #include <memory> // for std::unique_ptr
 #include <print>
 
+int init(GLFWwindow* window)
+{
+    assert(sizeof(int) == sizeof(GLint) && "size of int and GL_INT is not equal");
+    assert(sizeof(unsigned int) == sizeof(GLuint) && "size of unsigned int and GLuint is not equal");
+    assert(sizeof(float) == sizeof(GLfloat) && "size of float and GL_FLOAT is not equal");
+    assert(sizeof(unsigned char) == sizeof(GLubyte) && "size of int and GL_INT is not equal");
+
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, Engine::framebuffer_size_callback);
+    glfwSetCursorEnterCallback(window, Engine::cursor_enter_callback);
+    glfwSetCursorPosCallback(window, Engine::mouse_callback);
+    glfwSetScrollCallback(window, Engine::scroll_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetKeyCallback(window, Engine::key_callback);
+
+    std::println("Initialize GLAD");
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::println("Failed to initialize GLAD");
+        return -1;
+    }
+
+    std::println("Initialize OpenGL");
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
+    glEnable(GL_FRAMEBUFFER_SRGB);
+
+    std::println("Initialize Debug");
+    int flags{};
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(G::glDebugOutput, nullptr);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+    }
+
+    G::glCheckError();
+
+    return 0;
+}
+
 int main()
 {
     std::println("Configure GLFW");
@@ -48,7 +92,7 @@ int main()
         return -1;
     }
 
-    if (G::init(window) == -1) {
+    if (init(window) == -1) {
         std::println("Failed to initialize");
         glfwTerminate();
         return -1;
@@ -376,24 +420,8 @@ int main()
             // https://gamedev.stackexchange.com/questions/94000/how-to-implement-accurate-frame-rate-independent-physics
             // https://gamedev.stackexchange.com/questions/38453/how-do-i-implement-deceleration-for-the-player-character
 
-            std::println("Netto acceleration: {}", (G::gravity + GE::player.getAcceleration()));
-            std::println("yVelocity: {}", GE::player.getYVelocity());
-
-            GE::player.setYVelocityLastFrame(GE::player.getYVelocity());
-            GE::player.addYVelocity( (G::gravity + GE::player.getAcceleration()) * G::deltaTime);
-            GE::camera.setPositionY(GE::camera.getPosition().y + ((GE::player.getYVelocity() + GE::player.getYVelocityLastFrame()) / 2) * G::deltaTime);
-
-            if (G::gravity + GE::player.getAcceleration() != 0.0f)
-                GE::player.multiplyAcceleration(G::deltaTime * GE::player.getDrag());
-
-            if (GE::player.getIsJumping() == true) {
-                if (GE::camera.getPosition().y <= 1.5f) { // landed on Floor
-                    GE::player.setAcceleration(9.81f);
-                    GE::camera.setPositionY(1.5f);
-                    GE::player.setYVelocity(0.0f);
-                    GE::player.setIsJumping(false);
-                }
-            }
+            GE::player.handleJump();
+            //GE::player.handleAcceleration();
 
             // Teleporter (green light)
             if (GE::camera.getPosition().x > -4.5f && GE::camera.getPosition().x < -3.5f &&

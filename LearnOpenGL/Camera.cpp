@@ -66,9 +66,9 @@ void Camera::processKeyboard(CameraMovement direction)
 {      
     float velocity{ m_movementSpeed * G::deltaTime };
 
-    if (direction == CameraMovement::UP) {
-        //m_position.y += 0.5f * velocity;
-    }
+    //if (direction == CameraMovement::UP) {
+    //    //m_position.y += 0.5f * velocity;
+    //}
     if (direction == CameraMovement::DOWN) {
         m_position.y -= 0.5f * velocity;
         //Global::crouching = true;

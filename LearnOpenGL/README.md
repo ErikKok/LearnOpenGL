@@ -3,6 +3,7 @@ Reminder:
 - try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
 - samplers and other opaque shader types can be given explicit binding points https://juandiegomontoya.github.io/modern_opengl.html#sampler%20objects
 - use a constant array in the shader, e.g. for fullscreen quads
+- TODO: Headers: put as much as you can in the .cpp and as little as possible in the .h.
 
 Known bugs:
  - drawDebugQuad gives Undefined Behaviour warnings, because quadTexture is actually a sampler2DShadow, but used as a sampler2D (see https://community.khronos.org/t/read-depth-buffer-value-from-sampler2dshadow/53156)
@@ -43,7 +44,11 @@ TO DO
 
 v0.2.94 7-10-2024
 -----------------
-added GlobalEntities.h
+- added GlobalEntities.h
+- moved Player and Camera to GlobalEntities.h
+- added Engine.h
+- moved some GLFW control stuff from Global.h to Engine.h
+- moved init() to main
 
 v0.2.93 7-10-2024
 -----------------

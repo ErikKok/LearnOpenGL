@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Camera.h"
-//#include "GlobalEntities.h"
 #include "Light.h"
 
 #include <glad/glad.h>
@@ -45,7 +44,6 @@ namespace G {
 
     // Camera
     inline glm::vec3 cameraInitialPosition{ 0.0f, 1.5f, 15.0f };
-    inline Camera camera((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)), cameraInitialPosition);
 
     // SSBO - cache for various matrix calculations
     inline glm::mat4 modelViewMatrixTemp{};
@@ -53,7 +51,6 @@ namespace G {
     // Renderloop
     inline GLfloat deltaTime{ 0.0f };               // Time in seconds between current frame and last frame
     inline GLfloat deltaTimeLastFrame{ 0.0f };      // Timestamp of last frame
-
     const inline float gravity{ -9.81f };           // 9.80665
     inline bool paused{ false };
 
@@ -66,29 +63,17 @@ namespace G {
     inline int debugQuadVisible{ 0 };
     inline bool isFlashLightOnUpdated{ true };
 
-    // Error
+    // Error | Debug
     const GLenum glCheckError_(const char* file, int line);
     #define glCheckError() glCheckError_(__FILE__, __LINE__)
     void glClearError();
+    void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
 
     // Matrices
     glm::mat4 calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
     glm::mat4 calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale);
     void applyCameraOffset(Camera* camera, float x, float y, float z);
 
-    // Init
-    // https://www.learncpp.com/cpp-tutorial/pass-by-const-lvalue-reference/ - The cost of pass by value vs pass by reference
-    void cheap2Copy();
-
-    int init(GLFWwindow* window);
-    void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
+    void cheap2Copy(); // https://www.learncpp.com/cpp-tutorial/pass-by-const-lvalue-reference/ - The cost of pass by value vs pass by reference
     void getInformation();
-
-    //void processInput(GLFWwindow* window);
-    // Following functions are called by glfwPollEvents()
-    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-    void cursor_enter_callback(GLFWwindow* window, int entered);
-    void mouse_callback(GLFWwindow* window, double currentXPosIn, double currentYPosIn);
-    void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 }

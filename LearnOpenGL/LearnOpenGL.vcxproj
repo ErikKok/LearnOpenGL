@@ -99,6 +99,7 @@
   <ItemGroup>
     <ClCompile Include="BufferDataStore.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="ElementBuffer.cpp" />

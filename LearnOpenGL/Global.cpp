@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine.h"
 #include "Global.h"
 #include "GlobalEntities.h"
 
@@ -50,7 +51,7 @@ glm::mat4 G::calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, 
 // see https://stackoverflow.com/questions/49840131/unity-how-to-calculate-a-target-position-with-offset-based-on-the-current-posi
 // and https://stackoverflow.com/questions/72095398/translate-objects-relative-to-the-camera-view (I guess I could inverse modelViewMatrix instead, same same...)
 void G::applyCameraOffset(Camera* cam, float x, float y, float z) {
-    glm::mat4 offsetMatrix{ glm::translate(glm::mat4(1.0f), camera.getRight() * x) };
+    glm::mat4 offsetMatrix{ glm::translate(glm::mat4(1.0f), GE::camera.getRight() * x) };
     offsetMatrix = glm::translate(offsetMatrix, GE::camera.getUp() * y);
     offsetMatrix = glm::translate(offsetMatrix, GE::camera.getFront() * z);
 
@@ -71,50 +72,6 @@ void G::cheap2Copy() {
     std::println("Is Shader cheap to copy: {} (provided there are no additional setup costs)", cheap);
     //cheap = sizeof(Texture) <= 2 * sizeof(void*);
     //std::println("Is Texture cheap to copy: {} (provided there are no additional setup costs)", cheap);
-}
-
-int G::init(GLFWwindow* window)
-{
-    assert(sizeof(int) == sizeof(GLint) && "size of int and GL_INT is not equal"); 
-    assert(sizeof(unsigned int) == sizeof(GLuint) && "size of unsigned int and GLuint is not equal");
-    assert(sizeof(float) == sizeof(GLfloat) && "size of float and GL_FLOAT is not equal");
-    assert(sizeof(unsigned char) == sizeof(GLubyte) && "size of int and GL_INT is not equal");
-
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorEnterCallback(window, cursor_enter_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetKeyCallback(window, key_callback);
-
-    std::println("Initialize GLAD");
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::println("Failed to initialize GLAD");
-        return -1;
-    }
-
-    std::println("Initialize OpenGL");
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_MULTISAMPLE);
-    glEnable(GL_FRAMEBUFFER_SRGB);
-
-    std::println("Initialize Debug");
-    int flags{};
-    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(glDebugOutput, nullptr);
-        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-    }
-
-    glCheckError();
-
-    return 0;
 }
 
 #pragma warning( suppress : 4100 )
@@ -177,150 +134,4 @@ void G::getInformation() {
     glGetIntegerv(GL_MAX_COMPUTE_TEXTURE_IMAGE_UNITS, &returnData);
     std::println("maximum supported texture image units: {}", returnData);
     std::println("************************************************");
-}
-
-//void G::processInput(GLFWwindow* window)
-//{
-//    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-//        camera.processKeyboard(CameraMovement::FORWARD);
-//    }
-//    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-//        camera.processKeyboard(CameraMovement::BACKWARD);
-//    }
-//    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-//        camera.processKeyboard(CameraMovement::LEFT);
-//    }
-//    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-//        camera.processKeyboard(CameraMovement::RIGHT);
-//    }
-//    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-//        //camera.processKeyboard(CameraMovement::UP);
-//        //GE::player.jump();
-//    }
-//    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
-//        camera.processKeyboard(CameraMovement::DOWN);
-//    }
-//    
-//    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-//        camera.setMovementSpeed(10.0f);
-//    }
-//    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
-//        camera.setMovementSpeed(5.0f);
-//    }
-//
-//    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-//        glfwSetWindowShouldClose(window, true);
-//}
-
-#pragma warning( suppress : 4100 )
-void G::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_F && action == GLFW_PRESS)
-        isFlashLightOnUpdated = false;
-
-    if (key == GLFW_KEY_K && action == GLFW_PRESS) {
-        frustumVisible++;
-        if (frustumVisible == 4)
-            frustumVisible = 0;
-    }
-
-    static int polygonMode{ 0 };
-    if (key == GLFW_KEY_L && action == GLFW_PRESS) {
-        if (polygonMode == 0) {
-            std::println("Polygon Mode LINE");
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            polygonMode = 1;
-            return;
-        }
-        if (polygonMode == 1) {
-            std::println("Polygon Mode POINT");
-            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-            polygonMode = 2;
-            return;
-        }
-        if (polygonMode == 2) {
-            std::println("Polygon Mode FILL");
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            polygonMode = 0;
-        }
-    }
-
-    if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-        if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            windowsHasMouseFocus = false;
-        }
-        else if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        }
-    }
-
-    if (key == GLFW_KEY_O && action == GLFW_PRESS)
-        drawOutline = !drawOutline;
-
-    if (key == GLFW_KEY_P && action == GLFW_PRESS)
-        paused = !paused;
-
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
-        debugQuadVisible++;
-        if (debugQuadVisible == 4)
-            debugQuadVisible = 0;
-    }
-
-    if (key == GLFW_KEY_V && action == GLFW_PRESS)
-        glfwSwapInterval(0);
-}
-
-#pragma warning( suppress : 4100 )
-void G::framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-    windowWidth = width;
-    windowHeight = height;
-    GE::camera.setAspectRatio((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)));
-    glCheckError();
-}
-
-#pragma warning( suppress : 4100 )
-void G::cursor_enter_callback(GLFWwindow* window, int entered)
-{
-    if (entered) {
-        // The cursor entered the client area of the window
-    }
-    else {
-        // The cursor left the client area of the window
-        windowsHasMouseFocus = false;
-    }
-    glCheckError();
-}
-
-#pragma warning( suppress : 4100 )
-void G::mouse_callback(GLFWwindow* window, double currentXPosIn, double currentYPosIn)
-{
-    float currentXPos{ static_cast<float>(currentXPosIn) };
-    float currentYPos{ static_cast<float>(currentYPosIn) };
-    // last x,y position, initialize with center x,y coordinates
-    static float lastXPos{ windowWidth / 2.0f };
-    static float lastYPos{windowHeight / 2.0f };
-
-    if (!windowsHasMouseFocus) {
-        lastXPos = currentXPos;
-        lastYPos = currentYPos;
-        windowsHasMouseFocus = true;
-    }
-
-    // Calculate the mouse's offset since the last frame
-    float xoffset{ currentXPos - lastXPos };
-    float yoffset{ lastYPos - currentYPos }; // reversed since y-coordinates go from bottom to top
-
-    lastXPos = currentXPos;
-    lastYPos = currentYPos;
-
-    GE::camera.processMouseMovement(xoffset, yoffset);
-}
-
-#pragma warning( suppress : 4100 )
-void G::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    GE::camera.processMouseScroll(static_cast<float>(yoffset));
 }
