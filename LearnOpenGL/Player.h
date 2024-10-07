@@ -1,6 +1,13 @@
 #pragma once
 
-class Player {
+//#include "Global.h"
+//#include "GlobalEntities.h"
+//#include "Camera.h"
+
+#include <GLFW/glfw3.h>
+
+class Player
+{
 public:
 	const float getYVelocity() const { return m_yVelocity; };
 	void addYVelocity(float x) { m_yVelocity += x; };
@@ -15,11 +22,13 @@ public:
 	void setIsJumping(bool x) { m_isJumping = x; };
 
 	void jump();
+	//void processInput(GLFWwindow* window);
 
 private:
 	float m_yVelocity{ 0.0f }; // Vertical speed in meter/second
 	float m_yVelocityLastFrame{ 0.0f };
-	float m_acceleration{ 9.81f }; // TODO use -G::gravity value (but generates a header recursion)
+
+	float m_acceleration{ 9.81f };// -G::gravity
 	float m_drag{ 0.5f };
 	bool m_isJumping{ false };
 

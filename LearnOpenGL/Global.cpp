@@ -194,7 +194,7 @@ void G::processInput(GLFWwindow* window)
     }
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         //camera.processKeyboard(CameraMovement::UP);
-        player.jump();
+        GE::player.jump();
     }
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         camera.processKeyboard(CameraMovement::DOWN);

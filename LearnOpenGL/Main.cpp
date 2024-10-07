@@ -2,6 +2,7 @@
 
 #include "Buffers.h"
 #include "Camera.h"
+#include "GlobalEntities.h"
 #include "Data.h"
 #include "Global.h"
 #include "Light.h"
@@ -374,22 +375,22 @@ int main()
             // https://gamedev.stackexchange.com/questions/94000/how-to-implement-accurate-frame-rate-independent-physics
             // https://gamedev.stackexchange.com/questions/38453/how-do-i-implement-deceleration-for-the-player-character
 
-            std::println("Netto acceleration: {}", (G::gravity + G::player.getAcceleration()));
-            std::println("yVelocity: {}", G::player.getYVelocity());
+            std::println("Netto acceleration: {}", (G::gravity + GE::player.getAcceleration()));
+            std::println("yVelocity: {}", GE::player.getYVelocity());
 
-            G::player.setYVelocityLastFrame(G::player.getYVelocity());
-            G::player.addYVelocity( (G::gravity + G::player.getAcceleration()) * G::deltaTime);
-            G::camera.setPositionY(G::camera.getPosition().y + ((G::player.getYVelocity() + G::player.getYVelocityLastFrame()) / 2) * G::deltaTime);
+            GE::player.setYVelocityLastFrame(GE::player.getYVelocity());
+            GE::player.addYVelocity( (G::gravity + GE::player.getAcceleration()) * G::deltaTime);
+            G::camera.setPositionY(G::camera.getPosition().y + ((GE::player.getYVelocity() + GE::player.getYVelocityLastFrame()) / 2) * G::deltaTime);
 
-            if (G::gravity + G::player.getAcceleration() != 0.0f)
-                G::player.multiplyAcceleration(G::deltaTime * G::player.getDrag());
+            if (G::gravity + GE::player.getAcceleration() != 0.0f)
+                GE::player.multiplyAcceleration(G::deltaTime * GE::player.getDrag());
 
-            if (G::player.getIsJumping() == true) {
+            if (GE::player.getIsJumping() == true) {
                 if (G::camera.getPosition().y <= 1.5f) { // landed on Floor
-                    G::player.setAcceleration(9.81f);
+                    GE::player.setAcceleration(9.81f);
                     G::camera.setPositionY(1.5f);
-                    G::player.setYVelocity(0.0f);
-                    G::player.setIsJumping(false);
+                    GE::player.setYVelocity(0.0f);
+                    GE::player.setIsJumping(false);
                 }
             }
 

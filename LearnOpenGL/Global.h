@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Camera.h"
+#include "GlobalEntities.h"
 #include "Light.h"
-#include "Player.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -42,7 +42,6 @@ namespace G {
 
     // Misc
     inline float outlineAlpha{ 0.0f };
-    inline Player player{};
 
     // Camera
     inline glm::vec3 cameraInitialPosition{ 0.0f, 1.5f, 15.0f };
@@ -55,7 +54,7 @@ namespace G {
     inline GLfloat deltaTime{ 0.0f };               // Time in seconds between current frame and last frame
     inline GLfloat deltaTimeLastFrame{ 0.0f };      // Timestamp of last frame
 
-    inline float gravity{ -9.81f };                 // 9.80665
+    const inline float gravity{ -9.81f };           // 9.80665
     inline bool paused{ false };
 
     // Shader
