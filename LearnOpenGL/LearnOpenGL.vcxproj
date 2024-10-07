@@ -122,6 +122,7 @@
     <ClInclude Include="Buffers.h" />
     <ClInclude Include="BufferDataStore.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Engine.h" />
     <ClInclude Include="GlobalEntities.h" />
     <ClInclude Include="Data.h" />
     <ClInclude Include="ElementBuffer.h" />

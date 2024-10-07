@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Camera.h"
-#include "GlobalEntities.h"
+//#include "GlobalEntities.h"
 #include "Light.h"
 
 #include <glad/glad.h>
@@ -84,7 +84,7 @@ namespace G {
     void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam);
     void getInformation();
 
-    void processInput(GLFWwindow* window);
+    //void processInput(GLFWwindow* window);
     // Following functions are called by glfwPollEvents()
     void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
     void framebuffer_size_callback(GLFWwindow* window, int width, int height);

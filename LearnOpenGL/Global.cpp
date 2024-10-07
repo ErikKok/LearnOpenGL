@@ -178,38 +178,38 @@ void G::getInformation() {
     std::println("************************************************");
 }
 
-void G::processInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        camera.processKeyboard(CameraMovement::FORWARD);
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        camera.processKeyboard(CameraMovement::BACKWARD);
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        camera.processKeyboard(CameraMovement::LEFT);
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        camera.processKeyboard(CameraMovement::RIGHT);
-    }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        //camera.processKeyboard(CameraMovement::UP);
-        GE::player.jump();
-    }
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
-        camera.processKeyboard(CameraMovement::DOWN);
-    }
-    
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-        camera.setMovementSpeed(10.0f);
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
-        camera.setMovementSpeed(5.0f);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
+//void G::processInput(GLFWwindow* window)
+//{
+//    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+//        camera.processKeyboard(CameraMovement::FORWARD);
+//    }
+//    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+//        camera.processKeyboard(CameraMovement::BACKWARD);
+//    }
+//    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+//        camera.processKeyboard(CameraMovement::LEFT);
+//    }
+//    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+//        camera.processKeyboard(CameraMovement::RIGHT);
+//    }
+//    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+//        //camera.processKeyboard(CameraMovement::UP);
+//        //GE::player.jump();
+//    }
+//    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+//        camera.processKeyboard(CameraMovement::DOWN);
+//    }
+//    
+//    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+//        camera.setMovementSpeed(10.0f);
+//    }
+//    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
+//        camera.setMovementSpeed(5.0f);
+//    }
+//
+//    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+//        glfwSetWindowShouldClose(window, true);
+//}
 
 #pragma warning( suppress : 4100 )
 void G::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

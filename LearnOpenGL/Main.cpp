@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Buffers.h"
+#include "Engine.h"
+
 #include "Camera.h"
-#include "GlobalEntities.h"
+//#include "GlobalEntities.h"
 #include "Data.h"
 #include "Global.h"
 #include "Light.h"
@@ -360,7 +362,7 @@ int main()
             G::deltaTime = currentFrame - G::deltaTimeLastFrame;
             G::deltaTimeLastFrame = currentFrame;
             //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
-            std::println("Position: {}, {}, {}", G::camera.getPosition().x, G::camera.getPosition().y, G::camera.getPosition().z);
+            std::println("Position: {}, {}, {}", GE::camera.getPosition().x, GE::camera.getPosition().y, GE::camera.getPosition().z);
             //std::println("Front: {}, {}, {}", Global::camera.getFront().x, Global::camera.getFront().y, Global::camera.getFront().z);
 
             /////////////////////////////////////////////////////////////////////////////////////
@@ -368,7 +370,7 @@ int main()
             /////////////////////////////////////////////////////////////////////////////////////
 
             glfwPollEvents();
-            G::processInput(window);// , GE::camera);
+            Engine::processInput(window);// , GE::camera);
 
             // Gravity + jumping
             // https://gafferongames.com/post/integration_basics/

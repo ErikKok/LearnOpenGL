@@ -4,7 +4,6 @@
 //#include "GlobalEntities.h"
 //#include "Camera.h"
 
-#include <GLFW/glfw3.h>
 //#include <glm/glm.hpp>
 //#include <glm/gtc/matrix_transform.hpp>
 //#include <glm/gtc/type_ptr.hpp>
@@ -25,7 +24,6 @@ public:
 	void setIsJumping(bool x) { m_isJumping = x; };
 
 	void jump();
-	void processInput(GLFWwindow* window);//, Camera camera);
 
 private:
 	float m_yVelocity{ 0.0f }; // Vertical speed in meter/second
