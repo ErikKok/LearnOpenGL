@@ -9,7 +9,7 @@ VertexBuffer::VertexBuffer(size_t size, const GLvoid* data)
 {
 	glCreateBuffers(1, &m_id);
 	glNamedBufferStorage(m_id, static_cast<GLuint>(size), data, GL_DYNAMIC_STORAGE_BIT);
-	Global::glCheckError();
+	G::glCheckError();
 	//std::println("CREATE VertexBuffer id: {}", m_id);
 }
 
@@ -17,7 +17,7 @@ VertexBuffer::~VertexBuffer()
 {
 	std::println("DELETE deleteVertexBuffer id: {}", m_id);
 	glDeleteBuffers(1, &m_id);
-	Global::glCheckError();
+	G::glCheckError();
 }
 
 //void VertexBuffer::bindVertexBuffer() const

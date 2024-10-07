@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Global.h"
-#include "Camera.h"
 
-const GLenum Global::glCheckError_(const char* file, int line)
+const GLenum G::glCheckError_(const char* file, int line)
 {
     GLenum errorCode{ glGetError() };
     while (errorCode != GL_NO_ERROR)
@@ -24,13 +23,13 @@ const GLenum Global::glCheckError_(const char* file, int line)
     return errorCode;
 }
 
-void Global::glClearError()
+void G::glClearError()
 {
     while (glGetError() != GL_NO_ERROR);
 }
 
 // Takes in full transformation parameters in World space, and outputs model in World space
-glm::mat4 Global::calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+glm::mat4 G::calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 {
     glm::mat4 model{ 1.0f };
     model = glm::translate(model, translate);
@@ -42,14 +41,14 @@ glm::mat4 Global::calculateModelMatrix(glm::vec3 translate, float rotateDegrees,
 }
 
 // Takes in full transformation parameters in World space, and outputs model in View space
-glm::mat4 Global::calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
+glm::mat4 G::calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 { 
     return camera.getViewMatrix() * calculateModelMatrix(translate, rotateDegrees, rotateVec3, scale);
 }
 
 // see https://stackoverflow.com/questions/49840131/unity-how-to-calculate-a-target-position-with-offset-based-on-the-current-posi
 // and https://stackoverflow.com/questions/72095398/translate-objects-relative-to-the-camera-view (I guess I could inverse modelViewMatrix instead, same same...)
-void Global::applyCameraOffset(Camera* cam, float x, float y, float z) {
+void G::applyCameraOffset(Camera* cam, float x, float y, float z) {
     glm::mat4 offsetMatrix{ glm::translate(glm::mat4(1.0f), camera.getRight() * x) };
     offsetMatrix = glm::translate(offsetMatrix, camera.getUp() * y);
     offsetMatrix = glm::translate(offsetMatrix, camera.getFront() * z);
@@ -58,7 +57,7 @@ void Global::applyCameraOffset(Camera* cam, float x, float y, float z) {
     cam->setPosition({ offsetMatrix * glm::vec4(camera.getPosition(), 1.0f) });
 }
 
-void Global::cheap2Copy() {
+void G::cheap2Copy() {
     bool cheap{ sizeof(glm::vec3) <= 2 * sizeof(void*) };
     std::println("Is glm::vec3 cheap to copy: {} (provided there are no additional setup costs)", cheap);
     cheap = sizeof(glm::vec4) <= 2 * sizeof(void*);
@@ -73,7 +72,7 @@ void Global::cheap2Copy() {
     //std::println("Is Texture cheap to copy: {} (provided there are no additional setup costs)", cheap);
 }
 
-int Global::init(GLFWwindow* window)
+int G::init(GLFWwindow* window)
 {
     assert(sizeof(int) == sizeof(GLint) && "size of int and GL_INT is not equal"); 
     assert(sizeof(unsigned int) == sizeof(GLuint) && "size of unsigned int and GLuint is not equal");
@@ -118,7 +117,7 @@ int Global::init(GLFWwindow* window)
 }
 
 #pragma warning( suppress : 4100 )
-void APIENTRY Global::glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam)
+void APIENTRY G::glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message, const void* userParam)
 {
     // ignore non-significant error/warning codes
     if (id == 131169 || id == 131185 || id == 131218 || id == 131204)                   return;
@@ -158,7 +157,7 @@ void APIENTRY Global::glDebugOutput(GLenum source, GLenum type, unsigned int id,
     }
 }
 
-void Global::getInformation() {
+void G::getInformation() {
     GLint returnData{};
     std::println("************************************************");
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &returnData);
@@ -179,7 +178,7 @@ void Global::getInformation() {
     std::println("************************************************");
 }
 
-void Global::processInput(GLFWwindow* window)
+void G::processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         camera.processKeyboard(CameraMovement::FORWARD);
@@ -194,7 +193,8 @@ void Global::processInput(GLFWwindow* window)
         camera.processKeyboard(CameraMovement::RIGHT);
     }
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        camera.processKeyboard(CameraMovement::UP);
+        //camera.processKeyboard(CameraMovement::UP);
+        player.jump();
     }
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         camera.processKeyboard(CameraMovement::DOWN);
@@ -212,7 +212,7 @@ void Global::processInput(GLFWwindow* window)
 }
 
 #pragma warning( suppress : 4100 )
-void Global::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void G::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_F && action == GLFW_PRESS)
         isFlashLightOnUpdated = false;
@@ -271,7 +271,7 @@ void Global::key_callback(GLFWwindow* window, int key, int scancode, int action,
 }
 
 #pragma warning( suppress : 4100 )
-void Global::framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void G::framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
     windowWidth = width;
@@ -281,7 +281,7 @@ void Global::framebuffer_size_callback(GLFWwindow* window, int width, int height
 }
 
 #pragma warning( suppress : 4100 )
-void Global::cursor_enter_callback(GLFWwindow* window, int entered)
+void G::cursor_enter_callback(GLFWwindow* window, int entered)
 {
     if (entered) {
         // The cursor entered the client area of the window
@@ -294,7 +294,7 @@ void Global::cursor_enter_callback(GLFWwindow* window, int entered)
 }
 
 #pragma warning( suppress : 4100 )
-void Global::mouse_callback(GLFWwindow* window, double currentXPosIn, double currentYPosIn)
+void G::mouse_callback(GLFWwindow* window, double currentXPosIn, double currentYPosIn)
 {
     float currentXPos{ static_cast<float>(currentXPosIn) };
     float currentYPos{ static_cast<float>(currentYPosIn) };
@@ -319,7 +319,7 @@ void Global::mouse_callback(GLFWwindow* window, double currentXPosIn, double cur
 }
 
 #pragma warning( suppress : 4100 )
-void Global::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void G::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.processMouseScroll(static_cast<float>(yoffset));
 }

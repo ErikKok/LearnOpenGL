@@ -46,7 +46,7 @@ Texture::Texture(const std::string& filePath, bool convertToLinearSpace)
 
     glGenerateTextureMipmap(m_id);
     stbi_image_free(textureData);
-    Global::glCheckError();
+    G::glCheckError();
     std::println("CREATE texture id: {}, filePath: {}", m_id, m_filePath);
 }
 
@@ -69,7 +69,7 @@ Texture::Texture(uint32_t color, bool convertToLinearSpace)
     glTextureStorage2D(m_id, 1, internalFormat, m_width, m_height);
     glTextureSubImage2D(m_id, 0, 0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, &m_singleColor);
 
-    Global::glCheckError();
+    G::glCheckError();
     std::println("CREATE texture single color id: {}", m_id);
 }
 
@@ -101,7 +101,7 @@ Texture::Texture(const std::vector<std::string>& faces)
         glTextureSubImage3D(m_id, 0, 0, 0, i, m_width, m_height, 1, GL_RGB, GL_UNSIGNED_BYTE, textureData);
 
         stbi_image_free(textureData);
-        Global::glCheckError();
+        G::glCheckError();
     }
 
     std::println("CREATE cubeMap id: {}", m_id);
@@ -124,7 +124,7 @@ Texture::Texture(textureType textureType, GLsizei width, GLsizei height)
 
     glTextureStorage2D(m_id, 1, GL_DEPTH_COMPONENT24, m_width, m_height);
 
-    Global::glCheckError();
+    G::glCheckError();
     std::println("CREATE texture depthMap id: {}", m_id);
 }
 
@@ -132,7 +132,7 @@ Texture::~Texture()
 {
         std::println("DELETE texture id: {}", m_id);
         glDeleteTextures(1, &m_id);
-        Global::glCheckError();
+        G::glCheckError();
 }
 
 void Texture::bind(GLuint textureUnit)
@@ -142,7 +142,7 @@ void Texture::bind(GLuint textureUnit)
     glBindTextureUnit(textureUnit, m_id);
 
     setBound(textureUnit);
-    Global::glCheckError();
+    G::glCheckError();
 }
 
 //void Texture::unbind()

@@ -22,6 +22,7 @@ public:
 
     glm::vec3 getPosition() const { return m_position; };
     void setPosition(glm::vec3 x) { m_position = x; calculateViewMatrix(); };
+    void setPositionY(float y) { m_position.y = y; calculateViewMatrix(); };
     const glm::vec3& getFront() const { return m_front; };
     void setFront(glm::vec3 x) { m_front = x; };
     const glm::vec3& getUp() const { return m_up; };
@@ -51,13 +52,10 @@ public:
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
     void processMouseScroll(GLfloat yoffset);
 
-    //TODO
-    glm::vec3 m_position{};
-
 protected:
     Camera() {};
 
-
+    glm::vec3 m_position{};
     glm::vec3 m_front{ 0.0f, 0.0f, 0.0f };
     glm::vec3 m_up{ 0.0f, 1.0f, 0.0f };
     glm::vec3 m_right{};

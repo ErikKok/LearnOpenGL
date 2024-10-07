@@ -5,7 +5,7 @@ UniformBuffer::UniformBuffer(GLuint bindingPoint)
 	: m_bindingPoint{ bindingPoint }
 {
 	glCreateBuffers(1, &m_id);
-	Global::glCheckError();
+	G::glCheckError();
 	std::println("CREATE UniformBuffer id: {}", m_id);
 }
 
@@ -26,7 +26,7 @@ UniformBuffer::~UniformBuffer()
 {
 	std::println("DELETE UniformBuffer id: {}", m_id);
 	glDeleteBuffers(1, &m_id);
-	Global::glCheckError();
+	G::glCheckError();
 }
 
 void UniformBuffer::bindUniformBuffer() const
@@ -34,7 +34,7 @@ void UniformBuffer::bindUniformBuffer() const
 	std::println("BIND UniformBuffer id: {}", m_id);
 	//glBindBuffer(GL_UNIFORM_BUFFER, m_id);
 	glBindBufferBase(GL_UNIFORM_BUFFER, m_bindingPoint, m_id);
-	Global::glCheckError();
+	G::glCheckError();
 }
 
 void UniformBuffer::unbindUniformBuffer() const
@@ -42,7 +42,7 @@ void UniformBuffer::unbindUniformBuffer() const
 	std::println("UNBIND UniformBuffer id: {}", m_id);
 	//glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	glBindBufferBase(GL_UNIFORM_BUFFER, m_bindingPoint, 0);
-	Global::glCheckError();
+	G::glCheckError();
 }
 
 // OLD non-DSA

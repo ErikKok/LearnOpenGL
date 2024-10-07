@@ -64,18 +64,14 @@ void Camera::fakeGravity(GLfloat deltaTime) {
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 void Camera::processKeyboard(CameraMovement direction)
 {      
-    float velocity{ m_movementSpeed * Global::deltaTime };
+    float velocity{ m_movementSpeed * G::deltaTime };
 
     if (direction == CameraMovement::UP) {
         //m_position.y += 0.5f * velocity;
-        if (Global::acceleration == 9.81f) {// + check if touching ground
-            Global::acceleration = 666.0f; // once!   
-            Global::jumping = true;
-        }
     }
     if (direction == CameraMovement::DOWN) {
         m_position.y -= 0.5f * velocity;
-        Global::crouching = true;
+        //Global::crouching = true;
     }
 
     if (direction == CameraMovement::FORWARD) {

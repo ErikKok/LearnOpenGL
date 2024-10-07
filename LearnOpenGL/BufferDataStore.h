@@ -45,7 +45,7 @@ private:
 		if (upload) {
 			glNamedBufferSubData(m_ssboId, elementIndex * m_elementSize, m_elementSize, &data);
 
-			Global::glCheckError();
+			G::glCheckError();
 			m_hasValidData = true;
 		}
 	}
@@ -100,7 +100,7 @@ private:
 			offset += m_elementSize;
 		}
 
-		Global::glCheckError();
+		G::glCheckError();
 		m_hasValidData = true;
 	}
 
@@ -112,7 +112,7 @@ private:
 			offset += m_elementSize;
 		}
 
-		Global::glCheckError();
+		G::glCheckError();
 		m_hasValidData = true;
 	}
 

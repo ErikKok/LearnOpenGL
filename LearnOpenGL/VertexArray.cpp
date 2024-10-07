@@ -5,7 +5,7 @@
 VertexArray::VertexArray()
 {
 	glCreateVertexArrays(1, &m_id);
-	Global::glCheckError();
+	G::glCheckError();
 	//std::println("CREATE VertexArray id: {}", m_id);
 }
 
@@ -13,13 +13,13 @@ VertexArray::~VertexArray()
 {
 	std::println("DELETE VertexArray id: {}", m_id);
 	glDeleteVertexArrays(1, &m_id); 
-	Global::glCheckError();
+	G::glCheckError();
 }
 
 void VertexArray::bindVertexArray() const
 {
 	glBindVertexArray(m_id);
-	Global::glCheckError();
+	G::glCheckError();
 	//std::println("BIND VertexArray id: {}", m_id);
 }
 
@@ -38,7 +38,7 @@ void VertexArray::finalizeVertexAttributeLayout(const VertexBuffer* vbo, const V
 		totalOffset += layout->m_vertexAttributes[i].m_offset;
 	}
 
-	Global::glCheckError();
+	G::glCheckError();
 	//std::println("ADD VertexAttributeLayoutStep2 id: {}", m_id);
 }
 

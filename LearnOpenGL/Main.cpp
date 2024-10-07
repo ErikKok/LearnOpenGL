@@ -7,6 +7,7 @@
 #include "Light.h"
 #include "Mesh.h"
 #include "Model.h"
+#include "Player.h"
 #include "Renderer.h"
 #include "Shader.h"
 #include "Texture.h"
@@ -38,14 +39,14 @@ int main()
     glfwWindowHint(GLFW_SAMPLES, 16);
 
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-    GLFWwindow* window = glfwCreateWindow(Global::windowWidth, Global::windowHeight, "LearnOpenGL", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(G::windowWidth, G::windowHeight, "LearnOpenGL", nullptr, nullptr);
     if (!window) {
         std::println("Failed to create GLFW window");
         glfwTerminate();
         return -1;
     }
 
-    if (Global::init(window) == -1) {
+    if (G::init(window) == -1) {
         std::println("Failed to initialize");
         glfwTerminate();
         return -1;
@@ -127,7 +128,7 @@ int main()
         glm::vec3 flashLightOffset{ 0.4f, -0.1f, -0.1f };
         SpotLight::spotLights.emplace_back(SpotLight());
         SpotLight::spotLights[0].setOn(false);
-        SpotLight::spotLights[0].setPosition(Global::camera.getPosition() + flashLightOffset);
+        SpotLight::spotLights[0].setPosition(G::camera.getPosition() + flashLightOffset);
         SpotLight::spotLights[0].setDirection({ 0.0f, 0.0f, -1.0f });
         SpotLight::spotLights[0].setColor({ 1.0f, 1.0f, 1.0f });
         SpotLight::spotLights[0].setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
@@ -143,7 +144,7 @@ int main()
 
         renderer.m_FBO.emplace_back(std::make_unique<FrameBuffer>(512, 512));
 
-        SpotLight::spotLights[0].setCamera(Camera(renderer.m_FBO[1]->getTexture()->getAspectRatio(), Global::cameraInitialPosition));
+        SpotLight::spotLights[0].setCamera(Camera(renderer.m_FBO[1]->getTexture()->getAspectRatio(), G::cameraInitialPosition));
         SpotLight::spotLights[0].getCamera()->setFov(25.0f);
         SpotLight::spotLights[0].getCamera()->setNearPlane(0.1f);
         SpotLight::spotLights[0].getCamera()->setFarPlane(25.0f);
@@ -227,7 +228,7 @@ int main()
 
         RenderObject floorRO{ &floorMesh, &floorMaterial };
         // Model voor de renderloop berekenen, floor is statisch -> niet helemaal, de outline heeft eigen model, maar die is op basis van onderstaand model
-        floorRO.transform[0] = Global::calculateModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
+        floorRO.transform[0] = G::calculateModelMatrix(glm::vec3(0.0f, 0.0f, 0.0f), 90.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(25.0f, 25.0f, 1.0f));
         floorRO.drawOutline = true;
 
         floorRO.addSSBO(+SSBO::dirLightMVP, sizeof(glm::mat4), SSBO::dirLightMVP);
@@ -270,7 +271,7 @@ int main()
 
         RenderObject modelRO{ nullptr, &modelMaterial };
         modelRO.model = std::make_unique<Model>("Models/Backpack/backpack.obj");
-        modelRO.transform[0] = Global::calculateModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+        modelRO.transform[0] = G::calculateModelMatrix(glm::vec3(4.0f, 3.0f, 2.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
         modelRO.addSSBO(+SSBO::dirLightMVP, sizeof(glm::mat4), SSBO::dirLightMVP);
         modelRO.addSSBO(+SSBO::spotLight0MVP, sizeof(glm::mat4), SSBO::spotLight0MVP);
@@ -347,112 +348,67 @@ int main()
         std::println("************************************************");
         /////////////////////////////////////////////////////////////////////////////////////
 
-        Global::getInformation();
-        Global::glCheckError();
+        G::getInformation();
+        G::glCheckError();
         std::println("START Renderloop *******************************");
         std::println("************************************************");
 
         while (!glfwWindowShouldClose(window)) {
             // per-frame time logic
             float currentFrame{ static_cast<float>(glfwGetTime()) };
-            Global::deltaTime = currentFrame - Global::deltaTimeLastFrame;
-            Global::deltaTimeLastFrame = currentFrame;
+            G::deltaTime = currentFrame - G::deltaTimeLastFrame;
+            G::deltaTimeLastFrame = currentFrame;
             //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
-            std::println("Position: {}, {}, {}", Global::camera.getPosition().x, Global::camera.getPosition().y, Global::camera.getPosition().z);
+            std::println("Position: {}, {}, {}", G::camera.getPosition().x, G::camera.getPosition().y, G::camera.getPosition().z);
             //std::println("Front: {}, {}, {}", Global::camera.getFront().x, Global::camera.getFront().y, Global::camera.getFront().z);
-
-            Global::yPositionLastFrame = Global::camera.getPosition().y;
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start processInput ///////////////////////////////////////////////////////////////
             /////////////////////////////////////////////////////////////////////////////////////
 
             glfwPollEvents();
-            Global::processInput(window);
+            G::processInput(window);
 
-            // per-frame vSpeed logic
-            //float verticalDistanceTravelled{ Global::camera.getPosition().y - Global::lastFrame_vPosition };
-            //Global::vSpeed = (Global::camera.getPosition().y - Global::lastFrameVPosition) / Global::deltaTime;
-            //std::println("vertical speed: {}m/s", Global::vSpeed);
-
-            // 0.5 * 25'C air resistance * speed_squared * human drag * frontal area (guess)
-            //float drag = 0.30f * (Global::vSpeed * Global::vSpeed); // 0.5f * 1.204f * (Global::vSpeed * Global::vSpeed) * 1.15f * 0.4f;
-            //float weight = 85.0f * Global::gravity; // 85 = human mass in kg
-            //float force = weight - drag; // net external force
-            //Global::acceleration = (force / 85.0f) - Global::gravity;
-            //std::println("acceleration: {}", Global::acceleration);
-
-
-
-            //Global::camera.m_position.y += Global::deltaTime * (Global::gravity + Global::acceleration);
-
-            //if (Global::acceleration != 9.81f)
-            //    Global::acceleration *= Global::deltaTime * Global::drag; // Global::vSpeed * Global::deltaTime *
-
-            //if (Global::camera.m_position.y <= 1.5f) { // landed
-            //    Global::acceleration = 9.81f;
-            //    Global::camera.m_position.y = 1.5f;
-            //}
-
-            /////////////
-
-            //Global::vSpeed = (Global::camera.getPosition().y - Global::lastFrameVPosition) / Global::deltaTime;
-            //Global::lastFrameVSpeed = Global::vSpeed;
-            //Global::vSpeed += Global::deltaTime * (Global::gravity + Global::acceleration);
-            //Global::camera.m_position.y += (Global::vSpeed + Global::lastFrameVSpeed) / 2 * Global::deltaTime;
-
-            //if (Global::acceleration != 9.81f)
-            //    Global::acceleration *= Global::drag;
-
-            //if (Global::camera.m_position.y <= 1.5f) { // landed
-            //    Global::acceleration = 9.81f;
-            //    Global::camera.m_position.y = 1.5f;
-            //}
-
-            //m_position.y += m_position.y + (Global::deltaTime * Global::vSpeed * Global::drag);
-            //if (Global::vSpeed < 0.0f)
-            //    Global::vSpeed = 0.0f;
-
-            /////////////////
-
+            // Gravity + jumping
             // https://gafferongames.com/post/integration_basics/
             // https://gamedev.stackexchange.com/questions/94000/how-to-implement-accurate-frame-rate-independent-physics
-            Global::yVelocityLastFrame = Global::yVelocity;
-            Global::yVelocity += (Global::gravity + Global::acceleration) * Global::deltaTime;
-            Global::camera.m_position.y += ((Global::yVelocity + Global::yVelocityLastFrame) / 2) * Global::deltaTime;
+            // https://gamedev.stackexchange.com/questions/38453/how-do-i-implement-deceleration-for-the-player-character
 
-            if (Global::gravity + Global::acceleration != 0.0f)
-                Global::acceleration *= Global::deltaTime * Global::drag;
+            std::println("Netto acceleration: {}", (G::gravity + G::player.getAcceleration()));
+            std::println("yVelocity: {}", G::player.getYVelocity());
 
-            if (Global::camera.m_position.y <= 1.5f && Global::crouching == false) { // landed
-                Global::acceleration = 9.81f;
-                Global::camera.m_position.y = 1.5f;
-                Global::yVelocity = 0.0f;
-                Global::jumping = false;
+            G::player.setYVelocityLastFrame(G::player.getYVelocity());
+            G::player.addYVelocity( (G::gravity + G::player.getAcceleration()) * G::deltaTime);
+            G::camera.setPositionY(G::camera.getPosition().y + ((G::player.getYVelocity() + G::player.getYVelocityLastFrame()) / 2) * G::deltaTime);
+
+            if (G::gravity + G::player.getAcceleration() != 0.0f)
+                G::player.multiplyAcceleration(G::deltaTime * G::player.getDrag());
+
+            if (G::player.getIsJumping() == true) {
+                if (G::camera.getPosition().y <= 1.5f) { // landed on Floor
+                    G::player.setAcceleration(9.81f);
+                    G::camera.setPositionY(1.5f);
+                    G::player.setYVelocity(0.0f);
+                    G::player.setIsJumping(false);
+                }
             }
-
-            /////////////////
 
             // Teleporter (green light)
-            if (Global::camera.getPosition().x > -4.5f && Global::camera.getPosition().x < -3.5f &&
-                Global::camera.getPosition().y >  1.5f && Global::camera.getPosition().y <  2.5f &&
-                Global::camera.getPosition().z > 11.5f && Global::camera.getPosition().z < 12.5f ) {
+            if (G::camera.getPosition().x > -4.5f && G::camera.getPosition().x < -3.5f &&
+                G::camera.getPosition().y >  1.5f && G::camera.getPosition().y <  2.5f &&
+                G::camera.getPosition().z > 11.5f && G::camera.getPosition().z < 12.5f ) {
 
-                Global::camera.setYawPitch(-90.0f, 0.0f);
-                Global::camera.setPosition(glm::vec3(0.0f, 8.0f, 30.0f));
+                G::camera.setYawPitch(-90.0f, 0.0f);
+                G::camera.setPosition(glm::vec3(0.0f, 8.0f, 30.0f));
             }
 
-            std::println("Netto acceleration: {}", Global::gravity + Global::acceleration);
-            std::println("yVelocity: {}", Global::yVelocity);
-
-
-            if (!Global::isFlashLightOnUpdated) {
+            if (!G::isFlashLightOnUpdated) {
                 SpotLight::spotLights[0].toggle(multiLight, multiLightNormalMapping);
-                Global::isFlashLightOnUpdated = true;
+                G::isFlashLightOnUpdated = true;
             }
 
             // moved from Camera::processKeyboard due to player being able to move without inputs now
-            Global::camera.calculateViewMatrix();
+            G::camera.calculateViewMatrix();
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start UpdateGame /////////////////////////////////////////////////////////////////
@@ -460,7 +416,7 @@ int main()
 
             // Lights
             if (SpotLight::spotLights[0].getOn())
-                Global::applyCameraOffset(SpotLight::spotLights[0].getCamera(), flashLightOffset.x, flashLightOffset.y, flashLightOffset.z);
+                G::applyCameraOffset(SpotLight::spotLights[0].getCamera(), flashLightOffset.x, flashLightOffset.y, flashLightOffset.z);
 
             sun.updateDirectionInViewSpace(multiLight);
             sun.updateDirectionInViewSpace(multiLightNormalMapping);
@@ -504,13 +460,13 @@ int main()
 
             // Calculate SSBO's, and upload them to their buffers
             for (auto i = 0; i < std::ssize(cubeRO.transform); i++) {
-                Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * cubeRO.transform[i];
+                G::modelViewMatrixTemp = G::camera.getViewMatrix() * cubeRO.transform[i];
                 cubeRO.ssbo[+SSBO::dirLightMVP]->updateSubset(cameraDirLight.getViewProjectionMatrix() * cubeRO.transform[i], i, false);
                 cubeRO.ssbo[+SSBO::spotLight0MVP]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.transform[i], i, false);
                 cubeRO.ssbo[+SSBO::spotLight1MVP]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.transform[i], i, false);
-                cubeRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
-                cubeRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(Global::modelViewMatrixTemp, i, false);
-                cubeRO.ssbo[+SSBO::MVP]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
+                cubeRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(G::modelViewMatrixTemp)), i, false);
+                cubeRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(G::modelViewMatrixTemp, i, false);
+                cubeRO.ssbo[+SSBO::MVP]->updateSubset(G::camera.getProjectionMatrix() * G::modelViewMatrixTemp, i, false);
             }
             for (auto i = 0; i < std::ssize(cubeRO.ssbo); i++) {
                 cubeRO.ssbo[i]->uploadFully();
@@ -518,13 +474,13 @@ int main()
 
             // Floor
             for (auto i = 0; i < std::ssize(floorRO.transform); i++) {
-                Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * floorRO.transform[i];
+                G::modelViewMatrixTemp = G::camera.getViewMatrix() * floorRO.transform[i];
                 floorRO.ssbo[+SSBO::dirLightMVP]->updateSubset(cameraDirLight.getViewProjectionMatrix() * floorRO.transform[i], i, false);
                 floorRO.ssbo[+SSBO::spotLight0MVP]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.transform[i], i, false);
                 floorRO.ssbo[+SSBO::spotLight1MVP]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.transform[i], i, false);
-                floorRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
-                floorRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(Global::modelViewMatrixTemp, i, false);
-                floorRO.ssbo[+SSBO::MVP]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
+                floorRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(G::modelViewMatrixTemp)), i, false);
+                floorRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(G::modelViewMatrixTemp, i, false);
+                floorRO.ssbo[+SSBO::MVP]->updateSubset(G::camera.getProjectionMatrix() * G::modelViewMatrixTemp, i, false);
             }
             for (auto i = 0; i < std::ssize(floorRO.ssbo); i++) {
                 floorRO.ssbo[i]->uploadFully();
@@ -532,13 +488,13 @@ int main()
 
             // Model
             for (auto i = 0; i < std::ssize(modelRO.transform); i++) {
-                Global::modelViewMatrixTemp = Global::camera.getViewMatrix() * modelRO.transform[i];
+                G::modelViewMatrixTemp = G::camera.getViewMatrix() * modelRO.transform[i];
                 modelRO.ssbo[+SSBO::dirLightMVP]->updateSubset(cameraDirLight.getViewProjectionMatrix() * modelRO.transform[i], i, false);
                 modelRO.ssbo[+SSBO::spotLight0MVP]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.transform[i], i, false);
                 modelRO.ssbo[+SSBO::spotLight1MVP]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.transform[i], i, false);
-                modelRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(Global::modelViewMatrixTemp)), i, false);
-                modelRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(Global::modelViewMatrixTemp, i, false);
-                modelRO.ssbo[+SSBO::MVP]->updateSubset(Global::camera.getProjectionMatrix() * Global::modelViewMatrixTemp, i, false);
+                modelRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(G::modelViewMatrixTemp)), i, false);
+                modelRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(G::modelViewMatrixTemp, i, false);
+                modelRO.ssbo[+SSBO::MVP]->updateSubset(G::camera.getProjectionMatrix() * G::modelViewMatrixTemp, i, false);
             }
             for (auto i = 0; i < std::ssize(modelRO.ssbo); i++) {
                 modelRO.ssbo[i]->uploadFully();
@@ -548,13 +504,13 @@ int main()
             // pointlights - 4 vaste LightCubes
             for (auto i = 0; i < getPointLightCount(); i++) {
                 assert(getPointLightCount() <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
-                lightCubeRO.transform[i] = Global::calculateModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-                lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.transform[i], i, false);
+                lightCubeRO.transform[i] = G::calculateModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+                lightCubeRO.ssbo[0]->updateSubset(G::camera.getViewProjectionMatrix() * lightCubeRO.transform[i], i, false);
             }
 
             // #5, element 4, de draaiende lightcube
-            lightCubeRO.transform[4] = Global::calculateModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-            lightCubeRO.ssbo[0]->updateSubset(Global::camera.getViewProjectionMatrix() * lightCubeRO.transform[4], 4, false);
+            lightCubeRO.transform[4] = G::calculateModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
+            lightCubeRO.ssbo[0]->updateSubset(G::camera.getViewProjectionMatrix() * lightCubeRO.transform[4], 4, false);
             lightCubeRO.ssbo[0]->uploadFully();
 
             lightCubeRO.ssbo[1]->updateSubset(glm::vec4(SpotLight::spotLights[1].getColor(), 1.0f), 4, false);
@@ -574,8 +530,8 @@ int main()
             renderer.goRenderOutline();
 
             // Draw frustum - toggle with K
-            if (Global::frustumVisible > 0) {
-                switch (Global::frustumVisible)
+            if (G::frustumVisible > 0) {
+                switch (G::frustumVisible)
                 {
                 case 1:
                     renderer.drawFrustum(cubeMesh, cameraDirLight.getViewProjectionMatrix());
@@ -590,8 +546,8 @@ int main()
             }
 
             // Draw debug quad - toggle with Q
-            if (Global::debugQuadVisible > 0) {
-                switch (Global::debugQuadVisible)
+            if (G::debugQuadVisible > 0) {
+                switch (G::debugQuadVisible)
                 {
                 case 1:
                     renderer.drawDebugQuad(quadMesh, cameraDirLight);
@@ -608,11 +564,11 @@ int main()
                 }
             }
 
-            if (!Global::paused) { // toggle with P
+            if (!G::paused) { // toggle with P
                 glfwSwapBuffers(window);
             }
         }
-        Global::glCheckError();
+        G::glCheckError();
         std::println("Shutting down OpenGL scope");
     }
     glfwTerminate();

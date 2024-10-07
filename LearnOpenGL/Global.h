@@ -2,6 +2,7 @@
 
 #include "Camera.h"
 #include "Light.h"
+#include "Player.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -33,7 +34,7 @@ using UPtr = std::unique_ptr<T>;
 
 ////////////////////////
 
-namespace Global {
+namespace G {
     // Window
     inline int windowWidth{ 1920 };
     inline int windowHeight{ 1080 };
@@ -41,6 +42,7 @@ namespace Global {
 
     // Misc
     inline float outlineAlpha{ 0.0f };
+    inline Player player{};
 
     // Camera
     inline glm::vec3 cameraInitialPosition{ 0.0f, 1.5f, 15.0f };
@@ -52,14 +54,8 @@ namespace Global {
     // Renderloop
     inline GLfloat deltaTime{ 0.0f };               // Time in seconds between current frame and last frame
     inline GLfloat deltaTimeLastFrame{ 0.0f };      // Timestamp of last frame
-    inline float yVelocity{ 0.0f };                 // Vertical speed in meter/second
-    inline float yVelocityLastFrame{ 0.0f };
-    inline float yPositionLastFrame{ 0.0f };
+
     inline float gravity{ -9.81f };                 // 9.80665
-    inline float acceleration{ 9.81f };
-    inline float drag{ 0.5f };
-    inline bool jumping{ false };
-    inline bool crouching{ false };  
     inline bool paused{ false };
 
     // Shader

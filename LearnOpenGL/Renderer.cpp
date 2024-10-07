@@ -127,7 +127,7 @@ void Renderer::draw(const RenderObject& RO) const
 		//}
 	//}
 
-	Global::glCheckError();
+	G::glCheckError();
 	//std::println("RENDERER draw");
 };
 
@@ -149,13 +149,13 @@ void Renderer::drawSingleColor(const RenderObject& RO) const
 	if (RO.material && !RO.material->enableGL_CULL_FACE)
 		glEnable(GL_CULL_FACE);
 
-	Global::glCheckError();
+	G::glCheckError();
 };
 
 void Renderer::goRenderSkybox(const Mesh& mesh) const {
 	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 	m_shaderSkybox->useShader();
-	m_shaderSkybox->setMat4("viewProjectionMatrixTranslationRemoved", Global::camera.getProjectionMatrix() * glm::mat4(glm::mat3(Global::camera.getViewMatrix()))); // remove translation from the view matrix (cast to mat3 and back to mat4)
+	m_shaderSkybox->setMat4("viewProjectionMatrixTranslationRemoved", G::camera.getProjectionMatrix() * glm::mat4(glm::mat3(G::camera.getViewMatrix()))); // remove translation from the view matrix (cast to mat3 and back to mat4)
 	mesh.m_vao->bindVertexArray();
 	glCullFace(GL_FRONT); // This is because cube is viewed from the inside. There is a simple correction, reverse the order of vertices, and it will become front-facing-outward (not inward). Not really needed...
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
@@ -166,7 +166,7 @@ void Renderer::goRenderSkybox(const Mesh& mesh) const {
 void Renderer::drawFrustum(const Mesh& mesh, const glm::mat4& lightViewProjectionMatrix) const
 {
 	m_shaderFrustum->useShader();
-	m_shaderFrustum->setMat4("viewProjectionMatrix", Global::camera.getViewProjectionMatrix());
+	m_shaderFrustum->setMat4("viewProjectionMatrix", G::camera.getViewProjectionMatrix());
 	m_shaderFrustum->setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
 	m_shaderFrustum->setMat4("inverseMatrix", glm::inverse(lightViewProjectionMatrix));
 	mesh.m_vao->bindVertexArray();
@@ -180,22 +180,22 @@ void Renderer::drawFrustum(const Mesh& mesh, const glm::mat4& lightViewProjectio
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 	glEnable(GL_CULL_FACE);
 
-	Global::glCheckError();
+	G::glCheckError();
 };
 
 void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& camera) const
 {
 	// correct quad for the aspectRatio of the depthmap and viewport
 	float height{ 0.3f };
-	float width = (height / (static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight))) * camera.getAspectRatio();
+	float width = (height / (static_cast<float>(G::windowWidth) / static_cast<float>(G::windowHeight))) * camera.getAspectRatio();
 
 	// correct margin for viewport
 	float margin{ 0.05f };
-	float translateX{ 1.0f - (width + (margin / (static_cast<float>(Global::windowWidth) / static_cast<float>(Global::windowHeight)))) };
+	float translateX{ 1.0f - (width + (margin / (static_cast<float>(G::windowWidth) / static_cast<float>(G::windowHeight)))) };
 	float translateY{ 1.0f - (height + margin) };
 	
 	m_shaderDebugQuad->useShader();
-	m_shaderDebugQuad->setMat4("model", Global::calculateModelMatrix(glm::vec3(translateX, translateY, 0.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(width, height, 0.0f)));
+	m_shaderDebugQuad->setMat4("model", G::calculateModelMatrix(glm::vec3(translateX, translateY, 0.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(width, height, 0.0f)));
 	m_shaderDebugQuad->setBool("orthographic", camera.getOrthographic());
 	m_shaderDebugQuad->setFloat("nearPlane", camera.getNearPlane());
 	m_shaderDebugQuad->setFloat("farPlane", camera.getFarPlane());
@@ -203,7 +203,7 @@ void Renderer::drawDebugQuad(const Mesh& mesh, const Camera& camera) const
 	mesh.m_vao->bindVertexArray();
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
 
-	Global::glCheckError();
+	G::glCheckError();
 };
 
 void Renderer::clearStencilBuffer() const {
@@ -271,7 +271,7 @@ void Renderer::goRender() {
 	for (const auto& RO : m_renderVector) {
 		if (RO->drawAsSingleColor)
 			drawSingleColor(*RO);
-		else if (Global::drawOutline && RO->drawOutline)
+		else if (G::drawOutline && RO->drawOutline)
 			drawWithStencil(*RO);
 		else
 			draw(*RO);
@@ -279,19 +279,19 @@ void Renderer::goRender() {
 }
 
 void Renderer::goRenderOutline() {
-	if (Global::drawOutline) { // TODO make framerate independent and independent of this function
-		if (Global::outlineAlpha >= 0.0f)
-			Global::outlineAlpha += 0.01f;
-		if (Global::outlineAlpha >= 1.0f)
-			Global::outlineAlpha = 0.0f;
-		glm::vec4 color{ 1.0f, 0.28f, 0.26f, Global::outlineAlpha }; // TODO get color from SSBO
+	if (G::drawOutline) { // TODO make framerate independent and independent of this function
+		if (G::outlineAlpha >= 0.0f)
+			G::outlineAlpha += 0.01f;
+		if (G::outlineAlpha >= 1.0f)
+			G::outlineAlpha = 0.0f;
+		glm::vec4 color{ 1.0f, 0.28f, 0.26f, G::outlineAlpha }; // TODO get color from SSBO
 
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only draw according to stencil buffer
 		for (auto& RO : m_renderVector) {
 			if (RO->drawOutline) {
 				for (auto i = 0; i < std::ssize(RO->ssbo); i++) {
 					if (RO->ssbo[i]->getType() == SSBO::MVP)
-						RO->ssbo[i]->updateFully(Global::camera.getViewProjectionMatrix() * glm::scale(RO->transform[0], glm::vec3(1.05f, 1.05f, 0.0f)), true);
+						RO->ssbo[i]->updateFully(G::camera.getViewProjectionMatrix() * glm::scale(RO->transform[0], glm::vec3(1.05f, 1.05f, 0.0f)), true);
 					if (RO->ssbo[i]->getType() == SSBO::singleColor)
 						RO->ssbo[i]->updateFully(color, true);
 				}

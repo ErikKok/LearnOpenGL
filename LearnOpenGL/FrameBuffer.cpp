@@ -11,7 +11,7 @@ FrameBuffer::FrameBuffer()
 	glCreateFramebuffers(1, &m_id);
 
 	assert((glCheckNamedFramebufferStatus(m_id, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) && "ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
-	Global::glCheckError();
+	G::glCheckError();
 
 	std::println("CREATE FrameBuffer id: {}", m_id);
 }
@@ -26,7 +26,7 @@ FrameBuffer::FrameBuffer(int x, int y)
 	glNamedFramebufferReadBuffer(m_id, GL_NONE);
 
 	assert((glCheckNamedFramebufferStatus(m_id, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE) && "ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
-	Global::glCheckError();
+	G::glCheckError();
 
 	std::println("CREATE DepthMapFrameBuffer id: {}", m_id);
 }
@@ -35,17 +35,17 @@ FrameBuffer::~FrameBuffer()
 {
 	std::println("DELETE framebuffer id: {}", m_id);
 	glDeleteFramebuffers(1, &m_id);
-	Global::glCheckError();
+	G::glCheckError();
 }
 
 void FrameBuffer::bind() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_id);
-	Global::glCheckError();
+	G::glCheckError();
 }
 
 void FrameBuffer::unbind() const
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	Global::glCheckError();
+	G::glCheckError();
 }

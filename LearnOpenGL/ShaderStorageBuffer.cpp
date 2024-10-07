@@ -22,19 +22,19 @@ ShaderStorageBuffer::~ShaderStorageBuffer()
 {
 	std::println("DELETE ShaderStorageBuffer id: {}", m_id);
 	glDeleteBuffers(1, &m_id);
-	Global::glCheckError();
+	G::glCheckError();
 }
 
 void ShaderStorageBuffer::bind() const
 {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_bindingPoint, m_id);
-	Global::glCheckError();
+	G::glCheckError();
 }
 
 void ShaderStorageBuffer::bindOverrideBindingPoint(GLuint BP) const
 {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, BP, m_id);
-	Global::glCheckError();
+	G::glCheckError();
 }
 
 //void ShaderStorageBuffer::unbind() const

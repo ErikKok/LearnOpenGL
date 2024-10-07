@@ -99,7 +99,7 @@ public:
 	void goRender();
 	void goRenderOutline();
 
-	void setViewPort() { glViewport(0, 0, Global::windowWidth, Global::windowHeight); }
+	void setViewPort() { glViewport(0, 0, G::windowWidth, G::windowHeight); }
 	void setViewPort(FrameBuffer* FBO) { glViewport(0, 0, FBO->getTexture()->getWidth(), FBO->getTexture()->getHeight()); }
 
 
