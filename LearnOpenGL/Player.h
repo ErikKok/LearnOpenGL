@@ -5,6 +5,9 @@
 //#include "Camera.h"
 
 #include <GLFW/glfw3.h>
+//#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/gtc/type_ptr.hpp>
 
 class Player
 {
@@ -22,7 +25,7 @@ public:
 	void setIsJumping(bool x) { m_isJumping = x; };
 
 	void jump();
-	//void processInput(GLFWwindow* window);
+	void processInput(GLFWwindow* window);//, Camera camera);
 
 private:
 	float m_yVelocity{ 0.0f }; // Vertical speed in meter/second
@@ -31,6 +34,9 @@ private:
 	float m_acceleration{ 9.81f };// -G::gravity
 	float m_drag{ 0.5f };
 	bool m_isJumping{ false };
+
+	//Camera camera((static_cast<float>(G::windowWidth) / static_cast<float>(G::windowHeight)), G::cameraInitialPosition);
+
 
 	//float m_yPositionLastFrame{ 0.0f };
 	//bool m_isCrouching{ false };

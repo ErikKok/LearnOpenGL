@@ -368,7 +368,7 @@ int main()
             /////////////////////////////////////////////////////////////////////////////////////
 
             glfwPollEvents();
-            G::processInput(window);
+            G::processInput(window);// , GE::camera);
 
             // Gravity + jumping
             // https://gafferongames.com/post/integration_basics/
