@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "Engine.h"
+#include "Global.h"
 #include "Camera.h"
 #include "Player.h"
 

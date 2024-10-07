@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Global.h"
-//#include "Engine.h"
+#include "Camera.h"
 #include <memory> // for std::unique_ptr and std::make_unique
 #include "Shader.h"
 

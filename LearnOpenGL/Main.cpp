@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Buffers.h"
-#include "Engine.h"
-
 #include "Camera.h"
-//#include "GlobalEntities.h"
 #include "Data.h"
+#include "Engine.h"
 #include "Global.h"
+#include "GlobalEntities.h"
 #include "Light.h"
 #include "Mesh.h"
 #include "Model.h"
@@ -131,7 +130,7 @@ int main()
         glm::vec3 flashLightOffset{ 0.4f, -0.1f, -0.1f };
         SpotLight::spotLights.emplace_back(SpotLight());
         SpotLight::spotLights[0].setOn(false);
-        SpotLight::spotLights[0].setPosition(G::camera.getPosition() + flashLightOffset);
+        SpotLight::spotLights[0].setPosition(GE::camera.getPosition() + flashLightOffset);
         SpotLight::spotLights[0].setDirection({ 0.0f, 0.0f, -1.0f });
         SpotLight::spotLights[0].setColor({ 1.0f, 1.0f, 1.0f });
         SpotLight::spotLights[0].setStrength(5.5f); // waarom zo zwak resultaat? Omdat het bereik te ver of juist te kort is?
@@ -382,27 +381,27 @@ int main()
 
             GE::player.setYVelocityLastFrame(GE::player.getYVelocity());
             GE::player.addYVelocity( (G::gravity + GE::player.getAcceleration()) * G::deltaTime);
-            G::camera.setPositionY(G::camera.getPosition().y + ((GE::player.getYVelocity() + GE::player.getYVelocityLastFrame()) / 2) * G::deltaTime);
+            GE::camera.setPositionY(GE::camera.getPosition().y + ((GE::player.getYVelocity() + GE::player.getYVelocityLastFrame()) / 2) * G::deltaTime);
 
             if (G::gravity + GE::player.getAcceleration() != 0.0f)
                 GE::player.multiplyAcceleration(G::deltaTime * GE::player.getDrag());
 
             if (GE::player.getIsJumping() == true) {
-                if (G::camera.getPosition().y <= 1.5f) { // landed on Floor
+                if (GE::camera.getPosition().y <= 1.5f) { // landed on Floor
                     GE::player.setAcceleration(9.81f);
-                    G::camera.setPositionY(1.5f);
+                    GE::camera.setPositionY(1.5f);
                     GE::player.setYVelocity(0.0f);
                     GE::player.setIsJumping(false);
                 }
             }
 
             // Teleporter (green light)
-            if (G::camera.getPosition().x > -4.5f && G::camera.getPosition().x < -3.5f &&
-                G::camera.getPosition().y >  1.5f && G::camera.getPosition().y <  2.5f &&
-                G::camera.getPosition().z > 11.5f && G::camera.getPosition().z < 12.5f ) {
+            if (GE::camera.getPosition().x > -4.5f && GE::camera.getPosition().x < -3.5f &&
+                GE::camera.getPosition().y >  1.5f && GE::camera.getPosition().y <  2.5f &&
+                GE::camera.getPosition().z > 11.5f && GE::camera.getPosition().z < 12.5f ) {
 
-                G::camera.setYawPitch(-90.0f, 0.0f);
-                G::camera.setPosition(glm::vec3(0.0f, 8.0f, 30.0f));
+                GE::camera.setYawPitch(-90.0f, 0.0f);
+                GE::camera.setPosition(glm::vec3(0.0f, 8.0f, 30.0f));
             }
 
             if (!G::isFlashLightOnUpdated) {
@@ -411,7 +410,7 @@ int main()
             }
 
             // moved from Camera::processKeyboard due to player being able to move without inputs now
-            G::camera.calculateViewMatrix();
+            GE::camera.calculateViewMatrix();
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start UpdateGame /////////////////////////////////////////////////////////////////
@@ -463,13 +462,13 @@ int main()
 
             // Calculate SSBO's, and upload them to their buffers
             for (auto i = 0; i < std::ssize(cubeRO.transform); i++) {
-                G::modelViewMatrixTemp = G::camera.getViewMatrix() * cubeRO.transform[i];
+                G::modelViewMatrixTemp = GE::camera.getViewMatrix() * cubeRO.transform[i];
                 cubeRO.ssbo[+SSBO::dirLightMVP]->updateSubset(cameraDirLight.getViewProjectionMatrix() * cubeRO.transform[i], i, false);
                 cubeRO.ssbo[+SSBO::spotLight0MVP]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * cubeRO.transform[i], i, false);
                 cubeRO.ssbo[+SSBO::spotLight1MVP]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * cubeRO.transform[i], i, false);
                 cubeRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(G::modelViewMatrixTemp)), i, false);
                 cubeRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(G::modelViewMatrixTemp, i, false);
-                cubeRO.ssbo[+SSBO::MVP]->updateSubset(G::camera.getProjectionMatrix() * G::modelViewMatrixTemp, i, false);
+                cubeRO.ssbo[+SSBO::MVP]->updateSubset(GE::camera.getProjectionMatrix() * G::modelViewMatrixTemp, i, false);
             }
             for (auto i = 0; i < std::ssize(cubeRO.ssbo); i++) {
                 cubeRO.ssbo[i]->uploadFully();
@@ -477,13 +476,13 @@ int main()
 
             // Floor
             for (auto i = 0; i < std::ssize(floorRO.transform); i++) {
-                G::modelViewMatrixTemp = G::camera.getViewMatrix() * floorRO.transform[i];
+                G::modelViewMatrixTemp = GE::camera.getViewMatrix() * floorRO.transform[i];
                 floorRO.ssbo[+SSBO::dirLightMVP]->updateSubset(cameraDirLight.getViewProjectionMatrix() * floorRO.transform[i], i, false);
                 floorRO.ssbo[+SSBO::spotLight0MVP]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * floorRO.transform[i], i, false);
                 floorRO.ssbo[+SSBO::spotLight1MVP]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * floorRO.transform[i], i, false);
                 floorRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(G::modelViewMatrixTemp)), i, false);
                 floorRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(G::modelViewMatrixTemp, i, false);
-                floorRO.ssbo[+SSBO::MVP]->updateSubset(G::camera.getProjectionMatrix() * G::modelViewMatrixTemp, i, false);
+                floorRO.ssbo[+SSBO::MVP]->updateSubset(GE::camera.getProjectionMatrix() * G::modelViewMatrixTemp, i, false);
             }
             for (auto i = 0; i < std::ssize(floorRO.ssbo); i++) {
                 floorRO.ssbo[i]->uploadFully();
@@ -491,13 +490,13 @@ int main()
 
             // Model
             for (auto i = 0; i < std::ssize(modelRO.transform); i++) {
-                G::modelViewMatrixTemp = G::camera.getViewMatrix() * modelRO.transform[i];
+                G::modelViewMatrixTemp = GE::camera.getViewMatrix() * modelRO.transform[i];
                 modelRO.ssbo[+SSBO::dirLightMVP]->updateSubset(cameraDirLight.getViewProjectionMatrix() * modelRO.transform[i], i, false);
                 modelRO.ssbo[+SSBO::spotLight0MVP]->updateSubset(SpotLight::spotLights[0].getCamera()->getViewProjectionMatrix() * modelRO.transform[i], i, false);
                 modelRO.ssbo[+SSBO::spotLight1MVP]->updateSubset(SpotLight::spotLights[1].getCamera()->getViewProjectionMatrix() * modelRO.transform[i], i, false);
                 modelRO.ssbo[+SSBO::normalMatrix]->updateSubset(glm::transpose(glm::inverse(G::modelViewMatrixTemp)), i, false);
                 modelRO.ssbo[+SSBO::modelViewMatrix]->updateSubset(G::modelViewMatrixTemp, i, false);
-                modelRO.ssbo[+SSBO::MVP]->updateSubset(G::camera.getProjectionMatrix() * G::modelViewMatrixTemp, i, false);
+                modelRO.ssbo[+SSBO::MVP]->updateSubset(GE::camera.getProjectionMatrix() * G::modelViewMatrixTemp, i, false);
             }
             for (auto i = 0; i < std::ssize(modelRO.ssbo); i++) {
                 modelRO.ssbo[i]->uploadFully();
@@ -508,12 +507,12 @@ int main()
             for (auto i = 0; i < getPointLightCount(); i++) {
                 assert(getPointLightCount() <= lightCubeRO.instances && "Loop will create more instances then ssbo can hold");
                 lightCubeRO.transform[i] = G::calculateModelMatrix(glm::vec3(PointLight::pointLights[i].getPosition()), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-                lightCubeRO.ssbo[0]->updateSubset(G::camera.getViewProjectionMatrix() * lightCubeRO.transform[i], i, false);
+                lightCubeRO.ssbo[0]->updateSubset(GE::camera.getViewProjectionMatrix() * lightCubeRO.transform[i], i, false);
             }
 
             // #5, element 4, de draaiende lightcube
             lightCubeRO.transform[4] = G::calculateModelMatrix(SpotLight::spotLights[1].getPosition(), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f)); // you could move this to line below
-            lightCubeRO.ssbo[0]->updateSubset(G::camera.getViewProjectionMatrix() * lightCubeRO.transform[4], 4, false);
+            lightCubeRO.ssbo[0]->updateSubset(GE::camera.getViewProjectionMatrix() * lightCubeRO.transform[4], 4, false);
             lightCubeRO.ssbo[0]->uploadFully();
 
             lightCubeRO.ssbo[1]->updateSubset(glm::vec4(SpotLight::spotLights[1].getColor(), 1.0f), 4, false);

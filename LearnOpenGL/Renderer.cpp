@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Global.h"
+#include "GlobalEntities.h"
 #include "Renderer.h"
 
 #include <glm/glm.hpp>
@@ -155,7 +157,7 @@ void Renderer::drawSingleColor(const RenderObject& RO) const
 void Renderer::goRenderSkybox(const Mesh& mesh) const {
 	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 	m_shaderSkybox->useShader();
-	m_shaderSkybox->setMat4("viewProjectionMatrixTranslationRemoved", G::camera.getProjectionMatrix() * glm::mat4(glm::mat3(G::camera.getViewMatrix()))); // remove translation from the view matrix (cast to mat3 and back to mat4)
+	m_shaderSkybox->setMat4("viewProjectionMatrixTranslationRemoved", GE::camera.getProjectionMatrix() * glm::mat4(glm::mat3(GE::camera.getViewMatrix()))); // remove translation from the view matrix (cast to mat3 and back to mat4)
 	mesh.m_vao->bindVertexArray();
 	glCullFace(GL_FRONT); // This is because cube is viewed from the inside. There is a simple correction, reverse the order of vertices, and it will become front-facing-outward (not inward). Not really needed...
 	glDrawElementsInstanced(GL_TRIANGLES, mesh.m_ebo->getCount(), GL_UNSIGNED_INT, 0, 1);
@@ -166,7 +168,7 @@ void Renderer::goRenderSkybox(const Mesh& mesh) const {
 void Renderer::drawFrustum(const Mesh& mesh, const glm::mat4& lightViewProjectionMatrix) const
 {
 	m_shaderFrustum->useShader();
-	m_shaderFrustum->setMat4("viewProjectionMatrix", G::camera.getViewProjectionMatrix());
+	m_shaderFrustum->setMat4("viewProjectionMatrix", GE::camera.getViewProjectionMatrix());
 	m_shaderFrustum->setVec4("color", { 1.0f, 0.0f, 0.0f, 1.0f });
 	m_shaderFrustum->setMat4("inverseMatrix", glm::inverse(lightViewProjectionMatrix));
 	mesh.m_vao->bindVertexArray();
@@ -291,7 +293,7 @@ void Renderer::goRenderOutline() {
 			if (RO->drawOutline) {
 				for (auto i = 0; i < std::ssize(RO->ssbo); i++) {
 					if (RO->ssbo[i]->getType() == SSBO::MVP)
-						RO->ssbo[i]->updateFully(G::camera.getViewProjectionMatrix() * glm::scale(RO->transform[0], glm::vec3(1.05f, 1.05f, 0.0f)), true);
+						RO->ssbo[i]->updateFully(GE::camera.getViewProjectionMatrix() * glm::scale(RO->transform[0], glm::vec3(1.05f, 1.05f, 0.0f)), true);
 					if (RO->ssbo[i]->getType() == SSBO::singleColor)
 						RO->ssbo[i]->updateFully(color, true);
 				}

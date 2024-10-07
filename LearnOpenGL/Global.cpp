@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Global.h"
+#include "GlobalEntities.h"
 
 const GLenum G::glCheckError_(const char* file, int line)
 {
@@ -43,18 +44,18 @@ glm::mat4 G::calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm:
 // Takes in full transformation parameters in World space, and outputs model in View space
 glm::mat4 G::calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 { 
-    return camera.getViewMatrix() * calculateModelMatrix(translate, rotateDegrees, rotateVec3, scale);
+    return GE::camera.getViewMatrix() * calculateModelMatrix(translate, rotateDegrees, rotateVec3, scale);
 }
 
 // see https://stackoverflow.com/questions/49840131/unity-how-to-calculate-a-target-position-with-offset-based-on-the-current-posi
 // and https://stackoverflow.com/questions/72095398/translate-objects-relative-to-the-camera-view (I guess I could inverse modelViewMatrix instead, same same...)
 void G::applyCameraOffset(Camera* cam, float x, float y, float z) {
     glm::mat4 offsetMatrix{ glm::translate(glm::mat4(1.0f), camera.getRight() * x) };
-    offsetMatrix = glm::translate(offsetMatrix, camera.getUp() * y);
-    offsetMatrix = glm::translate(offsetMatrix, camera.getFront() * z);
+    offsetMatrix = glm::translate(offsetMatrix, GE::camera.getUp() * y);
+    offsetMatrix = glm::translate(offsetMatrix, GE::camera.getFront() * z);
 
-    cam->setFront(camera.getFront());
-    cam->setPosition({ offsetMatrix * glm::vec4(camera.getPosition(), 1.0f) });
+    cam->setFront(GE::camera.getFront());
+    cam->setPosition({ offsetMatrix * glm::vec4(GE::camera.getPosition(), 1.0f) });
 }
 
 void G::cheap2Copy() {
@@ -276,7 +277,7 @@ void G::framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
     windowWidth = width;
     windowHeight = height;
-    camera.setAspectRatio((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)));
+    GE::camera.setAspectRatio((static_cast<float>(windowWidth) / static_cast<float>(windowHeight)));
     glCheckError();
 }
 
@@ -315,11 +316,11 @@ void G::mouse_callback(GLFWwindow* window, double currentXPosIn, double currentY
     lastXPos = currentXPos;
     lastYPos = currentYPos;
 
-    camera.processMouseMovement(xoffset, yoffset);
+    GE::camera.processMouseMovement(xoffset, yoffset);
 }
 
 #pragma warning( suppress : 4100 )
 void G::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.processMouseScroll(static_cast<float>(yoffset));
+    GE::camera.processMouseScroll(static_cast<float>(yoffset));
 }
