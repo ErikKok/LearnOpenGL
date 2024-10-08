@@ -46,8 +46,6 @@ public:
     const glm::mat4& getViewProjectionMatrix() const { return m_viewProjectionMatrix; };
     virtual void calculateProjectionMatrix();
 
-    void fakeGravity(GLfloat deltaTime);
-
     void processKeyboard(CameraMovement direction);
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
     void processMouseScroll(GLfloat yoffset);

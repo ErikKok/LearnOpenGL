@@ -6,6 +6,16 @@
 
 #include <GLFW/glfw3.h>
 
+void Engine::perFrameTimeLogic()
+{
+    currentFrameTime = static_cast<float>(glfwGetTime());
+    G::deltaTime = currentFrameTime - G::timestampLastFrame;
+    if (G::deltaTime > 0.25f) // smooths out lag I guess (144fps = 0.00695f)
+        G::deltaTime = 0.25f;
+    G::timestampLastFrame = currentFrameTime;
+    frameTimeRemaining += G::deltaTime;
+}
+
 void Engine::processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {

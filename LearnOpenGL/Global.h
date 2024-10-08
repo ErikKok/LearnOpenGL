@@ -50,7 +50,7 @@ namespace G {
 
     // Renderloop
     inline GLfloat deltaTime{ 0.0f };               // Time in seconds between current frame and last frame
-    inline GLfloat deltaTimeLastFrame{ 0.0f };      // Timestamp of last frame
+    inline GLfloat timestampLastFrame{ 0.0f };      // Timestamp of last frame
     const inline float gravity{ -9.81f };           // 9.80665
     inline bool paused{ false };
 

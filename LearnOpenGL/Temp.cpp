@@ -1,3 +1,27 @@
+//const int TICKS_PER_SECOND = 25;
+//const int SKIP_TICKS_FOR_DURATION = 1000 / TICKS_PER_SECOND; // “SKIP_TICKS_FOR_DURATION”, or rather just “FRAME_DURATION” and/or “COMPUTE_DURATION”. 
+//const int MAX_FRAMESKIP = 5;
+//
+//DWORD next_game_tick = GetCurrentTimeInMs();
+//int loops;
+//float interpolation;
+//
+//while (true) {
+//
+//    loops = 0;
+//    while (GetCurrentTimeInMs() > next_game_tick && loops < MAX_FRAMESKIP) {
+//        update_game();
+//
+//        next_game_tick += SKIP_TICKS_FOR_DURATION;
+//        loops++;
+//    }
+//
+//    interpolation = float(GetCurrentTimeInMs() + SKIP_TICKS_FOR_DURATION - next_game_tick) / float(SKIP_TICKS_FOR_DURATION);
+//    display_game(interpolation);
+//}
+
+
+
 // .size() returns the number of elements in the vector.
 //
 // sizeof gives you the number of bytes used by the object definition (based on the declaration of the vector class)

@@ -6,7 +6,8 @@ Reminder:
 - TODO: Headers: put as much as you can in the .cpp and as little as possible in the .h.
 
 Known bugs:
- - drawDebugQuad gives Undefined Behaviour warnings, because quadTexture is actually a sampler2DShadow, but used as a sampler2D (see https://community.khronos.org/t/read-depth-buffer-value-from-sampler2dshadow/53156)
+- drawDebugQuad gives Undefined Behaviour warnings, because quadTexture is actually a sampler2DShadow, but used as a sampler2D (see https://community.khronos.org/t/read-depth-buffer-value-from-sampler2dshadow/53156)
+- physics is wrong at unlocked framerates (other then 144fps) 
 
 TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
@@ -42,13 +43,18 @@ TO DO
 - ECS - make sun static in-Class, and check for getOn in goRender loop
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
 
-v0.2.94 7-10-2024
+v0.3 8-10-2024
+-----------------
+- added Constant Physics Speed independent of Variable FPS, at least a first very rough version just for jumping
+
+v0.2.95 7-10-2024
 -----------------
 - added GlobalEntities.h
 - moved Player and Camera to GlobalEntities.h
 - added Engine.h
 - moved some GLFW control stuff from Global.h to Engine.h
 - moved init() to main
+- moved jumping stuff to player Class
 
 v0.2.93 7-10-2024
 -----------------

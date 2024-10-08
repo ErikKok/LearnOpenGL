@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Camera.h"
+#include "Engine.h"
 #include "Global.h"
 
 #include <glad/glad.h>
@@ -37,8 +38,14 @@ OrthographicCamera::OrthographicCamera(glm::vec3 direction, float left, float ri
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
 const void Camera::calculateViewMatrix()
 {
-   m_viewMatrix = glm::lookAt(m_position, m_position + m_front, m_up);
-   m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
+    if (Engine::useInterpolationResultPositionY == true) {
+        //glm::vec3 temp = glm::vec3(m_position.x, m_position.y + Engine::interpolationResultPositionY, m_position.z);
+        m_viewMatrix = glm::lookAt(glm::vec3(m_position.x, m_position.y + Engine::interpolationResultPositionY, m_position.z), glm::vec3(m_position.x, m_position.y + Engine::interpolationResultPositionY, m_position.z) + m_front, m_up);
+    }
+    if (Engine::useInterpolationResultPositionY == false)
+        m_viewMatrix = glm::lookAt(m_position, m_position + m_front, m_up);
+
+    m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
 }
 
 const void OrthographicCamera::calculateViewMatrix()
@@ -51,14 +58,6 @@ void Camera::calculateProjectionMatrix()
 { 
     m_projectionMatrix = glm::perspective(glm::radians(m_fov), m_aspectRatio, m_nearPlane, m_farPlane);
     m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
-}
-
-void Camera::fakeGravity(GLfloat deltaTime) {
-    //if (m_position.y > 0.15f)
-    //    m_position.y -= 0.2f * m_movementSpeed * deltaTime;
-
-    if (m_position.y >= 1.5f)
-        m_position.y -= 0.2f * m_movementSpeed * deltaTime;
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)

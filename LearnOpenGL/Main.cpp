@@ -400,28 +400,40 @@ int main()
         std::println("************************************************");
 
         while (!glfwWindowShouldClose(window)) {
-            // per-frame time logic
-            float currentFrame{ static_cast<float>(glfwGetTime()) };
-            G::deltaTime = currentFrame - G::deltaTimeLastFrame;
-            G::deltaTimeLastFrame = currentFrame;
-            //std::println("deltaTime: {}ms", Global::deltaTime * 1000);
-            std::println("Position: {}, {}, {}", GE::camera.getPosition().x, GE::camera.getPosition().y, GE::camera.getPosition().z);
-            //std::println("Front: {}, {}, {}", Global::camera.getFront().x, Global::camera.getFront().y, Global::camera.getFront().z);
+            Engine::ticksLoop++;
+            Engine::perFrameTimeLogic();
 
+            //std::println("deltaTime: {}ms", G::deltaTime * 1000);
+            std::println("Position: {}, {}, {}", GE::camera.getPosition().x, GE::camera.getPosition().y, GE::camera.getPosition().z);
+            //std::println("Front: {}, {}, {}", GE::camera.getFront().x, GE::camera.getFront().y, GE::camera.getFront().z);
+            //std::println("ticksLoop: {}", Engine::ticksLoop);
+            //std::println("ticksPhysics: {}", Engine::ticksPhysics);
+            
             /////////////////////////////////////////////////////////////////////////////////////
             // Start processInput ///////////////////////////////////////////////////////////////
             /////////////////////////////////////////////////////////////////////////////////////
 
             glfwPollEvents();
-            Engine::processInput(window);// , GE::camera);
+            Engine::processInput(window);
 
-            // Gravity + jumping
-            // https://gafferongames.com/post/integration_basics/
-            // https://gamedev.stackexchange.com/questions/94000/how-to-implement-accurate-frame-rate-independent-physics
-            // https://gamedev.stackexchange.com/questions/38453/how-do-i-implement-deceleration-for-the-player-character
+            while (Engine::frameTimeRemaining >= Engine::physicsFrameTime)
+            {
+                //previousState = currentState;
+                //integrate(currentState, totalTimePassed, physicsTime); // do physics
+                //doPhysics(); // using the fixed physicsTime
+                Engine::ticksPhysics++;
+                GE::player.handleJumpFixed();
+                Engine::totalTimePassed += Engine::physicsFrameTime;
+                Engine::frameTimeRemaining -= Engine::physicsFrameTime;
+            }
 
-            GE::player.handleJump();
-            //GE::player.handleAcceleration();
+            Engine::interpolationFactor = Engine::frameTimeRemaining / Engine::physicsFrameTime;
+            //if (Engine::interpolationFactor <= 0.9f)
+            //    Engine::interpolationFactor = 0.0f;
+            std::println("interpolationFactor: {}", Engine::interpolationFactor);
+            GE::player.handleJumpInterpolation();
+
+            ////////////
 
             // Teleporter (green light)
             if (GE::camera.getPosition().x > -4.5f && GE::camera.getPosition().x < -3.5f &&
@@ -437,8 +449,11 @@ int main()
                 G::isFlashLightOnUpdated = true;
             }
 
+
+            //Engine::useInterpolationResultPositionY = true;
             // moved from Camera::processKeyboard due to player being able to move without inputs now
             GE::camera.calculateViewMatrix();
+            //Engine::useInterpolationResultPositionY = false;
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start UpdateGame /////////////////////////////////////////////////////////////////
