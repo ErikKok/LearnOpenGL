@@ -23,13 +23,13 @@ WASD = Movement
 <br>X = Up
 <br>
 <br>F = Flashlight
-K = Show Frustum
-L = PolygonMode (line/point/fill)
-M = Release mouse
-O = Draw outline
-P = Pause
-Q = Show/toggle shadowmap
-V = Toggle v-sync
-
-SHIFT = Run
-ESC = Quit
+<br>K = Show Frustum
+<br>L = PolygonMode (line/point/fill)
+<br>M = Release mouse
+<br>O = Draw outline
+<br>P = Pause
+<br>Q = Show/toggle shadowmap
+<br>V = Toggle v-sync
+<br>
+<br>SHIFT = Run
+<br>ESC = Quit
