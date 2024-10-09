@@ -16,6 +16,18 @@ void Engine::perFrameTimeLogic()
     frameTimeRemaining += G::deltaTime;
 }
 
+void Engine::doPhysics() {
+    while (frameTimeRemaining >= physicsFrameTime)
+    {
+        ticksPhysics++;
+        GE::player.handleJump();
+        totalTimePassed += physicsFrameTime;
+        frameTimeRemaining -= physicsFrameTime;
+    }
+    interpolationFactor = frameTimeRemaining / physicsFrameTime;
+    std::println("interpolationFactor: {}", interpolationFactor);
+}
+
 void Engine::processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -31,11 +43,13 @@ void Engine::processInput(GLFWwindow* window)
         GE::camera.processKeyboard(CameraMovement::RIGHT);
     }
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        //GE::camera.processKeyboard(CameraMovement::UP);
         GE::player.initJump();
     }
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
         GE::camera.processKeyboard(CameraMovement::DOWN);
+    }
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+        GE::camera.processKeyboard(CameraMovement::UP);
     }
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
@@ -104,8 +118,13 @@ void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action,
             G::debugQuadVisible = 0;
     }
 
-    if (key == GLFW_KEY_V && action == GLFW_PRESS)
-        glfwSwapInterval(0);
+    if (key == GLFW_KEY_V && action == GLFW_PRESS) {
+        if (G::isVSyncEnabled)
+            glfwSwapInterval(1);
+        else
+            glfwSwapInterval(0);
+        G::isVSyncEnabled = !G::isVSyncEnabled;
+    }
 }
 
 #pragma warning( suppress : 4100 )

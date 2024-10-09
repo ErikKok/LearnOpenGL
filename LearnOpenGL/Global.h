@@ -62,6 +62,7 @@ namespace G {
     inline int frustumVisible{ 0 };
     inline int debugQuadVisible{ 0 };
     inline bool isFlashLightOnUpdated{ true };
+    inline bool isVSyncEnabled{ false };
 
     // Error | Debug
     const GLenum glCheckError_(const char* file, int line);

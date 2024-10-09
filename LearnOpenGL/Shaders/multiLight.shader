@@ -158,7 +158,7 @@ vec3 FragPosViewNormalized = normalize(vs_out.FragPosView);
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
-float cutOffSpecular = 0.1f;
+float cutOffSpecular = 0.01f;
 float cutOffAttenuation = 0.01f;
 
 vec3 CalcDirLight(DirLight light)
@@ -266,7 +266,7 @@ vec3 CalcSpotLight(SpotLight light, int i)
 
     // specular
     vec3 specular;
-    if (attenuation > cutOffSpecular) {
+    if (attenuation > cutOffSpecular) { // TODO - source of bug since 2.88, zichtbaar omdat de overgang naar wanneer specular zichtbaar is een harde rand is, smoothstep toepassen?
         vec3 halfwayDir = normalize(lightDir - FragPosViewNormalized); // Blinn-Phong
         float spec = pow(max(dot(normalViewNormalized, halfwayDir), 0.0f), material.shininess);
         //vec3 reflectDir = reflect(-lightDir, normalView); // Phong

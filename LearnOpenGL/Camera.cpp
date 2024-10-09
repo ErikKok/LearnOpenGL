@@ -39,12 +39,13 @@ OrthographicCamera::OrthographicCamera(glm::vec3 direction, float left, float ri
 const void Camera::calculateViewMatrix()
 {
     if (Engine::useInterpolationResultPositionY == true) {
-        //glm::vec3 temp = glm::vec3(m_position.x, m_position.y + Engine::interpolationResultPositionY, m_position.z);
-        m_viewMatrix = glm::lookAt(glm::vec3(m_position.x, m_position.y + Engine::interpolationResultPositionY, m_position.z), glm::vec3(m_position.x, m_position.y + Engine::interpolationResultPositionY, m_position.z) + m_front, m_up);
+        glm::vec3 temp = glm::vec3(m_position.x, m_position.y + Engine::interpolationResultPositionY, m_position.z);
+        m_viewMatrix = glm::lookAt(temp, temp + m_front, m_up);
+        Engine::useInterpolationResultPositionY = false;
     }
-    if (Engine::useInterpolationResultPositionY == false)
+    else
         m_viewMatrix = glm::lookAt(m_position, m_position + m_front, m_up);
-
+    
     m_viewProjectionMatrix = m_projectionMatrix * m_viewMatrix;
 }
 
@@ -65,12 +66,12 @@ void Camera::processKeyboard(CameraMovement direction)
 {      
     float velocity{ m_movementSpeed * G::deltaTime };
 
-    //if (direction == CameraMovement::UP) {
-    //    //m_position.y += 0.5f * velocity;
-    //}
+    if (direction == CameraMovement::UP) {
+        m_position.y += 0.5f * velocity;
+    }
     if (direction == CameraMovement::DOWN) {
         m_position.y -= 0.5f * velocity;
-        //Global::crouching = true;
+        //G::crouching = true;
     }
 
     if (direction == CameraMovement::FORWARD) {

@@ -281,9 +281,9 @@ void Renderer::goRender() {
 }
 
 void Renderer::goRenderOutline() {
-	if (G::drawOutline) { // TODO make framerate independent and independent of this function
+	if (G::drawOutline) {
 		if (G::outlineAlpha >= 0.0f)
-			G::outlineAlpha += 0.01f;
+			G::outlineAlpha += 1.0f * G::deltaTime;
 		if (G::outlineAlpha >= 1.0f)
 			G::outlineAlpha = 0.0f;
 		glm::vec4 color{ 1.0f, 0.28f, 0.26f, G::outlineAlpha }; // TODO get color from SSBO

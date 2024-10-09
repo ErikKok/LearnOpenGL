@@ -23,13 +23,11 @@ public:
 	// https://gamedev.stackexchange.com/questions/38453/how-do-i-implement-deceleration-for-the-player-character
 	void initJump();
 	void handleJump();
-	void handleJumpFixed(); // float interpolationResult);
 	void handleJumpInterpolation();
-	void handleAcceleration();
 
 private:
 	float m_ySpeed{ 0.0f }; // Vertical speed in meter/second
-	float m_ySpeedLastFrame{ 0.0f };
+	float m_ySpeedLastFrame{ 0.0f }; //  meter/second
 
 	float m_acceleration{ -G::gravity };
 	float m_drag{ 0.5f };

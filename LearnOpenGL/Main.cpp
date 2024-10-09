@@ -406,8 +406,8 @@ int main()
             //std::println("deltaTime: {}ms", G::deltaTime * 1000);
             std::println("Position: {}, {}, {}", GE::camera.getPosition().x, GE::camera.getPosition().y, GE::camera.getPosition().z);
             //std::println("Front: {}, {}, {}", GE::camera.getFront().x, GE::camera.getFront().y, GE::camera.getFront().z);
-            //std::println("ticksLoop: {}", Engine::ticksLoop);
-            //std::println("ticksPhysics: {}", Engine::ticksPhysics);
+            std::println("ticksLoop: {}", Engine::ticksLoop);
+            std::println("ticksPhysics: {}", Engine::ticksPhysics);
             
             /////////////////////////////////////////////////////////////////////////////////////
             // Start processInput ///////////////////////////////////////////////////////////////
@@ -415,25 +415,8 @@ int main()
 
             glfwPollEvents();
             Engine::processInput(window);
-
-            while (Engine::frameTimeRemaining >= Engine::physicsFrameTime)
-            {
-                //previousState = currentState;
-                //integrate(currentState, totalTimePassed, physicsTime); // do physics
-                //doPhysics(); // using the fixed physicsTime
-                Engine::ticksPhysics++;
-                GE::player.handleJumpFixed();
-                Engine::totalTimePassed += Engine::physicsFrameTime;
-                Engine::frameTimeRemaining -= Engine::physicsFrameTime;
-            }
-
-            Engine::interpolationFactor = Engine::frameTimeRemaining / Engine::physicsFrameTime;
-            //if (Engine::interpolationFactor <= 0.9f)
-            //    Engine::interpolationFactor = 0.0f;
-            std::println("interpolationFactor: {}", Engine::interpolationFactor);
+            Engine::doPhysics();
             GE::player.handleJumpInterpolation();
-
-            ////////////
 
             // Teleporter (green light)
             if (GE::camera.getPosition().x > -4.5f && GE::camera.getPosition().x < -3.5f &&
@@ -449,11 +432,10 @@ int main()
                 G::isFlashLightOnUpdated = true;
             }
 
-
-            //Engine::useInterpolationResultPositionY = true;
+            // flashlight frustum gets funky otherwise
+            Engine::useInterpolationResultPositionY = true;
             // moved from Camera::processKeyboard due to player being able to move without inputs now
             GE::camera.calculateViewMatrix();
-            //Engine::useInterpolationResultPositionY = false;
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start UpdateGame /////////////////////////////////////////////////////////////////

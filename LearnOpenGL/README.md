@@ -7,7 +7,7 @@ Reminder:
 
 Known bugs:
 - drawDebugQuad gives Undefined Behaviour warnings, because quadTexture is actually a sampler2DShadow, but used as a sampler2D (see https://community.khronos.org/t/read-depth-buffer-value-from-sampler2dshadow/53156)
-- physics is wrong at unlocked framerates (other then 144fps) 
+- flashlight cutOffSpecular bug (since v0.2.88 (sort of mitigated in v.0.3.01))
 
 TO DO
 - Logging https://antongerdelan.net/opengl/glcontext2.html
@@ -41,7 +41,15 @@ TO DO
 - ECS - move Camera into FrameBuffer? zit al in Light... moet die in de framebuffer? 
 	- aspectRatio zit in Camera maar wordt gezet 'door' of adhv Texture, als depthmap Texture wijzigt moet aspectration in de Camera ook gewijzigd worden
 - ECS - make sun static in-Class, and check for getOn in goRender loop
-- ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added.
+- ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added
+
+v0.3.01 9-10-2024
+-----------------
+- added vSync toggle
+- added UP - X
+- float cutOffSpecular = 0.01f instead of 0.1f -> bug v.0.2.88
+- cleanup
+- Outline is framerate independent now
 
 v0.3 8-10-2024
 -----------------

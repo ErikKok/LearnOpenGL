@@ -6,17 +6,16 @@
 namespace Engine { // Class? // TODO use doubles?
     inline int ticksLoop{ 0 };
     inline int ticksPhysics{ 0 };
-    inline float currentFrameTime{ static_cast<float>(glfwGetTime()) };
-    inline float totalTimePassed = 0.0f;
-    const inline float physicsFrameTime = 0.01f; // in seconds
-    const inline float physicsFrameTimeFactor = 1.0f;
-    inline float frameTimeRemaining = 0.0f; // {}
-    inline float interpolationFactor{ 1.0f };  // TODO double?
-    inline float interpolationResultPositionY{ 1.0f };
-    inline bool useInterpolationResultPositionY{ true }; // flashlight gets funky otherwise
+    inline float currentFrameTime{ static_cast<float>(glfwGetTime()) }; // in seconds since runtime
+    inline float totalTimePassed{ 0.0f }; // in seconds
+    const inline float physicsFrameTime{ 0.01f }; // in seconds
+    inline float frameTimeRemaining{ 0.0f }; // in seconds
+    inline float interpolationFactor{ 1.0f };
+    inline float interpolationResultPositionY{ 1.0f }; // used for rendering only, then discarded
+    inline bool useInterpolationResultPositionY{ false }; // flashlight frustum gets funky otherwise
 
     void perFrameTimeLogic();
-
+    void doPhysics();
     void processInput(GLFWwindow* window);
 
     // Following functions are called by glfwPollEvents()
