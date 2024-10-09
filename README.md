@@ -20,9 +20,9 @@ Features:
 
 WASD = Movement
 
-<br />Z = Down
+<br>Z = Down
 
-<br />X = Up
+<br>X = Up
 
 F = Flashlight
 
