@@ -17,3 +17,29 @@ Features:
 - Shader Storage Buffer
 - Materials
 - RenderObjects
+
+WASD = Movement
+
+Z = Down
+
+X = Up
+
+F = Flashlight
+
+K = Show Frustum
+
+L = PolygonMode (line/point/fill)
+
+M = Release mouse
+
+O = Draw outline
+
+P = Pause
+
+Q = Show/toggle shadowmap
+
+V = Toggle v-sync
+
+SHIFT = Run
+
+ESC = Quit
