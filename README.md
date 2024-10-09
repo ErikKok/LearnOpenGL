@@ -4,7 +4,7 @@ Started while learning OpenGL and slowly implementing more features
 
 Features:
 - OpenGL 4.6, Fully DSA (Direct State Access)
-- Constant Physics Speed independent of Variable FPS
+- Fixed Physics Speed with extrapolation (independent of Variable FPS)
 - (Almost) everything is abstracted into Classes
 - Every draw call is through glDrawElementsInstanced()
 - ASSIMP model loader
@@ -20,9 +20,9 @@ Features:
 
 WASD = Movement
 
-Z = Down
+<br />Z = Down
 
-X = Up
+<br />X = Up
 
 F = Flashlight
 
