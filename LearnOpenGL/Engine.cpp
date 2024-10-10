@@ -4,14 +4,17 @@
 #include "Global.h"
 #include "GlobalEntities.h"
 
+#include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 
 void Engine::perFrameTimeLogic()
 {
     currentFrameTime = static_cast<float>(glfwGetTime());
     G::deltaTime = currentFrameTime - G::timestampLastFrame;
-    if (G::deltaTime > 0.25f) // smooths out lag I guess (144fps = 0.00695f)
-        G::deltaTime = 0.25f;
+    if (G::deltaTime > 0.1f) { // smooths huge spikes out
+        std::println("WARNING: deltaTime too high! Capped at 10ms, original value was: {}ms", G::deltaTime);
+        G::deltaTime = 0.1f;
+    }
     G::timestampLastFrame = currentFrameTime;
     frameTimeRemaining += G::deltaTime;
 }
@@ -24,8 +27,8 @@ void Engine::doPhysics() {
         totalTimePassed += physicsFrameTime;
         frameTimeRemaining -= physicsFrameTime;
     }
-    interpolationFactor = frameTimeRemaining / physicsFrameTime;
-    std::println("interpolationFactor: {}", interpolationFactor);
+    extrapolationFactor = frameTimeRemaining / physicsFrameTime;
+    std::println("extrapolationFactor: {}", extrapolationFactor);
 }
 
 void Engine::processInput(GLFWwindow* window)

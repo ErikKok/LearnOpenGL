@@ -142,7 +142,7 @@ vec3 FragPosTangentNormalized = normalize(vs_out.FragPosTangent);
 vec3 textureDiffuse = vec3(texture(material.diffuse1, vs_out.TexCoords));
 vec3 textureSpecular = vec3(texture(material.specular1, vs_out.TexCoords));
 
-float cutOffSpecular = 0.1f;
+float cutOffSpecular = 0.01f;
 float cutOffAttenuation = 0.01f;
 
 vec3 CalcDirLight(DirLight light)

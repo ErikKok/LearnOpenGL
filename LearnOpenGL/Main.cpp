@@ -416,9 +416,10 @@ int main()
             glfwPollEvents();
             Engine::processInput(window);
             Engine::doPhysics();
-            GE::player.handleJumpInterpolation();
+            GE::player.handleJumpextrapolation();
 
             // Teleporter (green light)
+            // TODO disable extrapolation for an object on a frame where it's teleported.
             if (GE::camera.getPosition().x > -4.5f && GE::camera.getPosition().x < -3.5f &&
                 GE::camera.getPosition().y >  1.5f && GE::camera.getPosition().y <  2.5f &&
                 GE::camera.getPosition().z > 11.5f && GE::camera.getPosition().z < 12.5f ) {
@@ -432,8 +433,6 @@ int main()
                 G::isFlashLightOnUpdated = true;
             }
 
-            // flashlight frustum gets funky otherwise
-            Engine::useInterpolationResultPositionY = true;
             // moved from Camera::processKeyboard due to player being able to move without inputs now
             GE::camera.calculateViewMatrix();
 
@@ -455,7 +454,7 @@ int main()
 
             SpotLight::spotLights[1].updateDirectionInViewSpace(multiLight);
             SpotLight::spotLights[1].updateDirectionInViewSpace(multiLightNormalMapping);
-            SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) });
+            SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) }); // hier naar calculateViewMatrix()
             SpotLight::spotLights[1].updatePositionInViewSpace(multiLight);
             SpotLight::spotLights[1].updatePositionInViewSpace(multiLightNormalMapping);
             SpotLight::spotLights[1].setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
@@ -594,6 +593,12 @@ int main()
             if (!G::paused) { // toggle with P
                 glfwSwapBuffers(window);
             }
+
+            //while (static_cast<float>(glfwGetTime()) - G::timestampLastFrame < 0.1f) { // 0.00695f
+            //    double calculate = 3.14 * 3.14 * 3.14;
+            //    calculate *= 3.14;
+            //}
+                
         }
         G::glCheckError();
         std::println("Shutting down OpenGL scope");

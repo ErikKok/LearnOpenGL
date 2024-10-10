@@ -128,9 +128,6 @@ void Shader::useShader() const
 {
     //std::println("USE Shader: {}", m_id);
 
-    // No need to ask GPU for active Shader
-    //GLint returnData{}; //glGetIntegerv(GL_CURRENT_PROGRAM, &returnData);
-
     if (G::shaderCurrentlyActive != m_id) {
         glUseProgram(m_id);
         G::glCheckError();
@@ -144,8 +141,6 @@ int Shader::getLocation(const std::string& name) const{
     assert(G::shaderCurrentlyActive == m_id && "Wrong shader active");
 
     int location{ glGetUniformLocation(m_id, name.c_str()) };
-
-    // TODO check of Shader wel actief is
 
     if (location == -1)
         std::println("ERROR setting uniform value: \"{}\" does not correspond to active uniform, starts with gl_ or is associated with an atomic counter or a named uniform block! {}", name, location);

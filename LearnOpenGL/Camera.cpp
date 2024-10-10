@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Engine.h"
 #include "Global.h"
+#include "GlobalEntities.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -36,13 +37,15 @@ OrthographicCamera::OrthographicCamera(glm::vec3 direction, float left, float ri
 }
 
 // returns the view matrix calculated using Euler Angles and the LookAt Matrix
+// TODO is the if worth the cost of usage?
+// extrapolationResultPosition should only be applied for player camera ViewMatrix, otherwise it interferes with other cameras frustum if and when it's position gets updated,
+// although effect is not visible probably.
+// or maybe make a 2nd function to avoid the if? or a default parameter or something...
+
 const void Camera::calculateViewMatrix()
 {
-    if (Engine::useInterpolationResultPositionY == true) {
-        glm::vec3 temp = glm::vec3(m_position.x, m_position.y + Engine::interpolationResultPositionY, m_position.z);
-        m_viewMatrix = glm::lookAt(temp, temp + m_front, m_up);
-        Engine::useInterpolationResultPositionY = false;
-    }
+    if (this == &GE::camera || this == SpotLight::spotLights[0].getCamera())
+        m_viewMatrix = glm::lookAt(m_position + Engine::extrapolationResultPosition, m_position + Engine::extrapolationResultPosition + m_front, m_up);
     else
         m_viewMatrix = glm::lookAt(m_position, m_position + m_front, m_up);
     
@@ -137,7 +140,7 @@ void Camera::updateCameraVectors()
     m_right = glm::normalize(glm::cross(m_front, m_defaultUp));  // normalize the vectors, because their length gets closer to 0 the more you look m_up or down which results in slower movement.
     m_up = glm::normalize(glm::cross(m_right, m_front));
     
-    calculateViewMatrix();
+    //calculateViewMatrix();
 
     // TODO
     // This is a very "lazy" way to determine the right and up vectors.It makes a bunch of assumptions, including one that you will never, ever look straight up or down.

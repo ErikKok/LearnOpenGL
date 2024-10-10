@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 
 namespace Engine { // Class? // TODO use doubles?
@@ -10,9 +11,10 @@ namespace Engine { // Class? // TODO use doubles?
     inline float totalTimePassed{ 0.0f }; // in seconds
     const inline float physicsFrameTime{ 0.01f }; // in seconds
     inline float frameTimeRemaining{ 0.0f }; // in seconds
-    inline float interpolationFactor{ 1.0f };
-    inline float interpolationResultPositionY{ 1.0f }; // used for rendering only, then discarded
-    inline bool useInterpolationResultPositionY{ false }; // flashlight frustum gets funky otherwise
+
+    // https://gamedev.stackexchange.com/a/187668
+    inline float extrapolationFactor{ 1.0f };
+    inline glm::vec3 extrapolationResultPosition{ 0.0f, 0.0f, 0.0f }; // for Player and flashlight
 
     void perFrameTimeLogic();
     void doPhysics();

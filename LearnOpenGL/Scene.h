@@ -23,12 +23,12 @@
 //        frameTimeRemaining -= physicsTime;
 //    }
 //
-//    const double interpolationFactor = frameTimeRemaining / physicsTime;
+//    const double extrapolationFactor = frameTimeRemaining / physicsTime;
 //
-//    float/double interpolationResult = currentState * interpolationFactor + previousState * (1.0 - interpolationFactor);
+//    float/double extrapolationResult = currentState * extrapolationFactor + previousState * (1.0 - extrapolationFactor);
 //    //           10 * 0.5 + 8 * (0.5) = 5 + 4 = 9
 //    
-//    render(interpolationResult);
+//    render(extrapolationResult);
 //}
 
 

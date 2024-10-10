@@ -16,7 +16,6 @@ TO DO
 	- avoid using vec3 at all in interface blocks https://stackoverflow.com/questions/47616015/opengl-and-glsl-memory-alignment-for-uniforms-and-varyings
 	- Uniform location cache https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions?tab=readme-ov-file#ideal-way-of-retrieving-all-uniform-names
 	- Calling glUniform is quite expensive during run-time. Structure your programme so that glUniform is only called when the value needs to change. This might be the case every time that you draw a new object (e.g. its position might be different), but some uniforms may not change often (e.g. projection matrix).
-	- glResult als global opslaan ipv elke keer opvragen
 	- combine buffer and bufferDataStore class, with ubo and ssbo as inheritance
 	- for now don't use ubo, only ssbo
 	- cost of state changes: https://community.khronos.org/t/relative-costs-of-state-changes-pipelinelayout-compatibility/108644
@@ -42,6 +41,12 @@ TO DO
 	- aspectRatio zit in Camera maar wordt gezet 'door' of adhv Texture, als depthmap Texture wijzigt moet aspectration in de Camera ook gewijzigd worden
 - ECS - make sun static in-Class, and check for getOn in goRender loop
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added
+
+v0.3.02 10-10-2024
+-----------------
+- replaced useextrapolationResultPositionY with if (this == &GE::camera) in calculateViewMatrix()
+- extrapolationResultPosition float -> vec3
+- float cutOffSpecular = 0.01f instead of 0.1f -> bug v.0.2.88 (also in multiLightNormalMapping.shader)
 
 v0.3.01 9-10-2024
 -----------------

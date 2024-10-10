@@ -4,7 +4,7 @@
 //
 //DWORD next_game_tick = GetCurrentTimeInMs();
 //int loops;
-//float interpolation;
+//float extrapolation;
 //
 //while (true) {
 //
@@ -16,8 +16,8 @@
 //        loops++;
 //    }
 //
-//    interpolation = float(GetCurrentTimeInMs() + SKIP_TICKS_FOR_DURATION - next_game_tick) / float(SKIP_TICKS_FOR_DURATION);
-//    display_game(interpolation);
+//    extrapolation = float(GetCurrentTimeInMs() + SKIP_TICKS_FOR_DURATION - next_game_tick) / float(SKIP_TICKS_FOR_DURATION);
+//    display_game(extrapolation);
 //}
 
 
