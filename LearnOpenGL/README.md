@@ -43,7 +43,13 @@ TO DO
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added
 
 v0.3.02 10-10-2024
------------------
+------------------
+- added follow()
+- added isEqual()
+- added AABB Collision test
+
+v0.3.02 10-10-2024
+------------------
 - replaced useextrapolationResultPositionY with if (this == &GE::camera) in calculateViewMatrix()
 - extrapolationResultPosition float -> vec3
 - float cutOffSpecular = 0.01f instead of 0.1f -> bug v.0.2.88 (also in multiLightNormalMapping.shader)

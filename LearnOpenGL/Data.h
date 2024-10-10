@@ -230,7 +230,7 @@ namespace Data{
 
         glm::vec3(0.0f,  -2.5f,  0.0f),
         glm::vec3(2.0f,  0.5f,  0.0f), //
-        glm::vec3(4.0f,  0.5f,  0.0f),
+        glm::vec3(0.0f,  0.0f,  0.0f), // wall
 
         glm::vec3(0.0f,  2.0f,  0.0f),
         glm::vec3(0.0f,  4.0f,  0.0f), //

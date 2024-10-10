@@ -197,7 +197,7 @@ int main()
 
         // SpotLight1
         SpotLight::spotLights.emplace_back(SpotLight());
-        SpotLight::spotLights[1].setPosition({ 0.0f, 0.0f, 0.0f });
+        SpotLight::spotLights[1].setPosition({ 0.0f, 20.0f, 0.0f });
         SpotLight::spotLights[1].setDirection({ 0.0f, -1.0f, 0.0f });
         SpotLight::spotLights[1].setColor({ 1.0f, 1.0f, 1.0f });
         SpotLight::spotLights[1].setStrength(1.2f);
@@ -454,7 +454,10 @@ int main()
 
             SpotLight::spotLights[1].updateDirectionInViewSpace(multiLight);
             SpotLight::spotLights[1].updateDirectionInViewSpace(multiLightNormalMapping);
-            SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) }); // hier naar calculateViewMatrix()
+            //SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) }); // cirkel draaien
+            SpotLight::spotLights[1].setPosition(Engine::follow(SpotLight::spotLights[1].getPosition(), GE::camera.getPosition()));
+            if (Engine::isEqual(SpotLight::spotLights[1].getPosition(), GE::camera.getPosition()))
+                SpotLight::spotLights[1].setPosition({ 0.0f, 20.0f, 0.0f });
             SpotLight::spotLights[1].updatePositionInViewSpace(multiLight);
             SpotLight::spotLights[1].updatePositionInViewSpace(multiLightNormalMapping);
             SpotLight::spotLights[1].setColor({ static_cast<float>(sin(glfwGetTime() * 0.25f)), static_cast<float>(sin(glfwGetTime() * 0.50f)), static_cast<float>(sin(glfwGetTime() * 0.75f)) });
@@ -473,7 +476,7 @@ int main()
                     cubeRO.transform[i] = glm::rotate(cubeRO.transform[i], (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
                 }
                 if (i == 3) { // wall
-                    cubeRO.transform[i] = glm::translate(cubeRO.transform[i], glm::vec3(-5.0f, 0.0f, -3.0f));
+                    cubeRO.transform[i] = glm::translate(cubeRO.transform[i], glm::vec3(0.0f, 0.0f, -3.0f));
                     cubeRO.transform[i] = glm::scale(cubeRO.transform[i], glm::vec3(20.0f, 20.0f, 1.0f));
                 }
                 //if (i == 9) { // floor
@@ -541,6 +544,16 @@ int main()
 
             lightCubeRO.ssbo[1]->updateSubset(glm::vec4(SpotLight::spotLights[1].getColor(), 1.0f), 4, false);
             lightCubeRO.ssbo[1]->uploadFully();
+
+            // Collision test //////////////////////////////////////////////////////////////////
+
+            AABB wall{
+                glm::vec3(10.0f,  10.0f, -2.5f), // m_vecMax
+                glm::vec3(-10.0f, -10.0f, -3.5f)  // m_vecMin
+            };
+
+            if (Engine::AABBtoAABB(wall, GE::player.getTAABB()))
+                std::println("COLLISION!!!");
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start Render /////////////////////////////////////////////////////////////////////

@@ -12,7 +12,8 @@
 #include <memory> // for std::unique_ptr and std::make_unique
 
 // TODO ECS - transparency opslaan in Material, of uit texture halen in constructor van een Material class?
-struct Material {
+struct Material
+{
 	Shader* shader{ nullptr };
 	int diffuse1{ 0 };					// sampler2D
 	int specular1{ 0 };					// sampler2D
@@ -55,6 +56,8 @@ public:
 	bool castsShadow{ true };
 	bool drawOutline{ false };
 	bool drawAsSingleColor{ false };
+	//glm::vec3 position{}; // centerpoint
+	//glm::vec3 dimension{}; // dimensions width/height/depth
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

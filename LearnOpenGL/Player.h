@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine.h"
 #include "Global.h"
 
 class Player
@@ -24,6 +25,7 @@ public:
 	void initJump();
 	void handleJump();
 	void handleJumpextrapolation();
+	AABB getTAABB();
 
 private:
 	float m_ySpeed{ 0.0f }; // Vertical speed in meter/second

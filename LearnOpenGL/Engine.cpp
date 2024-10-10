@@ -19,7 +19,8 @@ void Engine::perFrameTimeLogic()
     frameTimeRemaining += G::deltaTime;
 }
 
-void Engine::doPhysics() {
+void Engine::doPhysics()
+{
     while (frameTimeRemaining >= physicsFrameTime)
     {
         ticksPhysics++;
@@ -29,6 +30,33 @@ void Engine::doPhysics() {
     }
     extrapolationFactor = frameTimeRemaining / physicsFrameTime;
     std::println("extrapolationFactor: {}", extrapolationFactor);
+}
+
+glm::vec3 Engine::follow(const glm::vec3& origin, const glm::vec3& destination)
+{
+    //glm::vec3 newPosition = origin + (3.0f * G::deltaTime) * glm::normalize(destination - origin);
+    //std::println("newPosition: {}, {}, {}", newPosition.x, newPosition.y, newPosition.z);
+
+    return origin + (3.0f * G::deltaTime) * glm::normalize(destination - origin);
+}
+
+bool Engine::isEqual(const glm::vec3& position1, const glm::vec3& position2, float epsilon)
+{
+    return  std::abs(position1.x - position2.x) < epsilon &&
+            std::abs(position1.y - position2.y) < epsilon &&
+            std::abs(position1.z - position2.z) < epsilon;
+}
+
+bool Engine::AABBtoAABB(const AABB& box1, const AABB& box2)
+{
+
+    //Check if Box1's max is greater than Box2's min and Box1's min is less than Box2's max
+    return(box1.m_vecMax.x > box2.m_vecMin.x &&
+           box1.m_vecMin.x < box2.m_vecMax.x &&
+           box1.m_vecMax.y > box2.m_vecMin.y &&
+           box1.m_vecMin.y < box2.m_vecMax.y &&
+           box1.m_vecMax.z > box2.m_vecMin.z &&
+           box1.m_vecMin.z < box2.m_vecMax.z);
 }
 
 void Engine::processInput(GLFWwindow* window)
