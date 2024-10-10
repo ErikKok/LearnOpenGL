@@ -4,7 +4,10 @@ Started while learning OpenGL and slowly implementing more features
 
 Features:
 - OpenGL 4.6, Fully DSA (Direct State Access)
-- Constant Physics Speed independent of Variable FPS
+- Variable FPS
+- Fixed Rate Physics engine with extrapolation for:
+    - jumping
+    - that's it for now
 - (Almost) everything is abstracted into Classes
 - Every draw call is through glDrawElementsInstanced()
 - ASSIMP model loader
@@ -19,27 +22,17 @@ Features:
 - RenderObjects
 
 WASD = Movement
-
-Z = Down
-
-X = Up
-
-F = Flashlight
-
-K = Show Frustum
-
-L = PolygonMode (line/point/fill)
-
-M = Release mouse
-
-O = Draw outline
-
-P = Pause
-
-Q = Show/toggle shadowmap
-
-V = Toggle v-sync
-
-SHIFT = Run
-
-ESC = Quit
+<br>Z = Down
+<br>X = Up
+<br>
+<br>F = Flashlight
+<br>K = Show Frustum
+<br>L = PolygonMode (line/point/fill)
+<br>M = Release mouse
+<br>O = Draw outline
+<br>P = Pause
+<br>Q = Show/toggle shadowmap
+<br>V = Toggle v-sync
+<br>
+<br>SHIFT = Run
+<br>ESC = Quit
