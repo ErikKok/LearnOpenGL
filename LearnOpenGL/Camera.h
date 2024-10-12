@@ -50,6 +50,10 @@ public:
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
     void processMouseScroll(GLfloat yoffset);
 
+    // TODO public?
+    // update m_front, m_right and m_up Vectors using the updated Euler angles
+    void updateCameraVectors();
+
 protected:
     Camera() {};
 
@@ -71,8 +75,7 @@ protected:
     glm::mat4 m_projectionMatrix{};
     glm::mat4 m_viewProjectionMatrix{};
 
-    // update m_front, m_right and m_up Vectors using the updated Euler angles
-    void updateCameraVectors();
+
 };
 
 class OrthographicCamera : public Camera{

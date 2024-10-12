@@ -22,19 +22,26 @@ public:
 	// https://gafferongames.com/post/integration_basics/
 	// https://gamedev.stackexchange.com/questions/94000/how-to-implement-accurate-frame-rate-independent-physics
 	// https://gamedev.stackexchange.com/questions/38453/how-do-i-implement-deceleration-for-the-player-character
+	
+	//void calculateDirection();
+	void initMovement(CameraMovement direction);
 	void initJump();
+	void handleMovement();
 	void handleJump();
 	void handleJumpextrapolation();
 	AABB getTAABB();
 
-private:
-	float m_ySpeed{ 0.0f }; // Vertical speed in meter/second
-	float m_ySpeedLastFrame{ 0.0f }; //  meter/second
 
-	float m_acceleration{ -G::gravity };
+private:
+	glm::vec3 m_Speed{ 0.0f }; // Vertical speed in meter/second
+	glm::vec3 m_SpeedLastFrame{ 0.0f }; //  meter/second
+	//glm::vec3 m_positionLastFrame{ 0.0f };
+	//glm::vec3 m_direction{ 0.0f };
+
+	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
 	float m_drag{ 0.5f };
 	bool m_isJumping{ false };
 
-	//float m_yPositionLastFrame{ 0.0f };
+
 	//bool m_isCrouching{ false };
 };

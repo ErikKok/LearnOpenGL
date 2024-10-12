@@ -18,12 +18,16 @@ namespace Engine { // Class?
     const inline float physicsFrameTime{ 0.01f }; // in seconds // TODO use doubles for physic / time related stuff?
     inline float frameTimeRemaining{ 0.0f }; // in seconds
 
+    inline bool skip;
+
     // https://gamedev.stackexchange.com/a/187668
+    inline bool isExtrapolationStep{ true };
     inline float extrapolationFactor{ 1.0f };
     inline glm::vec3 extrapolationResultPosition{ 0.0f, 0.0f, 0.0f }; // for Player and flashlight
 
     void perFrameTimeLogic();
     void doPhysics();
+    void doExtrapolationStep();
     glm::vec3 follow(const glm::vec3& origin, const glm::vec3& destination);
     bool isEqual(const glm::vec3& p1, const glm::vec3& p2, float epsilon = 0.01f);
     bool AABBtoAABB(const AABB& tBox1, const AABB& tBox2);

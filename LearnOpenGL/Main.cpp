@@ -414,9 +414,12 @@ int main()
             /////////////////////////////////////////////////////////////////////////////////////
 
             glfwPollEvents();
+
+            //GE::player.calculateDirection();
             Engine::processInput(window);
             Engine::doPhysics();
-            GE::player.handleJumpextrapolation();
+            //Engine::skip = false;
+            Engine::doExtrapolationStep();
 
             // Teleporter (green light)
             // TODO disable extrapolation for an object on a frame where it's teleported.
@@ -435,6 +438,7 @@ int main()
 
             // moved from Camera::processKeyboard due to player being able to move without inputs now
             GE::camera.calculateViewMatrix();
+            //Engine::isExtrapolationStep = false;
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start UpdateGame /////////////////////////////////////////////////////////////////

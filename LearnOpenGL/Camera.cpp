@@ -44,8 +44,9 @@ OrthographicCamera::OrthographicCamera(glm::vec3 direction, float left, float ri
 
 const void Camera::calculateViewMatrix()
 {
-    if (this == &GE::camera || this == SpotLight::spotLights[0].getCamera())
+    if ( (this == &GE::camera || this == SpotLight::spotLights[0].getCamera()) && Engine::isExtrapolationStep ) {
         m_viewMatrix = glm::lookAt(m_position + Engine::extrapolationResultPosition, m_position + Engine::extrapolationResultPosition + m_front, m_up);
+    }
     else
         m_viewMatrix = glm::lookAt(m_position, m_position + m_front, m_up);
     
@@ -69,22 +70,22 @@ void Camera::processKeyboard(CameraMovement direction)
 {      
     float velocity{ m_movementSpeed * G::deltaTime };
 
-    if (direction == CameraMovement::UP) {
-        m_position.y += 0.5f * velocity;
-    }
-    if (direction == CameraMovement::DOWN) {
-        m_position.y -= 0.5f * velocity;
-        //G::crouching = true;
-    }
+    //if (direction == CameraMovement::UP) {
+    //    m_position.y += 0.5f * velocity;
+    //}
+    //if (direction == CameraMovement::DOWN) {
+    //    m_position.y -= 0.5f * velocity;
+    //    //G::crouching = true;
+    //}
 
-    if (direction == CameraMovement::FORWARD) {
-        m_position.x += m_front.x * velocity;
-        m_position.z += m_front.z * velocity;
-    }
-    if (direction == CameraMovement::BACKWARD) {
-        m_position.x -= m_front.x * velocity;
-        m_position.z -= m_front.z * velocity;
-    }
+    //if (direction == CameraMovement::FORWARD) {
+    //    m_position.x += m_front.x * velocity;
+    //    m_position.z += m_front.z * velocity;
+    //}
+    //if (direction == CameraMovement::BACKWARD) {
+    //    m_position.x -= m_front.x * velocity;
+    //    m_position.z -= m_front.z * velocity;
+    //}
     if (direction == CameraMovement::LEFT) {
         m_position.x -= m_right.x * velocity;
         m_position.z -= m_right.z * velocity;

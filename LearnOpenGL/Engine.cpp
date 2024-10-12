@@ -21,15 +21,24 @@ void Engine::perFrameTimeLogic()
 
 void Engine::doPhysics()
 {
+    //GE::player.m_direction = glm::normalize(GE::camera.getPosition() - GE::player.m_positionLastFrame);
+    
     while (frameTimeRemaining >= physicsFrameTime)
     {
         ticksPhysics++;
         GE::player.handleJump();
+        GE::player.handleMovement();
         totalTimePassed += physicsFrameTime;
         frameTimeRemaining -= physicsFrameTime;
     }
     extrapolationFactor = frameTimeRemaining / physicsFrameTime;
     std::println("extrapolationFactor: {}", extrapolationFactor);
+}
+
+void Engine::doExtrapolationStep()
+{
+    Engine::isExtrapolationStep = true;
+    GE::player.handleJumpextrapolation();
 }
 
 glm::vec3 Engine::follow(const glm::vec3& origin, const glm::vec3& destination)
@@ -62,10 +71,12 @@ bool Engine::AABBtoAABB(const AABB& box1, const AABB& box2)
 void Engine::processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        GE::camera.processKeyboard(CameraMovement::FORWARD);
+        //GE::camera.processKeyboard(CameraMovement::FORWARD);
+        GE::player.initMovement(CameraMovement::FORWARD);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        GE::camera.processKeyboard(CameraMovement::BACKWARD);
+        //GE::camera.processKeyboard(CameraMovement::BACKWARD);
+        GE::player.initMovement(CameraMovement::BACKWARD);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         GE::camera.processKeyboard(CameraMovement::LEFT);
