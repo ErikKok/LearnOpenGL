@@ -7,12 +7,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 enum class CameraMovement {
-    UP,
-    DOWN,
     FORWARD,
     BACKWARD,
     LEFT,
     RIGHT,
+    UP,
+    DOWN,
+    FORWARDBACKWARD,    // FORWARD && BACKWARD pressed together
+    LEFTRIGHT,          // LEFT && RIGHT pressed together
+    UPDOWN,             // UP && DOWN pressed together
 };
 
 class Camera
@@ -46,7 +49,7 @@ public:
     const glm::mat4& getViewProjectionMatrix() const { return m_viewProjectionMatrix; };
     virtual void calculateProjectionMatrix();
 
-    void processKeyboard(CameraMovement direction);
+    //void processKeyboard(CameraMovement direction);
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
     void processMouseScroll(GLfloat yoffset);
 

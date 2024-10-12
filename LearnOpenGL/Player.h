@@ -18,6 +18,8 @@ public:
 	//const bool getIsJumping() const { return m_isJumping; };
 	//void setIsJumping(bool x) { m_isJumping = x; };
 
+	void setMaxCurrentSpeed(float x) { maxCurrentSpeed = x; };
+
 	// Gravity + jumping documentation
 	// https://gafferongames.com/post/integration_basics/
 	// https://gamedev.stackexchange.com/questions/94000/how-to-implement-accurate-frame-rate-independent-physics
@@ -37,11 +39,14 @@ private:
 	glm::vec3 m_SpeedLastFrame{ 0.0f }; //  meter/second
 	//glm::vec3 m_positionLastFrame{ 0.0f };
 	//glm::vec3 m_direction{ 0.0f };
-
 	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
+	float maxAcceleration{ 200.0f };
+	float maxCurrentSpeed{ 14.0f };
+	float dryFriction{ 90.0f };
 	float m_drag{ 0.5f };
+	float correction{};
+
+	bool m_isRunning{ false };
 	bool m_isJumping{ false };
-
-
 	//bool m_isCrouching{ false };
 };

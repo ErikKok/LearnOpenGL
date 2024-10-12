@@ -70,35 +70,44 @@ bool Engine::AABBtoAABB(const AABB& box1, const AABB& box2)
 
 void Engine::processInput(GLFWwindow* window)
 {
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        GE::player.initMovement(CameraMovement::FORWARDBACKWARD);
+    }
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        //GE::camera.processKeyboard(CameraMovement::FORWARD);
         GE::player.initMovement(CameraMovement::FORWARD);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        //GE::camera.processKeyboard(CameraMovement::BACKWARD);
         GE::player.initMovement(CameraMovement::BACKWARD);
     }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        GE::player.initMovement(CameraMovement::LEFTRIGHT);
+    }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        GE::camera.processKeyboard(CameraMovement::LEFT);
+        GE::player.initMovement(CameraMovement::LEFT);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        GE::camera.processKeyboard(CameraMovement::RIGHT);
+        GE::player.initMovement(CameraMovement::RIGHT);
     }
+
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+        GE::player.initMovement(CameraMovement::UPDOWN);
+    }
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+        GE::player.initMovement(CameraMovement::UP);
+    }
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+        GE::player.initMovement(CameraMovement::DOWN);
+    }
+
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         GE::player.initJump();
     }
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
-        GE::camera.processKeyboard(CameraMovement::DOWN);
-    }
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-        GE::camera.processKeyboard(CameraMovement::UP);
-    }
-
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-        GE::camera.setMovementSpeed(10.0f);
+        GE::player.setMaxCurrentSpeed(5.0f);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
-        GE::camera.setMovementSpeed(5.0f);
+        GE::player.setMaxCurrentSpeed(14.0f);
     }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)

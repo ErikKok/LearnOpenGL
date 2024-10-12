@@ -66,37 +66,37 @@ void Camera::calculateProjectionMatrix()
 }
 
 // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void Camera::processKeyboard(CameraMovement direction)
-{      
-    float velocity{ m_movementSpeed * G::deltaTime };
-
-    //if (direction == CameraMovement::UP) {
-    //    m_position.y += 0.5f * velocity;
-    //}
-    //if (direction == CameraMovement::DOWN) {
-    //    m_position.y -= 0.5f * velocity;
-    //    //G::crouching = true;
-    //}
-
-    //if (direction == CameraMovement::FORWARD) {
-    //    m_position.x += m_front.x * velocity;
-    //    m_position.z += m_front.z * velocity;
-    //}
-    //if (direction == CameraMovement::BACKWARD) {
-    //    m_position.x -= m_front.x * velocity;
-    //    m_position.z -= m_front.z * velocity;
-    //}
-    if (direction == CameraMovement::LEFT) {
-        m_position.x -= m_right.x * velocity;
-        m_position.z -= m_right.z * velocity;
-    }
-    if (direction == CameraMovement::RIGHT) {
-        m_position.x += m_right.x * velocity;
-        m_position.z += m_right.z * velocity;
-    }
-
-    //calculateViewMatrix();
-}
+//void Camera::processKeyboard(CameraMovement direction)
+//{      
+//    float velocity{ m_movementSpeed * G::deltaTime };
+//
+//    //if (direction == CameraMovement::UP) {
+//    //    m_position.y += 0.5f * velocity;
+//    //}
+//    //if (direction == CameraMovement::DOWN) {
+//    //    m_position.y -= 0.5f * velocity;
+//    //    //G::crouching = true;
+//    //}
+//
+//    //if (direction == CameraMovement::FORWARD) {
+//    //    m_position.x += m_front.x * velocity;
+//    //    m_position.z += m_front.z * velocity;
+//    //}
+//    //if (direction == CameraMovement::BACKWARD) {
+//    //    m_position.x -= m_front.x * velocity;
+//    //    m_position.z -= m_front.z * velocity;
+//    //}
+//    //if (direction == CameraMovement::LEFT) {
+//    //    m_position.x -= m_right.x * velocity;
+//    //    m_position.z -= m_right.z * velocity;
+//    //}
+//    //if (direction == CameraMovement::RIGHT) {
+//    //    m_position.x += m_right.x * velocity;
+//    //    m_position.z += m_right.z * velocity;
+//    //}
+//
+//    //calculateViewMatrix();
+//}
 
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 void Camera::processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch)
