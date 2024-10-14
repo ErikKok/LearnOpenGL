@@ -18,7 +18,7 @@ public:
 	//const bool getIsJumping() const { return m_isJumping; };
 	//void setIsJumping(bool x) { m_isJumping = x; };
 
-	void setMaxCurrentSpeed(float x) { maxCurrentSpeed = x; };
+	void setMaxCurrentSpeed(float x) { m_maxCurrentSpeed = x; };
 
 	// Gravity + jumping documentation
 	// https://gafferongames.com/post/integration_basics/
@@ -42,15 +42,25 @@ private:
 	//glm::vec3 m_positionLastFrame{ 0.0f };
 	//glm::vec3 m_direction{ 0.0f };
 	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
-	float maxAcceleration{ 200.0f };
-	float maxJumpAcceleration{ 120.0f };
+	float m_maxAcceleration{ 200.0f };
+	float m_maxJumpAcceleration{ 120.0f };
 	//float floatAcceleration{ 120.0f };
-	float maxCurrentSpeed{ 18.0f };
-	float dryFriction{ 85.0f };
-	float m_aeroDrag{ 65.0f };
-	float correction{};
+	float m_maxCurrentSpeed{ 18.0f };
+	float m_maxJumpSpeed{ 18.0f };
+	float m_maxStrafeSpeed{ 18.0f }; // TODO
+	float m_dryFriction{ 85.0f };
+	float m_accelerationSlowdownFactor{ 85.0f };
+	float m_aeroDrag{ 96.0f };
+	float m_correction{};
 
 	bool m_isRunning{ false };
 	bool m_isJumping{ false };
 	//bool m_isCrouching{ false };
 };
+//
+//float maxAcceleration{ 200.0f };
+//float maxJumpAcceleration{ 120.0f };
+////float floatAcceleration{ 120.0f };
+//float maxCurrentSpeed{ 18.0f };
+//float dryFriction{ 85.0f };
+//float m_aeroDrag{ 65.0f };
