@@ -26,7 +26,9 @@ void Engine::doPhysics()
     while (frameTimeRemaining >= physicsFrameTime)
     {
         ticksPhysics++;
-        GE::player.handleJump();
+        GE::player.limitAcceleration();
+        GE::player.limitSpeed();
+        //GE::player.handleJump();
         GE::player.handleMovement();
         totalTimePassed += physicsFrameTime;
         frameTimeRemaining -= physicsFrameTime;

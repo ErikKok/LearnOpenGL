@@ -42,6 +42,12 @@ TO DO
 - ECS - make sun static in-Class, and check for getOn in goRender loop
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added
 
+v0.3.05 14-10-2024
+------------------
+- added limitSpeed()
+- integrated handleJump() into handleMovement()
+- added dryFriction, drag -> aeroDrag, some maxJumpAcceleration, some cleanup and optimizations
+
 v0.3.04 12-10-2024
 ------------------
 - Movement fully(?) moved over to acceleration based system, seems quite allright now

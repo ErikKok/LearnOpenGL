@@ -28,6 +28,8 @@ public:
 	//void calculateDirection();
 	void initMovement(CameraMovement direction);
 	void initJump();
+	void limitAcceleration();
+	void limitSpeed();
 	void handleMovement();
 	void handleJump();
 	void handleJumpextrapolation();
@@ -41,9 +43,11 @@ private:
 	//glm::vec3 m_direction{ 0.0f };
 	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
 	float maxAcceleration{ 200.0f };
-	float maxCurrentSpeed{ 14.0f };
-	float dryFriction{ 90.0f };
-	float m_drag{ 0.5f };
+	float maxJumpAcceleration{ 120.0f };
+	//float floatAcceleration{ 120.0f };
+	float maxCurrentSpeed{ 18.0f };
+	float dryFriction{ 85.0f };
+	float m_aeroDrag{ 65.0f };
 	float correction{};
 
 	bool m_isRunning{ false };

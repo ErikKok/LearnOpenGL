@@ -58,122 +58,157 @@ void Player::initMovement(CameraMovement direction)
         m_Speed.y = 0.0f; // TODO no deceleration applied
         return;
     }
-
-    // correct both axis in same ratio if one succeeds the max
-    if (m_acceleration.x > maxAcceleration) {// TODO if running
-        correction = m_acceleration.x / maxAcceleration;
-        m_acceleration.x = maxAcceleration;
-        m_acceleration.z /= correction;
-    }
-    if (m_acceleration.x < -maxAcceleration) {// if running
-        correction = m_acceleration.x / -maxAcceleration;
-        m_acceleration.x = -maxAcceleration;
-        m_acceleration.z /= correction;
-    }
-
-    if (m_acceleration.y > maxAcceleration) {
-        m_acceleration.y = maxAcceleration;
-    }
-    if (m_acceleration.y < -maxAcceleration) {
-        m_acceleration.y = -maxAcceleration;
-    }
-
-    if (m_acceleration.z > maxAcceleration) {
-        correction = m_acceleration.z / maxAcceleration;
-        m_acceleration.z = maxAcceleration;
-        m_acceleration.x /= correction;
-    }
-    if (m_acceleration.z < -maxAcceleration) {
-        correction = m_acceleration.z / -maxAcceleration;
-        m_acceleration.z = -maxAcceleration;
-        m_acceleration.x /= correction;
-    }
-
-    std::println("initMovement m_acceleration: {}, {}, {}", GE::player.m_acceleration.x, GE::player.m_acceleration.y, GE::player.m_acceleration.z);
 }
 
 void Player::initJump()
 {
     if (!m_isJumping) { // TODO + check if touching ground
-        m_acceleration.y = 200.0f;
+        m_acceleration.y += 99999999.0f;
         m_isJumping = true;
+        GE::camera.setPositionY(1.5f); // TODO, anders blijf je vallen als je onder de Floor jumpt
     }
+}
+
+void Player::limitAcceleration() {
+    // correct both axis in same ratio if one succeeds the max
+    // X
+    if (m_acceleration.x > maxAcceleration) {
+        correction = maxAcceleration / m_acceleration.x;
+        m_acceleration.x = maxAcceleration;
+        m_acceleration.z *= correction;
+    }
+    if (m_acceleration.x < -maxAcceleration) {
+        correction = -maxAcceleration / m_acceleration.x;
+        m_acceleration.x = -maxAcceleration;
+        m_acceleration.z *= correction;
+    }
+    // Y
+    if (m_acceleration.y > maxJumpAcceleration) {
+        if (m_isJumping)
+            m_acceleration.y = maxJumpAcceleration;
+        //if (m_isFloating) TODO
+    }
+    if (m_acceleration.y < -maxJumpAcceleration) {
+        if (m_isJumping)
+            m_acceleration.y = -maxJumpAcceleration;
+        //if (m_isFloating) TODO
+    }
+    // Z
+    if (m_acceleration.z > maxAcceleration) {
+        correction = maxAcceleration / m_acceleration.z;
+        m_acceleration.z = maxAcceleration;
+        m_acceleration.x *= correction;
+    }
+    if (m_acceleration.z < -maxAcceleration) {
+        correction = -maxAcceleration / m_acceleration.z;
+        m_acceleration.z = -maxAcceleration;
+        m_acceleration.x *= correction;
+    }
+
+    std::println("initMovement m_acceleration: {}, {}, {}", GE::player.m_acceleration.x, GE::player.m_acceleration.y, GE::player.m_acceleration.z);
 }
 
 void Player::handleMovement()
 {
+    //m_Speed.y += ((G::gravity + m_acceleration.y) * m_Speed.y + 0.0f) * -m_Speed.y * Engine::physicsFrameTime; // * 0.5f;
+
     m_SpeedLastFrame = m_Speed;
     m_Speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
+    m_Speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f;
     m_Speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
-    m_Speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime * 0.5f;
-    GE::camera.setPosition(GE::camera.getPosition() + (((m_Speed + m_SpeedLastFrame) / 2.0f) * Engine::physicsFrameTime));
-    m_Speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime * 0.5f;
+    //GE::camera.setPositionY(GE::camera.getPosition().y + ((m_Speed.y + m_SpeedLastFrame.y) / 2.0f) * Engine::physicsFrameTime);
+    GE::camera.setPosition(GE::camera.getPosition() + ((m_Speed + m_SpeedLastFrame) * 0.5f) * Engine::physicsFrameTime);
     m_Speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
+    m_Speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f;
     m_Speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
 
+    static bool jumpStarted = false;
+    if (m_isJumping && GE::camera.getPosition().y > 1.51f) {
+        jumpStarted = true;
+    }
+
+    if (jumpStarted && m_isJumping && GE::camera.getPosition().y <= 1.5f) { // landed on Floor // TODO add real collision check
+        m_acceleration.y = -G::gravity;
+        GE::camera.setPositionY(1.5f);
+        m_Speed.y = 0.0f;
+        Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+        m_isJumping = false;
+        jumpStarted = false;
+    }
+
+    // Apply drag or friction to acceleration (for momentum?)
+    // X
     if (m_acceleration.x != 0.0f)
-        m_acceleration.x *= m_drag * Engine::physicsFrameTime;
-    if (!m_isJumping) {
-        if (G::gravity + m_acceleration.y != 0.0f)
-            m_acceleration.y *= m_drag * Engine::physicsFrameTime;
-        if (m_acceleration.y >= -0.01f && m_acceleration.y <= 0.01f)
-            m_acceleration.y = 9.81f;
-    }
+        m_acceleration.x *= dryFriction * Engine::physicsFrameTime;
+    // Y
+    if (m_isJumping || G::gravity + m_acceleration.y != 0.0f)
+        m_acceleration.y *= m_aeroDrag * Engine::physicsFrameTime;
+    if (m_acceleration.y >= -0.001f && m_acceleration.y <= 0.001f)
+        m_acceleration.y = 9.81f;
+    // Z
     if (m_acceleration.z != 0.0f)
-        m_acceleration.z *= m_drag * Engine::physicsFrameTime;
+        m_acceleration.z *= dryFriction * Engine::physicsFrameTime;
 
+    std::println("handleMovement m_acceleration: {}, {}, {}", GE::player.m_acceleration.x, GE::player.m_acceleration.y, GE::player.m_acceleration.z);
 
+    // Apply drag or friction to speed (slows you down when no input is given)
     m_Speed.x *= dryFriction * Engine::physicsFrameTime;
-    if (!m_isJumping)
-        m_Speed.y = (m_Speed.y ) * dryFriction * Engine::physicsFrameTime ;
+    if (!m_isJumping) // TODO dit is alleen true als je omhoog LOOPT?
+        m_Speed.y = (m_Speed.y) * dryFriction * Engine::physicsFrameTime;
     m_Speed.z *= dryFriction * Engine::physicsFrameTime;
+}
 
+void Player::limitSpeed() 
+{
+    // Limit speed
     //if (m_Speed.x > maxSpeed && (m_Speed.z > maxSpeed) ? TODO ook negatief
-    if (m_Speed.x > maxCurrentSpeed) {// if running
-        correction = m_Speed.x / maxCurrentSpeed;
+    // X
+    if (m_Speed.x > maxCurrentSpeed) {
+        correction = maxCurrentSpeed / m_Speed.x;
         m_Speed.x = maxCurrentSpeed;
-        m_Speed.z /= correction;
+        m_Speed.z *= correction;
     }
-    if (m_Speed.z > maxCurrentSpeed) {
-        correction = m_Speed.z / maxCurrentSpeed;
-        m_Speed.z = maxCurrentSpeed;
-        m_Speed.x /= correction;
-    }
-    if (m_Speed.x < -maxCurrentSpeed) {// if running
-        correction = m_Speed.x / -maxCurrentSpeed;
+    if (m_Speed.x < -maxCurrentSpeed) {
+        correction = -maxCurrentSpeed / m_Speed.x;
         m_Speed.x = -maxCurrentSpeed;
-        m_Speed.z /= correction;
+        m_Speed.z *= correction;
+    }
+    // Y
+    // TODO
+    // Z
+    if (m_Speed.z > maxCurrentSpeed) {
+        correction = maxCurrentSpeed / m_Speed.z;
+        m_Speed.z = maxCurrentSpeed;
+        m_Speed.x *= correction;
     }
     if (m_Speed.z < -maxCurrentSpeed) {
-        correction = m_Speed.z / -maxCurrentSpeed;
+        correction = -maxCurrentSpeed / m_Speed.z;
         m_Speed.z = -maxCurrentSpeed;
-        m_Speed.x /= correction;
+        m_Speed.x *= correction;
     }
 
     std::println("player.m_Speed: {}, {}, {}", GE::player.m_Speed.x, GE::player.m_Speed.y, GE::player.m_Speed.z);
-    std::println("handleMovement m_acceleration: {}, {}, {}", GE::player.m_acceleration.x, GE::player.m_acceleration.y, GE::player.m_acceleration.z);
-
 }
 
 void Player::handleJump()
 {
-    if (m_isJumping) {
-        m_SpeedLastFrame = m_Speed;
-        m_Speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime * 0.5f;
-        GE::camera.setPositionY(GE::camera.getPosition().y + ((m_Speed.y + m_SpeedLastFrame.y) / 2) * Engine::physicsFrameTime);
-        m_Speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime * 0.5f;
+    //if (m_isJumping) {
+    //    //m_SpeedLastFrame = m_Speed;
+    //    //m_Speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime * 0.5f;
+    //    //GE::camera.setPositionY(GE::camera.getPosition().y + ((m_Speed.y + m_SpeedLastFrame.y) / 2) * Engine::physicsFrameTime);
+    //    //m_Speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime * 0.5f;
 
-        if (m_isJumping && GE::camera.getPosition().y <= 1.5f) { // landed on Floor // TODO add real collision check
-            m_acceleration.y = -G::gravity;
-            GE::camera.setPositionY(1.5f);
-            m_Speed.y = 0.0f;
-            Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-            m_isJumping = false;
-        }
+    //    if (m_isJumping && GE::camera.getPosition().y <= 1.5f) { // landed on Floor // TODO add real collision check
+    //        m_acceleration.y = -G::gravity;
+    //        GE::camera.setPositionY(1.5f);
+    //        m_Speed.y = 0.0f;
+    //        Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    //        m_isJumping = false;
+    //    }
 
-        if (G::gravity + m_acceleration.y != 0.0f)
-            m_acceleration.y *= m_drag;
-    }
+    //    if (G::gravity + m_acceleration.y != 0.0f)
+    //        m_acceleration.y *= m_drag;
+    //}
     //std::println("yVelocity: {}", m_ySpeed);
     //std::println("Netto acceleration: {}", (G::gravity + m_acceleration));
 }
