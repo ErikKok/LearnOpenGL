@@ -20,7 +20,7 @@ void Engine::perFrameTimeLogic()
 }
 
 void Engine::doPhysics()
-{
+{   
     //if (frameTimeRemaining < physicsFrameTime) {
     //    GE::player.resetAcceleration();
     //    return;
@@ -30,9 +30,7 @@ void Engine::doPhysics()
     {
         ticksPhysics++;
         GE::player.limitAcceleration();
-        //GE::player.handleJump();
         GE::player.handleMovement();
-        //GE::player.limitSpeed();
         totalTimePassed += physicsFrameTime;
         frameTimeRemaining -= physicsFrameTime;
     }
@@ -150,6 +148,7 @@ void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action,
             std::println("Polygon Mode FILL");
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             polygonMode = 0;
+            return;
         }
     }
 

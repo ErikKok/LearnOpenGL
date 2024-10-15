@@ -41,9 +41,15 @@ TO DO
 	- aspectRatio zit in Camera maar wordt gezet 'door' of adhv Texture, als depthmap Texture wijzigt moet aspectration in de Camera ook gewijzigd worden
 - ECS - make sun static in-Class, and check for getOn in goRender loop
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added
-- low framerates (30fps): impacts speed?
-- 0.01f precision is not enought with low framerates (30fps)
-- slow down speed if airborne and turning?
+- Physics / movement:
+	- low framerates (30fps): impacts speed?
+	- 0.01f precision is not enought with low framerates (30fps)
+	- slow down speed if airborne and turning?
+	- cannot jump backwards?
+
+v0.3.08 15-10-2024
+------------------
+- cleanup
 
 v0.3.07 15-10-2024
 ------------------
