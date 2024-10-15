@@ -21,15 +21,18 @@ void Engine::perFrameTimeLogic()
 
 void Engine::doPhysics()
 {
-    //GE::player.m_direction = glm::normalize(GE::camera.getPosition() - GE::player.m_positionLastFrame);
-    
+    //if (frameTimeRemaining < physicsFrameTime) {
+    //    GE::player.resetAcceleration();
+    //    return;
+    //}
+
     while (frameTimeRemaining >= physicsFrameTime)
     {
         ticksPhysics++;
         GE::player.limitAcceleration();
         //GE::player.handleJump();
         GE::player.handleMovement();
-        GE::player.limitSpeed();
+        //GE::player.limitSpeed();
         totalTimePassed += physicsFrameTime;
         frameTimeRemaining -= physicsFrameTime;
     }
@@ -39,8 +42,9 @@ void Engine::doPhysics()
 
 void Engine::doExtrapolationStep()
 {
-    Engine::isExtrapolationStep = true;
-    GE::player.handleJumpextrapolation();
+    isExtrapolationStep = true;
+    extrapolationResultPosition = GE::player.getSpeed() * extrapolationFactor * physicsFrameTime;
+    std::println("extrapolationResultPositionY: {}", extrapolationResultPosition.y);
 }
 
 glm::vec3 Engine::follow(const glm::vec3& origin, const glm::vec3& destination)
@@ -103,13 +107,13 @@ void Engine::processInput(GLFWwindow* window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        GE::player.initJump();
+        GE::player.initMovement(CameraMovement::JUMP);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
         GE::player.setMaxCurrentSpeed(5.0f);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
-        GE::player.setMaxCurrentSpeed(14.0f);
+        GE::player.setMaxCurrentSpeed(GE::player.getMaxCurrentSpeed());
     }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)

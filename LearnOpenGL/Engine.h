@@ -18,10 +18,8 @@ namespace Engine { // Class?
     const inline float physicsFrameTime{ 0.01f }; // in seconds // TODO use doubles for physic / time related stuff?
     inline float frameTimeRemaining{ 0.0f }; // in seconds
 
-    inline bool skip;
-
     // https://gamedev.stackexchange.com/a/187668
-    inline bool isExtrapolationStep{ true };
+    inline bool isExtrapolationStep{ false };
     inline float extrapolationFactor{ 1.0f };
     inline glm::vec3 extrapolationResultPosition{ 0.0f, 0.0f, 0.0f }; // for Player and flashlight
 

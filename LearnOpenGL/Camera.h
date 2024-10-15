@@ -16,6 +16,7 @@ enum class CameraMovement {
     FORWARDBACKWARD,    // FORWARD && BACKWARD pressed together
     LEFTRIGHT,          // LEFT && RIGHT pressed together
     UPDOWN,             // UP && DOWN pressed together
+    JUMP,               // TODO, hoort hier niet
 };
 
 class Camera

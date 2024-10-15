@@ -44,6 +44,8 @@ OrthographicCamera::OrthographicCamera(glm::vec3 direction, float left, float ri
 
 const void Camera::calculateViewMatrix()
 {
+    // FYI: calculateViewMatrix() is run after setPosition()
+
     if ( (this == &GE::camera || this == SpotLight::spotLights[0].getCamera()) && Engine::isExtrapolationStep ) {
         m_viewMatrix = glm::lookAt(m_position + Engine::extrapolationResultPosition, m_position + Engine::extrapolationResultPosition + m_front, m_up);
     }

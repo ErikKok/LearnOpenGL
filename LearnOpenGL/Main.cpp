@@ -416,9 +416,8 @@ int main()
             glfwPollEvents();
 
             //GE::player.calculateDirection();
-            Engine::processInput(window);
+            Engine::processInput(window); // initMovement()
             Engine::doPhysics();
-            //Engine::skip = false;
             Engine::doExtrapolationStep();
 
             // Teleporter (green light)
@@ -436,9 +435,7 @@ int main()
                 G::isFlashLightOnUpdated = true;
             }
 
-            // moved from Camera::processKeyboard due to player being able to move without inputs now
             GE::camera.calculateViewMatrix();
-            //Engine::isExtrapolationStep = false;
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start UpdateGame /////////////////////////////////////////////////////////////////
@@ -446,7 +443,10 @@ int main()
 
             // Lights
             if (SpotLight::spotLights[0].getOn())
-                G::applyCameraOffset(SpotLight::spotLights[0].getCamera(), flashLightOffset.x, flashLightOffset.y, flashLightOffset.z);
+                G::applyCameraOffset(SpotLight::spotLights[0].getCamera(), flashLightOffset.x, flashLightOffset.y, flashLightOffset.z); // ExtrapolationStep needed for applyCameraOffset() -> setPosition() -> calculateViewMatrix()
+
+            // ExtrapolationStep was needed for camera and flashlight, time to disable it
+            Engine::isExtrapolationStep = false;
 
             sun.updateDirectionInViewSpace(multiLight);
             sun.updateDirectionInViewSpace(multiLightNormalMapping);
@@ -611,7 +611,7 @@ int main()
                 glfwSwapBuffers(window);
             }
 
-            //while (static_cast<float>(glfwGetTime()) - G::timestampLastFrame < 0.1f) { // 0.00695f
+            //while (static_cast<float>(glfwGetTime()) - G::timestampLastFrame < 0.0333f) { // 0.00695f
             //    double calculate = 3.14 * 3.14 * 3.14;
             //    calculate *= 3.14;
             //}
