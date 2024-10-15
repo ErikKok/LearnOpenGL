@@ -19,12 +19,12 @@ void Player::initMovement(CameraMovement direction)
     }
 
     if (direction == CameraMovement::FORWARD) {
-        m_acceleration.x = GE::camera.getFront().x * m_maxAcceleration;
-        m_acceleration.z = GE::camera.getFront().z * m_maxAcceleration;
+        m_acceleration.x += GE::camera.getFront().x * m_maxAcceleration;
+        m_acceleration.z += GE::camera.getFront().z * m_maxAcceleration;
     }
     if (direction == CameraMovement::BACKWARD) {
-        m_acceleration.x = GE::camera.getFront().x * -m_maxAcceleration;
-        m_acceleration.z = GE::camera.getFront().z * -m_maxAcceleration;
+        m_acceleration.x += GE::camera.getFront().x * -m_maxAcceleration;
+        m_acceleration.z += GE::camera.getFront().z * -m_maxAcceleration;
     }
     if (direction == CameraMovement::FORWARDBACKWARD) {
         m_acceleration.z = 0.0f;
@@ -32,12 +32,12 @@ void Player::initMovement(CameraMovement direction)
 
     // LEFT RIGHT
     if (direction == CameraMovement::LEFT) {
-        m_acceleration.x = GE::camera.getRight().x * -m_maxAcceleration;
-        m_acceleration.z = GE::camera.getRight().z * -m_maxAcceleration;
+        m_acceleration.x += GE::camera.getRight().x * -m_maxAcceleration;
+        m_acceleration.z += GE::camera.getRight().z * -m_maxAcceleration;
     }
     if (direction == CameraMovement::RIGHT) {
-        m_acceleration.x = GE::camera.getRight().x * m_maxAcceleration;
-        m_acceleration.z = GE::camera.getRight().z * m_maxAcceleration;
+        m_acceleration.x += GE::camera.getRight().x * m_maxAcceleration;
+        m_acceleration.z += GE::camera.getRight().z * m_maxAcceleration;
     }
     if (direction == CameraMovement::LEFTRIGHT) {
         m_acceleration.x = 0.0f;
@@ -45,10 +45,10 @@ void Player::initMovement(CameraMovement direction)
 
     // UP DOWN
     if (direction == CameraMovement::UP) {
-        m_acceleration.y = m_maxJumpAcceleration;
+        m_acceleration.y += m_maxJumpAcceleration;
     }
     if (direction == CameraMovement::DOWN) {
-        m_acceleration.y = -m_maxJumpAcceleration;
+        m_acceleration.y += -m_maxJumpAcceleration;
     }
     if (direction == CameraMovement::UPDOWN) {
         m_acceleration.y = 0.0f;
@@ -57,7 +57,7 @@ void Player::initMovement(CameraMovement direction)
 
     // JUMP
     if (direction == CameraMovement::JUMP) {
-        m_acceleration.y = 400.0f;
+        m_acceleration.y = 400.0f; // not added (+=)!
         m_isAirborne = true;
         GE::camera.setPositionY(1.5f); // TODO, anders blijf je vallen als je onder de Floor jumpt
     }

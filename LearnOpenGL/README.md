@@ -47,6 +47,10 @@ TO DO
 	- slow down speed if airborne and turning?
 	- cannot jump backwards?
 
+v0.3.09 15-10-2024
+------------------
+- fixed movement bug introduced in 3.07 (initMovement() m_acceleration.x = -> m_acceleration.x +=)
+
 v0.3.08 15-10-2024
 ------------------
 - cleanup
