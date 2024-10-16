@@ -21,27 +21,28 @@ public:
 	void handleMovement();
 	void resetAcceleration();
 	AABB getTAABB();
-	//void calculateDirection();
+	void initDirection();
+	void calculateDirection();
 
 private:
 	glm::vec3 m_speed{ 0.0f };										// meter/second
 	glm::vec3 m_speedLastFrame{ 0.0f };								// meter/second
 	float m_maxCurrentSpeed{ 22.0f };
 	float m_maxJumpSpeed{ 100.0f };
-	//float m_maxStrafeSpeed{ 18.0f };								// TODO
-	
-	//glm::vec3 m_positionLastFrame{ 0.0f };
-	//glm::vec3 m_direction{ 0.0f };
+	//float m_maxStrafeSpeed{ 18.0f };								// TODO?
 
 	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
 	float m_maxAcceleration{ 800.0f };
 	float m_maxJumpAcceleration{ 500.0f };
 
-	float m_airborneDecelerationFactor{ 0.75f };
+	float m_airborneDecelerationFactor{ 75.00f };
 	float m_dryFriction{ 85.0f };
 	float m_aeroDrag{ 99.75f };
 	float m_correction{ 0.0f };
 
 	bool m_isRunning{ false };
 	bool m_isAirborne{ false };
+
+	glm::vec3 m_positionLastFrame{ 0.0f };
+	glm::vec3 m_direction{ 0.0f };
 };

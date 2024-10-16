@@ -43,9 +43,14 @@ TO DO
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added
 - Physics / movement:
 	- low framerates (30fps): impacts speed?
-	- 0.01f precision is not enought with low framerates (30fps)
+	- 0.01f precision is not enough with low framerates (30fps) in isEqual(), changed to 0.001f
 	- slow down speed if airborne and turning?
-	- cannot jump backwards?
+
+v0.3.10 16-10-2024
+------------------
+- added backwards jumping
+- added slowing down while airborne, but not gaining negative speed
+- added returns in Engine::key_callback() and Player::initMovement()
 
 v0.3.09 15-10-2024
 ------------------

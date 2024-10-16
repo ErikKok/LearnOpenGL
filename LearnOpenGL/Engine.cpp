@@ -74,45 +74,33 @@ bool Engine::AABBtoAABB(const AABB& box1, const AABB& box2)
 
 void Engine::processInput(GLFWwindow* window)
 {
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         GE::player.initMovement(CameraMovement::FORWARDBACKWARD);
-    }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         GE::player.initMovement(CameraMovement::FORWARD);
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         GE::player.initMovement(CameraMovement::BACKWARD);
-    }
 
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         GE::player.initMovement(CameraMovement::LEFTRIGHT);
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         GE::player.initMovement(CameraMovement::LEFT);
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         GE::player.initMovement(CameraMovement::RIGHT);
-    }
 
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
         GE::player.initMovement(CameraMovement::UPDOWN);
-    }
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
         GE::player.initMovement(CameraMovement::UP);
-    }
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
         GE::player.initMovement(CameraMovement::DOWN);
-    }
 
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         GE::player.initMovement(CameraMovement::JUMP);
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         GE::player.setMaxCurrentSpeed(5.0f);
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
         GE::player.setMaxCurrentSpeed(GE::player.getMaxCurrentSpeed());
-    }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -121,13 +109,16 @@ void Engine::processInput(GLFWwindow* window)
 #pragma warning( suppress : 4100 )
 void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_F && action == GLFW_PRESS)
+    if (key == GLFW_KEY_F && action == GLFW_PRESS) {
         G::isFlashLightOnUpdated = false;
+        return;
+    }
 
     if (key == GLFW_KEY_K && action == GLFW_PRESS) {
         G::frustumVisible++;
         if (G::frustumVisible == 4)
             G::frustumVisible = 0;
+        return;
     }
 
     static int polygonMode{ 0 };
@@ -150,6 +141,7 @@ void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action,
             polygonMode = 0;
             return;
         }
+        return;
     }
 
     if (key == GLFW_KEY_M && action == GLFW_PRESS) {
@@ -160,18 +152,24 @@ void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action,
         else if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
+        return;
     }
 
-    if (key == GLFW_KEY_O && action == GLFW_PRESS)
+    if (key == GLFW_KEY_O && action == GLFW_PRESS) {
         G::drawOutline = !G::drawOutline;
+        return;
+    }
 
-    if (key == GLFW_KEY_P && action == GLFW_PRESS)
+    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
         G::paused = !G::paused;
+        return;
+    }
 
     if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
         G::debugQuadVisible++;
         if (G::debugQuadVisible == 4)
             G::debugQuadVisible = 0;
+        return;
     }
 
     if (key == GLFW_KEY_V && action == GLFW_PRESS) {
@@ -180,6 +178,7 @@ void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action,
         else
             glfwSwapInterval(0);
         G::isVSyncEnabled = !G::isVSyncEnabled;
+        return;
     }
 }
 

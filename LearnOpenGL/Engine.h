@@ -27,7 +27,7 @@ namespace Engine { // Class?
     void doPhysics();
     void doExtrapolationStep();
     glm::vec3 follow(const glm::vec3& origin, const glm::vec3& destination);
-    bool isEqual(const glm::vec3& p1, const glm::vec3& p2, float epsilon = 0.01f);
+    bool isEqual(const glm::vec3& p1, const glm::vec3& p2, float epsilon = 0.001f);
     bool AABBtoAABB(const AABB& tBox1, const AABB& tBox2);
     void processInput(GLFWwindow* window);
 
