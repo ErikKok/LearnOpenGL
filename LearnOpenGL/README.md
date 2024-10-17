@@ -45,6 +45,10 @@ TO DO
 	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
 
+v0.3.2.1 17-10-2024
+------------------
+- removed old assimp / stb files
+
 v0.3.2 17-10-2024
 ------------------
 - added ImGui
