@@ -34,27 +34,27 @@ Shader::Shader(const std::string& shaderPath)
     }
 
     enum class ShaderType {
-        NONE = -1,
-        VERTEX = 0,
-        GEOMETRY = 1,
-        FRAGMENT = 2,
+        none = -1,
+        vertex = 0,
+        geometry = 1,
+        fragment = 2,
     };
 
     std::string line{};
     std::stringstream ss[3]; // ShaderType element count
-    ShaderType type{ ShaderType::NONE };
+    ShaderType type{ ShaderType::none };
     bool geometryShaderPresent{ false };
     while (getline(stream, line))
     {
         if (line.find("#shader") != std::string::npos) {
             if (line.find("vertex") != std::string::npos)
-                type = ShaderType::VERTEX;
+                type = ShaderType::vertex;
             else if (line.find("geometry") != std::string::npos) {
-                type = ShaderType::GEOMETRY;
+                type = ShaderType::geometry;
                 geometryShaderPresent = true;
             }
             else if (line.find("fragment") != std::string::npos)
-                type = ShaderType::FRAGMENT;
+                type = ShaderType::fragment;
         }
         else {
             ss[(int)type] << line << '\n';

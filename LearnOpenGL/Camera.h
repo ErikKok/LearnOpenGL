@@ -6,19 +6,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-enum class CameraMovement {
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN,
-    FORWARDBACKWARD,    // FORWARD && BACKWARD pressed together
-    LEFTRIGHT,          // LEFT && RIGHT pressed together
-    UPDOWN,             // UP && DOWN pressed together
-    JUMP,               // TODO, hoort hier niet
-};
-
 class Camera
 {
 public:

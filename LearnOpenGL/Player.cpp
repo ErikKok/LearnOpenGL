@@ -11,43 +11,43 @@ void Player::calculateForwardSpeed()
     m_forwardSpeed = glm::dot(m_speed, GE::camera.getFront());
 }
 
-void Player::calculateRightSpeed()
-{
-    m_rightSpeed = glm::dot(m_speed, GE::camera.getRight());
-}
+//void Player::calculateRightSpeed()
+//{
+//    m_rightSpeed = glm::dot(m_speed, GE::camera.getRight());
+//}
 
-void Player::initMovement(CameraMovement direction)
+void Player::initMovement(PlayerMovement direction)
 {
     // TODO switch maken?
 
     if (m_isAirborne) {
         // FORWARD BACKWARD
         calculateForwardSpeed();
-        if (direction == CameraMovement::FORWARD  && m_forwardSpeed < 0.0f || // player moves backward and inputs forward
-            direction == CameraMovement::BACKWARD && m_forwardSpeed > 0.0f || // player moves forwards and inputs backward
-            direction == CameraMovement::FORWARDBACKWARD) {
+        if (direction == PlayerMovement::forward  && m_forwardSpeed < 0.0f || // player moves backward and inputs forward
+            direction == PlayerMovement::backward && m_forwardSpeed > 0.0f || // player moves forwards and inputs backward
+            direction == PlayerMovement::forwardbackward) {
                 m_speed.x *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
                 m_speed.z *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
                 return;
         }
-        if (direction == CameraMovement::UPDOWN) {
+        if (direction == PlayerMovement::updown) {
             m_acceleration.y = -G::gravity;
             m_speed.y *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
             return;
         }
 
         // LEFT RIGHT
-        if (direction == CameraMovement::LEFT) {
+        if (direction == PlayerMovement::left) {
             m_acceleration.x += GE::camera.getRight().x * -m_maxAcceleration * G::deltaTime;
             m_acceleration.z += GE::camera.getRight().z * -m_maxAcceleration * G::deltaTime;
             return;
         }
-        if (direction == CameraMovement::RIGHT) {
+        if (direction == PlayerMovement::right) {
             m_acceleration.x += GE::camera.getRight().x * m_maxAcceleration * G::deltaTime;
             m_acceleration.z += GE::camera.getRight().z * m_maxAcceleration * G::deltaTime;
             return;
         }
-        if (direction == CameraMovement::LEFTRIGHT) {
+        if (direction == PlayerMovement::leftright) {
             m_speed.x *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
             m_speed.z *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
             return;
@@ -58,54 +58,54 @@ void Player::initMovement(CameraMovement direction)
 
     if (!m_isAirborne) {
         // FORWARD BACKWARD
-        if (direction == CameraMovement::FORWARD) {
+        if (direction == PlayerMovement::forward) {
             m_acceleration.x += GE::camera.getFront().x * m_maxAcceleration;
             m_acceleration.z += GE::camera.getFront().z * m_maxAcceleration;
             return;
         }
-        if (direction == CameraMovement::BACKWARD) {
+        if (direction == PlayerMovement::backward) {
             m_acceleration.x += GE::camera.getFront().x * -m_maxAcceleration;
             m_acceleration.z += GE::camera.getFront().z * -m_maxAcceleration;
             return;
         }
-        if (direction == CameraMovement::FORWARDBACKWARD) {
+        if (direction == PlayerMovement::forwardbackward) {
             m_acceleration.z = 0.0f;
             return;
         }
 
         // LEFT RIGHT
-        if (direction == CameraMovement::LEFT) {
+        if (direction == PlayerMovement::left) {
             m_acceleration.x += GE::camera.getRight().x * -m_maxAcceleration;
             m_acceleration.z += GE::camera.getRight().z * -m_maxAcceleration;
             return;
         }
-        if (direction == CameraMovement::RIGHT) {
+        if (direction == PlayerMovement::right) {
             m_acceleration.x += GE::camera.getRight().x * m_maxAcceleration;
             m_acceleration.z += GE::camera.getRight().z * m_maxAcceleration;
             return;
         }
-        if (direction == CameraMovement::LEFTRIGHT) {
+        if (direction == PlayerMovement::leftright) {
             m_acceleration.x = 0.0f;
             return;
         }
 
         // UP DOWN
-        if (direction == CameraMovement::UP) {
+        if (direction == PlayerMovement::up) {
             m_acceleration.y += m_maxJumpAcceleration;
             return;
         }
-        if (direction == CameraMovement::DOWN) {
+        if (direction == PlayerMovement::down) {
             m_acceleration.y += -m_maxJumpAcceleration;
             return;
         }
-        if (direction == CameraMovement::UPDOWN) { // TODO adds some -speed.y ?
+        if (direction == PlayerMovement::updown) { // TODO adds some -speed.y ?
             m_acceleration.y = -G::gravity;
             m_speed.y *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
             return;
         }
 
         // JUMP
-        if (direction == CameraMovement::JUMP) {
+        if (direction == PlayerMovement::jump) {
             m_acceleration.y = 400.0f; // not added (+=)!
             m_isAirborne = true;
             if (GE::camera.getPosition().y < 1.5f)
@@ -174,11 +174,8 @@ void Player::limitAcceleration() {
     std::println("limitAcceleration m_acceleration: {}, {}, {}", GE::player.m_acceleration.x, GE::player.m_acceleration.y, GE::player.m_acceleration.z);
 }
 
-void Player::handleMovement()
+void Player::calculateSpeed()
 {
-    m_speedLastFrame = m_speed;
-    // Determine new speed with current acceleration forces
-
     // OLD method
     {
         //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
@@ -193,11 +190,18 @@ void Player::handleMovement()
         //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
     }
 
+    m_speedLastFrame = m_speed;
+    // Determine new speed with current acceleration forces
     m_speed.x += m_acceleration.x * Engine::physicsFrameTime;
-    m_speed.y += ((G::gravity * 1.0f) + (m_acceleration.y)) * Engine::physicsFrameTime * 2.0f; // * 0.5f; // just feels better not halving y
+    m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime * 2.0f; // just feels better doubling y
     m_speed.z += m_acceleration.z * Engine::physicsFrameTime;
-    limitSpeed();
-    GE::camera.setPosition(GE::camera.getPosition() + ((m_speed + m_speedLastFrame) * 0.5f) * Engine::physicsFrameTime);
+
+    // Apply friction to speed (no aeroDrag applied)
+    if (!m_isAirborne) {
+        m_speed.x *= m_dryFriction * Engine::physicsFrameTime;
+        m_speed.y *= m_dryFriction * Engine::physicsFrameTime; // TODO dit is alleen true als je omhoog/omlaag LOOPT?
+        m_speed.z *= m_dryFriction * Engine::physicsFrameTime;
+    }
 
     // https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
     {
@@ -210,7 +214,7 @@ void Player::handleMovement()
         //acceleration = force(time, position) / mass;
         //time += timestep;
         //position += timestep * (velocity + timestep * acceleration / 2);
-        //newAcceleration = force(time, position) / mass; // it seems that they sacrificed some accuracy for extra speed by saving the newAcceleration value computed using the estimated velocity and reusing it as the acceleration for the next timestep. (alleen mass zou kunnen veranderen toch?)
+        //newAcceleration = force(time, position) / mass; // ergens in de comments: it seems that they sacrificed some accuracy for extra speed by saving the newAcceleration value computed using the estimated velocity and reusing it as the acceleration for the next timestep. (alleen mass zou kunnen veranderen toch?)
         //velocity += timestep * (acceleration + newAcceleration) / 2;
 
         /////
@@ -221,34 +225,6 @@ void Player::handleMovement()
         //position += (velocity - acceleration * timestep / 2) * timestep
         //    
         //    (where velocity - acceleration * timestep / 2 is simply the average of the old and new velocities)
-    }
-    /////
-
-    // Reset Acceleration after being applied each physics tick
-    resetAcceleration();
-    std::println("handleMovement m_acceleration: {}, {}, {}", GE::player.m_acceleration.x, GE::player.m_acceleration.y, GE::player.m_acceleration.z);
-
-    // Apply friction to speed
-    if (!m_isAirborne) {
-        m_speed.x *= m_dryFriction * Engine::physicsFrameTime;
-        m_speed.y *= m_dryFriction * Engine::physicsFrameTime; // TODO dit is alleen true als je omhoog/omlaag LOOPT?
-        m_speed.z *= m_dryFriction * Engine::physicsFrameTime;
-    }
-
-    // No aeroDrag applied
-
-    // TODO temp jump stuff
-    static bool jumpStarted = false;
-    if (m_isAirborne && GE::camera.getPosition().y > 1.51f) {
-        jumpStarted = true;
-    }
-
-    if (jumpStarted && m_isAirborne && GE::camera.getPosition().y <= 1.5f) { // landed on Floor // TODO add real collision check
-        GE::camera.setPositionY(1.5f);
-        m_speed.y = 0.0f;
-        Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-        m_isAirborne = false;
-        jumpStarted = false;
     }
 }
 
@@ -313,8 +289,26 @@ void Player::limitSpeed()
     std::println("player.m_Speed: {}, {}, {}", GE::player.m_speed.x, GE::player.m_speed.y, GE::player.m_speed.z);
 }
 
+void Player::handleJump()
+{
+    // TODO temp jump stuff
+    static bool jumpStarted = false;
+    if (m_isAirborne && GE::camera.getPosition().y > 1.51f) {
+        jumpStarted = true;
+    }
+
+    if (jumpStarted && m_isAirborne && GE::camera.getPosition().y <= 1.5f) { // landed on Floor // TODO add real collision check
+        GE::camera.setPositionY(1.5f);
+        m_speed.y = 0.0f;
+        Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+        m_isAirborne = false;
+        jumpStarted = false;
+    }
+}
+
 void Player::resetAcceleration()
 {
+    // Reset Acceleration after being applied each physics tick
     m_acceleration.x = 0.0f;
     if (!m_isAirborne)
         m_acceleration.y = -G::gravity;

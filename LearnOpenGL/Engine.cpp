@@ -21,28 +21,27 @@ void Engine::perFrameTimeLogic()
 
 void Engine::doPhysics()
 {   
-    //if (frameTimeRemaining < physicsFrameTime) {
-    //    GE::player.resetAcceleration();
-    //    return;
-    //}
-
     while (frameTimeRemaining >= physicsFrameTime)
     {
         ticksPhysics++;
         GE::player.limitAcceleration();
-        GE::player.handleMovement(); // -> limitSpeed(); -> resetAcceleration();
+        GE::player.calculateSpeed();
+        GE::player.limitSpeed();
+        GE::player.handleJump();
+        GE::player.resetAcceleration();
+        GE::camera.setPosition(GE::camera.getPosition() + ((GE::player.getSpeed() + GE::player.getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime);
         totalTimePassed += physicsFrameTime;
         frameTimeRemaining -= physicsFrameTime;
     }
     extrapolationFactor = frameTimeRemaining / physicsFrameTime;
-    std::println("extrapolationFactor: {}", extrapolationFactor);
+    //std::println("extrapolationFactor: {}", extrapolationFactor);
 }
 
 void Engine::doExtrapolationStep()
 {
     isExtrapolationStep = true;
     extrapolationResultPosition = GE::player.getSpeed() * extrapolationFactor * physicsFrameTime;
-    std::println("extrapolationResultPositionY: {}", extrapolationResultPosition.y);
+    //std::println("extrapolationResultPositionY: {}", extrapolationResultPosition.y);
 }
 
 glm::vec3 Engine::follow(const glm::vec3& origin, const glm::vec3& destination)
@@ -62,7 +61,6 @@ bool Engine::isEqual(const glm::vec3& position1, const glm::vec3& position2, flo
 
 bool Engine::AABBtoAABB(const AABB& box1, const AABB& box2)
 {
-
     //Check if Box1's max is greater than Box2's min and Box1's min is less than Box2's max
     return(box1.m_vecMax.x > box2.m_vecMin.x &&
            box1.m_vecMin.x < box2.m_vecMax.x &&
@@ -75,28 +73,28 @@ bool Engine::AABBtoAABB(const AABB& box1, const AABB& box2)
 void Engine::processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        GE::player.initMovement(CameraMovement::FORWARDBACKWARD);
+        GE::player.initMovement(PlayerMovement::forwardbackward);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        GE::player.initMovement(CameraMovement::FORWARD);
+        GE::player.initMovement(PlayerMovement::forward);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        GE::player.initMovement(CameraMovement::BACKWARD);
+        GE::player.initMovement(PlayerMovement::backward);
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        GE::player.initMovement(CameraMovement::LEFTRIGHT);
+        GE::player.initMovement(PlayerMovement::leftright);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        GE::player.initMovement(CameraMovement::LEFT);
+        GE::player.initMovement(PlayerMovement::left);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        GE::player.initMovement(CameraMovement::RIGHT);
+        GE::player.initMovement(PlayerMovement::right);
 
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        GE::player.initMovement(CameraMovement::UPDOWN);
+        GE::player.initMovement(PlayerMovement::updown);
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-        GE::player.initMovement(CameraMovement::UP);
+        GE::player.initMovement(PlayerMovement::up);
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        GE::player.initMovement(CameraMovement::DOWN);
+        GE::player.initMovement(PlayerMovement::down);
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        GE::player.initMovement(CameraMovement::JUMP);
+        GE::player.initMovement(PlayerMovement::jump);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         GE::player.setMaxCurrentSpeed(5.0f);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)

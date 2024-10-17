@@ -3,12 +3,26 @@
 #include "Engine.h"
 #include "Global.h"
 
+enum class PlayerMovement {
+	forward,
+	backward,
+	left,
+	right,
+	up,
+	down,
+	forwardbackward,    // FORWARD && BACKWARD pressed together
+	leftright,          // LEFT && RIGHT pressed together
+	updown,             // UP && DOWN pressed together
+	jump,
+};
+
 class Player
 {
 public:
 	const float getMaxCurrentSpeed() const { return m_maxCurrentSpeed; };
 	void setMaxCurrentSpeed(float x) { m_maxCurrentSpeed = x; };
 	const glm::vec3 getSpeed() const { return m_speed; };
+	const glm::vec3 getSpeedLastFrame() const { return m_speedLastFrame; };
 
 	// Gravity + jumping documentation
 	// https://gafferongames.com/post/integration_basics/
@@ -16,12 +30,15 @@ public:
 	// https://gamedev.stackexchange.com/questions/38453/how-do-i-implement-deceleration-for-the-player-character
 	
 	void calculateForwardSpeed();
-	void calculateRightSpeed();
-	void initMovement(CameraMovement direction);
+	//void calculateRightSpeed();
+	void initMovement(PlayerMovement direction);
+	// doPhysics start
 	void limitAcceleration();
+	void calculateSpeed();
 	void limitSpeed();
-	void handleMovement();
+	void handleJump();
 	void resetAcceleration();
+
 	AABB getTAABB();
 	//void initDirection();
 	//void calculateDirection();
@@ -31,7 +48,7 @@ private:
 	glm::vec3 m_speedLastFrame{ 0.0f };								// meter/second
 	// gives you the components of velocity in the direction the character is facing, and perpendicular to the direction the character is facing. Negative values mean the character is moving backwards / to his left.
 	float m_forwardSpeed{ 0.0f };									// https://forums.unrealengine.com/t/character-movement-direction/30708/4
-	float m_rightSpeed{ 0.0f };
+	//float m_rightSpeed{ 0.0f };
 	float m_maxCurrentSpeed{ 22.0f };
 	float m_maxJumpSpeed{ 100.0f };
 	//float m_maxStrafeSpeed{ 18.0f };								// TODO?

@@ -45,6 +45,15 @@ TO DO
 	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
 
+v0.3.11.2 17-10-2024
+------------------
+- *** movement system looks quite allright now (again)
+- more cleanup
+- renamed handleMovement() to calculateSpeed()
+- moved setPosition from handleMovement() to doPhysics()
+- renamed CameraMovement to PlayerMovement + de-capitalized + moved to Player
+- de-capitalized enum class ShaderType
+
 v0.3.11.1 17-10-2024
 ------------------
 - cleanup

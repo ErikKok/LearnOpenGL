@@ -418,12 +418,12 @@ int main()
             glfwPollEvents();
 
             //GE::player.calculateDirection();
-            Engine::processInput(window); // initMovement()
+            Engine::processInput(window);
             Engine::doPhysics();
             Engine::doExtrapolationStep();
 
             // Teleporter (green light)
-            // TODO disable extrapolation for an object on a frame where it's teleported.
+            // TODO disable extrapolation for an object on a frame where it's teleported + handle momentum/acceleration
             if (GE::camera.getPosition().x > -4.5f && GE::camera.getPosition().x < -3.5f &&
                 GE::camera.getPosition().y >  1.5f && GE::camera.getPosition().y <  2.5f &&
                 GE::camera.getPosition().z > 11.5f && GE::camera.getPosition().z < 12.5f ) {
@@ -447,7 +447,7 @@ int main()
             if (SpotLight::spotLights[0].getOn())
                 G::applyCameraOffset(SpotLight::spotLights[0].getCamera(), flashLightOffset.x, flashLightOffset.y, flashLightOffset.z); // ExtrapolationStep needed for applyCameraOffset() -> setPosition() -> calculateViewMatrix()
 
-            // ExtrapolationStep was needed for camera and flashlight, time to disable it
+            // Extrapolation was needed for camera and flashlight calculateViewMatrix(), time to disable it now:
             Engine::isExtrapolationStep = false;
 
             sun.updateDirectionInViewSpace(multiLight);
@@ -460,7 +460,7 @@ int main()
 
             SpotLight::spotLights[1].updateDirectionInViewSpace(multiLight);
             SpotLight::spotLights[1].updateDirectionInViewSpace(multiLightNormalMapping);
-            //SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) }); // cirkel draaien
+            //SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) }); // circular motion
             SpotLight::spotLights[1].setPosition(Engine::follow(SpotLight::spotLights[1].getPosition(), GE::camera.getPosition()));
             if (Engine::isEqual(SpotLight::spotLights[1].getPosition(), GE::camera.getPosition()))
                 SpotLight::spotLights[1].setPosition({ 0.0f, 20.0f, 0.0f });
