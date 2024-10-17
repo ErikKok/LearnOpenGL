@@ -42,10 +42,14 @@ TO DO
 - ECS - make sun static in-Class, and check for getOn in goRender loop
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added
 - Physics / movement:
-	- low framerates (30fps): impacts speed?
-	- 0.01f precision is not enough with low framerates (30fps) in isEqual(), changed to 0.001f
-	- slow down speed if airborne and turning?
+	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
 
+v0.3.11 17-10-2024
+------------------
+- added calculateForwardSpeed()
+- 0.01f precision is not enough with low framerates (30fps) in isEqual(), changed to 0.001f -> too MUCH precision -> 0.05f seems ok with 30fps
+- fixed UPDOWN while not jumping floats you down slowly
+	
 v0.3.10 16-10-2024
 ------------------
 - added backwards jumping

@@ -26,7 +26,7 @@ public:
 
     glm::vec3 getPosition() const { return m_position; };
     void setPosition(glm::vec3 x) { m_position = x; calculateViewMatrix(); };
-    void setPositionY(float y) { m_position.y = y; calculateViewMatrix(); };
+    void setPositionY(float y) { m_position.y = y; calculateViewMatrix(); }; // TODO used for jump hack while no collision detection
     const glm::vec3& getFront() const { return m_front; };
     void setFront(glm::vec3 x) { m_front = x; };
     const glm::vec3& getUp() const { return m_up; };

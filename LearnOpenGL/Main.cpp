@@ -394,7 +394,7 @@ int main()
         std::println("************************************************");
         /////////////////////////////////////////////////////////////////////////////////////
 
-        GE::player.initDirection();
+        //GE::player.initDirection();
 
         G::getInformation();
         G::glCheckError();
@@ -417,7 +417,7 @@ int main()
 
             glfwPollEvents();
 
-            GE::player.calculateDirection();
+            //GE::player.calculateDirection();
             Engine::processInput(window); // initMovement()
             Engine::doPhysics();
             Engine::doExtrapolationStep();
@@ -613,6 +613,7 @@ int main()
                 glfwSwapBuffers(window);
             }
 
+            // Limit frame rate
             //while (static_cast<float>(glfwGetTime()) - G::timestampLastFrame < 0.0333f) { // 0.00695f
             //    double calculate = 3.14 * 3.14 * 3.14;
             //    calculate *= 3.14;

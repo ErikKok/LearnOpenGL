@@ -30,7 +30,7 @@ void Engine::doPhysics()
     {
         ticksPhysics++;
         GE::player.limitAcceleration();
-        GE::player.handleMovement();
+        GE::player.handleMovement(); // -> limitSpeed(); -> resetAcceleration();
         totalTimePassed += physicsFrameTime;
         frameTimeRemaining -= physicsFrameTime;
     }

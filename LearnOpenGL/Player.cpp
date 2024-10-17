@@ -6,34 +6,45 @@
 
 #include <algorithm>
 
+void Player::calculateForwardSpeed()
+{
+    m_forwardSpeed = glm::dot(m_speed, GE::camera.getFront());
+}
+
+void Player::calculateRightSpeed()
+{
+    m_rightSpeed = glm::dot(m_speed, GE::camera.getRight());
+}
+
 void Player::initMovement(CameraMovement direction)
 {
     // TODO switch maken?
 
-    // TODO
-    // https://forums.unrealengine.com/t/character-movement-direction/30708/4
-    float forwardSpeed = glm::dot(m_speed, GE::camera.getFront());
-    //float rightSpeed = glm::dot(m_speed, GE::camera.getRight());
-
     if (m_isAirborne) {
         // FORWARD BACKWARD
-        if (direction == CameraMovement::FORWARD  && forwardSpeed < 0.0f || // player moves backward and inputs forward
-            direction == CameraMovement::BACKWARD && forwardSpeed > 0.0f || // player moves forwards and inputs backward
+        calculateForwardSpeed();
+        if (direction == CameraMovement::FORWARD  && m_forwardSpeed < 0.0f || // player moves backward and inputs forward
+            direction == CameraMovement::BACKWARD && m_forwardSpeed > 0.0f || // player moves forwards and inputs backward
             direction == CameraMovement::FORWARDBACKWARD) {
                 m_speed.x *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
                 m_speed.z *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
                 return;
         }
+        if (direction == CameraMovement::UPDOWN) {
+            m_acceleration.y = -G::gravity;
+            m_speed.y *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
+            return;
+        }
 
         // LEFT RIGHT
         if (direction == CameraMovement::LEFT) {
-            m_acceleration.x += GE::camera.getRight().x * -m_maxAcceleration * 0.005f; // TODO need another maxSpeed for airborne sideways movement
-            m_acceleration.z += GE::camera.getRight().z * -m_maxAcceleration * 0.005f;
+            m_acceleration.x += GE::camera.getRight().x * -m_maxAcceleration * G::deltaTime;
+            m_acceleration.z += GE::camera.getRight().z * -m_maxAcceleration * G::deltaTime;
             return;
         }
         if (direction == CameraMovement::RIGHT) {
-            m_acceleration.x += GE::camera.getRight().x * m_maxAcceleration * 0.005f;
-            m_acceleration.z += GE::camera.getRight().z * m_maxAcceleration * 0.005f;
+            m_acceleration.x += GE::camera.getRight().x * m_maxAcceleration * G::deltaTime;
+            m_acceleration.z += GE::camera.getRight().z * m_maxAcceleration * G::deltaTime;
             return;
         }
         if (direction == CameraMovement::LEFTRIGHT) {
@@ -87,8 +98,8 @@ void Player::initMovement(CameraMovement direction)
             m_acceleration.y += -m_maxJumpAcceleration;
             return;
         }
-        if (direction == CameraMovement::UPDOWN) {
-            m_acceleration.y = 0.0f;
+        if (direction == CameraMovement::UPDOWN) { // TODO adds some -speed.y ?
+            m_acceleration.y = -G::gravity;
             m_speed.y *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
             return;
         }
@@ -97,7 +108,8 @@ void Player::initMovement(CameraMovement direction)
         if (direction == CameraMovement::JUMP) {
             m_acceleration.y = 400.0f; // not added (+=)!
             m_isAirborne = true;
-            GE::camera.setPositionY(1.5f); // TODO, anders blijf je vallen als je onder de Floor jumpt
+            if (GE::camera.getPosition().y < 1.5f)
+                GE::camera.setPositionY(1.5f); // TODO, anders blijf je vallen als je onder de Floor jumpt
             return;
         }
     }
@@ -165,35 +177,58 @@ void Player::limitAcceleration() {
 void Player::handleMovement()
 {
     m_speedLastFrame = m_speed;
-    // Determine new speed with current acceleration force
-    //if (m_isAirborne) {
-    //    if (m_speed.x > 0.0f)
-    //    m_speed.x = std::max(m_speed.x + m_acceleration.x * Engine::physicsFrameTime * 0.5f, 0.0f);
-    //    if (m_speed.y > 0.0f)
-    //    m_speed.y = std::max(m_speed.y + (G::gravity + m_acceleration.y) * Engine::physicsFrameTime, 0.0f); // * 0.5f; // just feels better not halving y
-    //    if (m_speed.z > 0.0f)
-    //        m_speed.z = std::max(m_speed.z + m_acceleration.z * Engine::physicsFrameTime * 0.5f, 0.0f);
-    //}
+    // Determine new speed with current acceleration forces
+    //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
+    //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
+    //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
 
-    //if (!m_isAirborne) {
-        m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
-        m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
-        m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
-    //}
+    //limitSpeed();
+    //GE::camera.setPosition(GE::camera.getPosition() + ((m_speed + m_speedLastFrame) * 0.5f) * Engine::physicsFrameTime);
+
+    //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
+    //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
+    //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
+
+    /////
+    
+    // TODO slowly floats up
+    // Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity)
+    m_speed.x += m_acceleration.x * Engine::physicsFrameTime;
+    m_speed.y += ((G::gravity * 1.0f) + (m_acceleration.y)) * Engine::physicsFrameTime * 2.0f; // * 0.5f; // just feels better not halving y
+    m_speed.z += m_acceleration.z * Engine::physicsFrameTime;
     limitSpeed();
     GE::camera.setPosition(GE::camera.getPosition() + ((m_speed + m_speedLastFrame) * 0.5f) * Engine::physicsFrameTime);
 
-    //if (m_isAirborne) {
-    //    m_speed.x = std::max(m_speed.x + m_acceleration.x * Engine::physicsFrameTime * 0.5f, 0.0f);
-    //    m_speed.y = std::max(m_speed.y + (G::gravity + m_acceleration.y) * Engine::physicsFrameTime, 0.0f); // * 0.5f; // just feels better not halving y
-    //    m_speed.z = std::max(m_speed.z + m_acceleration.z * Engine::physicsFrameTime * 0.5f, 0.0f);
-    //}
 
-    //if (!m_isAirborne) {
-        m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
-        m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
-        m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
-    //}
+    //m_speed.y += (G::gravity * 0.5f) * Engine::physicsFrameTime * 2.0f;
+    //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
+
+    /////
+    // https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
+
+    //acceleration = force(time, position) / mass;
+    //time += timestep;
+    //position += timestep * velocity;
+    //velocity += timestep * acceleration;
+    //the velocity Verlet method does it like this:
+
+    //acceleration = force(time, position) / mass;
+    //time += timestep;
+    //position += timestep * (velocity + timestep * acceleration / 2);
+    //newAcceleration = force(time, position) / mass; // it seems that they sacrificed some accuracy for extra speed by saving the newAcceleration value computed using the estimated velocity and reusing it as the acceleration for the next timestep. (alleen mass zou kunnen veranderen toch?)
+    //velocity += timestep * (acceleration + newAcceleration) / 2;
+
+    /////
+    //Dit is wat ik nu heb:
+    //You can fix most of the issues with Euler integration simply by replacing
+    //position += velocity * timestep
+    //    above with 
+    //position += (velocity - acceleration * timestep / 2) * timestep
+    //    
+    //    (where velocity - acceleration * timestep / 2 is simply the average of the old and new velocities)
+
+    /////
+
     // Reset Acceleration after 1 physics tick
     resetAcceleration();
 
@@ -205,6 +240,8 @@ void Player::handleMovement()
         m_speed.y *= m_dryFriction * Engine::physicsFrameTime; // TODO dit is alleen true als je omhoog/omlaag LOOPT?
         m_speed.z *= m_dryFriction * Engine::physicsFrameTime;
     }
+
+    // No air drag applied
 
     // TODO temp jump stuff
     static bool jumpStarted = false;
@@ -343,20 +380,20 @@ AABB Player::getTAABB()
 //    return x;
 //}
 
-void Player::initDirection() {
-    m_positionLastFrame = GE::camera.getPosition();
-}
-
-void Player::calculateDirection()
-{
-    if (GE::camera.getPosition() == m_positionLastFrame)
-        m_direction = glm::vec3(0.0f);
-    else {
-        m_direction = glm::normalize(GE::camera.getPosition() - m_positionLastFrame);
-        m_positionLastFrame = GE::camera.getPosition();
-    }
- 
-    m_positionLastFrame = GE::camera.getPosition();
-
-    //std::println("player.m_direction: {}, {}, {}", m_direction.x, m_direction.y, m_direction.z);
-}
+//void Player::initDirection() {
+//    m_positionLastFrame = GE::camera.getPosition();
+//}
+//
+//void Player::calculateDirection()
+//{
+//    //if (GE::camera.getPosition() == m_positionLastFrame)
+//    //    m_direction = glm::vec3(0.0f);
+//    //else {
+//        m_direction = glm::normalize(GE::camera.getPosition() - m_positionLastFrame);
+//        m_positionLastFrame = GE::camera.getPosition();
+//    //}
+// 
+//    m_positionLastFrame = GE::camera.getPosition();
+//
+//    //std::println("player.m_direction: {}, {}, {}", m_direction.x, m_direction.y, m_direction.z);
+//}
