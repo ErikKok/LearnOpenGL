@@ -178,60 +178,54 @@ void Player::handleMovement()
 {
     m_speedLastFrame = m_speed;
     // Determine new speed with current acceleration forces
-    //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
-    //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
-    //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
 
-    //limitSpeed();
-    //GE::camera.setPosition(GE::camera.getPosition() + ((m_speed + m_speedLastFrame) * 0.5f) * Engine::physicsFrameTime);
+    // OLD method
+    {
+        //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
+        //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
+        //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
 
-    //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
-    //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
-    //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
+        //limitSpeed();
+        //GE::camera.setPosition(GE::camera.getPosition() + ((m_speed + m_speedLastFrame) * 0.5f) * Engine::physicsFrameTime);
 
-    /////
-    
-    // TODO slowly floats up
-    // Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity)
+        //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
+        //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
+        //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
+    }
+
     m_speed.x += m_acceleration.x * Engine::physicsFrameTime;
     m_speed.y += ((G::gravity * 1.0f) + (m_acceleration.y)) * Engine::physicsFrameTime * 2.0f; // * 0.5f; // just feels better not halving y
     m_speed.z += m_acceleration.z * Engine::physicsFrameTime;
     limitSpeed();
     GE::camera.setPosition(GE::camera.getPosition() + ((m_speed + m_speedLastFrame) * 0.5f) * Engine::physicsFrameTime);
 
-
-    //m_speed.y += (G::gravity * 0.5f) * Engine::physicsFrameTime * 2.0f;
-    //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
-
-    /////
     // https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
+    {
+        //acceleration = force(time, position) / mass;
+        //time += timestep;
+        //position += timestep * velocity;
+        //velocity += timestep * acceleration;
+        //the velocity Verlet method does it like this:
 
-    //acceleration = force(time, position) / mass;
-    //time += timestep;
-    //position += timestep * velocity;
-    //velocity += timestep * acceleration;
-    //the velocity Verlet method does it like this:
+        //acceleration = force(time, position) / mass;
+        //time += timestep;
+        //position += timestep * (velocity + timestep * acceleration / 2);
+        //newAcceleration = force(time, position) / mass; // it seems that they sacrificed some accuracy for extra speed by saving the newAcceleration value computed using the estimated velocity and reusing it as the acceleration for the next timestep. (alleen mass zou kunnen veranderen toch?)
+        //velocity += timestep * (acceleration + newAcceleration) / 2;
 
-    //acceleration = force(time, position) / mass;
-    //time += timestep;
-    //position += timestep * (velocity + timestep * acceleration / 2);
-    //newAcceleration = force(time, position) / mass; // it seems that they sacrificed some accuracy for extra speed by saving the newAcceleration value computed using the estimated velocity and reusing it as the acceleration for the next timestep. (alleen mass zou kunnen veranderen toch?)
-    //velocity += timestep * (acceleration + newAcceleration) / 2;
-
+        /////
+        //Dit is wat ik nu heb:
+        //You can fix most of the issues with Euler integration simply by replacing
+        //position += velocity * timestep
+        //    above with 
+        //position += (velocity - acceleration * timestep / 2) * timestep
+        //    
+        //    (where velocity - acceleration * timestep / 2 is simply the average of the old and new velocities)
+    }
     /////
-    //Dit is wat ik nu heb:
-    //You can fix most of the issues with Euler integration simply by replacing
-    //position += velocity * timestep
-    //    above with 
-    //position += (velocity - acceleration * timestep / 2) * timestep
-    //    
-    //    (where velocity - acceleration * timestep / 2 is simply the average of the old and new velocities)
 
-    /////
-
-    // Reset Acceleration after 1 physics tick
+    // Reset Acceleration after being applied each physics tick
     resetAcceleration();
-
     std::println("handleMovement m_acceleration: {}, {}, {}", GE::player.m_acceleration.x, GE::player.m_acceleration.y, GE::player.m_acceleration.z);
 
     // Apply friction to speed
@@ -241,7 +235,7 @@ void Player::handleMovement()
         m_speed.z *= m_dryFriction * Engine::physicsFrameTime;
     }
 
-    // No air drag applied
+    // No aeroDrag applied
 
     // TODO temp jump stuff
     static bool jumpStarted = false;

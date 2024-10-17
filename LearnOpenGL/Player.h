@@ -42,7 +42,7 @@ private:
 
 	float m_airborneDecelerationFactor{ 75.00f };
 	float m_dryFriction{ 85.0f };
-	float m_aeroDrag{ 99.75f };
+	//float m_aeroDrag{ 99.75f };
 	float m_correction{ 0.0f };
 
 	bool m_isRunning{ false };
