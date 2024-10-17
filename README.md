@@ -22,10 +22,10 @@ Features
 
 Controls
 --------
-<br>
 <br>WASD = Movement
 <br>Z = Down
 <br>X = Up
+<br>SHIFT = Run
 <br>
 <br>F = Flashlight
 <br>K = Show Frustum
@@ -35,14 +35,12 @@ Controls
 <br>P = Pause
 <br>Q = Show/toggle shadowmap
 <br>V = Toggle v-sync
-<br>
-<br>SHIFT = Run
 <br>ESC = Quit
 
 Dependencies
 ------------
-- ASSIMP v5.2.5
+- ASSIMP v5.4.3
 - glad 0.1.36
 - GLFW 3.4
 - ImGui v1.91.3
-- stb_image - v2.29
+- stb image loader v2.30
