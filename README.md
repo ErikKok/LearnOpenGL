@@ -3,7 +3,8 @@ Simple 3D Engine / Renderer
 
 Started while learning C++ and OpenGL and slowly implementing more and more features.
 
-Features:
+Features
+--------
 - OpenGL 4.6, Fully DSA (Direct State Access)
 - Variable FPS
 - Fixed Rate Physics engine with extrapolation
@@ -19,8 +20,10 @@ Features:
 - Materials
 - RenderObjects
 
-Controls:
-WASD = Movement
+Controls
+--------
+<br>
+<br>WASD = Movement
 <br>Z = Down
 <br>X = Up
 <br>
@@ -36,7 +39,8 @@ WASD = Movement
 <br>SHIFT = Run
 <br>ESC = Quit
 
-Dependencies:
+Dependencies
+------------
 - ASSIMP v5.2.5
 - glad 0.1.36
 - GLFW 3.4
