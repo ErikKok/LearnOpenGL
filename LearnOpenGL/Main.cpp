@@ -16,6 +16,10 @@
 #include "VertexArray.h"
 
 // External header warning level: 0
+#include "imgui-docking/imgui.h"
+#include "imgui-docking/imgui_impl_glfw.h"
+#include "imgui-docking/imgui_impl_opengl3.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -69,6 +73,18 @@ int init(GLFWwindow* window)
     }
 
     G::glCheckError();
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);               // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
 
     return 0;
 }
@@ -417,6 +433,12 @@ int main()
 
             glfwPollEvents();
 
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            ImGui::ShowDemoWindow(); // Show demo window! :)
+
             //GE::player.calculateDirection();
             Engine::processInput(window);
             Engine::doPhysics();
@@ -609,6 +631,10 @@ int main()
                 }
             }
 
+            // ImGui Rendering
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
             if (!G::paused) { // toggle with P
                 glfwSwapBuffers(window);
             }
@@ -623,6 +649,9 @@ int main()
         G::glCheckError();
         std::println("Shutting down OpenGL scope");
     }
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     glfwTerminate();
     system("pause");
     return 0;

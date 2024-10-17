@@ -1,14 +1,12 @@
 Simple 3D Engine / Renderer
+===========================
 
-Started while learning OpenGL and slowly implementing more features
+Started while learning C++ and OpenGL and slowly implementing more and more features.
 
 Features:
 - OpenGL 4.6, Fully DSA (Direct State Access)
 - Variable FPS
-- Fixed Rate Physics engine with extrapolation for:
-    - jumping
-    - that's it for now
-- (Almost) everything is abstracted into Classes
+- Fixed Rate Physics engine with extrapolation
 - Every draw call is through glDrawElementsInstanced()
 - ASSIMP model loader
 - Normal Mapping
@@ -21,6 +19,7 @@ Features:
 - Materials
 - RenderObjects
 
+Controls:
 WASD = Movement
 <br>Z = Down
 <br>X = Up
@@ -36,3 +35,10 @@ WASD = Movement
 <br>
 <br>SHIFT = Run
 <br>ESC = Quit
+
+Dependencies:
+- ASSIMP v5.2.5
+- glad 0.1.36
+- GLFW 3.4
+- ImGui v1.91.3
+- stb_image - v2.29

@@ -87,6 +87,30 @@
     <ClCompile Include="Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Dependencies\imgui-docking\imgui.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\imgui-docking\imgui_demo.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\imgui-docking\imgui_draw.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\imgui-docking\imgui_impl_glfw.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\imgui-docking\imgui_impl_opengl3.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\imgui-docking\imgui_stdlib.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\imgui-docking\imgui_tables.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\imgui-docking\imgui_widgets.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -149,6 +173,36 @@
     <ClInclude Include="Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Dependencies\imgui-docking\imgui.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui-docking\imgui_impl_glfw.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui-docking\imgui_impl_opengl3.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui-docking\imgui_impl_opengl3_loader.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui-docking\imconfig.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui-docking\imgui_internal.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui-docking\imgui_stdlib.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui-docking\imstb_rectpack.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui-docking\imstb_textedit.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui-docking\imstb_truetype.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\multiLight.shader">
@@ -174,5 +228,13 @@
     </None>
     <None Include="README.md" />
     <None Include="Shaders\depthMap.shader" />
+    <None Include="Dependencies\imgui-docking\imgui.natstepfilter">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Dependencies\imgui-docking\imgui.natvis">
+      <Filter>Resource Files</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>
