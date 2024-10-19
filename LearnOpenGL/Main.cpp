@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "Global.h"
 #include "GlobalEntities.h"
+#include "HesGui.h"
 #include "Light.h"
 #include "Mesh.h"
 #include "Model.h"
@@ -40,6 +41,7 @@ int init(GLFWwindow* window)
     assert(sizeof(float) == sizeof(GLfloat) && "size of float and GL_FLOAT is not equal");
     assert(sizeof(unsigned char) == sizeof(GLubyte) && "size of int and GL_INT is not equal");
 
+    std::println("Initialize GLFW step 2");
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, Engine::framebuffer_size_callback);
     glfwSetCursorEnterCallback(window, Engine::cursor_enter_callback);
@@ -75,6 +77,7 @@ int init(GLFWwindow* window)
     G::glCheckError();
 
     // Setup Dear ImGui context
+    std::println("Initialize ImGui");
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -91,8 +94,7 @@ int init(GLFWwindow* window)
 
 int main()
 {
-    std::println("Configure GLFW");
-
+    std::println("Initialize GLFW step 1");
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -109,7 +111,7 @@ int main()
     }
 
     if (init(window) == -1) {
-        std::println("Failed to initialize");
+        std::println("Failed to initialize GLAD");
         glfwTerminate();
         return -1;
     }
@@ -438,6 +440,11 @@ int main()
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
             ImGui::ShowDemoWindow(); // Show demo window! :)
+            //Gui::SliderFloat("maxCurrentSpeed", &GE::player.m_maxCurrentSpeed, 0.0f, 200.0f, "%.1f");
+
+            HesGui x;
+            x.bla();
+
 
             //GE::player.calculateDirection();
             Engine::processInput(window);

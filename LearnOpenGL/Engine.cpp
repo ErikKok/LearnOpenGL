@@ -96,9 +96,9 @@ void Engine::processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         GE::player.initMovement(PlayerMovement::jump);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        GE::player.setMaxCurrentSpeed(5.0f);
+        GE::player.setMaxCurrentSpeed(GE::player.getWalkSpeed());
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-        GE::player.setMaxCurrentSpeed(GE::player.getMaxCurrentSpeed());
+        GE::player.setMaxCurrentSpeed(GE::player.getRunSpeed());
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -143,12 +143,15 @@ void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action,
     }
 
     if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-        if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {
+        if (G::isMouseCursorEnabled) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            G::windowsHasMouseFocus = false;
+            G::isMouseCursorEnabled = false;
+            G::firstMouse = true;
         }
-        else if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
+        else
+        {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            G::isMouseCursorEnabled = true;
         }
         return;
     }
@@ -195,37 +198,41 @@ void Engine::cursor_enter_callback(GLFWwindow* window, int entered)
 {
     if (entered) {
         // The cursor entered the client area of the window
+        G::firstMouse = true;
+
+        // Uncomment to automatically gain control (instead of pressing M first)
+        //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        //G::isMouseCursorEnabled = true;
     }
     else {
         // The cursor left the client area of the window
-        G::windowsHasMouseFocus = false;
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        G::isMouseCursorEnabled = false;
     }
-    G::glCheckError();
 }
 
 #pragma warning( suppress : 4100 )
 void Engine::mouse_callback(GLFWwindow* window, double currentXPosIn, double currentYPosIn)
 {
+    if (!G::isMouseCursorEnabled)
+        return;
+    
+    // cast double to float
     float currentXPos{ static_cast<float>(currentXPosIn) };
     float currentYPos{ static_cast<float>(currentYPosIn) };
-    // last x,y position, initialize with center x,y coordinates
-    static float lastXPos{ G::windowWidth / 2.0f };
-    static float lastYPos{ G::windowHeight / 2.0f };
 
-    if (!G::windowsHasMouseFocus) {
-        lastXPos = currentXPos;
-        lastYPos = currentYPos;
-        G::windowsHasMouseFocus = true;
+    // use the current mouse's coordinates to nullify the offsets for processMouseMovement() to prevent sudden movement
+    if (G::firstMouse) {
+        G::lastXPos = currentXPos;
+        G::lastYPos = currentYPos;
+        G::firstMouse = false;
     }
 
     // Calculate the mouse's offset since the last frame
-    float xoffset{ currentXPos - lastXPos };
-    float yoffset{ lastYPos - currentYPos }; // reversed since y-coordinates go from bottom to top
+    GE::camera.processMouseMovement(currentXPos - G::lastXPos, G::lastYPos - currentYPos); // Y is reversed since y-coordinates go from bottom to top
 
-    lastXPos = currentXPos;
-    lastYPos = currentYPos;
-
-    GE::camera.processMouseMovement(xoffset, yoffset);
+    G::lastXPos = currentXPos;
+    G::lastYPos = currentYPos;
 }
 
 #pragma warning( suppress : 4100 )

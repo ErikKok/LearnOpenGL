@@ -37,7 +37,10 @@ namespace G {
     // Window
     inline int windowWidth{ 1920 };
     inline int windowHeight{ 1080 };
-    inline bool windowsHasMouseFocus{ false };
+    inline bool isMouseCursorEnabled{ true };
+    inline bool firstMouse{ true };
+    inline float lastXPos{ 0.0f };
+    inline float lastYPos{ 0.0f };
 
     // Misc
     inline float outlineAlpha{ 0.0f };

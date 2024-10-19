@@ -136,7 +136,6 @@
     <ClInclude Include="Dependencies\imgui-docking\imgui.h" />
     <ClInclude Include="Dependencies\imgui-docking\imgui_impl_glfw.h" />
     <ClInclude Include="Dependencies\imgui-docking\imgui_impl_opengl3.h" />
-    <ClInclude Include="Dependencies\imgui-docking\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="Dependencies\imgui-docking\imgui_internal.h" />
     <ClInclude Include="Dependencies\imgui-docking\imgui_stdlib.h" />
     <ClInclude Include="Dependencies\imgui-docking\imstb_rectpack.h" />
@@ -148,6 +147,7 @@
     <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Global.h" />
+    <ClInclude Include="HesGui.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
@@ -161,8 +161,9 @@
     <ClInclude Include="VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Changelog - todo.md" />
+    <None Include="..\README.md" />
     <None Include="Dependencies\imgui-docking\imgui.natstepfilter" />
-    <None Include="README.md" />
     <None Include="Shaders\debugQuad.shader" />
     <None Include="Shaders\depthMap.shader" />
     <None Include="Shaders\frustum.shader" />

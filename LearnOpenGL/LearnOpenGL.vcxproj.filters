@@ -182,9 +182,6 @@
     <ClInclude Include="Dependencies\imgui-docking\imgui_impl_opengl3.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="Dependencies\imgui-docking\imgui_impl_opengl3_loader.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="Dependencies\imgui-docking\imconfig.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
@@ -202,6 +199,9 @@
     </ClInclude>
     <ClInclude Include="Dependencies\imgui-docking\imstb_truetype.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HesGui.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -226,11 +226,12 @@
     <None Include="Shaders\multiLightNormalMapping.shader">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="README.md" />
     <None Include="Shaders\depthMap.shader" />
     <None Include="Dependencies\imgui-docking\imgui.natstepfilter">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\Changelog - todo.md" />
+    <None Include="..\README.md" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Dependencies\imgui-docking\imgui.natvis">

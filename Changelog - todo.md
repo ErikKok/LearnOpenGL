@@ -45,6 +45,15 @@ TO DO
 	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
 
+v0.3.3 19-10-2024
+------------------
+- configure glad for use with imgui
+- pressing M does not invoke movement anymore, so you can control ImGui:
+	- rewritten Engine::mouse_callback(), added firstMouse, moved lastXPos/lastYPos to Global
+	- changes to cursor_enter_callback() and key_callback()
+	- renamed windowsHasMouseFocus to isMouseCursorEnabled
+- added some stupid HesGui class stuff as workaround
+
 v0.3.2.1 17-10-2024
 ------------------
 - removed old assimp / stb files

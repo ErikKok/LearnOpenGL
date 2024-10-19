@@ -168,9 +168,16 @@
 // - You may need to regenerate imgui_impl_opengl3_loader.h to add new symbols. See https://github.com/dearimgui/gl3w_stripped
 // - You can temporarily use an unstripped version. See https://github.com/dearimgui/gl3w_stripped/releases
 // Changes to this backend using new APIs should be accompanied by a regenerated stripped loader version.
-#define IMGL3W_IMPL
-#include "imgui_impl_opengl3_loader.h"
+// OLD
+//#define IMGL3W_IMPL
+//#include "imgui_impl_opengl3_loader.h"
+//#endif
+
+// To use glad with imgui, there will be a #include "imgui_impl_opengl3_loader.h", you need to change the entire block, including the #define and #endif to:
+#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+#include <glad/glad.h>
 #endif
+// There is no need to have the imgui_impl_opengl3_loader.h file as we are already using glad.
 
 // Vertex arrays are not supported on ES2/WebGL1 unless Emscripten which uses an extension
 #ifndef IMGUI_IMPL_OPENGL_ES2

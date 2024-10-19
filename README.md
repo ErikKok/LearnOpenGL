@@ -5,7 +5,7 @@ Started while learning C++ and OpenGL and slowly implementing more and more feat
 
 Features
 --------
-- OpenGL 4.6, Fully DSA (Direct State Access)
+- OpenGL 4.6 Fully DSA (Direct State Access)
 - Variable FPS
 - Fixed Rate Physics engine with extrapolation
 - Every draw call is through glDrawElementsInstanced()
@@ -40,7 +40,7 @@ Controls
 Dependencies
 ------------
 - ASSIMP v5.4.3
-- glad 0.1.36
-- GLFW 3.4
+- glad v0.1.36
+- GLFW v3.4
 - ImGui v1.91.3
 - stb image loader v2.30

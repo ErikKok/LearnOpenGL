@@ -106,7 +106,7 @@ void Player::initMovement(PlayerMovement direction)
 
         // JUMP
         if (direction == PlayerMovement::jump) {
-            m_acceleration.y = 400.0f; // not added (+=)!
+            m_acceleration.y = m_jumpAcceleration; // not added (+=)!
             m_isAirborne = true;
             if (GE::camera.getPosition().y < 1.5f)
                 GE::camera.setPositionY(1.5f); // TODO, anders blijf je vallen als je onder de Floor jumpt
