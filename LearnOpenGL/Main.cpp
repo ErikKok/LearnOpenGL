@@ -6,7 +6,6 @@
 #include "Engine.h"
 #include "Global.h"
 #include "GlobalEntities.h"
-#include "HesGui.h"
 #include "Light.h"
 #include "Mesh.h"
 #include "Model.h"
@@ -423,28 +422,18 @@ int main()
             Engine::ticksLoop++;
             Engine::perFrameTimeLogic();
 
-            //std::println("deltaTime: {}ms", G::deltaTime * 1000);
-            std::println("Position: {}, {}, {}", GE::camera.getPosition().x, GE::camera.getPosition().y, GE::camera.getPosition().z);
-            //std::println("Front: {}, {}, {}", GE::camera.getFront().x, GE::camera.getFront().y, GE::camera.getFront().z);
-            std::println("ticksLoop: {}", Engine::ticksLoop);
-            std::println("ticksPhysics: {}", Engine::ticksPhysics);
-            
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            //ImGui::ShowDemoWindow(); // Show demo window! :)
+            G::ImGui();
+           
             /////////////////////////////////////////////////////////////////////////////////////
             // Start processInput ///////////////////////////////////////////////////////////////
             /////////////////////////////////////////////////////////////////////////////////////
 
             glfwPollEvents();
-
-            // Start the Dear ImGui frame
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-            ImGui::ShowDemoWindow(); // Show demo window! :)
-            //Gui::SliderFloat("maxCurrentSpeed", &GE::player.m_maxCurrentSpeed, 0.0f, 200.0f, "%.1f");
-
-            HesGui x;
-            x.bla();
-
 
             //GE::player.calculateDirection();
             Engine::processInput(window);

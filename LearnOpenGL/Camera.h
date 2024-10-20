@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ImGui.h"
+
 #include <vector>
 
 #include <glad/glad.h>
@@ -8,6 +10,8 @@
 
 class Camera
 {
+    //friend void Im::Gui();
+
 public:
     Camera(float aspectRatio, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
 

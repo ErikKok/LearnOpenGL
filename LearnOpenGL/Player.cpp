@@ -170,8 +170,6 @@ void Player::limitAcceleration() {
         m_acceleration.z = -m_maxAcceleration;
         m_acceleration.x *= m_correction;
     }
-
-    std::println("limitAcceleration m_acceleration: {}, {}, {}", GE::player.m_acceleration.x, GE::player.m_acceleration.y, GE::player.m_acceleration.z);
 }
 
 void Player::calculateSpeed()
@@ -285,8 +283,6 @@ void Player::limitSpeed()
     }
     if (m_speed.z > -0.001f && m_speed.z < 0.001f)
         m_speed.z = 0.0f;
-
-    std::println("player.m_Speed: {}, {}, {}", GE::player.m_speed.x, GE::player.m_speed.y, GE::player.m_speed.z);
 }
 
 void Player::handleJump()

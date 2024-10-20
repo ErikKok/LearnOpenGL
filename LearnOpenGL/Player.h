@@ -2,7 +2,6 @@
 
 #include "Engine.h"
 #include "Global.h"
-//#include "HesGui.h"
 
 enum class PlayerMovement {
 	forward,
@@ -19,7 +18,7 @@ enum class PlayerMovement {
 
 class Player
 {
-	friend class HesGui;
+	friend void G::ImGui();
 
 public:
 	const float getMaxCurrentSpeed() const { return m_maxCurrentSpeed; };
@@ -51,7 +50,7 @@ public:
 private:
 	glm::vec3 m_speed{ 0.0f };				// meter/second
 	glm::vec3 m_speedLastFrame{ 0.0f };
-	float m_forwardSpeed{ 0.0f };									// https://forums.unrealengine.com/t/character-movement-direction/30708/4
+	float m_forwardSpeed{ 0.0f };			// https://forums.unrealengine.com/t/character-movement-direction/30708/4
 	//float m_rightSpeed{ 0.0f };
 	float m_maxCurrentSpeed{ 22.0f };
 	float m_walkSpeed{ 5.0f };
@@ -67,7 +66,7 @@ private:
 	float m_airborneDecelerationFactor{ 75.00f };
 	float m_dryFriction{ 85.0f };
 	//float m_aeroDrag{ 99.75f };
-	float m_correction{ 0.0f };
+	float m_correction{ 0.0f }; // used for limitAcceleration() and limitSpeed()
 
 	bool m_isRunning{ false };
 	bool m_isAirborne{ false };

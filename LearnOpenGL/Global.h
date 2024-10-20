@@ -80,4 +80,9 @@ namespace G {
 
     void cheap2Copy(); // https://www.learncpp.com/cpp-tutorial/pass-by-const-lvalue-reference/ - The cost of pass by value vs pass by reference
     void getInformation();
+
+    // https://pthom.github.io/imgui_manual_online/manual/imgui_manual.html
+    // https://www.jakobmaier.at/posts/imgui-slider-with-getter-and-setters/
+
+    void ImGui();
 }
