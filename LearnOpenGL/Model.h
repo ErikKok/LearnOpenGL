@@ -1,9 +1,6 @@
 #pragma once
 
-#include "Global.h"
 #include "Mesh.h"
-#include "Shader.h"
-#include "Texture.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -13,6 +10,7 @@
 #include <vector>
 
 class Model
+
 {
 public:
     friend class Renderer;

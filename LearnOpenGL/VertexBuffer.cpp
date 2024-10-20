@@ -3,6 +3,8 @@
 
 #include "Global.h"
 
+#include <print>
+
 #include <glad/glad.h>
 
 VertexBuffer::VertexBuffer(size_t size, const GLvoid* data)

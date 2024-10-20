@@ -1,12 +1,9 @@
 #pragma once
 
-#include "Buffers.h"
-#include "Global.h"
+#include "VertexBuffer.h"
 
 #include <glad/glad.h>
 
-#include <cassert>
-#include <print>
 #include <vector>
 
 class VertexAttributeLayout;

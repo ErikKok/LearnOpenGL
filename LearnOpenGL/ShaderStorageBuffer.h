@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <vector>
+#include <variant> // for std::to_underlying
 
 //There can only be one array of variable size per SSBO and it has to be the bottommost variable in the block definition.
 

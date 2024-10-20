@@ -1,15 +1,17 @@
 #pragma once
 
-#include "Buffers.h"
+#include "FrameBuffer.h"
 #include "Global.h"
-#include "Mesh.h"
-#include "Model.h"
-#include "Shader.h"
-#include "VertexArray.h"
+#include "ShaderStorageBuffer.h"
 
 #include <glad/glad.h>
 
 #include <memory> // for std::unique_ptr and std::make_unique
+#include <string>
+
+class Mesh;
+class Model;
+class Shader;
 
 // TODO ECS - transparency opslaan in Material, of uit texture halen in constructor van een Material class?
 struct Material

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "BufferDataStore.h"
 
 BufferDataStore::BufferDataStore(int elementCount, GLsizeiptr elementSize)

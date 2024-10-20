@@ -3,9 +3,9 @@
 
 #include "Global.h"
 
-#include <glad/glad.h>
+#include <print>
 
-#include <cassert>
+#include <glad/glad.h>
 
 // size_t is return value of sizeof() and .size()
 ElementBuffer::ElementBuffer(size_t size, const GLvoid* data)

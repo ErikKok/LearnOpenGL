@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Engine.h"
 #include "Global.h"
+#include "Engine.h" // for struct AABB
 
 enum class PlayerMovement {
 	forward,

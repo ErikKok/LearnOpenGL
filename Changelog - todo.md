@@ -44,8 +44,20 @@ TO DO
 - Physics / movement:
 	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
+- move ImGui to physicsloop or split in 2 windows
 
-v0.3.4 19-10-2024
+v0.3.5 20-10-2024
+------------------
+- a LOT of header clean-up!
+- GE::camera -> G::camera*
+- GE::player -> G::player*
+- removed globalEntities.h
+- moved calculateViewMatrix() to initializer list of the Camera constructor (could not use calculateViewMatrix() anymore because of if statement (spotLights does not exist yet))
+- removed some print debugging
+- removed buffers.h
+- removed ImGui.h
+
+v0.3.4 20-10-2024
 ------------------
 - got ImGui working without HesGui stuff
 

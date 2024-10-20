@@ -1,13 +1,21 @@
 #pragma once
 
-#include "Buffers.h"
+#include "ElementBuffer.h"
 #include "Global.h"
 #include "Texture.h"
 #include "VertexArray.h"
+#include "VertexBuffer.h"
+
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <memory> // for std::unique_ptr and std::make_unique
 #include <print>
 #include <vector>
+
+class Texture;
 
 //#define MAX_BONE_INFLUENCE 4
 struct Vertex {

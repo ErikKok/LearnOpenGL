@@ -1,6 +1,10 @@
 #pragma once
-
 #include "VertexArray.h"
+
+#include "Global.h"
+
+#include <cassert>
+#include <print>
 
 VertexArray::VertexArray()
 {

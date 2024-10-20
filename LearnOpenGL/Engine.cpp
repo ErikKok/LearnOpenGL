@@ -1,10 +1,14 @@
 #pragma once
-
 #include "Engine.h"
+
+#include "Camera.h"
 #include "Global.h"
-#include "GlobalEntities.h"
+#include "Player.h"
+
+#include <print>
 
 #include <glm/glm.hpp>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 void Engine::perFrameTimeLogic()
@@ -24,31 +28,26 @@ void Engine::doPhysics()
     while (frameTimeRemaining >= physicsFrameTime)
     {
         ticksPhysics++;
-        GE::player.limitAcceleration();
-        GE::player.calculateSpeed();
-        GE::player.limitSpeed();
-        GE::player.handleJump();
-        GE::player.resetAcceleration();
-        GE::camera.setPosition(GE::camera.getPosition() + ((GE::player.getSpeed() + GE::player.getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime);
+        G::player->limitAcceleration();
+        G::player->calculateSpeed();
+        G::player->limitSpeed();
+        G::player->handleJump();
+        G::player->resetAcceleration();
+        G::camera->setPosition(G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime);
         totalTimePassed += physicsFrameTime;
         frameTimeRemaining -= physicsFrameTime;
     }
     extrapolationFactor = frameTimeRemaining / physicsFrameTime;
-    //std::println("extrapolationFactor: {}", extrapolationFactor);
 }
 
 void Engine::doExtrapolationStep()
 {
     isExtrapolationStep = true;
-    extrapolationResultPosition = GE::player.getSpeed() * extrapolationFactor * physicsFrameTime;
-    //std::println("extrapolationResultPositionY: {}", extrapolationResultPosition.y);
+    extrapolationResultPosition = G::player->getSpeed() * extrapolationFactor * physicsFrameTime;
 }
 
 glm::vec3 Engine::follow(const glm::vec3& origin, const glm::vec3& destination)
 {
-    //glm::vec3 newPosition = origin + (3.0f * G::deltaTime) * glm::normalize(destination - origin);
-    //std::println("newPosition: {}, {}, {}", newPosition.x, newPosition.y, newPosition.z);
-
     return origin + (3.0f * G::deltaTime) * glm::normalize(destination - origin);
 }
 
@@ -73,32 +72,32 @@ bool Engine::AABBtoAABB(const AABB& box1, const AABB& box2)
 void Engine::processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        GE::player.initMovement(PlayerMovement::forwardbackward);
+        G::player->initMovement(PlayerMovement::forwardbackward);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        GE::player.initMovement(PlayerMovement::forward);
+        G::player->initMovement(PlayerMovement::forward);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        GE::player.initMovement(PlayerMovement::backward);
+        G::player->initMovement(PlayerMovement::backward);
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        GE::player.initMovement(PlayerMovement::leftright);
+        G::player->initMovement(PlayerMovement::leftright);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        GE::player.initMovement(PlayerMovement::left);
+        G::player->initMovement(PlayerMovement::left);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        GE::player.initMovement(PlayerMovement::right);
+        G::player->initMovement(PlayerMovement::right);
 
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        GE::player.initMovement(PlayerMovement::updown);
+        G::player->initMovement(PlayerMovement::updown);
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-        GE::player.initMovement(PlayerMovement::up);
+        G::player->initMovement(PlayerMovement::up);
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        GE::player.initMovement(PlayerMovement::down);
+        G::player->initMovement(PlayerMovement::down);
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        GE::player.initMovement(PlayerMovement::jump);
+        G::player->initMovement(PlayerMovement::jump);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        GE::player.setMaxCurrentSpeed(GE::player.getWalkSpeed());
+        G::player->setMaxCurrentSpeed(G::player->getWalkSpeed());
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-        GE::player.setMaxCurrentSpeed(GE::player.getRunSpeed());
+        G::player->setMaxCurrentSpeed(G::player->getRunSpeed());
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -189,7 +188,7 @@ void Engine::framebuffer_size_callback(GLFWwindow* window, int width, int height
     glViewport(0, 0, width, height);
     G::windowWidth = width;
     G::windowHeight = height;
-    GE::camera.setAspectRatio((static_cast<float>(G::windowWidth) / static_cast<float>(G::windowHeight)));
+    G::camera->setAspectRatio((static_cast<float>(G::windowWidth) / static_cast<float>(G::windowHeight)));
     G::glCheckError();
 }
 
@@ -229,7 +228,7 @@ void Engine::mouse_callback(GLFWwindow* window, double currentXPosIn, double cur
     }
 
     // Calculate the mouse's offset since the last frame
-    GE::camera.processMouseMovement(currentXPos - G::lastXPos, G::lastYPos - currentYPos); // Y is reversed since y-coordinates go from bottom to top
+    G::camera->processMouseMovement(currentXPos - G::lastXPos, G::lastYPos - currentYPos); // Y is reversed since y-coordinates go from bottom to top
 
     G::lastXPos = currentXPos;
     G::lastYPos = currentYPos;
@@ -238,5 +237,5 @@ void Engine::mouse_callback(GLFWwindow* window, double currentXPosIn, double cur
 #pragma warning( suppress : 4100 )
 void Engine::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    GE::camera.processMouseScroll(static_cast<float>(yoffset));
+    G::camera->processMouseScroll(static_cast<float>(yoffset));
 }

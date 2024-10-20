@@ -1,11 +1,6 @@
 #pragma once
-#include "Global.h"
 
 #include <glad/glad.h>
-#include <glm/glm.hpp>
-
-#include <cassert>
-#include <print>
 
 class UniformBuffer {
 public:

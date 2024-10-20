@@ -1,9 +1,9 @@
 #pragma once
-
 #include "Camera.h"
+
 #include "Engine.h"
 #include "Global.h"
-#include "GlobalEntities.h"
+#include "Light.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -15,9 +15,10 @@ Camera::Camera(float aspectRatio, glm::vec3 position, glm::vec3 front, glm::vec3
     , m_front{ front }
     , m_up{ up }
     , m_defaultUp{ up }
+    , m_viewMatrix{ glm::lookAt(m_position, m_position + m_front, m_up) }
 {
     updateCameraVectors();
-    calculateViewMatrix();
+    //m_viewMatrix = glm::lookAt(m_position, m_position + m_front, m_up); // cannot use calculateViewMatrix() here because of if statement (spotLights does not exist yet)
     calculateProjectionMatrix();
 }
 
@@ -46,7 +47,7 @@ const void Camera::calculateViewMatrix()
 {
     // FYI: calculateViewMatrix() is run after setPosition()
 
-    if ( (this == &GE::camera || this == SpotLight::spotLights[0].getCamera()) && Engine::isExtrapolationStep ) {
+    if ( (this == G::camera || this == SpotLight::spotLights[0].getCamera()) && Engine::isExtrapolationStep) {
         m_viewMatrix = glm::lookAt(m_position + Engine::extrapolationResultPosition, m_position + Engine::extrapolationResultPosition + m_front, m_up);
     }
     else

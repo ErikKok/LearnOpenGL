@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Global.h"
-#include "Texture.h" // for UPtr
+#include "Global.h"		// for UPtr
+#include "Texture.h"	// for UPtr
 
 #include <array>
 

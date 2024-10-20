@@ -129,7 +129,6 @@
     <ClCompile Include="VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Buffers.h" />
     <ClInclude Include="BufferDataStore.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Dependencies\imgui-docking\imconfig.h" />
@@ -142,12 +141,10 @@
     <ClInclude Include="Dependencies\imgui-docking\imstb_textedit.h" />
     <ClInclude Include="Dependencies\imgui-docking\imstb_truetype.h" />
     <ClInclude Include="Engine.h" />
-    <ClInclude Include="GlobalEntities.h" />
     <ClInclude Include="Data.h" />
     <ClInclude Include="ElementBuffer.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Global.h" />
-    <ClInclude Include="ImGui.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />

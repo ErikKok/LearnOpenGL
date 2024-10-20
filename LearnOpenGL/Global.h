@@ -1,15 +1,12 @@
 #pragma once
 
-#include "Camera.h"
-#include "Light.h"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <print>
+#include <memory> // for std::unique_ptr and std::make_unique
 
 // Shared and Unique pointers
 // Used for game engine specific references/assets only, which maybe will be handled by an asset manager in the future
@@ -32,8 +29,15 @@ template <typename T>
 using UPtr = std::unique_ptr<T>;
 
 ////////////////////////
-
+class Camera;
+class Player;
 namespace G {
+    // Entities
+
+    inline Camera* camera{ nullptr };
+
+    inline Player* player{ nullptr };
+
     // Window
     inline int windowWidth{ 1920 };
     inline int windowHeight{ 1080 };

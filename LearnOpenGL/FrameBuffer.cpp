@@ -1,9 +1,10 @@
 #pragma once
-
 #include "FrameBuffer.h"
+
 #include "Global.h"
 #include "Texture.h"
 
+#include <cassert>
 #include <print>
 
 FrameBuffer::FrameBuffer()

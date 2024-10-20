@@ -1,19 +1,17 @@
 #pragma once
-
-#include "Engine.h"
-#include "GlobalEntities.h"
 #include "Player.h"
 
-#include <algorithm>
+#include "Camera.h"
+#include "Engine.h" // for struct AABB
 
 void Player::calculateForwardSpeed()
 {
-    m_forwardSpeed = glm::dot(m_speed, GE::camera.getFront());
+    m_forwardSpeed = glm::dot(m_speed, G::camera->getFront());
 }
 
 //void Player::calculateRightSpeed()
 //{
-//    m_rightSpeed = glm::dot(m_speed, GE::camera.getRight());
+//    m_rightSpeed = glm::dot(m_speed, G::cam->getRight());
 //}
 
 void Player::initMovement(PlayerMovement direction)
@@ -38,13 +36,13 @@ void Player::initMovement(PlayerMovement direction)
 
         // LEFT RIGHT
         if (direction == PlayerMovement::left) {
-            m_acceleration.x += GE::camera.getRight().x * -m_maxAcceleration * G::deltaTime;
-            m_acceleration.z += GE::camera.getRight().z * -m_maxAcceleration * G::deltaTime;
+            m_acceleration.x += G::camera->getRight().x * -m_maxAcceleration * G::deltaTime;
+            m_acceleration.z += G::camera->getRight().z * -m_maxAcceleration * G::deltaTime;
             return;
         }
         if (direction == PlayerMovement::right) {
-            m_acceleration.x += GE::camera.getRight().x * m_maxAcceleration * G::deltaTime;
-            m_acceleration.z += GE::camera.getRight().z * m_maxAcceleration * G::deltaTime;
+            m_acceleration.x += G::camera->getRight().x * m_maxAcceleration * G::deltaTime;
+            m_acceleration.z += G::camera->getRight().z * m_maxAcceleration * G::deltaTime;
             return;
         }
         if (direction == PlayerMovement::leftright) {
@@ -59,13 +57,13 @@ void Player::initMovement(PlayerMovement direction)
     if (!m_isAirborne) {
         // FORWARD BACKWARD
         if (direction == PlayerMovement::forward) {
-            m_acceleration.x += GE::camera.getFront().x * m_maxAcceleration;
-            m_acceleration.z += GE::camera.getFront().z * m_maxAcceleration;
+            m_acceleration.x += G::camera->getFront().x * m_maxAcceleration;
+            m_acceleration.z += G::camera->getFront().z * m_maxAcceleration;
             return;
         }
         if (direction == PlayerMovement::backward) {
-            m_acceleration.x += GE::camera.getFront().x * -m_maxAcceleration;
-            m_acceleration.z += GE::camera.getFront().z * -m_maxAcceleration;
+            m_acceleration.x += G::camera->getFront().x * -m_maxAcceleration;
+            m_acceleration.z += G::camera->getFront().z * -m_maxAcceleration;
             return;
         }
         if (direction == PlayerMovement::forwardbackward) {
@@ -75,13 +73,13 @@ void Player::initMovement(PlayerMovement direction)
 
         // LEFT RIGHT
         if (direction == PlayerMovement::left) {
-            m_acceleration.x += GE::camera.getRight().x * -m_maxAcceleration;
-            m_acceleration.z += GE::camera.getRight().z * -m_maxAcceleration;
+            m_acceleration.x += G::camera->getRight().x * -m_maxAcceleration;
+            m_acceleration.z += G::camera->getRight().z * -m_maxAcceleration;
             return;
         }
         if (direction == PlayerMovement::right) {
-            m_acceleration.x += GE::camera.getRight().x * m_maxAcceleration;
-            m_acceleration.z += GE::camera.getRight().z * m_maxAcceleration;
+            m_acceleration.x += G::camera->getRight().x * m_maxAcceleration;
+            m_acceleration.z += G::camera->getRight().z * m_maxAcceleration;
             return;
         }
         if (direction == PlayerMovement::leftright) {
@@ -108,8 +106,8 @@ void Player::initMovement(PlayerMovement direction)
         if (direction == PlayerMovement::jump) {
             m_acceleration.y = m_jumpAcceleration; // not added (+=)!
             m_isAirborne = true;
-            if (GE::camera.getPosition().y < 1.5f)
-                GE::camera.setPositionY(1.5f); // TODO, anders blijf je vallen als je onder de Floor jumpt
+            if (G::camera->getPosition().y < 1.5f)
+                G::camera->setPositionY(1.5f); // TODO, anders blijf je vallen als je onder de Floor jumpt
             return;
         }
     }
@@ -181,7 +179,7 @@ void Player::calculateSpeed()
         //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
 
         //limitSpeed();
-        //GE::camera.setPosition(GE::camera.getPosition() + ((m_speed + m_speedLastFrame) * 0.5f) * Engine::physicsFrameTime);
+        //G::cam->setPosition(G::cam->getPosition() + ((m_speed + m_speedLastFrame) * 0.5f) * Engine::physicsFrameTime);
 
         //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
         //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
@@ -289,12 +287,12 @@ void Player::handleJump()
 {
     // TODO temp jump stuff
     static bool jumpStarted = false;
-    if (m_isAirborne && GE::camera.getPosition().y > 1.51f) {
+    if (m_isAirborne && G::camera->getPosition().y > 1.51f) {
         jumpStarted = true;
     }
 
-    if (jumpStarted && m_isAirborne && GE::camera.getPosition().y <= 1.5f) { // landed on Floor // TODO add real collision check
-        GE::camera.setPositionY(1.5f);
+    if (jumpStarted && m_isAirborne && G::camera->getPosition().y <= 1.5f) { // landed on Floor // TODO add real collision check
+        G::camera->setPositionY(1.5f);
         m_speed.y = 0.0f;
         Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         m_isAirborne = false;
@@ -321,13 +319,13 @@ AABB Player::getTAABB()
     // y = 2 mtr height, eyes are at 1.8 mtr and 5 cm from front
     // z = 20 cm depth
 
-    //x.m_vecMax.x = GE::camera.getPosition().x + 0.25f; // right
-    //x.m_vecMax.y = GE::camera.getPosition().y + 0.20f; // top
-    //x.m_vecMax.z = GE::camera.getPosition().z + 0.15f; // back
+    //x.m_vecMax.x = G::cam->getPosition().x + 0.25f; // right
+    //x.m_vecMax.y = G::cam->getPosition().y + 0.20f; // top
+    //x.m_vecMax.z = G::cam->getPosition().z + 0.15f; // back
 
-    //x.m_vecMin.x = GE::camera.getPosition().x - 0.25f; // left
-    //x.m_vecMin.y = GE::camera.getPosition().y - 1.80f; // bottom
-    //x.m_vecMin.z = GE::camera.getPosition().z - 0.05f; // front
+    //x.m_vecMin.x = G::cam->getPosition().x - 0.25f; // left
+    //x.m_vecMin.y = G::cam->getPosition().y - 1.80f; // bottom
+    //x.m_vecMin.z = G::cam->getPosition().z - 0.05f; // front
 
     // Player dimensions:
     // x = 40 cm width
@@ -336,13 +334,13 @@ AABB Player::getTAABB()
 
     AABB x{};
 
-    x.m_vecMax.x = GE::camera.getPosition().x + 0.2f; // right
-    x.m_vecMax.y = GE::camera.getPosition().y + 0.2f; // top
-    x.m_vecMax.z = GE::camera.getPosition().z + 0.2f; // back
+    x.m_vecMax.x = G::camera->getPosition().x + 0.2f; // right
+    x.m_vecMax.y = G::camera->getPosition().y + 0.2f; // top
+    x.m_vecMax.z = G::camera->getPosition().z + 0.2f; // back
 
-    x.m_vecMin.x = GE::camera.getPosition().x - 0.2f; // left
-    x.m_vecMin.y = GE::camera.getPosition().y - 1.8f; // bottom
-    x.m_vecMin.z = GE::camera.getPosition().z - 0.2f; // front
+    x.m_vecMin.x = G::camera->getPosition().x - 0.2f; // left
+    x.m_vecMin.y = G::camera->getPosition().y - 1.8f; // bottom
+    x.m_vecMin.z = G::camera->getPosition().z - 0.2f; // front
 
     return x;
 }
@@ -353,31 +351,31 @@ AABB Player::getTAABB()
 //
 //    TAABB x{};
 //
-//    x.m_vecMax.x = GE::camera.getPosition().x + 0.25f; // right
-//    x.m_vecMax.y = GE::camera.getPosition().y + 0.25f; // top
-//    x.m_vecMax.z = GE::camera.getPosition().z + 0.15f; // back
+//    x.m_vecMax.x = G::cam->getPosition().x + 0.25f; // right
+//    x.m_vecMax.y = G::cam->getPosition().y + 0.25f; // top
+//    x.m_vecMax.z = G::cam->getPosition().z + 0.15f; // back
 //
-//    x.m_vecMin.x = GE::camera.getPosition().x - 0.25f; // left
-//    x.m_vecMin.y = GE::camera.getPosition().y - 1.75f; // bottom
-//    x.m_vecMin.z = GE::camera.getPosition().z - 0.05f; // front
+//    x.m_vecMin.x = G::cam->getPosition().x - 0.25f; // left
+//    x.m_vecMin.y = G::cam->getPosition().y - 1.75f; // bottom
+//    x.m_vecMin.z = G::cam->getPosition().z - 0.05f; // front
 //
 //    return x;
 //}
 
 //void Player::initDirection() {
-//    m_positionLastFrame = GE::camera.getPosition();
+//    m_positionLastFrame = G::cam->getPosition();
 //}
 //
 //void Player::calculateDirection()
 //{
-//    //if (GE::camera.getPosition() == m_positionLastFrame)
+//    //if (G::cam->getPosition() == m_positionLastFrame)
 //    //    m_direction = glm::vec3(0.0f);
 //    //else {
-//        m_direction = glm::normalize(GE::camera.getPosition() - m_positionLastFrame);
-//        m_positionLastFrame = GE::camera.getPosition();
+//        m_direction = glm::normalize(G::cam->getPosition() - m_positionLastFrame);
+//        m_positionLastFrame = G::cam->getPosition();
 //    //}
 // 
-//    m_positionLastFrame = GE::camera.getPosition();
+//    m_positionLastFrame = G::cam->getPosition();
 //
 //    //std::println("player.m_direction: {}, {}, {}", m_direction.x, m_direction.y, m_direction.z);
 //}

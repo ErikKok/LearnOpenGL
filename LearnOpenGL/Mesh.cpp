@@ -1,6 +1,8 @@
 #pragma once
-
 #include "mesh.h"
+
+#include "Texture.h"
+#include "VertexArray.h"
 
 Mesh::Mesh(const std::vector<float>& vertices, const std::vector<unsigned int>& indices)
     :m_verticesFloat{ vertices }

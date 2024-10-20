@@ -7,6 +7,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <unordered_map>
 
 Shader::Shader(const std::string& shaderPath)
 {

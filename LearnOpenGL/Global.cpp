@@ -1,8 +1,12 @@
 #pragma once
-
-#include "Engine.h"
 #include "Global.h"
-#include "GlobalEntities.h"
+
+#include "Camera.h"
+#include "Engine.h"
+#include "Player.h"
+#include "Shader.h"
+
+#include <print>
 
 #include "imgui-docking/imgui.h"
 #include "imgui-docking/imgui_impl_glfw.h"
@@ -49,18 +53,18 @@ glm::mat4 G::calculateModelMatrix(glm::vec3 translate, float rotateDegrees, glm:
 // Takes in full transformation parameters in World space, and outputs model in View space
 glm::mat4 G::calculateModelViewMatrix(glm::vec3 translate, float rotateDegrees, glm::vec3 rotateVec3, glm::vec3 scale)
 { 
-    return GE::camera.getViewMatrix() * calculateModelMatrix(translate, rotateDegrees, rotateVec3, scale);
+    return G::camera->getViewMatrix() * calculateModelMatrix(translate, rotateDegrees, rotateVec3, scale);
 }
 
 // see https://stackoverflow.com/questions/49840131/unity-how-to-calculate-a-target-position-with-offset-based-on-the-current-posi
 // and https://stackoverflow.com/questions/72095398/translate-objects-relative-to-the-camera-view (I guess I could inverse modelViewMatrix instead, same same...)
 void G::applyCameraOffset(Camera* cam, float x, float y, float z) {
-    glm::mat4 offsetMatrix{ glm::translate(glm::mat4(1.0f), GE::camera.getRight() * x) };
-    offsetMatrix = glm::translate(offsetMatrix, GE::camera.getUp() * y);
-    offsetMatrix = glm::translate(offsetMatrix, GE::camera.getFront() * z);
+    glm::mat4 offsetMatrix{ glm::translate(glm::mat4(1.0f), G::camera->getRight() * x) };
+    offsetMatrix = glm::translate(offsetMatrix, G::camera->getUp() * y);
+    offsetMatrix = glm::translate(offsetMatrix, G::camera->getFront() * z);
 
-    cam->setFront(GE::camera.getFront());
-    cam->setPosition({ offsetMatrix * glm::vec4(GE::camera.getPosition(), 1.0f) });
+    cam->setFront(G::camera->getFront());
+    cam->setPosition({ offsetMatrix * glm::vec4(G::camera->getPosition(), 1.0f) });
 }
 
 void G::cheap2Copy() {
@@ -146,24 +150,21 @@ void G::ImGui() {
     ImGuiIO& io = ImGui::GetIO();
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
-    ImGui::SliderFloat("m_maxJumpSpeed", &GE::player.m_maxJumpSpeed, 0.0f, 2000.0f, "%.1f");
-    ImGui::SliderFloat("m_jumpAcceleration", &GE::player.m_jumpAcceleration, 0.0f, 2000.0f, "%.1f");
-    ImGui::SliderFloat("m_maxJumpAcceleration", &GE::player.m_maxJumpAcceleration, 0.0f, 2000.0f, "%.1f");
-    ImGui::SliderFloat("m_dryFriction", &GE::player.m_dryFriction, 0.0f, 100.0f, "%.1f");
+    ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxJumpSpeed, 0.0f, 2000.0f, "%.1f");
+    ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 2000.0f, "%.1f");
+    ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 2000.0f, "%.1f");
+    ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 0.0f, 100.0f, "%.1f");
 
-    //ImGui::Text("m_position = %f", GE::camera.m_position);
-    //ImGui::Text("m_front = %f", GE::camera.m_front);
+    ImGui::Text("m_position = %.2f, %.2f, %.2f", G::camera->m_position.x, G::camera->m_position.y, G::camera->m_position.z);
+    ImGui::Text("m_front = %.2f, %.2f, %.2f", G::camera->m_front.x, G::camera->m_front.y, G::camera->m_front.z);
     
-    // call during physicsloop / split in 2 
-    // move to main?
-
     ImGui::Text("ticksLoop = %d", Engine::ticksLoop);
     ImGui::Text("ticksPhysics = %d", Engine::ticksPhysics);
 
-    ImGui::Text("m_speed = %.2f, %.2f, %.2f", GE::player.m_speed.x, GE::player.m_speed.y, GE::player.m_speed.z);
-    ImGui::Text("m_maxCurrentSpeed = %.2f", GE::player.m_maxCurrentSpeed);
-    ImGui::Text("m_forwardSpeed = %.2f", GE::player.m_forwardSpeed);
-    ImGui::Text("m_acceleration = 000%.2f, 000%.2f, 000%.2f", GE::player.m_acceleration.x, GE::player.m_acceleration.y, GE::player.m_acceleration.z);
+    ImGui::Text("m_speed = %.2f, %.2f, %.2f", G::player->m_speed.x, G::player->m_speed.y, G::player->m_speed.z);
+    ImGui::Text("m_maxCurrentSpeed = %.2f", G::player->m_maxCurrentSpeed);
+    ImGui::Text("m_forwardSpeed = %.2f", G::player->m_forwardSpeed);
+    ImGui::Text("m_acceleration = 000%.2f, 000%.2f, 000%.2f", G::player->m_acceleration.x, G::player->m_acceleration.y, G::player->m_acceleration.z);
 
     // %d int
     // %g insignificant zeroes to the right of the decimal point are not included

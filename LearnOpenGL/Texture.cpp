@@ -1,19 +1,18 @@
 #pragma once
-#include "Global.h"
 #include "Texture.h"
 
-#include <glad/glad.h>
+#include "Global.h"
+
 #include <STB/stb_image.h>
 
 #include <array>
+#include <bitset>
+#include <cstdint>
+#include <iostream>
 #include <print>
+#include <sstream>
 #include <string>
 #include <vector>
-
-#include <bitset>
-#include <iostream>
-#include <sstream>
-#include <cstdint>
 
 Texture::Texture(const std::string& filePath, bool convertToLinearSpace)
     :m_filePath{ filePath }

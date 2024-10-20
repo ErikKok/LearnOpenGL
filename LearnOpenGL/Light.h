@@ -1,12 +1,15 @@
 #pragma once
 
 #include "Camera.h"
+//#include "Shader.h"
+
 #include <memory> // for std::unique_ptr and std::make_unique
-#include "Shader.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+class Shader;
 
 class Light {
 public:

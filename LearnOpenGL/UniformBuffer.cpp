@@ -1,6 +1,12 @@
 #pragma once
 #include "UniformBuffer.h"
 
+#include "Global.h"
+
+#include <glad/glad.h>
+
+#include <print>
+
 UniformBuffer::UniformBuffer(GLuint bindingPoint)
 	: m_bindingPoint{ bindingPoint }
 {
