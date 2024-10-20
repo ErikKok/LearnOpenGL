@@ -72,7 +72,6 @@ int init(GLFWwindow* window)
 
     G::glCheckError();
 
-    // Setup Dear ImGui context
     std::println("Initialize ImGui");
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -111,18 +110,20 @@ int main()
         glfwTerminate();
         return -1;
     }
+    
+    std::println("Initialize player and camera");
+    Player playerOnTheStack;
+    G::player = &playerOnTheStack;
+    Camera cameraOnTheStack((static_cast<float>(G::windowWidth) / static_cast<float>(G::windowHeight)), G::cameraInitialPosition);
+    G::camera = &cameraOnTheStack;
+    if (!G::player || !G::camera) {
+        std::println("Failed to initialize player or camera");
+        return -1;
+    }
 
     {
         std::println("Start OpenGL Scope");
 
-        // TODO no delete | unique_ptr?
-        G::camera = new Camera((static_cast<float>(G::windowWidth) / static_cast<float>(G::windowHeight)), G::cameraInitialPosition);
-        assert(G::camera && "G::cam is nullptr");
-
-        G::player = new Player;
-        assert(G::player && "G::play is nullptr");
-
-        //Global::cheap2Copy();
         Renderer renderer;
         renderer.initStencilBuffer();
         renderer.createShaderSingleColor("Shaders\\singleColor.shader");
@@ -572,16 +573,6 @@ int main()
 
             lightCubeRO.ssbo[1]->updateSubset(glm::vec4(SpotLight::spotLights[1].getColor(), 1.0f), 4, false);
             lightCubeRO.ssbo[1]->uploadFully();
-
-            // Collision test //////////////////////////////////////////////////////////////////
-
-            AABB wall{
-                glm::vec3(10.0f,  10.0f, -2.5f), // m_vecMax
-                glm::vec3(-10.0f, -10.0f, -3.5f)  // m_vecMin
-            };
-
-            if (Engine::AABBtoAABB(wall, G::player->getTAABB()))
-                std::println("COLLISION!!!");
 
             /////////////////////////////////////////////////////////////////////////////////////
             // Start Render /////////////////////////////////////////////////////////////////////

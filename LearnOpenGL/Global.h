@@ -11,7 +11,6 @@
 // Shared and Unique pointers
 // Used for game engine specific references/assets only, which maybe will be handled by an asset manager in the future
 // See https://youtu.be/HkGZ378nArE?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT
-// TODO - in de namespace plaatsen?
 
 // Usage
 // Class data member: std::unique_ptr<Type> name{ nullptr };
@@ -29,13 +28,13 @@ template <typename T>
 using UPtr = std::unique_ptr<T>;
 
 ////////////////////////
+
 class Camera;
 class Player;
+
 namespace G {
     // Entities
-
     inline Camera* camera{ nullptr };
-
     inline Player* player{ nullptr };
 
     // Window
@@ -85,8 +84,17 @@ namespace G {
     void cheap2Copy(); // https://www.learncpp.com/cpp-tutorial/pass-by-const-lvalue-reference/ - The cost of pass by value vs pass by reference
     void getInformation();
 
+    // ImGui
+
     // https://pthom.github.io/imgui_manual_online/manual/imgui_manual.html
     // https://www.jakobmaier.at/posts/imgui-slider-with-getter-and-setters/
 
+    // https://alvinalexander.com/programming/printf-format-cheat-sheet/
+    // %d int
+    // %g insignificant zeroes to the right of the decimal point are not included
+    // %0+7.2f = seven-wide (incl. .), two positions after the decimal, always signed
+
     void ImGui();
+    //inline bool test{ false };
+    inline double collisionTime{};
 }

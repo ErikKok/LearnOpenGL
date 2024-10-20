@@ -345,6 +345,21 @@ AABB Player::getTAABB()
     return x;
 }
 
+AABB Player::getTAABB(glm::vec3& proposedPosition)
+{
+    AABB x{};
+
+    x.m_vecMax.x = proposedPosition.x + 0.2f; // right
+    x.m_vecMax.y = proposedPosition.y + 0.2f; // top
+    x.m_vecMax.z = proposedPosition.z + 0.2f; // back
+
+    x.m_vecMin.x = proposedPosition.x - 0.2f; // left
+    x.m_vecMin.y = proposedPosition.y - 1.8f; // bottom
+    x.m_vecMin.z = proposedPosition.z - 0.2f; // front
+
+    return x;
+}
+
 //Engine::TAABB Player::getTAABB(glm::vec3 position, glm::vec3 dimensions)
 //{
 //      // TODO

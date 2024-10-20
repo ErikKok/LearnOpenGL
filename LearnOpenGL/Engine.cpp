@@ -16,7 +16,7 @@ void Engine::perFrameTimeLogic()
     currentFrameTime = static_cast<float>(glfwGetTime());
     G::deltaTime = currentFrameTime - G::timestampLastFrame;
     if (G::deltaTime > 0.1f) { // smooths huge spikes out
-        std::println("WARNING: deltaTime too high! Capped at 10ms, original value was: {}ms", G::deltaTime);
+        std::println("WARNING: deltaTime too high! Capped at 10ms, original value was: {}ms", G::deltaTime * 1000);
         G::deltaTime = 0.1f;
     }
     G::timestampLastFrame = currentFrameTime;
@@ -33,7 +33,25 @@ void Engine::doPhysics()
         G::player->limitSpeed();
         G::player->handleJump();
         G::player->resetAcceleration();
-        G::camera->setPosition(G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime);
+        //G::camera->setPosition(G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime);
+
+        // Collision test //////////////////////////////////////////////////////////////////
+        glm::vec3 proposedPosition = G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime;
+
+        AABB wall{
+            glm::vec3(10.0f,   10.0f, -2.5f), // m_vecMax
+            glm::vec3(-10.0f, -10.0f, -3.5f)  // m_vecMin
+        };
+
+        if (Engine::AABBtoAABB(wall, G::player->getTAABB(proposedPosition))) {
+            G::collisionTime = glfwGetTime();
+            G::player->setSpeed(glm::vec3(0.0f, 0.0f, 0.0f));
+        }
+        else
+            G::camera->setPosition(proposedPosition);
+
+        /////
+
         totalTimePassed += physicsFrameTime;
         frameTimeRemaining -= physicsFrameTime;
     }
@@ -60,13 +78,16 @@ bool Engine::isEqual(const glm::vec3& position1, const glm::vec3& position2, flo
 
 bool Engine::AABBtoAABB(const AABB& box1, const AABB& box2)
 {
-    //Check if Box1's max is greater than Box2's min and Box1's min is less than Box2's max
-    return(box1.m_vecMax.x > box2.m_vecMin.x &&
+    // Check if box1's max is greater than box2's min and box1's min is less than box2's max
+    // true if collision
+    return(
+          (box1.m_vecMax.x > box2.m_vecMin.x &&
            box1.m_vecMin.x < box2.m_vecMax.x &&
            box1.m_vecMax.y > box2.m_vecMin.y &&
            box1.m_vecMin.y < box2.m_vecMax.y &&
            box1.m_vecMax.z > box2.m_vecMin.z &&
-           box1.m_vecMin.z < box2.m_vecMax.z);
+           box1.m_vecMin.z < box2.m_vecMax.z)
+          );
 }
 
 void Engine::processInput(GLFWwindow* window)

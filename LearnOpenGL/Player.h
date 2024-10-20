@@ -24,6 +24,7 @@ public:
 	const float getMaxCurrentSpeed() const { return m_maxCurrentSpeed; };
 	void setMaxCurrentSpeed(float x) { m_maxCurrentSpeed = x; };
 	const glm::vec3 getSpeed() const { return m_speed; };
+	void setSpeed(glm::vec3 x) { m_speed = x; };
 	const glm::vec3 getSpeedLastFrame() const { return m_speedLastFrame; };
 	const float getWalkSpeed() const { return m_walkSpeed; };
 	const float getRunSpeed() const { return m_runSpeed; };
@@ -44,13 +45,14 @@ public:
 	void resetAcceleration();
 
 	AABB getTAABB();
+	AABB getTAABB(glm::vec3& proposedPosition);
 	//void initDirection();
 	//void calculateDirection();
 
 private:
 	glm::vec3 m_speed{ 0.0f };				// meter/second
 	glm::vec3 m_speedLastFrame{ 0.0f };
-	float m_forwardSpeed{ 0.0f };			// https://forums.unrealengine.com/t/character-movement-direction/30708/4
+	float m_forwardSpeed{ 0.0f };			// only updated when needed // https://forums.unrealengine.com/t/character-movement-direction/30708/4
 	//float m_rightSpeed{ 0.0f };
 	float m_maxCurrentSpeed{ 22.0f };
 	float m_walkSpeed{ 5.0f };

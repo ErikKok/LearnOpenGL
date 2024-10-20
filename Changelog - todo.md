@@ -3,7 +3,6 @@ Reminder:
 - try to architect your renderer in a way that you can do pretty much all of your data uploads at the beginning of the frame
 - samplers and other opaque shader types can be given explicit binding points https://juandiegomontoya.github.io/modern_opengl.html#sampler%20objects
 - use a constant array in the shader, e.g. for fullscreen quads
-- TODO: Headers: put as much as you can in the .cpp and as little as possible in the .h.
 
 Known bugs:
 - drawDebugQuad gives Undefined Behaviour warnings, because quadTexture is actually a sampler2DShadow, but used as a sampler2D (see https://community.khronos.org/t/read-depth-buffer-value-from-sampler2dshadow/53156)
@@ -44,10 +43,16 @@ TO DO
 - Physics / movement:
 	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
-- move ImGui to physicsloop or split in 2 windows
+- to get ImGui to show doPhysics related values show in a seperate window
+
+v0.3.51 20-10-2024
+-----------------
+- player and camera on the stack
+- Collision test visible in ImGui
+- Collision test first implementation works!
 
 v0.3.5 20-10-2024
-------------------
+-----------------
 - a LOT of header clean-up!
 - GE::camera -> G::camera*
 - GE::player -> G::player*
@@ -58,11 +63,11 @@ v0.3.5 20-10-2024
 - removed ImGui.h
 
 v0.3.4 20-10-2024
-------------------
+-----------------
 - got ImGui working without HesGui stuff
 
 v0.3.3 19-10-2024
-------------------
+-----------------
 - configure glad for use with imgui
 - pressing M does not invoke movement anymore, so you can control ImGui:
 	- rewritten Engine::mouse_callback(), added firstMouse, moved lastXPos/lastYPos to Global
@@ -71,17 +76,17 @@ v0.3.3 19-10-2024
 - added some stupid HesGui class stuff as workaround
 
 v0.3.2.1 17-10-2024
-------------------
+-------------------
 - removed old assimp / stb files
 
 v0.3.2 17-10-2024
-------------------
+-----------------
 - added ImGui
 - stb image loader v2.29 -> v2.30
 - ASSIMP v5.2.5 -> v5.4.3
 
 v0.3.11.2 17-10-2024
-------------------
+--------------------
 - *** movement system looks quite allright now (again)
 - more cleanup
 - renamed handleMovement() to calculateSpeed()
@@ -90,7 +95,7 @@ v0.3.11.2 17-10-2024
 - de-capitalized enum class ShaderType
 
 v0.3.11.1 17-10-2024
-------------------
+--------------------
 - cleanup
 
 v0.3.11 17-10-2024
