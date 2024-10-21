@@ -24,25 +24,25 @@ void Player::initMovement(PlayerMovement direction)
         if (direction == PlayerMovement::forward  && m_forwardSpeed < 0.0f || // player moves backward and inputs forward
             direction == PlayerMovement::backward && m_forwardSpeed > 0.0f || // player moves forwards and inputs backward
             direction == PlayerMovement::forwardbackward) {
-                m_speed.x *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
-                m_speed.z *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
-                return;
+            m_speed.x *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
+            m_speed.z *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
+            return;
         }
         if (direction == PlayerMovement::updown) {
             m_acceleration.y = -G::gravity;
-            m_speed.y *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
+            m_speed.y = 0.0f;
             return;
         }
 
         // LEFT RIGHT
         if (direction == PlayerMovement::left) {
-            m_acceleration.x += G::camera->getRight().x * -m_maxAcceleration * G::deltaTime;
-            m_acceleration.z += G::camera->getRight().z * -m_maxAcceleration * G::deltaTime;
+            m_acceleration.x += G::camera->getRight().x * -m_maxJumpSidewaysAcceleration;
+            m_acceleration.z += G::camera->getRight().z * -m_maxJumpSidewaysAcceleration;
             return;
         }
         if (direction == PlayerMovement::right) {
-            m_acceleration.x += G::camera->getRight().x * m_maxAcceleration * G::deltaTime;
-            m_acceleration.z += G::camera->getRight().z * m_maxAcceleration * G::deltaTime;
+            m_acceleration.x += G::camera->getRight().x * m_maxJumpSidewaysAcceleration;
+            m_acceleration.z += G::camera->getRight().z * m_maxJumpSidewaysAcceleration;
             return;
         }
         if (direction == PlayerMovement::leftright) {
@@ -57,35 +57,33 @@ void Player::initMovement(PlayerMovement direction)
     if (!m_isAirborne) {
         // FORWARD BACKWARD
         if (direction == PlayerMovement::forward) {
-            m_acceleration.x += G::camera->getFront().x * m_maxAcceleration;
-            m_acceleration.z += G::camera->getFront().z * m_maxAcceleration;
+            m_acceleration.x += G::camera->getFront().x * m_maxWalkAcceleration;
+            m_acceleration.z += G::camera->getFront().z * m_maxWalkAcceleration;
             return;
         }
         if (direction == PlayerMovement::backward) {
-            m_acceleration.x += G::camera->getFront().x * -m_maxAcceleration;
-            m_acceleration.z += G::camera->getFront().z * -m_maxAcceleration;
+            m_acceleration.x += G::camera->getFront().x * -m_maxWalkAcceleration;
+            m_acceleration.z += G::camera->getFront().z * -m_maxWalkAcceleration;
             return;
         }
-        if (direction == PlayerMovement::forwardbackward) {
-            m_acceleration.z = 0.0f;
-            return;
-        }
+        //if (direction == PlayerMovement::forwardbackward)
+        //    //m_acceleration.z = 0.0f;
+        //    return;
 
         // LEFT RIGHT
         if (direction == PlayerMovement::left) {
-            m_acceleration.x += G::camera->getRight().x * -m_maxAcceleration;
-            m_acceleration.z += G::camera->getRight().z * -m_maxAcceleration;
+            m_acceleration.x += G::camera->getRight().x * -m_maxStrafeAcceleration;
+            m_acceleration.z += G::camera->getRight().z * -m_maxStrafeAcceleration;
             return;
         }
         if (direction == PlayerMovement::right) {
-            m_acceleration.x += G::camera->getRight().x * m_maxAcceleration;
-            m_acceleration.z += G::camera->getRight().z * m_maxAcceleration;
+            m_acceleration.x += G::camera->getRight().x * m_maxStrafeAcceleration;
+            m_acceleration.z += G::camera->getRight().z * m_maxStrafeAcceleration;
             return;
         }
-        if (direction == PlayerMovement::leftright) {
-            m_acceleration.x = 0.0f;
-            return;
-        }
+        //if (direction == PlayerMovement::leftright)
+        //    //m_acceleration.x = 0.0f;
+        //    return;
 
         // UP DOWN
         if (direction == PlayerMovement::up) {
@@ -96,15 +94,13 @@ void Player::initMovement(PlayerMovement direction)
             m_acceleration.y += -m_maxJumpAcceleration;
             return;
         }
-        if (direction == PlayerMovement::updown) { // TODO adds some -speed.y ?
-            m_acceleration.y = -G::gravity;
-            m_speed.y *= m_airborneDecelerationFactor * Engine::physicsFrameTime;
-            return;
-        }
+        //if (direction == PlayerMovement::updown)
+        //    //m_acceleration.y = -G::gravity;
+        //    return;
 
         // JUMP
         if (direction == PlayerMovement::jump) {
-            m_acceleration.y = m_jumpAcceleration; // not added (+=)!
+            m_acceleration.y = m_jumpAcceleration;
             m_isAirborne = true;
             if (G::camera->getPosition().y < 1.5f)
                 G::camera->setPositionY(1.5f); // TODO, anders blijf je vallen als je onder de Floor jumpt
@@ -114,25 +110,43 @@ void Player::initMovement(PlayerMovement direction)
 }
 
 void Player::limitAcceleration() {
-    // TODO both axis hits the maxAcceleration
-    //if (m_acceleration.x > m_maxAcceleration && m_acceleration.z > m_maxAcceleration) {
-    //    m_acceleration.x = m_maxAcceleration;
-    //    m_acceleration.z = m_maxAcceleration;
-    //}
-    //if (m_acceleration.x < -m_maxAcceleration && m_acceleration.z > m_maxAcceleration) {
-    //    m_acceleration.x = -m_maxAcceleration;
-    //    m_acceleration.z = m_maxAcceleration;
-    //}
-    //if (m_acceleration.x > m_maxAcceleration && m_acceleration.z < -m_maxAcceleration) {
-    //    m_acceleration.x = m_maxAcceleration;
-    //    m_acceleration.z = -m_maxAcceleration;
-    //}
-    //if (m_acceleration.x < -m_maxAcceleration && m_acceleration.z < -m_maxAcceleration) {
-    //    m_acceleration.x = -m_maxAcceleration;
-    //    m_acceleration.z = -m_maxAcceleration;
-    //}
+    // Y - first because of potentially early return
+    if (m_acceleration.y > m_maxJumpAcceleration) {
+        if (m_isAirborne)
+            m_acceleration.y = m_maxJumpAcceleration;
+        //if (!m_isAirborne) // TODO going up or down a slope
+        //    m_acceleration.y = m_maxJumpAcceleration;
+    }
+    if (m_acceleration.y < -m_maxJumpAcceleration) {
+        if (m_isAirborne)
+            m_acceleration.y = -m_maxJumpAcceleration;
+        //if (!m_isAirborne) // TODO going up or down a slope
+        //    m_acceleration.y = -m_maxJumpAcceleration;
+    }
 
-    // correct both axis in same ratio if one exceeds the max
+    // Both axis hits the maxAcceleration simultaneously
+    if (m_acceleration.x > m_maxAcceleration && m_acceleration.z > m_maxAcceleration) {
+        m_acceleration.x = m_maxAcceleration;
+        m_acceleration.z = m_maxAcceleration;
+        return;
+    }
+    if (m_acceleration.x > m_maxAcceleration && m_acceleration.z < -m_maxAcceleration) {
+        m_acceleration.x = m_maxAcceleration;
+        m_acceleration.z = -m_maxAcceleration;
+        return;
+    }
+    if (m_acceleration.x < -m_maxAcceleration && m_acceleration.z > m_maxAcceleration) {
+        m_acceleration.x = -m_maxAcceleration;
+        m_acceleration.z = m_maxAcceleration;
+        return;
+    }
+    if (m_acceleration.x < -m_maxAcceleration && m_acceleration.z < -m_maxAcceleration) {
+        m_acceleration.x = -m_maxAcceleration;
+        m_acceleration.z = -m_maxAcceleration;
+        return;
+    }
+
+    float m_correction{ 0.0f };
     // X
     if (m_acceleration.x > m_maxAcceleration) {
         m_correction = m_maxAcceleration / m_acceleration.x;
@@ -144,19 +158,7 @@ void Player::limitAcceleration() {
         m_acceleration.x = -m_maxAcceleration;
         m_acceleration.z *= m_correction;
     }
-    // Y
-    if (m_acceleration.y > m_maxJumpAcceleration) {
-        if (m_isAirborne)
-            m_acceleration.y = m_maxJumpAcceleration;
-        if (!m_isAirborne)
-            m_acceleration.y = m_maxJumpAcceleration;
-    }
-    if (m_acceleration.y < -m_maxJumpAcceleration) {
-        if (m_isAirborne)
-            m_acceleration.y = -m_maxJumpAcceleration;
-        if (!m_isAirborne)
-            m_acceleration.y = -m_maxJumpAcceleration;
-    }
+
     // Z
     if (m_acceleration.z > m_maxAcceleration) {
         m_correction = m_maxAcceleration / m_acceleration.z;
@@ -227,25 +229,40 @@ void Player::calculateSpeed()
 void Player::limitSpeed() 
 {
     // TODO or should friction alone limit the speed?
+    
+    // Y - first because of potentially early return
+    if (m_speed.y > m_maxJumpSpeed) {
+        m_speed.y = m_maxJumpSpeed;
+    }
+    if (m_speed.y < -m_maxJumpSpeed) {
+        m_speed.y = -m_maxJumpSpeed;
+    }
+    if (m_speed.y > -0.001f && m_speed.y < 0.001f)
+        m_speed.y = 0.0f;
 
-    // TODO both axis hits m_maxCurrentSpeed | useful?
+    // TODO Both axis hits the m_maxCurrentSpeed simultaneously  | useful?
     if (m_speed.x > m_maxCurrentSpeed && m_speed.z > m_maxCurrentSpeed) {
-        m_speed.x = m_maxAcceleration;
-        m_speed.z = m_maxAcceleration;
+        m_speed.x = m_maxCurrentSpeed;
+        m_speed.z = m_maxCurrentSpeed;
+        return;
     }
     if (m_speed.x < -m_maxCurrentSpeed && m_speed.z > m_maxCurrentSpeed) {
-        m_speed.x = -m_maxAcceleration;
-        m_speed.z = m_maxAcceleration;
+        m_speed.x = -m_maxCurrentSpeed;
+        m_speed.z = m_maxCurrentSpeed;
+        return;
     }
     if (m_speed.x > m_maxCurrentSpeed && m_speed.z < -m_maxCurrentSpeed) {
-        m_speed.x = m_maxAcceleration;
-        m_speed.z = -m_maxAcceleration;
+        m_speed.x = m_maxCurrentSpeed;
+        m_speed.z = -m_maxCurrentSpeed;
+        return;
     }
     if (m_speed.x < -m_maxCurrentSpeed && m_speed.z < -m_maxCurrentSpeed) {
-        m_speed.x = -m_maxAcceleration;
-        m_speed.z = -m_maxAcceleration;
+        m_speed.x = -m_maxCurrentSpeed;
+        m_speed.z = -m_maxCurrentSpeed;
+        return;
     }
 
+    float m_correction{ 0.0f };
     // X
     if (m_speed.x > m_maxCurrentSpeed) {
         m_correction = m_maxCurrentSpeed / m_speed.x;
@@ -259,15 +276,7 @@ void Player::limitSpeed()
     }
     if (m_speed.x > -0.001f && m_speed.x < 0.001f)
         m_speed.x = 0.0f;
-    // Y
-    if (m_speed.y > m_maxJumpSpeed) {
-        m_speed.y = m_maxJumpSpeed;
-    }
-    if (m_speed.y < -m_maxJumpSpeed) {
-        m_speed.y = -m_maxJumpSpeed;
-    }
-    if (m_speed.y > -0.001f && m_speed.y < 0.001f)
-        m_speed.y = 0.0f;
+
     // Z
     if (m_speed.z > m_maxCurrentSpeed) {
         m_correction = m_maxCurrentSpeed / m_speed.z;
@@ -291,7 +300,7 @@ void Player::handleJump()
         jumpStarted = true;
     }
 
-    if (jumpStarted && m_isAirborne && G::camera->getPosition().y <= 1.5f) { // landed on Floor // TODO add real collision check
+    if (jumpStarted && m_isAirborne && G::camera->getPosition().y <= 1.5f || G::camera->getPosition().y <= -200.0f) { // landed on Floor // TODO add real collision check
         G::camera->setPositionY(1.5f);
         m_speed.y = 0.0f;
         Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);

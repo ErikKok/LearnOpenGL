@@ -159,30 +159,43 @@ void G::ImGui() {
     ImGui::SeparatorText("Speed:");
     ImGui::Text("m_speed = %0+7.2f, %0+7.2f, %0+7.2f", G::player->m_speed.x, G::player->m_speed.y, G::player->m_speed.z);
     ImGui::Text("m_maxCurrentSpeed = %.2f | m_forwardSpeed = %.2f", G::player->m_maxCurrentSpeed, G::player->m_forwardSpeed);
+    ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxJumpSpeed, 0.0f, 1200.0f, "%.1f");
+
+    ImGui::SeparatorText("Acceleration:");
     ImGui::Text("m_acceleration = %0+8.2f, %0+8.2f, %0+8.2f", G::player->m_acceleration.x, G::player->m_acceleration.y, G::player->m_acceleration.z);
+    ImGui::SliderFloat("m_maxAcceleration", &G::player->m_maxAcceleration, 0.0f, 2000.0f, "%.1f");
+    ImGui::SliderFloat("m_maxWalkAcceleration", &G::player->m_maxWalkAcceleration, 0.0f, 1200.0f, "%.1f");
+    ImGui::SliderFloat("m_maxStrafeAcceleration", &G::player->m_maxStrafeAcceleration, 0.0f, 1200.0f, "%.1f");
+    ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 1200.0f, "%.1f");
+    ImGui::SliderFloat("m_maxJumpSidewaysAcceleration", &G::player->m_maxJumpSidewaysAcceleration, 0.0f, 20.0f, "%.1f");
 
-    ImGui::NewLine();
-    ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxJumpSpeed, 0.0f, 2000.0f, "%.1f");
-    ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 2000.0f, "%.1f");
-    ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 2000.0f, "%.1f");
+    ImGui::SliderFloat("m_airborneDecelerationFactor", &G::player->m_airborneDecelerationFactor, 0.0f, 100.0f, "%.1f");
     ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 0.0f, 100.0f, "%.1f");
-
+    
     ImGui::NewLine();
     if (collisionTime + 0.3 < glfwGetTime())
         ImGui::Text("COLLISION?");
     else
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "COLLISION!");
     ImGui::SameLine();
-    if (ImGui::Button("Reset Transform")) {
+    ImGui::Text("Reset: ");
+    ImGui::SameLine();
+    if (ImGui::Button("Transform")) {
         G::g_translate = glm::vec3(0.0f, 0.0f, -3.0f);
         G::g_rotateDegrees = 0.0f;
-        G::g_rotateVec3 = glm::vec3(90.0f, 0.0f, 0.0f);
+        G::g_rotateVec3 = glm::vec3(1.0f, 0.0f, 0.0f);
         G::g_scale = glm::vec3(20.0f, 20.0f, 1.0f);
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Position")) {
+        G::camera->m_position = glm::vec3(0.0f, 3.5f, 15.0f);
+    }
+    ImGui::SameLine();
+    ImGui::Checkbox("Lightcube Follow", &g_follow);
 
     ImGui::SliderFloat3("Translate", (float*)&G::g_translate, -100.0f, 100.0f);
     ImGui::SliderFloat("Rotate Degrees", &G::g_rotateDegrees, 0.0f, 360.0f);
-    ImGui::SliderFloat3("Rotate Axis", (float*)&G::g_rotateVec3, 0.0f, 100.0f);
+    ImGui::SliderFloat3("Rotate Axis", (float*)&G::g_rotateVec3, 0.0f, 1.0f);
     ImGui::SliderFloat3("Scale", (float*)&G::g_scale, 0.0f, 100.0f);
 
     ImGui::End();

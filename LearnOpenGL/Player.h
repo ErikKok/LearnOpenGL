@@ -57,18 +57,20 @@ private:
 	float m_maxCurrentSpeed{ 22.0f };
 	float m_walkSpeed{ 5.0f };
 	float m_runSpeed{ 22.0f };
-	float m_maxJumpSpeed{ 100.0f };
-	//float m_maxStrafeSpeed{ 18.0f }; // TODO?
+	float m_maxJumpSpeed{ 250.0f };
+	//float m_maxStrafeRunSpeed{ 18.0f }; // TODO? + m_maxStrafeWalkSpeed
 
 	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
 	float m_maxAcceleration{ 800.0f };
+	float m_maxWalkAcceleration{ 350.0f };
+	float m_maxStrafeAcceleration{ 250.0f };
 	float m_maxJumpAcceleration{ 500.0f };
+	float m_maxJumpSidewaysAcceleration{ 3.0f };
 	float m_jumpAcceleration{ 400.0f };
 
 	float m_airborneDecelerationFactor{ 75.00f };
 	float m_dryFriction{ 85.0f };
 	//float m_aeroDrag{ 99.75f };
-	float m_correction{ 0.0f }; // used for limitAcceleration() and limitSpeed()
 
 	bool m_isRunning{ false };
 	bool m_isAirborne{ false };

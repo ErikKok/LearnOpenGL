@@ -215,7 +215,7 @@ int main()
         SpotLight::spotLights[0].setCamera(Camera(renderer.m_FBO[1]->getTexture()->getAspectRatio(), G::cameraInitialPosition));
         SpotLight::spotLights[0].getCamera()->setFov(25.0f);
         SpotLight::spotLights[0].getCamera()->setNearPlane(0.1f);
-        SpotLight::spotLights[0].getCamera()->setFarPlane(25.0f);
+        SpotLight::spotLights[0].getCamera()->setFarPlane(35.0f);
 
         // SpotLight1
         SpotLight::spotLights.emplace_back(SpotLight());
@@ -483,8 +483,10 @@ int main()
 
             SpotLight::spotLights[1].updateDirectionInViewSpace(multiLight);
             SpotLight::spotLights[1].updateDirectionInViewSpace(multiLightNormalMapping);
-            //SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) }); // circular motion
-            SpotLight::spotLights[1].setPosition(Engine::follow(SpotLight::spotLights[1].getPosition(), G::camera->getPosition()));
+            if (G::g_follow)
+                SpotLight::spotLights[1].setPosition(Engine::follow(SpotLight::spotLights[1].getPosition(), G::camera->getPosition()));
+            else
+                SpotLight::spotLights[1].setPosition({ 3.0f * static_cast<float>(sin(glfwGetTime())), 6.5f, static_cast<float>(4.5f * cos(glfwGetTime())) }); // circular motion
             if (Engine::isEqual(SpotLight::spotLights[1].getPosition(), G::camera->getPosition()))
                 SpotLight::spotLights[1].setPosition({ 0.0f, 20.0f, 0.0f });
             SpotLight::spotLights[1].updatePositionInViewSpace(multiLight);

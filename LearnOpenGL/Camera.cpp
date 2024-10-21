@@ -15,10 +15,9 @@ Camera::Camera(float aspectRatio, glm::vec3 position, glm::vec3 front, glm::vec3
     , m_front{ front }
     , m_up{ up }
     , m_defaultUp{ up }
-    , m_viewMatrix{ glm::lookAt(m_position, m_position + m_front, m_up) }
 {
     updateCameraVectors();
-    //m_viewMatrix = glm::lookAt(m_position, m_position + m_front, m_up); // cannot use calculateViewMatrix() here because of if statement (spotLights does not exist yet)
+    m_viewMatrix = glm::lookAt(m_position, m_position + m_front, m_up); // cannot use calculateViewMatrix() here because of if statement (vector spotLights does not exist yet when initializing player camera)
     calculateProjectionMatrix();
 }
 

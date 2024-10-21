@@ -45,6 +45,14 @@ TO DO
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
 - to get ImGui to show doPhysics related values show in a seperate window
 
+v0.3.52 21-10-2024
+------------------
+- flashlight does not shine anymore since v0.3.5 :( -> fix: calculate m_viewMatrix in the constructor body instead of initializer list (i guess bug was because flashlight m_front wasn't calculated yet with updateCameraVectors(), and will never be recalculated, something like that)
+- added m_maxWalkAcceleration, m_maxStrafeAcceleration, m_maxJumpSidewaysAcceleration
+- cleanup / optimization Player::initMovement()
+- moved player.m_correction into the functions
+- added/changed "Both axis hits x simultaneously" in Player::limitSpeed() and Player::initMovement()
+
 v0.3.51 21-10-2024
 ------------------
 - player and camera on the stack
