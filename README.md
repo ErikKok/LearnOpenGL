@@ -22,7 +22,7 @@ Features
 
 Controls
 --------
-<br>WASD = Movement
+WASD = Movement
 <br>Z = Down
 <br>X = Up
 <br>SHIFT = Run

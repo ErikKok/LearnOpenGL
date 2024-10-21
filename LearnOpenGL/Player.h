@@ -48,9 +48,9 @@ public:
 	AABB getTAABB(glm::vec3& proposedPosition);
 	//void initDirection();
 	//void calculateDirection();
-
+	glm::vec3 m_speed{ 0.0f };				// meter/second TODO
 private:
-	glm::vec3 m_speed{ 0.0f };				// meter/second
+
 	glm::vec3 m_speedLastFrame{ 0.0f };
 	float m_forwardSpeed{ 0.0f };			// only updated when needed // https://forums.unrealengine.com/t/character-movement-direction/30708/4
 	//float m_rightSpeed{ 0.0f };

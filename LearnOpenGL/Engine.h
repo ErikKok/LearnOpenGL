@@ -24,12 +24,13 @@ namespace Engine { // Class?
     inline glm::vec3 extrapolationResultPosition{ 0.0f, 0.0f, 0.0f }; // for Player and flashlight
 
     void perFrameTimeLogic();
+    void processInput(GLFWwindow* window);
     void doPhysics();
     void doExtrapolationStep();
     glm::vec3 follow(const glm::vec3& origin, const glm::vec3& destination);
     bool isEqual(const glm::vec3& p1, const glm::vec3& p2, float epsilon = 0.05f); // seems ok with 30fps
     bool AABBtoAABB(const AABB& tBox1, const AABB& tBox2);
-    void processInput(GLFWwindow* window);
+    int AABBtoAABBAxis(const AABB& box1, const AABB& box2);
 
     // Following functions are called by glfwPollEvents()
     void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);

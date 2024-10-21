@@ -23,6 +23,40 @@ void Engine::perFrameTimeLogic()
     frameTimeRemaining += G::deltaTime;
 }
 
+void Engine::processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        G::player->initMovement(PlayerMovement::forwardbackward);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        G::player->initMovement(PlayerMovement::forward);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        G::player->initMovement(PlayerMovement::backward);
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        G::player->initMovement(PlayerMovement::leftright);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        G::player->initMovement(PlayerMovement::left);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        G::player->initMovement(PlayerMovement::right);
+
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+        G::player->initMovement(PlayerMovement::updown);
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+        G::player->initMovement(PlayerMovement::up);
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+        G::player->initMovement(PlayerMovement::down);
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        G::player->initMovement(PlayerMovement::jump);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        G::player->setMaxCurrentSpeed(G::player->getWalkSpeed());
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+        G::player->setMaxCurrentSpeed(G::player->getRunSpeed());
+
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+};
+
 void Engine::doPhysics()
 {   
     while (frameTimeRemaining >= physicsFrameTime)
@@ -43,7 +77,20 @@ void Engine::doPhysics()
             glm::vec3(-10.0f, -10.0f, -3.5f)  // m_vecMin
         };
 
-        if (Engine::AABBtoAABB(wall, G::player->getTAABB(proposedPosition))) {
+        //if (Engine::AABBtoAABBAxis(wall, G::player->getTAABB(proposedPosition)) == 1) {
+        //    G::collisionTime = glfwGetTime();
+        //    G::player->m_speed.x = 0.0f;
+        //}
+        //if (Engine::AABBtoAABBAxis(wall, G::player->getTAABB(proposedPosition)) == 2) {
+        //    G::collisionTime = glfwGetTime();
+        //    G::player->m_speed.y = 0.0f;
+        //}
+        //if (Engine::AABBtoAABBAxis(wall, G::player->getTAABB(proposedPosition)) == 3) {
+        //    G::collisionTime = glfwGetTime();
+        //    G::player->m_speed.z = 0.0f;
+        //}
+
+        if (Engine::AABBtoAABB(wall, G::player->getTAABB(proposedPosition)) == 1) {
             G::collisionTime = glfwGetTime();
             G::player->setSpeed(glm::vec3(0.0f, 0.0f, 0.0f));
         }
@@ -80,49 +127,33 @@ bool Engine::AABBtoAABB(const AABB& box1, const AABB& box2)
 {
     // Check if box1's max is greater than box2's min and box1's min is less than box2's max
     // true if collision
-    return(
-          (box1.m_vecMax.x > box2.m_vecMin.x &&
+    return(box1.m_vecMax.x > box2.m_vecMin.x &&
            box1.m_vecMin.x < box2.m_vecMax.x &&
            box1.m_vecMax.y > box2.m_vecMin.y &&
            box1.m_vecMin.y < box2.m_vecMax.y &&
            box1.m_vecMax.z > box2.m_vecMin.z &&
-           box1.m_vecMin.z < box2.m_vecMax.z)
-          );
+           box1.m_vecMin.z < box2.m_vecMax.z);
 }
 
-void Engine::processInput(GLFWwindow* window)
+int Engine::AABBtoAABBAxis(const AABB& box1, const AABB& box2)
 {
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::forwardbackward);
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::forward);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::backward);
+    if(box1.m_vecMax.x > box2.m_vecMin.x &&
+        box1.m_vecMin.x < box2.m_vecMax.x &&
+        box1.m_vecMax.y > box2.m_vecMin.y &&
+        box1.m_vecMin.y < box2.m_vecMax.y &&
+        box1.m_vecMax.z > box2.m_vecMin.z &&
+        box1.m_vecMin.z < box2.m_vecMax.z == 0)
+    return 0;
+    
+    if (box1.m_vecMax.x > box2.m_vecMin.x && box1.m_vecMin.x < box2.m_vecMax.x)
+        return 1;
+    if (box1.m_vecMax.y > box2.m_vecMin.y && box1.m_vecMin.y < box2.m_vecMax.y) 
+        return 2;
+    if (box1.m_vecMax.z > box2.m_vecMin.z && box1.m_vecMin.z < box2.m_vecMax.z)
+        return 3;
 
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::leftright);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::left);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::right);
-
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::updown);
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::up);
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::down);
-
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::jump);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        G::player->setMaxCurrentSpeed(G::player->getWalkSpeed());
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-        G::player->setMaxCurrentSpeed(G::player->getRunSpeed());
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-};
+    return 0;
+}
 
 #pragma warning( suppress : 4100 )
 void Engine::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)

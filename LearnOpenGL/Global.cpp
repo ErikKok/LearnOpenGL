@@ -146,12 +146,11 @@ void G::getInformation() {
 
 void G::ImGui() {
     ImGui::Begin("ImGui Window");
-    ImGui::SetWindowFontScale(1.25f); // the _correct_ way of scaling your UI is currently to reload your font at the designed size
+    ImGui::SetWindowFontScale(1.2f); // the _correct_ way of scaling your UI is currently to reload your font at the designed size
 
     ImGuiIO& io = ImGui::GetIO(); // to Global.h?
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-    ImGui::Text("ticksLoop = %d", Engine::ticksLoop);
-    ImGui::Text("ticksPhysics = %d", Engine::ticksPhysics);
+    ImGui::Text("Ticks Loop %d | Physics %d", Engine::ticksLoop, Engine::ticksPhysics);
 
     ImGui::SeparatorText("Camera:");
     ImGui::Text("m_position = %0+7.2f, %0+7.2f, %0+7.2f", G::camera->m_position.x, G::camera->m_position.y, G::camera->m_position.z);
@@ -159,18 +158,32 @@ void G::ImGui() {
 
     ImGui::SeparatorText("Speed:");
     ImGui::Text("m_speed = %0+7.2f, %0+7.2f, %0+7.2f", G::player->m_speed.x, G::player->m_speed.y, G::player->m_speed.z);
-    ImGui::Text("m_maxCurrentSpeed = %.2f", G::player->m_maxCurrentSpeed);
-    ImGui::Text("m_forwardSpeed = %.2f", G::player->m_forwardSpeed);
+    ImGui::Text("m_maxCurrentSpeed = %.2f | m_forwardSpeed = %.2f", G::player->m_maxCurrentSpeed, G::player->m_forwardSpeed);
     ImGui::Text("m_acceleration = %0+8.2f, %0+8.2f, %0+8.2f", G::player->m_acceleration.x, G::player->m_acceleration.y, G::player->m_acceleration.z);
+
+    ImGui::NewLine();
     ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxJumpSpeed, 0.0f, 2000.0f, "%.1f");
     ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 2000.0f, "%.1f");
     ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 2000.0f, "%.1f");
     ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 0.0f, 100.0f, "%.1f");
 
+    ImGui::NewLine();
     if (collisionTime + 0.3 < glfwGetTime())
-        ImGui::Text("COLLISION");
+        ImGui::Text("COLLISION?");
     else
-        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "COLLISION");
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "COLLISION!");
+    ImGui::SameLine();
+    if (ImGui::Button("Reset Transform")) {
+        G::g_translate = glm::vec3(0.0f, 0.0f, -3.0f);
+        G::g_rotateDegrees = 0.0f;
+        G::g_rotateVec3 = glm::vec3(90.0f, 0.0f, 0.0f);
+        G::g_scale = glm::vec3(20.0f, 20.0f, 1.0f);
+    }
+
+    ImGui::SliderFloat3("Translate", (float*)&G::g_translate, -100.0f, 100.0f);
+    ImGui::SliderFloat("Rotate Degrees", &G::g_rotateDegrees, 0.0f, 360.0f);
+    ImGui::SliderFloat3("Rotate Axis", (float*)&G::g_rotateVec3, 0.0f, 100.0f);
+    ImGui::SliderFloat3("Scale", (float*)&G::g_scale, 0.0f, 100.0f);
 
     ImGui::End();
 };

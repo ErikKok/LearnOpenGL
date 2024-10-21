@@ -45,11 +45,12 @@ TO DO
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
 - to get ImGui to show doPhysics related values show in a seperate window
 
-v0.3.51 20-10-2024
------------------
+v0.3.51 21-10-2024
+------------------
 - player and camera on the stack
 - Collision test visible in ImGui
 - Collision test first implementation works!
+- some ImGui layout stuff
 
 v0.3.5 20-10-2024
 -----------------

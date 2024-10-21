@@ -505,8 +505,10 @@ int main()
                     cubeRO.transform[i] = glm::rotate(cubeRO.transform[i], (float)glfwGetTime() * glm::radians(100.0f) * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
                 }
                 if (i == 3) { // wall
-                    cubeRO.transform[i] = glm::translate(cubeRO.transform[i], glm::vec3(0.0f, 0.0f, -3.0f));
-                    cubeRO.transform[i] = glm::scale(cubeRO.transform[i], glm::vec3(20.0f, 20.0f, 1.0f));
+                    cubeRO.transform[i] = G::calculateModelMatrix(G::g_translate, G::g_rotateDegrees, G::g_rotateVec3, G::g_scale);
+                    //cubeRO.transform[i] = glm::translate(cubeRO.transform[i], G::g_translate);
+                    //cubeRO.transform[i] = glm::rotate(cubeRO.transform[i], G::g_rotateDegrees, G::g_rotateVec3);
+                    //cubeRO.transform[i] = glm::scale(cubeRO.transform[i], G::g_scale);
                 }
                 //if (i == 9) { // floor
                 //    model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));

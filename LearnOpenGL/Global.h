@@ -97,4 +97,9 @@ namespace G {
     void ImGui();
     //inline bool test{ false };
     inline double collisionTime{};
+
+    inline glm::vec3 g_translate{ 0.0f, 0.0f, -3.0f };
+    inline float g_rotateDegrees{ 0.0f };
+    inline glm::vec3 g_rotateVec3{ 90.0f, 0.0f, 0.0f };
+    inline glm::vec3 g_scale{ 20.0f, 20.0f, 1.0f };
 }
