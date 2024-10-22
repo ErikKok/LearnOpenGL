@@ -45,7 +45,7 @@ TO DO
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
 - to get ImGui to show doPhysics related values show in a seperate window
 
-v0.3.52 22-10-2024
+v0.3.53 22-10-2024
 ------------------
 - tweaked jumping
 - added aerodrag
