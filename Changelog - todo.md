@@ -45,6 +45,12 @@ TO DO
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
 - to get ImGui to show doPhysics related values show in a seperate window
 
+v0.3.52 22-10-2024
+------------------
+- tweaked jumping
+- added aerodrag
+- added gravityBoost
+
 v0.3.52 21-10-2024
 ------------------
 - flashlight does not shine anymore since v0.3.5 :( -> fix: calculate m_viewMatrix in the constructor body instead of initializer list (i guess bug was because flashlight m_front wasn't calculated yet with updateCameraVectors(), and will never be recalculated, something like that)

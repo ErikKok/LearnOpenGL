@@ -54,23 +54,24 @@ private:
 	glm::vec3 m_speedLastFrame{ 0.0f };
 	float m_forwardSpeed{ 0.0f };			// only updated when needed // https://forums.unrealengine.com/t/character-movement-direction/30708/4
 	//float m_rightSpeed{ 0.0f };
-	float m_maxCurrentSpeed{ 22.0f };
+	float m_maxCurrentSpeed{ 22.0f };		// limits speed in 1 axis, total speed could get higher
 	float m_walkSpeed{ 5.0f };
 	float m_runSpeed{ 22.0f };
 	float m_maxJumpSpeed{ 250.0f };
 	//float m_maxStrafeRunSpeed{ 18.0f }; // TODO? + m_maxStrafeWalkSpeed
 
 	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
+	float m_WalkAcceleration{ 350.0f };
+	float m_StrafeAcceleration{ 250.0f };
+	float m_jumpAcceleration{ 300.0f };
 	float m_maxAcceleration{ 800.0f };
-	float m_maxWalkAcceleration{ 350.0f };
-	float m_maxStrafeAcceleration{ 250.0f };
-	float m_maxJumpAcceleration{ 500.0f };
-	float m_maxJumpSidewaysAcceleration{ 3.0f };
-	float m_jumpAcceleration{ 400.0f };
+	float m_maxJumpAcceleration{ 800.0f };
+	float m_maxJumpSidewaysAcceleration{ 2.8f };
 
 	float m_airborneDecelerationFactor{ 75.00f };
 	float m_dryFriction{ 85.0f };
-	//float m_aeroDrag{ 99.75f };
+	float m_aeroDrag{ 99.80f };
+	float m_gravityBoost{ 3.5f }; // "speeds up" gravity while jumping
 
 	bool m_isRunning{ false };
 	bool m_isAirborne{ false };

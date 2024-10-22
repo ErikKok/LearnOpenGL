@@ -95,6 +95,7 @@ namespace G {
     // %0+7.2f = seven-wide (incl. .), two positions after the decimal, always signed
 
     void ImGui();
+    inline float g_test{ 2.0f };
     //inline bool test{ false };
     inline double collisionTime{};
     inline bool g_follow{};

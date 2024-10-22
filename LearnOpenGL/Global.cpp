@@ -160,17 +160,20 @@ void G::ImGui() {
     ImGui::Text("m_speed = %0+7.2f, %0+7.2f, %0+7.2f", G::player->m_speed.x, G::player->m_speed.y, G::player->m_speed.z);
     ImGui::Text("m_maxCurrentSpeed = %.2f | m_forwardSpeed = %.2f", G::player->m_maxCurrentSpeed, G::player->m_forwardSpeed);
     ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxJumpSpeed, 0.0f, 1200.0f, "%.1f");
-
-    ImGui::SeparatorText("Acceleration:");
+    
+    ImGui::SeparatorText("Acceleration:"); 
     ImGui::Text("m_acceleration = %0+8.2f, %0+8.2f, %0+8.2f", G::player->m_acceleration.x, G::player->m_acceleration.y, G::player->m_acceleration.z);
+    ImGui::SliderFloat("m_WalkAcceleration", &G::player->m_WalkAcceleration, 0.0f, 1200.0f, "%.1f");
+    ImGui::SliderFloat("m_StrafeAcceleration", &G::player->m_StrafeAcceleration, 0.0f, 1200.0f, "%.1f");
+    ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 2000.0f, "%.1f");
     ImGui::SliderFloat("m_maxAcceleration", &G::player->m_maxAcceleration, 0.0f, 2000.0f, "%.1f");
-    ImGui::SliderFloat("m_maxWalkAcceleration", &G::player->m_maxWalkAcceleration, 0.0f, 1200.0f, "%.1f");
-    ImGui::SliderFloat("m_maxStrafeAcceleration", &G::player->m_maxStrafeAcceleration, 0.0f, 1200.0f, "%.1f");
-    ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 1200.0f, "%.1f");
+    ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 2000.0f, "%.1f");
     ImGui::SliderFloat("m_maxJumpSidewaysAcceleration", &G::player->m_maxJumpSidewaysAcceleration, 0.0f, 20.0f, "%.1f");
 
     ImGui::SliderFloat("m_airborneDecelerationFactor", &G::player->m_airborneDecelerationFactor, 0.0f, 100.0f, "%.1f");
     ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 0.0f, 100.0f, "%.1f");
+    ImGui::SliderFloat("m_aeroDrag", &G::player->m_aeroDrag, 99.0f, 100.0f, "%.2f");
+    ImGui::SliderFloat("m_gravityBoost", &G::player->m_gravityBoost, 0.0f, 10.0f, "%.1f");
     
     ImGui::NewLine();
     if (collisionTime + 0.3 < glfwGetTime())

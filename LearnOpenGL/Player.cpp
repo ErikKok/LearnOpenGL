@@ -20,7 +20,7 @@ void Player::initMovement(PlayerMovement direction)
 
     if (m_isAirborne) {
         // FORWARD BACKWARD
-        calculateForwardSpeed();
+        //calculateForwardSpeed();
         if (direction == PlayerMovement::forward  && m_forwardSpeed < 0.0f || // player moves backward and inputs forward
             direction == PlayerMovement::backward && m_forwardSpeed > 0.0f || // player moves forwards and inputs backward
             direction == PlayerMovement::forwardbackward) {
@@ -57,13 +57,13 @@ void Player::initMovement(PlayerMovement direction)
     if (!m_isAirborne) {
         // FORWARD BACKWARD
         if (direction == PlayerMovement::forward) {
-            m_acceleration.x += G::camera->getFront().x * m_maxWalkAcceleration;
-            m_acceleration.z += G::camera->getFront().z * m_maxWalkAcceleration;
+            m_acceleration.x += G::camera->getFront().x * m_WalkAcceleration;
+            m_acceleration.z += G::camera->getFront().z * m_WalkAcceleration;
             return;
         }
         if (direction == PlayerMovement::backward) {
-            m_acceleration.x += G::camera->getFront().x * -m_maxWalkAcceleration;
-            m_acceleration.z += G::camera->getFront().z * -m_maxWalkAcceleration;
+            m_acceleration.x += G::camera->getFront().x * -m_WalkAcceleration;
+            m_acceleration.z += G::camera->getFront().z * -m_WalkAcceleration;
             return;
         }
         //if (direction == PlayerMovement::forwardbackward)
@@ -72,13 +72,13 @@ void Player::initMovement(PlayerMovement direction)
 
         // LEFT RIGHT
         if (direction == PlayerMovement::left) {
-            m_acceleration.x += G::camera->getRight().x * -m_maxStrafeAcceleration;
-            m_acceleration.z += G::camera->getRight().z * -m_maxStrafeAcceleration;
+            m_acceleration.x += G::camera->getRight().x * -m_StrafeAcceleration;
+            m_acceleration.z += G::camera->getRight().z * -m_StrafeAcceleration;
             return;
         }
         if (direction == PlayerMovement::right) {
-            m_acceleration.x += G::camera->getRight().x * m_maxStrafeAcceleration;
-            m_acceleration.z += G::camera->getRight().z * m_maxStrafeAcceleration;
+            m_acceleration.x += G::camera->getRight().x * m_StrafeAcceleration;
+            m_acceleration.z += G::camera->getRight().z * m_StrafeAcceleration;
             return;
         }
         //if (direction == PlayerMovement::leftright)
@@ -176,6 +176,7 @@ void Player::calculateSpeed()
 {
     // OLD method
     {
+        //m_speedLastFrame = m_speed;
         //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
         //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
         //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
@@ -188,32 +189,46 @@ void Player::calculateSpeed()
         //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
     }
 
-    m_speedLastFrame = m_speed;
     // Determine new speed with current acceleration forces
+    m_speedLastFrame = m_speed;
     m_speed.x += m_acceleration.x * Engine::physicsFrameTime;
-    m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime * 2.0f; // just feels better doubling y
+    if (!m_isAirborne)
+        m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime;
+    else
+        m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime * m_gravityBoost;
     m_speed.z += m_acceleration.z * Engine::physicsFrameTime;
-
-    // Apply friction to speed (no aeroDrag applied)
+    
+    // Apply friction
     if (!m_isAirborne) {
         m_speed.x *= m_dryFriction * Engine::physicsFrameTime;
-        m_speed.y *= m_dryFriction * Engine::physicsFrameTime; // TODO dit is alleen true als je omhoog/omlaag LOOPT?
+        m_speed.y *= m_dryFriction * Engine::physicsFrameTime;
         m_speed.z *= m_dryFriction * Engine::physicsFrameTime;
+    }
+
+    // Apply aeroDrag
+    if (m_isAirborne) {
+        m_speed.x *= m_aeroDrag * Engine::physicsFrameTime;
+        m_speed.y *= m_aeroDrag * Engine::physicsFrameTime;
+        m_speed.z *= m_aeroDrag * Engine::physicsFrameTime;
     }
 
     // https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
     {
         //acceleration = force(time, position) / mass;
         //time += timestep;
+        // 
         //position += timestep * velocity;
         //velocity += timestep * acceleration;
+        
         //the velocity Verlet method does it like this:
+        // TODO? samenvatting: halve snelheid bij positie, dan acceleratie opnieuw berekenen, dan weer helft bij snelheid alsvast voor de volg frame
 
         //acceleration = force(time, position) / mass;
         //time += timestep;
-        //position += timestep * (velocity + timestep * acceleration / 2);
+        // 
+        //position += (velocity + timestep * acceleration / 2) * timestep;
         //newAcceleration = force(time, position) / mass; // ergens in de comments: it seems that they sacrificed some accuracy for extra speed by saving the newAcceleration value computed using the estimated velocity and reusing it as the acceleration for the next timestep. (alleen mass zou kunnen veranderen toch?)
-        //velocity += timestep * (acceleration + newAcceleration) / 2;
+        //velocity += (acceleration + newAcceleration) / 2 * timestep;
 
         /////
         //Dit is wat ik nu heb:
@@ -240,7 +255,7 @@ void Player::limitSpeed()
     if (m_speed.y > -0.001f && m_speed.y < 0.001f)
         m_speed.y = 0.0f;
 
-    // TODO Both axis hits the m_maxCurrentSpeed simultaneously  | useful?
+    // Both axis hits the m_maxCurrentSpeed simultaneously | TODO useful?
     if (m_speed.x > m_maxCurrentSpeed && m_speed.z > m_maxCurrentSpeed) {
         m_speed.x = m_maxCurrentSpeed;
         m_speed.z = m_maxCurrentSpeed;
@@ -300,7 +315,8 @@ void Player::handleJump()
         jumpStarted = true;
     }
 
-    if (jumpStarted && m_isAirborne && G::camera->getPosition().y <= 1.5f || G::camera->getPosition().y <= -200.0f) { // landed on Floor // TODO add real collision check
+    // landed on Floor // TODO add real collision check
+    if (jumpStarted && m_isAirborne && G::camera->getPosition().y <= 1.5f || G::camera->getPosition().y <= -200.0f) {
         G::camera->setPositionY(1.5f);
         m_speed.y = 0.0f;
         Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -316,7 +332,7 @@ void Player::resetAcceleration()
     if (!m_isAirborne)
         m_acceleration.y = -G::gravity;
     if (m_isAirborne)
-        m_acceleration.y = 0.0f;
+        m_acceleration.y = 0.0f; //  -G::gravity;
     m_acceleration.z = 0.0f;
 }
 

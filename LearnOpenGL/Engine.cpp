@@ -65,6 +65,7 @@ void Engine::doPhysics()
         G::player->limitAcceleration();
         G::player->calculateSpeed();
         G::player->limitSpeed();
+        G::player->calculateForwardSpeed();
         G::player->handleJump();
         G::player->resetAcceleration();
         //G::camera->setPosition(G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime);
