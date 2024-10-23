@@ -58,7 +58,7 @@ protected:
     GLfloat m_yaw{ -90.0f };
     GLfloat m_pitch{ 0.0f };
     GLfloat m_movementSpeed{}; // set in processInput()
-    GLfloat m_mouseSensitivity{ 0.035f };
+    GLfloat m_mouseSensitivity{ 0.06f }; // 0.035f
     GLfloat m_fov{ 45.0f }; // (InnerCutOff + OuterCutOff + 15% for attenuation) seems about right
     float m_aspectRatio{ 1.0f };
     bool m_orthographic{ false }; // false == perspective

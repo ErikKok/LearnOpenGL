@@ -148,7 +148,7 @@ void G::ImGui() {
     ImGui::Begin("ImGui Window");
     ImGui::SetWindowFontScale(1.2f); // the _correct_ way of scaling your UI is currently to reload your font at the designed size
 
-    ImGuiIO& io = ImGui::GetIO(); // to Global.h?
+    ImGuiIO& io = ImGui::GetIO(); // move to Global.h?
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
     ImGui::Text("Ticks Loop %d | Physics %d", Engine::ticksLoop, Engine::ticksPhysics);
 
@@ -157,8 +157,13 @@ void G::ImGui() {
     ImGui::Text("m_front = %0+4.2f, %0+4.2f, %0+4.2f", G::camera->m_front.x, G::camera->m_front.y, G::camera->m_front.z);
 
     ImGui::SeparatorText("Speed:");
-    ImGui::Text("m_speed = %0+7.2f, %0+7.2f, %0+7.2f", G::player->m_speed.x, G::player->m_speed.y, G::player->m_speed.z);
-    ImGui::Text("m_maxCurrentSpeed = %.2f | m_forwardSpeed = %.2f", G::player->m_maxCurrentSpeed, G::player->m_forwardSpeed);
+    ImGui::Text("m_speed = %0+8.3f, %0+8.3f, %0+8.3f", G::player->m_speed.x, G::player->m_speed.y, G::player->m_speed.z);
+    G::player->calculateDirection(); // to show correct/up-to-date information
+    ImGui::Text("m_direction = %0+4.2f, %0+4.2f, %0+4.2f", G::player->m_direction.x, G::player->m_direction.y, G::player->m_direction.z);
+    ImGui::Text("m_maxCurrentSpeed = %0+6.2f", G::player->m_maxCurrentSpeed);
+    G::player->calculateForwardSpeed(); // to show correct/up-to-date information
+    G::player->calculateRightSpeed();
+    ImGui::Text("m_forwardSpeed = %0+6.2f | m_rightSpeed = %0+6.2f", G::player->m_forwardSpeed, G::player->m_rightSpeed);
     ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxJumpSpeed, 0.0f, 1200.0f, "%.1f");
     
     ImGui::SeparatorText("Acceleration:"); 
@@ -168,7 +173,7 @@ void G::ImGui() {
     ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 2000.0f, "%.1f");
     ImGui::SliderFloat("m_maxAcceleration", &G::player->m_maxAcceleration, 0.0f, 2000.0f, "%.1f");
     ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 2000.0f, "%.1f");
-    ImGui::SliderFloat("m_maxJumpSidewaysAcceleration", &G::player->m_maxJumpSidewaysAcceleration, 0.0f, 20.0f, "%.1f");
+    ImGui::SliderFloat("m_maxJumpSidewaysAcceleration", &G::player->m_maxJumpSidewaysAcceleration, 0.0f, 400.0f, "%.1f");
 
     ImGui::SliderFloat("m_airborneDecelerationFactor", &G::player->m_airborneDecelerationFactor, 0.0f, 100.0f, "%.1f");
     ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 0.0f, 100.0f, "%.1f");

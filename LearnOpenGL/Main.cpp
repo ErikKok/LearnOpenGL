@@ -416,8 +416,6 @@ int main()
         std::println("************************************************");
         /////////////////////////////////////////////////////////////////////////////////////
 
-        //G::play->initDirection();
-
         G::getInformation();
         G::glCheckError();
         std::println("START Renderloop *******************************");
@@ -439,8 +437,7 @@ int main()
             /////////////////////////////////////////////////////////////////////////////////////
 
             glfwPollEvents();
-
-            //G::play->calculateDirection();
+ 
             Engine::processInput(window);
             Engine::doPhysics();
             Engine::doExtrapolationStep();

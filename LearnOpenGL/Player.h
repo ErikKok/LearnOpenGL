@@ -21,13 +21,18 @@ class Player
 	friend void G::ImGui();
 
 public:
-	const float getMaxCurrentSpeed() const { return m_maxCurrentSpeed; };
-	void setMaxCurrentSpeed(float x) { m_maxCurrentSpeed = x; };
 	const glm::vec3 getSpeed() const { return m_speed; };
 	void setSpeed(glm::vec3 x) { m_speed = x; };
 	const glm::vec3 getSpeedLastFrame() const { return m_speedLastFrame; };
+
+	//const float getMaxCurrentSpeed() const { return m_maxCurrentSpeed; };
+	void setMaxCurrentSpeed(float x) { m_maxCurrentSpeed = x; };
 	const float getWalkSpeed() const { return m_walkSpeed; };
 	const float getRunSpeed() const { return m_runSpeed; };
+
+	void setMaxStrafeCurrentSpeed(float x) { m_maxStrafeCurrentSpeed = x; };
+	const float getStrafeWalkSpeed() const { return m_StrafeWalkSpeed; };
+	const float getStrafeRunSpeed() const { return m_StrafeRunSpeed; };
 
 	// Gravity + jumping documentation
 	// https://gafferongames.com/post/integration_basics/
@@ -35,7 +40,7 @@ public:
 	// https://gamedev.stackexchange.com/questions/38453/how-do-i-implement-deceleration-for-the-player-character
 	
 	void calculateForwardSpeed();
-	//void calculateRightSpeed();
+	void calculateRightSpeed();
 	void initMovement(PlayerMovement direction);
 	// doPhysics start
 	void limitAcceleration();
@@ -43,22 +48,25 @@ public:
 	void limitSpeed();
 	void handleJump();
 	void resetAcceleration();
-
+	// doPhysics end
 	AABB getTAABB();
 	AABB getTAABB(glm::vec3& proposedPosition);
-	//void initDirection();
-	//void calculateDirection();
-	glm::vec3 m_speed{ 0.0f };				// meter/second TODO
-private:
 
+	void calculateDirection();
+
+private:
+	glm::vec3 m_speed{ 0.0f };					// meter/second TODO
 	glm::vec3 m_speedLastFrame{ 0.0f };
-	float m_forwardSpeed{ 0.0f };			// only updated when needed // https://forums.unrealengine.com/t/character-movement-direction/30708/4
-	//float m_rightSpeed{ 0.0f };
-	float m_maxCurrentSpeed{ 22.0f };		// limits speed in 1 axis, total speed could get higher
+	float m_forwardSpeed{ 0.0f };				// https://forums.unrealengine.com/t/character-movement-direction/30708/4
+	float m_rightSpeed{ 0.0f };
+
+	float m_maxCurrentSpeed{ 22.0f };			// limits speed in 1 axis, total speed could get higher
 	float m_walkSpeed{ 5.0f };
 	float m_runSpeed{ 22.0f };
+	float m_maxStrafeCurrentSpeed{ 15.55f };	// Given a=15.55 and b=15.55, c = ?483.605 = 21.996
+	float m_StrafeWalkSpeed{ 3.5f };
+	float m_StrafeRunSpeed{ 16.0f };
 	float m_maxJumpSpeed{ 250.0f };
-	//float m_maxStrafeRunSpeed{ 18.0f }; // TODO? + m_maxStrafeWalkSpeed
 
 	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
 	float m_WalkAcceleration{ 350.0f };
@@ -71,11 +79,11 @@ private:
 	float m_airborneDecelerationFactor{ 75.00f };
 	float m_dryFriction{ 85.0f };
 	float m_aeroDrag{ 99.80f };
-	float m_gravityBoost{ 3.5f }; // "speeds up" gravity while jumping
+	float m_gravityBoost{ 3.5f };				// "speeds up" gravity while jumping
 
 	bool m_isRunning{ false };
 	bool m_isAirborne{ false };
 
-	//glm::vec3 m_positionLastFrame{ 0.0f };
-	//glm::vec3 m_direction{ 0.0f };
+	glm::vec3 m_direction{ 0.0f };
+	glm::vec3 m_positionLastFrame{ G::cameraInitialPosition };
 };

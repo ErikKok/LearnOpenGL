@@ -44,6 +44,24 @@ TO DO
 	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
 - to get ImGui to show doPhysics related values show in a seperate window
+- ImGui vars should be (mostly) const
+
+v0.3.55 23-10-2024
+------------------
+- tried to get jumping right (not slowing down when turning, but also not being able to go (too much) backwards), did not succeed
+- upSpeed is not correct, deleted
+- added m__direction (which also works)
+- Player::limitSpeed() changed according to limitAcceleration()
+- clean-up
+- limitSpeed(): changed snapping to zero from 0.001f to 0.01f
+- lots of little changes
+
+v0.3.54 22-10-2024
+------------------
+- seems like diagonal movement is now correctly limited
+- implemented forward/right/upSpeed in Player::limitSpeed()
+- added PlayerMovement::forward/backward to if (m_isAirborne) in Player::initMovement()
+- added [[likely]] & [[unlikely]] to Player::initMovement()
 
 v0.3.53 22-10-2024
 ------------------

@@ -48,10 +48,14 @@ void Engine::processInput(GLFWwindow* window)
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         G::player->initMovement(PlayerMovement::jump);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
         G::player->setMaxCurrentSpeed(G::player->getWalkSpeed());
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+        G::player->setMaxStrafeCurrentSpeed(G::player->getStrafeWalkSpeed());
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
         G::player->setMaxCurrentSpeed(G::player->getRunSpeed());
+        G::player->setMaxStrafeCurrentSpeed(G::player->getStrafeRunSpeed());
+    }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -65,7 +69,6 @@ void Engine::doPhysics()
         G::player->limitAcceleration();
         G::player->calculateSpeed();
         G::player->limitSpeed();
-        G::player->calculateForwardSpeed();
         G::player->handleJump();
         G::player->resetAcceleration();
         //G::camera->setPosition(G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime);
@@ -74,22 +77,9 @@ void Engine::doPhysics()
         glm::vec3 proposedPosition = G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime;
 
         AABB wall{
-            glm::vec3(10.0f,   10.0f, -2.5f), // m_vecMax
+            glm::vec3( 10.0f,  10.0f, -2.5f), // m_vecMax
             glm::vec3(-10.0f, -10.0f, -3.5f)  // m_vecMin
         };
-
-        //if (Engine::AABBtoAABBAxis(wall, G::player->getTAABB(proposedPosition)) == 1) {
-        //    G::collisionTime = glfwGetTime();
-        //    G::player->m_speed.x = 0.0f;
-        //}
-        //if (Engine::AABBtoAABBAxis(wall, G::player->getTAABB(proposedPosition)) == 2) {
-        //    G::collisionTime = glfwGetTime();
-        //    G::player->m_speed.y = 0.0f;
-        //}
-        //if (Engine::AABBtoAABBAxis(wall, G::player->getTAABB(proposedPosition)) == 3) {
-        //    G::collisionTime = glfwGetTime();
-        //    G::player->m_speed.z = 0.0f;
-        //}
 
         if (Engine::AABBtoAABB(wall, G::player->getTAABB(proposedPosition)) == 1) {
             G::collisionTime = glfwGetTime();
