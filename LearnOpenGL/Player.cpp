@@ -19,13 +19,13 @@ void Player::initMovement(PlayerMovement direction)
     if (m_isAirborne) {
         // FORWARD BACKWARD
         if (direction == PlayerMovement::forward) { [[likely]]
-            m_acceleration.x = G::camera->getFront().x * m_AirborneAcceleration;
-            m_acceleration.z = G::camera->getFront().z * m_AirborneAcceleration;
+            m_acceleration.x = G::camera->getFront().x * m_AirborneAcceleration * Engine::physicsFrameTime;
+            m_acceleration.z = G::camera->getFront().z * m_AirborneAcceleration * Engine::physicsFrameTime;
             return;
         }
         if (direction == PlayerMovement::backward) {
-            m_acceleration.x = G::camera->getFront().x * -m_AirborneAcceleration;
-            m_acceleration.z = G::camera->getFront().z * -m_AirborneAcceleration;
+            m_acceleration.x = G::camera->getFront().x * -m_AirborneAcceleration * Engine::physicsFrameTime;
+            m_acceleration.z = G::camera->getFront().z * -m_AirborneAcceleration * Engine::physicsFrameTime;
             return;
         }
         if (direction == PlayerMovement::forward && m_forwardSpeed < 0.0f ||  // player moves backward and inputs forward
@@ -35,13 +35,13 @@ void Player::initMovement(PlayerMovement direction)
 
         // LEFT RIGHT
         if (direction == PlayerMovement::left) {
-            m_acceleration.x = G::camera->getRight().x * -m_AirborneAcceleration;
-            m_acceleration.z = G::camera->getRight().z * -m_AirborneAcceleration;
+            m_acceleration.x = G::camera->getRight().x * -m_AirborneAcceleration * Engine::physicsFrameTime;
+            m_acceleration.z = G::camera->getRight().z * -m_AirborneAcceleration * Engine::physicsFrameTime;
             return;
         }
         if (direction == PlayerMovement::right) {
-            m_acceleration.x = G::camera->getRight().x * m_AirborneAcceleration;
-            m_acceleration.z = G::camera->getRight().z * m_AirborneAcceleration;
+            m_acceleration.x = G::camera->getRight().x * m_AirborneAcceleration * Engine::physicsFrameTime;
+            m_acceleration.z = G::camera->getRight().z * m_AirborneAcceleration * Engine::physicsFrameTime;
             return;
         }
 
@@ -58,39 +58,39 @@ void Player::initMovement(PlayerMovement direction)
     if (!m_isAirborne) {
         // FORWARD BACKWARD
         if (direction == PlayerMovement::forward) { [[likely]]
-            m_acceleration.x = G::camera->getFront().x * m_WalkAcceleration;
-            m_acceleration.z = G::camera->getFront().z * m_WalkAcceleration;
+            m_acceleration.x = G::camera->getFront().x * m_WalkAcceleration * Engine::physicsFrameTime;
+            m_acceleration.z = G::camera->getFront().z * m_WalkAcceleration * Engine::physicsFrameTime;
             return;
         }
         if (direction == PlayerMovement::backward) {
-            m_acceleration.x = G::camera->getFront().x * -m_WalkAcceleration;
-            m_acceleration.z = G::camera->getFront().z * -m_WalkAcceleration;
+            m_acceleration.x = G::camera->getFront().x * -m_WalkAcceleration * Engine::physicsFrameTime;
+            m_acceleration.z = G::camera->getFront().z * -m_WalkAcceleration * Engine::physicsFrameTime;
             return;
         }
 
         // LEFT RIGHT
         if (direction == PlayerMovement::left) {
-            m_acceleration.x = G::camera->getRight().x * -m_StrafeAcceleration;
-            m_acceleration.z = G::camera->getRight().z * -m_StrafeAcceleration;
+            m_acceleration.x = G::camera->getRight().x * -m_StrafeAcceleration * Engine::physicsFrameTime;
+            m_acceleration.z = G::camera->getRight().z * -m_StrafeAcceleration * Engine::physicsFrameTime;
         }
         if (direction == PlayerMovement::right) {
-            m_acceleration.x = G::camera->getRight().x * m_StrafeAcceleration;
-            m_acceleration.z = G::camera->getRight().z * m_StrafeAcceleration;
+            m_acceleration.x = G::camera->getRight().x * m_StrafeAcceleration * Engine::physicsFrameTime;
+            m_acceleration.z = G::camera->getRight().z * m_StrafeAcceleration * Engine::physicsFrameTime;
         }
 
         // UP DOWN
         if (direction == PlayerMovement::up) { [[unlikely]]
-            m_acceleration.y = m_jumpAcceleration;
+            m_acceleration.y = m_jumpAcceleration * Engine::physicsFrameTime;
             return;
         }
         if (direction == PlayerMovement::down) { [[unlikely]]
-            m_acceleration.y = -m_jumpAcceleration;
+            m_acceleration.y = -m_jumpAcceleration * Engine::physicsFrameTime;
             return;
         }
 
         // JUMP
         if (direction == PlayerMovement::jump) {
-            m_acceleration.y = m_jumpAcceleration;
+            m_acceleration.y = m_jumpAcceleration * Engine::physicsFrameTime;
             m_isAirborne = true;
             if (G::camera->getPosition().y < 1.5f)
                 G::camera->setPositionY(1.5f); // TODO, anders blijf je vallen als je onder de Floor jumpt
@@ -180,12 +180,12 @@ void Player::calculateSpeed()
     }
 
     m_speedLastFrame = m_speed;
-    m_speed.x += m_acceleration.x * Engine::physicsFrameTime;
+    m_speed.x += m_acceleration.x;
     if (m_isAirborne)
-        m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime * m_gravityBoost;
+        m_speed.y += (G::gravity + m_acceleration.y) * (m_gravityBoost * Engine::physicsFrameTime);
     else
-        m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime;
-    m_speed.z += m_acceleration.z * Engine::physicsFrameTime;
+        m_speed.y += (G::gravity + m_acceleration.y);
+    m_speed.z += m_acceleration.z;
 
     // Apply aeroDrag
     if (m_isAirborne) {
@@ -252,10 +252,14 @@ void Player::limitSpeed()
     }
     if (m_forwardSpeed > m_maxCurrentSpeed && m_rightSpeed < -m_maxCurrentSpeed) {
         // TODO not sure what to do... only happens in extreme cases (huge accelerations etc.) does this happen IRL? 24-10-204
+        //m_acceleration.x = G::camera->getFront().x * m_maxCurrentSpeed;
+        //m_acceleration.z = G::camera->getFront().z * m_maxCurrentSpeed;
+        m_speed = m_direction * m_maxCurrentSpeed; // does this make sense?
         return;
     }
     if (m_forwardSpeed < -m_maxCurrentSpeed && m_rightSpeed > m_maxCurrentSpeed) {
         // TODO not sure what to do... only happens in extreme cases (huge accelerations etc.) does this happen IRL? 24-10-204
+        m_speed = m_direction * m_maxCurrentSpeed; // does this make sense?
         return;
     }
     if (m_forwardSpeed < -m_maxCurrentSpeed && m_rightSpeed < -m_maxCurrentSpeed) {
@@ -312,6 +316,8 @@ void Player::handleJump()
     if (jumpStarted && m_isAirborne && G::camera->getPosition().y <= 1.5f || G::camera->getPosition().y <= -200.0f) {
         G::camera->setPositionY(1.5f);
         m_speed.y = 0.0f;
+        m_speedLastFrame.y = 0.0f; // otherwise the average will not be 0.0f and player will sink a little in the floor
+        m_acceleration.y = -G::gravity; // needed for just 1 frame?
         Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         m_isAirborne = false;
         jumpStarted = false;

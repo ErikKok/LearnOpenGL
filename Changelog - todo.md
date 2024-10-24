@@ -43,10 +43,13 @@ TO DO
 - Physics / movement:
 	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
-	- if physicsFrameTime() changes, everything is messed up...
-	- if you got more render loops then physics loops, acceleration builds up. normally this gets limited but not with jumpSpeed. so in player this is negated using = instead of +=
-- to get ImGui to show doPhysics related values show in a seperate window
+	- if physicsFrameTime() changes, everything is messed up... guess I have to scale the acceleration values with it?
+- get ImGui to show doPhysics related values in a seperate window
 - ImGui vars should be (mostly) const
+
+v0.3.57 24-10-2024
+------------------
+- tried: add * Engine::physicsFrameTime to all acceleration values and m_dryFriction/m_aeroDrag/m_gravityBoost in player.h + in initMovement() -> did not succeed, back to 3.56, this version just for reference
 
 v0.3.56 24-10-2024
 ------------------

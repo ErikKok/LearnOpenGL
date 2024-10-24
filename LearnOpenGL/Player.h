@@ -55,7 +55,7 @@ public:
 	AABB getTAABB();
 	AABB getTAABB(glm::vec3& proposedPosition);
 
-	void calculateDirection();					// only used for ImGui
+	void calculateDirection();					// only used for ImGui & limitSpeed as test
 
 private:
 	glm::vec3 m_speed{ 0.0f };					// meter/second TODO
@@ -69,21 +69,21 @@ private:
 	float m_maxStrafeCurrentSpeed{ 15.55f };	// Given a=15.55 and b=15.55, c = squared 483.605 = 21.996
 	float m_StrafeWalkSpeed{ 3.5f };
 	float m_StrafeRunSpeed{ 16.0f };
-	float m_maxJumpSpeed{ 250.0f };
+	float m_maxJumpSpeed{ 25.0f };
 
 	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
-	float m_WalkAcceleration{ 250.0f }; // XZ
-	float m_StrafeAcceleration{ 200.0f };
-	float m_AirborneAcceleration{ 150.0f }; // XZ
-	float m_jumpAcceleration{ 300.0f }; // Y
+	float m_WalkAcceleration{ 250.0f / Engine::physicsFrameTime }; // XZ
+	float m_StrafeAcceleration{ 200.0f / Engine::physicsFrameTime };
+	float m_AirborneAcceleration{ 150.0f / Engine::physicsFrameTime }; // XZ
+	float m_jumpAcceleration{ 300.0f / Engine::physicsFrameTime }; // Y
 
 	//float m_maxAcceleration{ 800.0f };
 	//float m_maxJumpAcceleration{ 800.0f };
 	//float m_maxJumpStrafeAcceleration{ 2.8f };
 
-	float m_dryFriction{ 92.0f };
-	float m_aeroDrag{ 99.80f };
-	float m_gravityBoost{ 3.5f };				// "speeds up" gravity while jumping, makes it less floaty
+	float m_dryFriction{ 92.0f / Engine::physicsFrameTime };
+	float m_aeroDrag{ 99.80f / Engine::physicsFrameTime };
+	float m_gravityBoost{ 3.5f / Engine::physicsFrameTime };				// "speeds up" gravity while jumping, makes it less floaty
 
 	//bool m_isRunning{ false };
 	bool m_isAirborne{ false };
