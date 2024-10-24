@@ -10,6 +10,14 @@ struct AABB
     glm::vec3 m_vecMin;
 };
 
+// https://gamedev.stackexchange.com/questions/174202/how-to-handle-player-input-with-fixed-rate-variable-fps-time-step
+//struct Input
+//{
+//    bool isDown;    // Is currently down as of this input check                             blijf lopen             spring if onGround
+//    bool up2Down;   // Has transitioned from up to down since last input check              begin te lopen          ga springen
+//    bool down2Up;   // Has transitioned from down to up since last input check              stop                    geen actie
+//};
+
 namespace Engine { // Class?
     inline int ticksLoop{ 0 };
     inline int ticksPhysics{ 0 };

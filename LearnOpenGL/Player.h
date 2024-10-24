@@ -34,6 +34,9 @@ public:
 	const float getStrafeWalkSpeed() const { return m_StrafeWalkSpeed; };
 	const float getStrafeRunSpeed() const { return m_StrafeRunSpeed; };
 
+	const glm::vec3 getAcceleration() const { return m_acceleration; };
+	void setAcceleration(glm::vec3 x) { m_acceleration = x; };
+
 	// Gravity + jumping documentation
 	// https://gafferongames.com/post/integration_basics/
 	// https://gamedev.stackexchange.com/questions/94000/how-to-implement-accurate-frame-rate-independent-physics
@@ -43,16 +46,16 @@ public:
 	void calculateRightSpeed();
 	void initMovement(PlayerMovement direction);
 	// doPhysics start
-	void limitAcceleration();
+	//void limitAcceleration();
 	void calculateSpeed();
 	void limitSpeed();
 	void handleJump();
-	void resetAcceleration();
+	//void resetAcceleration();
 	// doPhysics end
 	AABB getTAABB();
 	AABB getTAABB(glm::vec3& proposedPosition);
 
-	void calculateDirection();
+	void calculateDirection();					// only used for ImGui
 
 private:
 	glm::vec3 m_speed{ 0.0f };					// meter/second TODO
@@ -63,25 +66,26 @@ private:
 	float m_maxCurrentSpeed{ 22.0f };			// limits speed in 1 axis, total speed could get higher
 	float m_walkSpeed{ 5.0f };
 	float m_runSpeed{ 22.0f };
-	float m_maxStrafeCurrentSpeed{ 15.55f };	// Given a=15.55 and b=15.55, c = ?483.605 = 21.996
+	float m_maxStrafeCurrentSpeed{ 15.55f };	// Given a=15.55 and b=15.55, c = squared 483.605 = 21.996
 	float m_StrafeWalkSpeed{ 3.5f };
 	float m_StrafeRunSpeed{ 16.0f };
 	float m_maxJumpSpeed{ 250.0f };
 
 	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
-	float m_WalkAcceleration{ 350.0f };
-	float m_StrafeAcceleration{ 250.0f };
-	float m_jumpAcceleration{ 300.0f };
-	float m_maxAcceleration{ 800.0f };
-	float m_maxJumpAcceleration{ 800.0f };
-	float m_maxJumpSidewaysAcceleration{ 2.8f };
+	float m_WalkAcceleration{ 250.0f }; // XZ
+	float m_StrafeAcceleration{ 200.0f };
+	float m_AirborneAcceleration{ 150.0f }; // XZ
+	float m_jumpAcceleration{ 300.0f }; // Y
 
-	float m_airborneDecelerationFactor{ 75.00f };
-	float m_dryFriction{ 85.0f };
+	//float m_maxAcceleration{ 800.0f };
+	//float m_maxJumpAcceleration{ 800.0f };
+	//float m_maxJumpStrafeAcceleration{ 2.8f };
+
+	float m_dryFriction{ 92.0f };
 	float m_aeroDrag{ 99.80f };
-	float m_gravityBoost{ 3.5f };				// "speeds up" gravity while jumping
+	float m_gravityBoost{ 3.5f };				// "speeds up" gravity while jumping, makes it less floaty
 
-	bool m_isRunning{ false };
+	//bool m_isRunning{ false };
 	bool m_isAirborne{ false };
 
 	glm::vec3 m_direction{ 0.0f };

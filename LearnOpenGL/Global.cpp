@@ -166,17 +166,18 @@ void G::ImGui() {
     ImGui::Text("m_forwardSpeed = %0+6.2f | m_rightSpeed = %0+6.2f", G::player->m_forwardSpeed, G::player->m_rightSpeed);
     ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxJumpSpeed, 0.0f, 1200.0f, "%.1f");
     
-    ImGui::SeparatorText("Acceleration:"); 
+    ImGui::SeparatorText("Acceleration:"); // klopt niet
     ImGui::Text("m_acceleration = %0+8.2f, %0+8.2f, %0+8.2f", G::player->m_acceleration.x, G::player->m_acceleration.y, G::player->m_acceleration.z);
-    ImGui::SliderFloat("m_WalkAcceleration", &G::player->m_WalkAcceleration, 0.0f, 1200.0f, "%.1f");
-    ImGui::SliderFloat("m_StrafeAcceleration", &G::player->m_StrafeAcceleration, 0.0f, 1200.0f, "%.1f");
-    ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 2000.0f, "%.1f");
-    ImGui::SliderFloat("m_maxAcceleration", &G::player->m_maxAcceleration, 0.0f, 2000.0f, "%.1f");
-    ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 2000.0f, "%.1f");
-    ImGui::SliderFloat("m_maxJumpSidewaysAcceleration", &G::player->m_maxJumpSidewaysAcceleration, 0.0f, 400.0f, "%.1f");
+    ImGui::SliderFloat("m_WalkAcceleration", &G::player->m_WalkAcceleration, 0.0f, 1000.0f, "%.1f");
+    ImGui::SliderFloat("m_StrafeAcceleration", &G::player->m_StrafeAcceleration, 0.0f, 1000.0f, "%.1f");
+    ImGui::SliderFloat("m_AirborneAcceleration", &G::player->m_AirborneAcceleration, 0.0f, 1000.0f, "%.1f");
+    ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 1000.0f, "%.1f");
+    //ImGui::SliderFloat("m_maxAcceleration", &G::player->m_maxAcceleration, 0.0f, 1000.0f, "%.1f");
+    //ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 1000.0f, "%.1f");
+    //ImGui::SliderFloat("m_maxJumpStrafeAcceleration", &G::player->m_maxJumpStrafeAcceleration, 0.0f, 40.0f, "%.1f");
 
-    ImGui::SliderFloat("m_airborneDecelerationFactor", &G::player->m_airborneDecelerationFactor, 0.0f, 100.0f, "%.1f");
-    ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 0.0f, 100.0f, "%.1f");
+    //ImGui::SliderFloat("m_airborneDecelerationFactor", &G::player->m_airborneDecelerationFactor, 0.0f, 100.0f, "%.1f");
+    ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 80.0f, 100.0f, "%.1f");
     ImGui::SliderFloat("m_aeroDrag", &G::player->m_aeroDrag, 99.0f, 100.0f, "%.2f");
     ImGui::SliderFloat("m_gravityBoost", &G::player->m_gravityBoost, 0.0f, 10.0f, "%.1f");
     

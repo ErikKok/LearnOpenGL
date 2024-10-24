@@ -43,8 +43,24 @@ TO DO
 - Physics / movement:
 	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
+	- if physicsFrameTime() changes, everything is messed up...
+	- if you got more render loops then physics loops, acceleration builds up. normally this gets limited but not with jumpSpeed. so in player this is negated using = instead of +=
 - to get ImGui to show doPhysics related values show in a seperate window
 - ImGui vars should be (mostly) const
+
+v0.3.56 24-10-2024
+------------------
+- disabled limitAcceleration(), redundant with limitSpeed()?
+- disabled resetAcceleration()
+- resetAcceleration Y each physic tick: moved to handleJump(), x and Y once after doPhysics while loop. quick&dirty implementation of https://gamedev.stackexchange.com/questions/174202/how-to-handle-player-input-with-fixed-rate-variable-fps-time-step
+- disabled PlayerMovement::leftright and fowardbackward in initMovement(), friction/aerodrag and opposing forces in initMovement() handle this now
+- removed m_airborneDecelerationFactor
+- changed m_acceleration.y += into m_acceleration.y = in initMovement() for everything
+- added else ifs in Engine::processInput() to catch simultaneous keypresses
+- disabled bool m_isRunning
+- disabled m_maxAcceleration floats 3x
+- Player::limitSpeed() tried to limit forward/rightspeed... now limits m_speed
+- window starts maximized
 
 v0.3.55 23-10-2024
 ------------------

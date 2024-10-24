@@ -53,7 +53,7 @@ int init(GLFWwindow* window)
     }
 
     std::println("Initialize OpenGL");
-    glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
@@ -120,6 +120,8 @@ int main()
         std::println("Failed to initialize player or camera");
         return -1;
     }
+
+    glfwMaximizeWindow(window);
 
     {
         std::println("Start OpenGL Scope");
@@ -418,6 +420,7 @@ int main()
 
         G::getInformation();
         G::glCheckError();
+
         std::println("START Renderloop *******************************");
         std::println("************************************************");
 

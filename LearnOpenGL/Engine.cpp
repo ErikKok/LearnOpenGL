@@ -25,29 +25,33 @@ void Engine::perFrameTimeLogic()
 
 void Engine::processInput(GLFWwindow* window)
 {
+    // FORWARD BACKWARD
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::forwardbackward);
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        ; // G::player->initMovement(PlayerMovement::forwardbackward); (do nothing, no acceleration applied)
+    else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         G::player->initMovement(PlayerMovement::forward);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         G::player->initMovement(PlayerMovement::backward);
-
+    
+    // LEFT RIGHT
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        G::player->initMovement(PlayerMovement::leftright);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        ; // G::player->initMovement(PlayerMovement::leftright); (do nothing, no acceleration applied)
+    else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         G::player->initMovement(PlayerMovement::left);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         G::player->initMovement(PlayerMovement::right);
-
+    
+    // UP DOWN
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
         G::player->initMovement(PlayerMovement::updown);
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+    else if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
         G::player->initMovement(PlayerMovement::up);
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+    else if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
         G::player->initMovement(PlayerMovement::down);
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         G::player->initMovement(PlayerMovement::jump);
+
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
         G::player->setMaxCurrentSpeed(G::player->getWalkSpeed());
         G::player->setMaxStrafeCurrentSpeed(G::player->getStrafeWalkSpeed());
@@ -66,11 +70,11 @@ void Engine::doPhysics()
     while (frameTimeRemaining >= physicsFrameTime)
     {
         ticksPhysics++;
-        G::player->limitAcceleration();
+        //G::player->limitAcceleration();
         G::player->calculateSpeed();
-        G::player->limitSpeed();
+        G::player->limitSpeed(); // needs to be done once each doPhysics loop
         G::player->handleJump();
-        G::player->resetAcceleration();
+        //G::player->resetAcceleration();
         //G::camera->setPosition(G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime);
 
         // Collision test //////////////////////////////////////////////////////////////////
@@ -94,6 +98,9 @@ void Engine::doPhysics()
         frameTimeRemaining -= physicsFrameTime;
     }
     extrapolationFactor = frameTimeRemaining / physicsFrameTime;
+
+    // Reset acceleration XZ
+    G::player->setAcceleration(glm::vec3(0.0f, G::player->getAcceleration().y, 0.0f));
 }
 
 void Engine::doExtrapolationStep()
