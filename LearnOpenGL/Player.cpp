@@ -182,23 +182,23 @@ void Player::calculateSpeed()
     m_speedLastFrame = m_speed;
     m_speed.x += m_acceleration.x;
     if (m_isAirborne)
-        m_speed.y += (G::gravity + m_acceleration.y) * (m_gravityBoost * Engine::physicsFrameTime);
+        m_speed.y += (G::gravity + m_acceleration.y) * m_gravityBoost;
     else
         m_speed.y += (G::gravity + m_acceleration.y);
     m_speed.z += m_acceleration.z;
 
     // Apply aeroDrag
     if (m_isAirborne) {
-        m_speed.x *= m_aeroDrag * Engine::physicsFrameTime;
-        m_speed.y *= m_aeroDrag * Engine::physicsFrameTime;
-        m_speed.z *= m_aeroDrag * Engine::physicsFrameTime;
+        m_speed.x *= m_aeroDrag;
+        m_speed.y *= m_aeroDrag;
+        m_speed.z *= m_aeroDrag;
     }
 
     // Apply friction
     if (!m_isAirborne) {
-        m_speed.x *= m_dryFriction * Engine::physicsFrameTime;
-        m_speed.y *= m_dryFriction * Engine::physicsFrameTime;
-        m_speed.z *= m_dryFriction * Engine::physicsFrameTime;
+        m_speed.x *= m_dryFriction;
+        m_speed.y *= m_dryFriction;
+        m_speed.z *= m_dryFriction;
     }
 
     // https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
@@ -316,7 +316,7 @@ void Player::handleJump()
     if (jumpStarted && m_isAirborne && G::camera->getPosition().y <= 1.5f || G::camera->getPosition().y <= -200.0f) {
         G::camera->setPositionY(1.5f);
         m_speed.y = 0.0f;
-        m_speedLastFrame.y = 0.0f; // otherwise the average will not be 0.0f and player will sink a little in the floor
+        m_speedLastFrame.y = 0.0f; // force the average speed to get to be exactly 0.0f, otherwise player will have residual speed and e.g.sink a little in the floor after landing
         m_acceleration.y = -G::gravity; // needed for just 1 frame?
         Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         m_isAirborne = false;

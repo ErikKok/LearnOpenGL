@@ -81,9 +81,9 @@ private:
 	//float m_maxJumpAcceleration{ 800.0f };
 	//float m_maxJumpStrafeAcceleration{ 2.8f };
 
-	float m_dryFriction{ 92.0f / Engine::physicsFrameTime };
-	float m_aeroDrag{ 99.80f / Engine::physicsFrameTime };
-	float m_gravityBoost{ 3.5f / Engine::physicsFrameTime };				// "speeds up" gravity while jumping, makes it less floaty
+	float m_dryFriction{ 0.92f };
+	float m_aeroDrag{ 0.9980f };
+	float m_gravityBoost{ 3.5f };				// "speeds up" gravity while jumping, makes it less floaty
 
 	//bool m_isRunning{ false };
 	bool m_isAirborne{ false };

@@ -443,7 +443,7 @@ int main()
  
             Engine::processInput(window);
             Engine::doPhysics();
-            Engine::doExtrapolationStep();
+            //Engine::doExtrapolationStep();
 
             // Teleporter (green light)
             // TODO disable extrapolation for an object on a frame where it's teleported + handle momentum/acceleration

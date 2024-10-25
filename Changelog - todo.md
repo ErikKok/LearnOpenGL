@@ -47,9 +47,16 @@ TO DO
 - get ImGui to show doPhysics related values in a seperate window
 - ImGui vars should be (mostly) const
 
-v0.3.57 24-10-2024
+v0.3.57 25-10-2024
 ------------------
-- tried: add * Engine::physicsFrameTime to all acceleration values and m_dryFriction/m_aeroDrag/m_gravityBoost in player.h + in initMovement() -> did not succeed, back to 3.56, this version just for reference
+- !!! do not revert: Player::handleJump() added m_speedLastFrame.y = 0.0f; // force the average speed to get to be exactly 0.0f, otherwise player will have residual speed and e.g. sink a little in the floor after landing
+- be aware that extrapolation does not work right with low physicsrates, is this correct?
+- tried: add * Engine::physicsFrameTime to all acceleration values and m_dryFriction/m_aeroDrag/m_gravityBoost in player.h + in initMovement() -> did fully succeed
+- friction has to be modified because of different speeds
+- same with gravityBoost
+- removed * Engine::physicsFrameTime from calculateSpeed()
+- w+S etc. does work, just too slow
+- !!! do not revert: changed layout if statement calculateViewMatrix()
 
 v0.3.56 24-10-2024
 ------------------

@@ -177,9 +177,9 @@ void G::ImGui() {
     //ImGui::SliderFloat("m_maxJumpStrafeAcceleration", &G::player->m_maxJumpStrafeAcceleration, 0.0f, 40.0f, "%.1f");
 
     //ImGui::SliderFloat("m_airborneDecelerationFactor", &G::player->m_airborneDecelerationFactor, 0.0f, 100.0f, "%.1f");
-    ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 80.0f, 100.0f, "%.1f");
-    ImGui::SliderFloat("m_aeroDrag", &G::player->m_aeroDrag, 99.0f, 100.0f, "%.2f");
-    ImGui::SliderFloat("m_gravityBoost", &G::player->m_gravityBoost, 0.0f, 10.0f, "%.1f");
+    ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 0.0f, 1.0f, "%.3f");
+    ImGui::SliderFloat("m_aeroDrag", &G::player->m_aeroDrag, 0.0f, 1.0f, "%.3f");
+    ImGui::SliderFloat("m_gravityBoost", &G::player->m_gravityBoost, 0.0f, 1.0f, "%.3f");
     
     ImGui::NewLine();
     if (collisionTime + 0.3 < glfwGetTime())

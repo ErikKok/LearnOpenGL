@@ -46,7 +46,9 @@ const void Camera::calculateViewMatrix()
 {
     // FYI: calculateViewMatrix() is run after setPosition()
 
-    if ( (this == G::camera || this == SpotLight::spotLights[0].getCamera()) && Engine::isExtrapolationStep) {
+    if (Engine::isExtrapolationStep
+        && this == G::camera
+        || this == SpotLight::spotLights[0].getCamera()) {
         m_viewMatrix = glm::lookAt(m_position + Engine::extrapolationResultPosition, m_position + Engine::extrapolationResultPosition + m_front, m_up);
     }
     else
