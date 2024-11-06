@@ -16,6 +16,13 @@ void Player::calculateRightSpeed()
 
 void Player::initMovement(PlayerMovement direction)
 {
+    // TODO
+    m_WalkAcceleration = 250.0f / Engine::physicsFrameTime;
+    m_StrafeAcceleration = 200.0f / Engine::physicsFrameTime;
+    m_AirborneAcceleration = 150.0f / Engine::physicsFrameTime;
+    m_jumpAcceleration = 300.0f / Engine::physicsFrameTime;
+    m_gravityBoost = 0.035f / Engine::physicsFrameTime;
+    
     if (m_isAirborne) {
         // FORWARD BACKWARD
         if (direction == PlayerMovement::forward) { [[likely]]
@@ -30,7 +37,7 @@ void Player::initMovement(PlayerMovement direction)
         }
         if (direction == PlayerMovement::forward && m_forwardSpeed < 0.0f ||  // player moves backward and inputs forward
             direction == PlayerMovement::backward && m_forwardSpeed > 0.0f) { // player moves forwards and inputs backward
-            return; // does this ever happen? breakpoint added 23-10-2024
+            return; // does this ever happen? breakpoint added 6-11-2024
         }
 
         // LEFT RIGHT
@@ -92,8 +99,6 @@ void Player::initMovement(PlayerMovement direction)
         if (direction == PlayerMovement::jump) {
             m_acceleration.y = m_jumpAcceleration * Engine::physicsFrameTime;
             m_isAirborne = true;
-            if (G::camera->getPosition().y < 1.5f)
-                G::camera->setPositionY(1.5f); // TODO, anders blijf je vallen als je onder de Floor jumpt
             return;
         }
     }
@@ -164,6 +169,7 @@ void Player::initMovement(PlayerMovement direction)
 
 void Player::calculateSpeed()
 {
+   
     // OLD method
     {
         //m_speedLastFrame = m_speed;
@@ -179,27 +185,41 @@ void Player::calculateSpeed()
         //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
     }
 
-    m_speedLastFrame = m_speed;
-    m_speed.x += m_acceleration.x;
-    if (m_isAirborne)
-        m_speed.y += (G::gravity + m_acceleration.y) * m_gravityBoost;
-    else
-        m_speed.y += (G::gravity + m_acceleration.y);
-    m_speed.z += m_acceleration.z;
-
     // Apply aeroDrag
     if (m_isAirborne) {
-        m_speed.x *= m_aeroDrag;
-        m_speed.y *= m_aeroDrag;
-        m_speed.z *= m_aeroDrag;
+        m_acceleration.x -= m_aeroDrag * m_speed.x * Engine::physicsFrameTime;
+        m_acceleration.y -= m_aeroDrag * m_speed.y * Engine::physicsFrameTime;
+        m_acceleration.z -= m_aeroDrag * m_speed.z * Engine::physicsFrameTime;
     }
 
     // Apply friction
     if (!m_isAirborne) {
-        m_speed.x *= m_dryFriction;
-        m_speed.y *= m_dryFriction;
-        m_speed.z *= m_dryFriction;
+        m_acceleration.x -= m_dryFriction * m_speed.x * Engine::physicsFrameTime;
+        m_acceleration.y -= m_dryFriction * m_speed.y * Engine::physicsFrameTime;
+        m_acceleration.z -= m_dryFriction * m_speed.z * Engine::physicsFrameTime;
     }
+
+    m_speedLastFrame = m_speed;
+    m_speed.x += m_acceleration.x;
+    if (m_isAirborne)
+        m_speed.y += (G::gravity + m_acceleration.y) * (m_gravityBoost * Engine::physicsFrameTime);
+    else
+        m_speed.y += (G::gravity + m_acceleration.y);
+    m_speed.z += m_acceleration.z;
+
+    //// Apply aeroDrag
+    //if (m_isAirborne) {
+    //    m_speed.x *= m_aeroDrag;
+    //    m_speed.y *= m_aeroDrag;
+    //    m_speed.z *= m_aeroDrag;
+    //}
+
+    //// Apply friction
+    //if (!m_isAirborne) {
+    //    m_speed.x *= m_dryFriction * Engine::physicsFrameTime;
+    //    m_speed.y *= m_dryFriction * Engine::physicsFrameTime;
+    //    m_speed.z *= m_dryFriction * Engine::physicsFrameTime;
+    //}
 
     // https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
     {
@@ -300,13 +320,14 @@ void Player::limitSpeed()
 
 void Player::handleJump()
 {  
-    // reset jump acceleration after it has been applied once
+    // TODO temp jump stuff
+    
+    // reset jump acceleration once (not every physics tick) // move to resetAcceleration after implementing proper jumping?
     if (m_isAirborne)
         m_acceleration.y = 0.0f;
     else if (!m_isAirborne)
         m_acceleration.y = -G::gravity;
     
-    // TODO temp jump stuff
     static bool jumpStarted = false;
     if (m_isAirborne && G::camera->getPosition().y > 1.51f) {
         jumpStarted = true;
@@ -317,23 +338,38 @@ void Player::handleJump()
         G::camera->setPositionY(1.5f);
         m_speed.y = 0.0f;
         m_speedLastFrame.y = 0.0f; // force the average speed to get to be exactly 0.0f, otherwise player will have residual speed and e.g.sink a little in the floor after landing
-        m_acceleration.y = -G::gravity; // needed for just 1 frame?
+        m_acceleration.y = -G::gravity; // needed for just this 1 frame
         Engine::extrapolationResultPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         m_isAirborne = false;
         jumpStarted = false;
     }
 }
 
-//void Player::resetAcceleration()
-//{
-    // Reset Acceleration after being applied each physics tick
-    //m_acceleration.x = 0.0f;
-    //if (m_isAirborne)
-    //    m_acceleration.y = 0.0f;
-    //else if (!m_isAirborne)
-    //    m_acceleration.y = -G::gravity;
-    //m_acceleration.z = 0.0f;
-//}
+void Player::updatePosition()
+{
+    //G::camera->setPosition(G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime);
+
+    // Collision test
+    glm::vec3 proposedPosition = G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime;
+
+    AABB wall{
+        glm::vec3( 10.0f,  10.0f, -2.5f), // m_vecMax
+        glm::vec3(-10.0f, -10.0f, -3.5f)  // m_vecMin
+    };
+
+    if (Engine::AABBtoAABB(wall, G::player->getTAABB(proposedPosition)) == 1) {
+        G::collisionTime = glfwGetTime();
+        G::player->setSpeed(glm::vec3(0.0f, 0.0f, 0.0f));
+    }
+    else
+        G::camera->setPosition(proposedPosition);
+}
+
+void Player::resetAcceleration()
+{
+    m_acceleration.x = 0.0f;
+    m_acceleration.z = 0.0f;
+}
 
 AABB Player::getTAABB()
 {

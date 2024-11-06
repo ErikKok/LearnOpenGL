@@ -43,15 +43,26 @@ TO DO
 - Physics / movement:
 	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
 	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
-	- if physicsFrameTime() changes, everything is messed up... guess I have to scale the acceleration values with it?
+	- changing physicsFrameTime seems to works except jumping and friction, and that is problably down to friction and aeroDrag values
 - get ImGui to show doPhysics related values in a seperate window
 - ImGui vars should be (mostly) const
+
+v0.3.58 06-11-2024
+------------------
+- m_gravityBoost is now accounted for by Engine::physicsFrameTime
+- added updatePosition()
+- switched order resetAcceleration() & handleJump()
+- moved/enabled resetAcceleration() in- and outside doPhysics loop
+- only reset Y-acceleration in handleJump()
+- cleanup
+- added framerate independent friction/aerodrag
+- jumpingheight is now off...
 
 v0.3.57 25-10-2024
 ------------------
 - !!! do not revert: Player::handleJump() added m_speedLastFrame.y = 0.0f; // force the average speed to get to be exactly 0.0f, otherwise player will have residual speed and e.g. sink a little in the floor after landing
 - be aware that extrapolation does not work right with low physicsrates, is this correct?
-- tried: add * Engine::physicsFrameTime to all acceleration values and m_dryFriction/m_aeroDrag/m_gravityBoost in player.h + in initMovement() -> did fully succeed
+- tried: add * Engine::physicsFrameTime to all acceleration values and m_dryFriction/m_aeroDrag/m_gravityBoost in player.h + in initMovement() -> did *NOT* fully succeed
 - friction has to be modified because of different speeds
 - same with gravityBoost
 - removed * Engine::physicsFrameTime from calculateSpeed()

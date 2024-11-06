@@ -151,6 +151,7 @@ void G::ImGui() {
     ImGuiIO& io = ImGui::GetIO(); // move to Global.h?
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
     ImGui::Text("Ticks Loop %d | Physics %d", Engine::ticksLoop, Engine::ticksPhysics);
+    ImGui::SliderFloat("physicsFrameTime", &Engine::physicsFrameTime, 0.001f, 0.100f, "%.3f"); // acceleration values etc. wont be recalculated!
 
     ImGui::SeparatorText("Camera:");
     ImGui::Text("m_position = %0+7.2f, %0+7.2f, %0+7.2f", G::camera->m_position.x, G::camera->m_position.y, G::camera->m_position.z);
@@ -168,10 +169,10 @@ void G::ImGui() {
     
     ImGui::SeparatorText("Acceleration:"); // klopt niet
     ImGui::Text("m_acceleration = %0+8.2f, %0+8.2f, %0+8.2f", G::player->m_acceleration.x, G::player->m_acceleration.y, G::player->m_acceleration.z);
-    ImGui::SliderFloat("m_WalkAcceleration", &G::player->m_WalkAcceleration, 0.0f, 1000.0f, "%.1f");
-    ImGui::SliderFloat("m_StrafeAcceleration", &G::player->m_StrafeAcceleration, 0.0f, 1000.0f, "%.1f");
-    ImGui::SliderFloat("m_AirborneAcceleration", &G::player->m_AirborneAcceleration, 0.0f, 1000.0f, "%.1f");
-    ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 1000.0f, "%.1f");
+    ImGui::SliderFloat("m_WalkAcceleration", &G::player->m_WalkAcceleration, 0.0f, 100000.0f / Engine::physicsFrameTime, "%.1f");
+    ImGui::SliderFloat("m_StrafeAcceleration", &G::player->m_StrafeAcceleration, 0.0f, 100000.0f, "%.1f");
+    ImGui::SliderFloat("m_AirborneAcceleration", &G::player->m_AirborneAcceleration, 0.0f, 100000.0f, "%.1f");
+    ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 100000.0f, "%.1f");
     //ImGui::SliderFloat("m_maxAcceleration", &G::player->m_maxAcceleration, 0.0f, 1000.0f, "%.1f");
     //ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 1000.0f, "%.1f");
     //ImGui::SliderFloat("m_maxJumpStrafeAcceleration", &G::player->m_maxJumpStrafeAcceleration, 0.0f, 40.0f, "%.1f");

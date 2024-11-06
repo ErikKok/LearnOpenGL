@@ -50,7 +50,8 @@ public:
 	void calculateSpeed();
 	void limitSpeed();
 	void handleJump();
-	//void resetAcceleration();
+	void updatePosition();
+	void resetAcceleration();
 	// doPhysics end
 	AABB getTAABB();
 	AABB getTAABB(glm::vec3& proposedPosition);
@@ -83,7 +84,7 @@ private:
 
 	float m_dryFriction{ 0.92f };
 	float m_aeroDrag{ 0.9980f };
-	float m_gravityBoost{ 3.5f };				// "speeds up" gravity while jumping, makes it less floaty
+	float m_gravityBoost{ 0.035f / Engine::physicsFrameTime }; // "speeds up" gravity while jumping, makes it less floaty
 
 	//bool m_isRunning{ false };
 	bool m_isAirborne{ false };

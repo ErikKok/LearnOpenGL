@@ -70,37 +70,18 @@ void Engine::doPhysics()
     while (frameTimeRemaining >= physicsFrameTime)
     {
         ticksPhysics++;
-        //G::player->limitAcceleration();
         G::player->calculateSpeed();
-        G::player->limitSpeed(); // needs to be done once each doPhysics loop
+        G::player->limitSpeed();
+        G::player->resetAcceleration();
         G::player->handleJump();
-        //G::player->resetAcceleration();
-        //G::camera->setPosition(G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime);
-
-        // Collision test //////////////////////////////////////////////////////////////////
-        glm::vec3 proposedPosition = G::camera->getPosition() + ((G::player->getSpeed() + G::player->getSpeedLastFrame()) * 0.5f) * Engine::physicsFrameTime;
-
-        AABB wall{
-            glm::vec3( 10.0f,  10.0f, -2.5f), // m_vecMax
-            glm::vec3(-10.0f, -10.0f, -3.5f)  // m_vecMin
-        };
-
-        if (Engine::AABBtoAABB(wall, G::player->getTAABB(proposedPosition)) == 1) {
-            G::collisionTime = glfwGetTime();
-            G::player->setSpeed(glm::vec3(0.0f, 0.0f, 0.0f));
-        }
-        else
-            G::camera->setPosition(proposedPosition);
-
-        /////
+        G::player->updatePosition();
 
         totalTimePassed += physicsFrameTime;
         frameTimeRemaining -= physicsFrameTime;
     }
-    extrapolationFactor = frameTimeRemaining / physicsFrameTime;
 
-    // Reset acceleration XZ
-    G::player->setAcceleration(glm::vec3(0.0f, G::player->getAcceleration().y, 0.0f));
+    G::player->resetAcceleration();
+    extrapolationFactor = frameTimeRemaining / physicsFrameTime;
 }
 
 void Engine::doExtrapolationStep()

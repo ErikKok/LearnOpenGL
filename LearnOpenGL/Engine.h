@@ -23,7 +23,7 @@ namespace Engine { // Class?
     inline int ticksPhysics{ 0 };
     inline float currentFrameTime{ static_cast<float>(glfwGetTime()) }; // in seconds since runtime
     inline float totalTimePassed{ 0.0f }; // in seconds
-    const inline float physicsFrameTime{ 0.01f }; // in seconds // TODO use doubles for physic / time related stuff?
+    inline float physicsFrameTime{ 0.01f }; // in seconds default == 0.01f // TODO use doubles for physic / time related stuff?
     inline float frameTimeRemaining{ 0.0f }; // in seconds
 
     // https://gamedev.stackexchange.com/a/187668
