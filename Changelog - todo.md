@@ -41,11 +41,21 @@ TO DO
 - ECS - make sun static in-Class, and check for getOn in goRender loop
 - ECS - implement submitRO(), but RO could change memory location afterwards as it's a raw *. needs to be removed from vector before being updated or something, and then re-added
 - Physics / movement:
-	- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
-	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ?
-	- changing physicsFrameTime seems to works except jumping and friction, and that is problably down to friction and aeroDrag values
+
+	- Apply half gravity before, and half after, position update (https://www.jwchong.com/hl/movement.html#gravity) ? (removed possible solution in 3.40 in calculateSpeed())
+	- physicsFrameTime independent friction: https://stackoverflow.com/questions/43960217/framerate-independent-acceleration-decceleration
 - get ImGui to show doPhysics related values in a seperate window
 - ImGui vars should be (mostly) const
+
+v0.3.60 14-11-2024
+------------------
+- clean up
+- renamed m_maxJumpSpeed to m_maxYSpeed
+- renamed calculateValues() to initValues(), and used that to initialize at start of main()
+- removed limitAcceleration()
+- enabled doExtrapolationStep()
+- moved m_acceleration.y into resetAcceleration() and only call it in doPhysics loop
+- improve acceleration accuracy according to: https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity -> mostly implemented already, "You can fix most of the issues with" is implemented
 
 v0.3.59 14-11-2024
 ------------------

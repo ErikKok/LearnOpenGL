@@ -165,7 +165,7 @@ void G::ImGui() {
     G::player->calculateDirection(); // to show correct/up-to-date information
     ImGui::Text("m_direction = %0+4.2f, %0+4.2f, %0+4.2f", G::player->m_direction.x, G::player->m_direction.y, G::player->m_direction.z);
     ImGui::SliderFloat("m_runSpeed", &G::player->m_runSpeed, 0.0f, 250.0f, "%.1f");
-    ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxJumpSpeed, 0.0f, 1000.0f, "%.1f");
+    ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxYSpeed, 0.0f, 1000.0f, "%.1f");
     
     ImGui::SeparatorText("Acceleration:");
     ImGui::Text("m_acceleration = %0+8.2f, %0+8.2f, %0+8.2f", G::player->m_acceleration.x, G::player->m_acceleration.y, G::player->m_acceleration.z); // klopt niet, wordt in de physicsLoop berekend
@@ -197,8 +197,8 @@ void G::ImGui() {
     if (ImGui::Button("Position"))
         G::camera->m_position = glm::vec3(0.0f, 3.5f, 15.0f);
     ImGui::SameLine();
-    if (ImGui::Button("CalculateValues"))
-        G::player->calculateValues();
+    if (ImGui::Button("Reinitialize Values"))
+        G::player->initValues();
 
     ImGui::SliderFloat3("Translate", (float*)&G::g_translate, -100.0f, 100.0f);
     ImGui::SliderFloat("Rotate Degrees", &G::g_rotateDegrees, 0.0f, 360.0f);

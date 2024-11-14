@@ -80,7 +80,6 @@ void Engine::doPhysics()
         frameTimeRemaining -= physicsFrameTime;
     }
 
-    G::player->resetAcceleration();
     extrapolationFactor = frameTimeRemaining / physicsFrameTime;
 }
 

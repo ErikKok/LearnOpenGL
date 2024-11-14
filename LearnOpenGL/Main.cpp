@@ -114,6 +114,8 @@ int main()
     std::println("Initialize player and camera");
     Player playerOnTheStack;
     G::player = &playerOnTheStack;
+    G::player->initValues();
+
     Camera cameraOnTheStack((static_cast<float>(G::windowWidth) / static_cast<float>(G::windowHeight)), G::cameraInitialPosition);
     G::camera = &cameraOnTheStack;
     if (!G::player || !G::camera) {
@@ -443,16 +445,15 @@ int main()
  
             Engine::processInput(window);
             Engine::doPhysics();
-            //Engine::doExtrapolationStep();
+            Engine::doExtrapolationStep();
 
             // Teleporter (green light)
             // TODO disable extrapolation for an object on a frame where it's teleported + handle momentum/acceleration
             if (G::camera->getPosition().x > -4.5f && G::camera->getPosition().x < -3.5f &&
                 G::camera->getPosition().y >  1.5f && G::camera->getPosition().y <  2.5f &&
                 G::camera->getPosition().z > 11.5f && G::camera->getPosition().z < 12.5f ) {
-
-                G::camera->setYawPitch(-90.0f, 0.0f);
-                G::camera->setPosition(glm::vec3(0.0f, 8.0f, 30.0f));
+                    G::camera->setYawPitch(-90.0f, 0.0f);
+                    G::camera->setPosition(glm::vec3(0.0f, 8.0f, 30.0f));
             }
 
             if (!G::isFlashLightOnUpdated) {

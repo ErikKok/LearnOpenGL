@@ -2,19 +2,29 @@
 #include "Player.h"
 
 #include "Camera.h"
-#include "Global.h" // for calculateValues
+#include "Global.h" // for initValues
 #include "Engine.h" // for struct AABB
 
-void Player::calculateValues()
+void Player::initValues()
 {
+    m_runSpeed = 2200.0f * Engine::physicsFrameTime;
+    m_walkSpeed = m_runSpeed / 4.0f;
+
+    m_StrafeRunSpeed = sqrt(pow(m_runSpeed, 2.0f) / 2.0f);
+    m_StrafeWalkSpeed = m_StrafeRunSpeed / 4.0f;
+
+    m_maxYSpeed = 20000.0f * Engine::physicsFrameTime;
+    
+    G::gravity = -9.810f * Engine::physicsFrameTime;
+    m_acceleration = glm::vec3(0.0f, -G::gravity, 0.0f);
     m_WalkAcceleration = 250.0f * Engine::physicsFrameTime;
     m_StrafeAcceleration = 200.0f * Engine::physicsFrameTime;
     m_AirborneAcceleration = 150.0f * Engine::physicsFrameTime;
     m_jumpAcceleration = 300.0f * Engine::physicsFrameTime;
+
     m_dryFriction = 92.0f * Engine::physicsFrameTime;
     m_aeroDrag = 99.8f * Engine::physicsFrameTime;
     m_gravityBoost = 350.0f * Engine::physicsFrameTime;
-    G::gravity = -9.810f * Engine::physicsFrameTime;
 }
 
 void Player::calculateForwardSpeed()
@@ -110,107 +120,8 @@ void Player::initMovement(PlayerMovement direction)
     }
 }
 
-//void Player::limitAcceleration() {
-//    // Y - first because of potentially early return
-//    if (m_acceleration.y > m_maxJumpAcceleration) { 
-//        if (m_isAirborne)
-//            m_acceleration.y = m_maxJumpAcceleration;
-//        //if (!m_isAirborne) // TODO going up or down a slope
-//        //    m_acceleration.y = m_maxJumpAcceleration;
-//    }
-//    if (m_acceleration.y < -m_maxJumpAcceleration) {
-//        if (m_isAirborne)
-//            m_acceleration.y = -m_maxJumpAcceleration;
-//        //if (!m_isAirborne) // TODO going up or down a slope
-//        //    m_acceleration.y = -m_maxJumpAcceleration;
-//    }
-//
-//    // Both axis hits the maxAcceleration simultaneously
-//    if (m_acceleration.x > m_maxAcceleration && m_acceleration.z > m_maxAcceleration) {
-//        m_acceleration.x = m_maxAcceleration;
-//        m_acceleration.z = m_maxAcceleration;
-//        return;
-//    }
-//    if (m_acceleration.x > m_maxAcceleration && m_acceleration.z < -m_maxAcceleration) {
-//        m_acceleration.x = m_maxAcceleration;
-//        m_acceleration.z = -m_maxAcceleration;
-//        return;
-//    }
-//    if (m_acceleration.x < -m_maxAcceleration && m_acceleration.z > m_maxAcceleration) {
-//        m_acceleration.x = -m_maxAcceleration;
-//        m_acceleration.z = m_maxAcceleration;
-//        return;
-//    }
-//    if (m_acceleration.x < -m_maxAcceleration && m_acceleration.z < -m_maxAcceleration) {
-//        m_acceleration.x = -m_maxAcceleration;
-//        m_acceleration.z = -m_maxAcceleration;
-//        return;
-//    }
-//
-//    float m_correction{ 0.0f };
-//    // X
-//    if (m_acceleration.x > m_maxAcceleration) {
-//        m_correction = m_maxAcceleration / m_acceleration.x;
-//        m_acceleration.x = m_maxAcceleration;
-//        m_acceleration.z *= m_correction;
-//    }
-//    if (m_acceleration.x < -m_maxAcceleration) {
-//        m_correction = -m_maxAcceleration / m_acceleration.x;
-//        m_acceleration.x = -m_maxAcceleration;
-//        m_acceleration.z *= m_correction;
-//    }
-//
-//    // Z
-//    if (m_acceleration.z > m_maxAcceleration) {
-//        m_correction = m_maxAcceleration / m_acceleration.z;
-//        m_acceleration.z = m_maxAcceleration;
-//        m_acceleration.x *= m_correction;
-//    }
-//    if (m_acceleration.z < -m_maxAcceleration) {
-//        m_correction = -m_maxAcceleration / m_acceleration.z;
-//        m_acceleration.z = -m_maxAcceleration;
-//        m_acceleration.x *= m_correction;
-//    }
-//}
-
 void Player::calculateSpeed()
 {
-   
-    // OLD method
-    {
-        //m_speedLastFrame = m_speed;
-        //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
-        //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
-        //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
-
-        //limitSpeed();
-        //G::cam->setPosition(G::cam->getPosition() + ((m_speed + m_speedLastFrame) * 0.5f) * Engine::physicsFrameTime);
-
-        //m_speed.x += m_acceleration.x * Engine::physicsFrameTime * 0.5f;
-        //m_speed.y += (G::gravity + m_acceleration.y) * Engine::physicsFrameTime; // * 0.5f; // just feels better not halving y
-        //m_speed.z += m_acceleration.z * Engine::physicsFrameTime * 0.5f;
-    }
-
-    // https://stackoverflow.com/questions/43960217/framerate-independent-acceleration-decceleration
-    // physicsFrameTime independent aeroDrag + friction?
-    {
-        //// Apply aeroDrag
-        //m_aeroDrag = 5.0f; // ?
-        //if (m_isAirborne) {
-        //    m_acceleration.x -= m_aeroDrag * m_speed.x * Engine::physicsFrameTime;
-        //    m_acceleration.y -= m_aeroDrag * m_speed.y * Engine::physicsFrameTime;
-        //    m_acceleration.z -= m_aeroDrag * m_speed.z * Engine::physicsFrameTime;
-        //}
-
-        //// Apply friction
-        //m_dryFriction = 5.0f;
-        //if (!m_isAirborne) {
-        //    m_acceleration.x -= m_dryFriction * m_speed.x * Engine::physicsFrameTime;
-        //    m_acceleration.y -= m_dryFriction * m_speed.y * Engine::physicsFrameTime;
-        //    m_acceleration.z -= m_dryFriction * m_speed.z * Engine::physicsFrameTime;
-        //}
-    }
-
     m_speedLastFrame = m_speed;
     m_speed.x += m_acceleration.x;
     if (m_isAirborne)
@@ -219,59 +130,31 @@ void Player::calculateSpeed()
         m_speed.y += (G::gravity + m_acceleration.y);
     m_speed.z += m_acceleration.z;
 
-    // Apply aeroDrag
+    // Apply aeroDrag or friction
     if (m_isAirborne) {
         m_speed.x *= m_aeroDrag;
         m_speed.y *= m_aeroDrag;
         m_speed.z *= m_aeroDrag;
     }
-
-    // Apply friction
-    if (!m_isAirborne) {
+    else if (!m_isAirborne) {
         m_speed.x *= m_dryFriction;
         m_speed.y *= m_dryFriction;
         m_speed.z *= m_dryFriction;
-    }
-
-    // https://gamedev.stackexchange.com/questions/15708/how-can-i-implement-gravity
-    {
-        //acceleration = force(time, position) / mass;
-        //time += timestep;
-        // 
-        //position += timestep * velocity;
-        //velocity += timestep * acceleration;
-        
-        //the velocity Verlet method does it like this:
-        // TODO? samenvatting: halve snelheid bij positie, dan acceleratie opnieuw berekenen, dan weer helft bij snelheid alsvast voor de volg frame
-
-        //acceleration = force(time, position) / mass;
-        //time += timestep;
-        // 
-        //position += (velocity + timestep * acceleration / 2) * timestep;
-        //newAcceleration = force(time, position) / mass; // ergens in de comments: it seems that they sacrificed some accuracy for extra speed by saving the newAcceleration value computed using the estimated velocity and reusing it as the acceleration for the next timestep. (alleen mass zou kunnen veranderen toch?)
-        //velocity += (acceleration + newAcceleration) / 2 * timestep;
-
-        /////
-        //Dit is wat ik nu heb:
-        //You can fix most of the issues with Euler integration simply by replacing
-        //position += velocity * timestep
-        //    above with 
-        //position += (velocity - acceleration * timestep / 2) * timestep
-        //    
-        //    (where velocity - acceleration * timestep / 2 is simply the average of the old and new velocities)
     }
 }
 
 void Player::limitSpeed() 
 {
     // Y - first because of potentially early returns below
-    if (m_speed.y > m_maxJumpSpeed) {
-        m_speed.y = m_maxJumpSpeed;
+    if (m_speed.y > m_maxYSpeed) {
+        m_speed.y = m_maxYSpeed;
     }
-    else if (m_speed.y < -m_maxJumpSpeed) {
-        m_speed.y = -m_maxJumpSpeed;
+    else if (m_speed.y < -m_maxYSpeed) {
+        m_speed.y = -m_maxYSpeed;
     }
-    if (m_speed.y != 0.0f && m_speed.y > -0.01f && m_speed.y < 0.01f)
+
+    // Y - snap low values to zero
+    if (m_speed.y > -0.01f && m_speed.y < 0.01f)
         m_speed.y = 0.0f;
 
     // X & Z - Both m_forwardSpeed & m_rightSpeed hits m_maxCurrentSpeed simultaneously
@@ -327,8 +210,6 @@ void Player::limitSpeed()
     // X & Z - snap low values to zero
     if (m_speed.x > -0.01f && m_speed.x < 0.01f)
         m_speed.x = 0.0f;
-    if (m_speed.y > -0.01f && m_speed.y < 0.01f)
-        m_speed.y = 0.0f;
     if (m_speed.z > -0.01f && m_speed.z < 0.01f)
         m_speed.z = 0.0f;
 }
@@ -336,12 +217,6 @@ void Player::limitSpeed()
 void Player::handleJump()
 {  
     // TODO temp jump stuff
-    
-    // reset y acceleration once (not every physics tick) // move to resetAcceleration after implementing proper jumping?
-    if (m_isAirborne)
-        m_acceleration.y = 0.0f;
-    else if (!m_isAirborne)
-        m_acceleration.y = -G::gravity;
     
     static bool jumpStarted = false;
     if (m_isAirborne && G::camera->getPosition().y > 1.51f) {
@@ -383,6 +258,7 @@ void Player::updatePosition()
 void Player::resetAcceleration()
 {
     m_acceleration.x = 0.0f;
+    m_isAirborne ? m_acceleration.y = 0.0f : m_acceleration.y = -G::gravity;
     m_acceleration.z = 0.0f;
 }
 

@@ -42,18 +42,19 @@ public:
 	// https://gamedev.stackexchange.com/questions/94000/how-to-implement-accurate-frame-rate-independent-physics
 	// https://gamedev.stackexchange.com/questions/38453/how-do-i-implement-deceleration-for-the-player-character
 	
-	void calculateValues();						// recalculates all/most values used with physicsFrameTime, use after changing physicsFrameTime
+	void initValues();							// recalculates values used with physicsFrameTime, use after changing physicsFrameTime
 	void calculateForwardSpeed();
 	void calculateRightSpeed();
 	void initMovement(PlayerMovement direction);
-	// doPhysics start
-	//void limitAcceleration();
+	
+	// doPhysics loop start
 	void calculateSpeed();
 	void limitSpeed();
 	void handleJump();
 	void updatePosition();
 	void resetAcceleration();
-	// doPhysics end
+	// doPhysics loop end
+
 	AABB getTAABB();
 	AABB getTAABB(glm::vec3& proposedPosition);
 
@@ -65,27 +66,23 @@ private:
 	float m_forwardSpeed{ 0.0f };				// https://forums.unrealengine.com/t/character-movement-direction/30708/4
 	float m_rightSpeed{ 0.0f };
 
-	float m_maxCurrentSpeed{ 22.0f };			// limits speed in 1 axis, total speed could get higher
-	float m_walkSpeed{ 5.0f };
-	float m_runSpeed{ 22.0f };
-	float m_maxStrafeCurrentSpeed{ 15.55f };	// Given a=15.55 and b=15.55, c = squared 483.605 = 21.996
-	float m_StrafeWalkSpeed{ 3.5f };
-	float m_StrafeRunSpeed{ 16.0f };
-	float m_maxJumpSpeed{ 200.0f };
+	float m_maxStrafeCurrentSpeed{};
+	float m_maxCurrentSpeed{};					// limits speed in 1 axis, total speed could get higher
+	float m_walkSpeed{};
+	float m_runSpeed{};
+	float m_StrafeWalkSpeed{};
+	float m_StrafeRunSpeed{};
+	float m_maxYSpeed{};
 
-	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
-	float m_WalkAcceleration{ 2.500f };			// XZ
-	float m_StrafeAcceleration{ 2.000f };
-	float m_AirborneAcceleration{ 1.500f };		// XZ
-	float m_jumpAcceleration{ 3.000f };			// Y
+	glm::vec3 m_acceleration{};
+	float m_WalkAcceleration{};					// XZ
+	float m_StrafeAcceleration{};
+	float m_AirborneAcceleration{};				// XZ
+	float m_jumpAcceleration{};					// Y
 
-	//float m_maxAcceleration{ 800.0f };
-	//float m_maxJumpAcceleration{ 800.0f };
-	//float m_maxJumpStrafeAcceleration{ 2.8f };
-
-	float m_dryFriction{ 0.92f };
-	float m_aeroDrag{ 0.9980f };
-	float m_gravityBoost{ 3.5f };				// "speeds up" gravity while jumping, makes it less floaty
+	float m_dryFriction{};
+	float m_aeroDrag{};
+	float m_gravityBoost{};						// "speeds up" gravity while jumping, makes it less floaty
 
 	//bool m_isRunning{ false };
 	bool m_isAirborne{ false };

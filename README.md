@@ -8,6 +8,7 @@ Features
 - OpenGL 4.6 Fully DSA (Direct State Access)
 - Variable FPS
 - Fixed Rate Physics engine with extrapolation
+- Acceleration based movement system
 - Every draw call is through glDrawElementsInstanced()
 - ASSIMP model loader
 - Normal Mapping
