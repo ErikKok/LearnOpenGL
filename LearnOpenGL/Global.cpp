@@ -151,7 +151,7 @@ void G::ImGui() {
     ImGuiIO& io = ImGui::GetIO(); // move to Global.h?
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
     ImGui::Text("Ticks Loop %d | Physics %d", Engine::ticksLoop, Engine::ticksPhysics);
-    ImGui::SliderFloat("physicsFrameTime", &Engine::physicsFrameTime, 0.001f, 0.100f, "%.3f"); // acceleration values etc. wont be recalculated!
+    ImGui::SliderFloat("physicsFrameTime", &Engine::physicsFrameTime, 0.001f, 0.100f, "%.3f"); // acceleration values etc. wont be recalculated automatically!
 
     ImGui::SeparatorText("Camera:");
     ImGui::Text("m_position = %0+7.2f, %0+7.2f, %0+7.2f", G::camera->m_position.x, G::camera->m_position.y, G::camera->m_position.z);
@@ -159,28 +159,23 @@ void G::ImGui() {
 
     ImGui::SeparatorText("Speed:");
     ImGui::Text("m_speed = %0+8.3f, %0+8.3f, %0+8.3f", G::player->m_speed.x, G::player->m_speed.y, G::player->m_speed.z);
+    G::player->calculateForwardSpeed(); // to show correct/up-to-date information
+    G::player->calculateRightSpeed(); // to show correct/up-to-date information
+    ImGui::Text("m_forwardSpeed = %0+6.2f | m_rightSpeed = %0+6.2f", G::player->m_forwardSpeed, G::player->m_rightSpeed);
     G::player->calculateDirection(); // to show correct/up-to-date information
     ImGui::Text("m_direction = %0+4.2f, %0+4.2f, %0+4.2f", G::player->m_direction.x, G::player->m_direction.y, G::player->m_direction.z);
-    ImGui::Text("m_maxCurrentSpeed = %0+6.2f", G::player->m_maxCurrentSpeed);
-    G::player->calculateForwardSpeed(); // to show correct/up-to-date information
-    G::player->calculateRightSpeed();
-    ImGui::Text("m_forwardSpeed = %0+6.2f | m_rightSpeed = %0+6.2f", G::player->m_forwardSpeed, G::player->m_rightSpeed);
-    ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxJumpSpeed, 0.0f, 1200.0f, "%.1f");
+    ImGui::SliderFloat("m_runSpeed", &G::player->m_runSpeed, 0.0f, 250.0f, "%.1f");
+    ImGui::SliderFloat("m_maxJumpSpeed", &G::player->m_maxJumpSpeed, 0.0f, 1000.0f, "%.1f");
     
-    ImGui::SeparatorText("Acceleration:"); // klopt niet
-    ImGui::Text("m_acceleration = %0+8.2f, %0+8.2f, %0+8.2f", G::player->m_acceleration.x, G::player->m_acceleration.y, G::player->m_acceleration.z);
-    ImGui::SliderFloat("m_WalkAcceleration", &G::player->m_WalkAcceleration, 0.0f, 100000.0f / Engine::physicsFrameTime, "%.1f");
-    ImGui::SliderFloat("m_StrafeAcceleration", &G::player->m_StrafeAcceleration, 0.0f, 100000.0f, "%.1f");
-    ImGui::SliderFloat("m_AirborneAcceleration", &G::player->m_AirborneAcceleration, 0.0f, 100000.0f, "%.1f");
-    ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 100000.0f, "%.1f");
-    //ImGui::SliderFloat("m_maxAcceleration", &G::player->m_maxAcceleration, 0.0f, 1000.0f, "%.1f");
-    //ImGui::SliderFloat("m_maxJumpAcceleration", &G::player->m_maxJumpAcceleration, 0.0f, 1000.0f, "%.1f");
-    //ImGui::SliderFloat("m_maxJumpStrafeAcceleration", &G::player->m_maxJumpStrafeAcceleration, 0.0f, 40.0f, "%.1f");
-
-    //ImGui::SliderFloat("m_airborneDecelerationFactor", &G::player->m_airborneDecelerationFactor, 0.0f, 100.0f, "%.1f");
-    ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 0.0f, 1.0f, "%.3f");
-    ImGui::SliderFloat("m_aeroDrag", &G::player->m_aeroDrag, 0.0f, 1.0f, "%.3f");
-    ImGui::SliderFloat("m_gravityBoost", &G::player->m_gravityBoost, 0.0f, 1.0f, "%.3f");
+    ImGui::SeparatorText("Acceleration:");
+    ImGui::Text("m_acceleration = %0+8.2f, %0+8.2f, %0+8.2f", G::player->m_acceleration.x, G::player->m_acceleration.y, G::player->m_acceleration.z); // klopt niet, wordt in de physicsLoop berekend
+    ImGui::SliderFloat("m_WalkAcceleration", &G::player->m_WalkAcceleration, 0.0f, 10.0f, "%.1f");
+    ImGui::SliderFloat("m_StrafeAcceleration", &G::player->m_StrafeAcceleration, 0.0f, 10.0f, "%.1f");
+    ImGui::SliderFloat("m_AirborneAcceleration", &G::player->m_AirborneAcceleration, 0.0f, 10.0f, "%.1f");
+    ImGui::SliderFloat("m_jumpAcceleration", &G::player->m_jumpAcceleration, 0.0f, 10.0f, "%.1f");
+    ImGui::SliderFloat("m_dryFriction", &G::player->m_dryFriction, 0.75f, 1.0f, "%.3f");
+    ImGui::SliderFloat("m_aeroDrag", &G::player->m_aeroDrag, 0.90f, 1.0f, "%.3f");
+    ImGui::SliderFloat("m_gravityBoost", &G::player->m_gravityBoost, 0.0f, 10.0f, "%.3f");
     
     ImGui::NewLine();
     if (collisionTime + 0.3 < glfwGetTime())
@@ -188,6 +183,8 @@ void G::ImGui() {
     else
         ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "COLLISION!");
     ImGui::SameLine();
+    ImGui::Checkbox("Lightcube Follow", &g_follow);
+
     ImGui::Text("Reset: ");
     ImGui::SameLine();
     if (ImGui::Button("Transform")) {
@@ -197,11 +194,11 @@ void G::ImGui() {
         G::g_scale = glm::vec3(20.0f, 20.0f, 1.0f);
     }
     ImGui::SameLine();
-    if (ImGui::Button("Position")) {
+    if (ImGui::Button("Position"))
         G::camera->m_position = glm::vec3(0.0f, 3.5f, 15.0f);
-    }
     ImGui::SameLine();
-    ImGui::Checkbox("Lightcube Follow", &g_follow);
+    if (ImGui::Button("CalculateValues"))
+        G::player->calculateValues();
 
     ImGui::SliderFloat3("Translate", (float*)&G::g_translate, -100.0f, 100.0f);
     ImGui::SliderFloat("Rotate Degrees", &G::g_rotateDegrees, 0.0f, 360.0f);

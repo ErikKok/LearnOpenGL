@@ -42,6 +42,7 @@ public:
 	// https://gamedev.stackexchange.com/questions/94000/how-to-implement-accurate-frame-rate-independent-physics
 	// https://gamedev.stackexchange.com/questions/38453/how-do-i-implement-deceleration-for-the-player-character
 	
+	void calculateValues();						// recalculates all/most values used with physicsFrameTime, use after changing physicsFrameTime
 	void calculateForwardSpeed();
 	void calculateRightSpeed();
 	void initMovement(PlayerMovement direction);
@@ -70,13 +71,13 @@ private:
 	float m_maxStrafeCurrentSpeed{ 15.55f };	// Given a=15.55 and b=15.55, c = squared 483.605 = 21.996
 	float m_StrafeWalkSpeed{ 3.5f };
 	float m_StrafeRunSpeed{ 16.0f };
-	float m_maxJumpSpeed{ 25.0f };
+	float m_maxJumpSpeed{ 200.0f };
 
 	glm::vec3 m_acceleration{ glm::vec3(0.0f, -G::gravity, 0.0f) };
-	float m_WalkAcceleration{ 250.0f / Engine::physicsFrameTime }; // XZ
-	float m_StrafeAcceleration{ 200.0f / Engine::physicsFrameTime };
-	float m_AirborneAcceleration{ 150.0f / Engine::physicsFrameTime }; // XZ
-	float m_jumpAcceleration{ 300.0f / Engine::physicsFrameTime }; // Y
+	float m_WalkAcceleration{ 2.500f };			// XZ
+	float m_StrafeAcceleration{ 2.000f };
+	float m_AirborneAcceleration{ 1.500f };		// XZ
+	float m_jumpAcceleration{ 3.000f };			// Y
 
 	//float m_maxAcceleration{ 800.0f };
 	//float m_maxJumpAcceleration{ 800.0f };
@@ -84,7 +85,7 @@ private:
 
 	float m_dryFriction{ 0.92f };
 	float m_aeroDrag{ 0.9980f };
-	float m_gravityBoost{ 0.035f / Engine::physicsFrameTime }; // "speeds up" gravity while jumping, makes it less floaty
+	float m_gravityBoost{ 3.5f };				// "speeds up" gravity while jumping, makes it less floaty
 
 	//bool m_isRunning{ false };
 	bool m_isAirborne{ false };

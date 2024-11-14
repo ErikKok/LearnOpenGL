@@ -47,6 +47,14 @@ TO DO
 - get ImGui to show doPhysics related values in a seperate window
 - ImGui vars should be (mostly) const
 
+v0.3.59 14-11-2024
+------------------
+- back to basics...
+- removed * Engine::physicsFrameTime from initMovement() and m_WalkAcceleration values
+- removed * Engine::physicsFrameTime from calculateSpeed()
+- added if (m_speed.z > -0.01f && m_speed.z < 0.01f) to limitSpeed()
+- cleaned up ImGui
+
 v0.3.58 06-11-2024
 ------------------
 - m_gravityBoost is now accounted for by Engine::physicsFrameTime
